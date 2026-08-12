@@ -1,0 +1,56 @@
+
+> digital-research-library@0.1.0 dev
+> next dev -p 3001
+
+   ▲ Next.js 15.5.22
+   - Local:        http://localhost:3001
+   - Network:      http://172.16.100.115:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled /instrumentation in 800ms (34 modules)
+ ✓ Ready in 3.4s
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (106kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (258kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1851ms (180 modules)
+[AUTH-AUDIT] middleware getUser() /
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling / ...
+[AUTH-AUDIT] middleware getUser() /
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ✓ Compiled / in 7.6s (1159 modules)
+[AUTH-AUDIT] getSessionUser() -> auth.getUser()
+[AUTH-AUDIT] getSessionUser() -> auth.getUser()
+[AUTH-AUDIT] middleware getUser() /
+updateSession: getUser() ล้มเหลว: Auth session missing!
+[AUTH-AUDIT] getSessionUser() -> auth.getUser()
+ GET / 200 in 993ms
+[AUTH-AUDIT] middleware getUser() /login
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /login ...
+ ✓ Compiled /login in 638ms (1283 modules)
+[AUTH-AUDIT] getSessionUser() -> auth.getUser()
+ GET /login 200 in 6263ms
+[AUTH-AUDIT] middleware getUser() /login
+updateSession: getUser() ล้มเหลว: Auth session missing!
+[AUTH-AUDIT] middleware getUser() /
+[AUTH-AUDIT] getSessionUser() -> auth.getUser()
+[AUTH-AUDIT] getCurrentUserRoleRank() -> rpc(user_max_role_rank)
+ GET / 200 in 1640ms
+ POST /login 303 in 2668ms
+[AUTH-AUDIT] middleware getUser() /dashboard
+ ✓ Compiled /dashboard in 378ms (1329 modules)
+[AUTH-AUDIT] getSessionUser() -> auth.getUser()
+[AUTH-AUDIT] getCurrentUserRoleRank() -> rpc(user_max_role_rank)
+ GET /dashboard 200 in 6820ms
+[AUTH-AUDIT] middleware getUser() /
+updateSession: getUser() ล้มเหลว: Auth session missing!
+[AUTH-AUDIT] getSessionUser() -> auth.getUser()
+ GET / 200 in 1029ms
+ ✓ Compiled in 1059ms (955 modules)
+ ✓ Compiled in 840ms (955 modules)
+ ✓ Compiled in 1555ms (180 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (106kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (258kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[?25h

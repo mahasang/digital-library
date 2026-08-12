@@ -1,0 +1,46 @@
+
+> digital-research-library@0.1.0 dev
+> next dev -p 3001
+
+   ▲ Next.js 15.5.22
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.100.112:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled /instrumentation in 527ms (34 modules)
+ ✓ Ready in 2.2s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 2.7s (180 modules)
+ ○ Compiling /research/[id]/read ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (106kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (258kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled /research/[id]/read in 12.2s (1146 modules)
+ GET /research/3046bdb6-2e60-47b4-b5e9-03d6f97b2d0a/read 404 in 13552ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1075ms (1223 modules)
+ GET / 200 in 6535ms
+ GET /research/8e70718e-db8c-4adf-95c1-2cc1dc759082/read 404 in 326ms
+ ⨯ TypeError: Object.defineProperty called on non-object
+    at Object.defineProperty (<anonymous>)
+    at (ssr)/./node_modules/pdfjs-dist/build/pdf.mjs (C:\Project\Ebooks\.next\server\vendor-chunks\pdfjs-dist.js:20:1)
+    at eval (webpack-internal:///(ssr)/./components/research/FlipbookViewer.tsx:9:67)
+    at (ssr)/./components/research/FlipbookViewer.tsx (C:\Project\Ebooks\.next\server\app\research\[id]\read\page.js:458:1) {
+  digest: '2647516939'
+}
+[error] render /research/[id]/read Object.defineProperty called on non-object {}
+ GET /research/social-2024-006/read 500 in 1001ms
+ ✓ Compiled in 327ms (394 modules)
+ ✓ Compiled in 187ms (394 modules)
+ ✓ Compiled in 1014ms (1172 modules)
+ GET /research/social-2024-006/read 200 in 5362ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 958ms (1284 modules)
+ GET /login?timeout=1 200 in 5720ms
+ GET /login?timeout=1 200 in 182ms
+ ⨯ [TypeError: __webpack_modules__[moduleId] is not a function] {
+  digest: '1941828514'
+}
+[error] action /login __webpack_modules__[moduleId] is not a function {}
+ POST /login?timeout=1 500 in 385ms
+[?25h

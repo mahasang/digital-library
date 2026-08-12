@@ -1,0 +1,1016 @@
+
+> digital-research-library@0.1.0 dev
+> next dev -p 3001
+
+   ▲ Next.js 15.5.22
+   - Local:        http://localhost:3001
+   - Network:      http://172.16.100.115:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled /instrumentation in 849ms (34 modules)
+ ✓ Ready in 3.5s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1703ms (180 modules)
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling / ...
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ✓ Compiled / in 6.5s (1159 modules)
+ GET / 200 in 3102ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 829ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 2109ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1465ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 2.1s (1163 modules)
+ GET /robots.txt 404 in 3499ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1468ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1239ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /research ...
+ ✓ Compiled /research in 13.2s (1267 modules)
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 15841ms
+ GET /research 200 in 595ms
+ ✓ Compiled in 2.8s (411 modules)
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 175ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /about ...
+ ✓ Compiled /about in 2.4s (1262 modules)
+ GET /about 200 in 2992ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /contact ...
+ ✓ Compiled /contact in 1923ms (1278 modules)
+ GET /contact 200 in 2257ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1343ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /login ...
+ ✓ Compiled /login in 6.4s (1400 modules)
+ GET /login 200 in 7133ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 886ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ⨯ Error: ไม่สามารถดึงข้อมูลหน่วยงานจาก Supabase ได้: JWT issued at future
+    at getOrganizations (lib\data\organizations.server.ts:91:11)
+    at async HomePage (app\page.tsx:38:64)
+  89 |
+  90 |   if (error) {
+> 91 |     throw new Error(`ไม่สามารถดึงข้อมูลหน่วยงานจาก Supabase ได้: ${error.message}`);
+     |           ^
+  92 |   }
+  93 |
+  94 |   return (data ?? []).map((row) => ({ {
+  digest: '2002241789'
+}
+[error] render / ไม่สามารถดึงข้อมูลหน่วยงานจาก Supabase ได้: JWT issued at future {}
+ GET / 200 in 1794ms
+ POST /login 303 in 4474ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 6580ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 1601ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 2754ms
+ POST /login 303 in 4480ms
+ GET / 200 in 3504ms
+ GET / 200 in 3914ms
+ ○ Compiling /favorites ...
+ ✓ Compiled /favorites in 7.8s (1465 modules)
+ GET /favorites 200 in 8883ms
+ GET /favorites 200 in 232ms
+ ○ Compiling /reading-history ...
+ ✓ Compiled /reading-history in 1860ms (1460 modules)
+ GET /reading-history 200 in 2706ms
+ ○ Compiling /account ...
+ ✓ Compiled /account in 2.7s (1523 modules)
+ GET /account 200 in 3333ms
+ ○ Compiling /notifications ...
+ ✓ Compiled /notifications in 1785ms (1546 modules)
+ GET /notifications 200 in 2291ms
+ ○ Compiling /access-requests ...
+ ✓ Compiled /access-requests in 5.6s (1525 modules)
+ GET /access-requests 200 in 6631ms
+ ○ Compiling /submit-research ...
+ ✓ Compiled /submit-research in 6.5s (1645 modules)
+ GET /submit-research 200 in 7643ms
+ ○ Compiling /my-submissions ...
+ ✓ Compiled /my-submissions in 1840ms (1647 modules)
+ GET /my-submissions 200 in 2428ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 4.7s (1575 modules)
+ GET /dashboard 200 in 5703ms
+ ○ Compiling /dashboard/approvals ...
+ ✓ Compiled /dashboard/approvals in 5s (1532 modules)
+ GET /dashboard/approvals 200 in 5625ms
+ ○ Compiling /dashboard/access-requests ...
+ ✓ Compiled /dashboard/access-requests in 1319ms (1537 modules)
+ GET /dashboard/access-requests 200 in 1880ms
+ ○ Compiling /dashboard/research ...
+ ✓ Compiled /dashboard/research in 1674ms (1535 modules)
+ GET /dashboard/research 200 in 2111ms
+ ○ Compiling /dashboard/duplicate-reviews ...
+ ✓ Compiled /dashboard/duplicate-reviews in 1599ms (1442 modules)
+ GET /dashboard/duplicate-reviews 200 in 3131ms
+ ○ Compiling /dashboard/authors ...
+ ✓ Compiled /dashboard/authors in 2.8s (1552 modules)
+ GET /dashboard/authors 200 in 3479ms
+ ○ Compiling /dashboard/organizations ...
+ ✓ Compiled /dashboard/organizations in 5.3s (1453 modules)
+ GET /dashboard/organizations 200 in 6244ms
+ ○ Compiling /dashboard/data-quality ...
+ ✓ Compiled /dashboard/data-quality in 2.2s (1454 modules)
+ GET /dashboard/data-quality 200 in 2995ms
+ ○ Compiling /dashboard/categories ...
+ ✓ Compiled /dashboard/categories in 1457ms (1450 modules)
+ GET /dashboard/categories 200 in 1683ms
+ ○ Compiling /dashboard/reports ...
+ ✓ Compiled /dashboard/reports in 1437ms (1458 modules)
+ GET /dashboard/reports 200 in 1919ms
+ ○ Compiling /dashboard/users ...
+ ✓ Compiled /dashboard/users in 1988ms (1474 modules)
+ GET /dashboard/users 200 in 2322ms
+ ○ Compiling /dashboard/audit-logs ...
+ ✓ Compiled /dashboard/audit-logs in 2.2s (1431 modules)
+ GET /dashboard/audit-logs 200 in 2753ms
+ ○ Compiling /dashboard/settings ...
+ ✓ Compiled /dashboard/settings in 1685ms (1349 modules)
+ GET /dashboard/settings 200 in 2146ms
+ ○ Compiling /mfa-challenge ...
+ ✓ Compiled /mfa-challenge in 2.3s (1362 modules)
+ GET /mfa-challenge?redirect=%2Fsuperadmin%2Foverview 200 in 2456ms
+ ○ Compiling /superadmin/overview ...
+ ✓ Compiled /superadmin/overview in 10s (2417 modules)
+ GET /superadmin/overview 200 in 13039ms
+ GET /superadmin/overview 200 in 1183ms
+ ○ Compiling /superadmin/users ...
+ ✓ Compiled /superadmin/users in 1681ms (2410 modules)
+ GET /superadmin/users 200 in 2688ms
+ ○ Compiling /superadmin/ocr ...
+ ✓ Compiled /superadmin/ocr in 2.9s (2550 modules)
+ GET /superadmin/ocr 200 in 9279ms
+ ○ Compiling /api/superadmin/jobs/batches ...
+ ✓ Compiled /api/superadmin/jobs/batches in 1075ms (2567 modules)
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 5789ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 64ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 129ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 155ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 118ms
+ ○ Compiling /superadmin/pdf-processing ...
+ ✓ Compiled /superadmin/pdf-processing in 5.9s (2645 modules)
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 3849ms
+ GET /superadmin/pdf-processing?mode=ocr 200 in 6617ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 78ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 88ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 90ms
+ GET /superadmin/pdf-processing?mode=extract 200 in 335ms
+ GET /superadmin/pdf-processing?mode=ocr 200 in 253ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 100ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 151ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 129ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 169ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 99ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 118ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 139ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 166ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 196ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 451ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 192ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 279ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 73ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 101ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 120ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 137ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 76ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 65ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 102ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 126ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 119ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 170ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 107ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 108ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 110ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 153ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 74ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 110ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 67ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 93ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 94ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 89ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 80ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 118ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 75ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 96ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 95ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 104ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 126ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 139ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 83ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 114ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 74ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 95ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 89ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 164ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 86ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 81ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 94ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 98ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 103ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 110ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 76ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 103ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 1179ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 595ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 563ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 604ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 210ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 242ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 255ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 279ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 278ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 327ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 250ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 278ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 317ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 288ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 990ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 1348ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing&mode=recent 200 in 221ms
+ GET /api/superadmin/jobs/batches?jobType=ocr_processing 200 in 214ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /login ...
+ ✓ Compiled /login in 35.8s (1654 modules)
+ GET /login?timeout=1 200 in 43591ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling / ...
+ ✓ Compiled / in 20.9s (1717 modules)
+ GET / 200 in 26102ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /contact ...
+ ✓ Compiled /contact in 5.2s (1196 modules)
+ GET /contact 200 in 6589ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 1330ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 6280ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 4394ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 3085ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /_not-found ...
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ✓ Compiled /_not-found in 6.8s (1190 modules)
+ GET /robots.txt 404 in 10719ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 4751ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1171ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 2475ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /research ...
+ ✓ Compiled /research in 8.5s (1233 modules)
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 11906ms
+ GET /research 200 in 1105ms
+ GET /research 200 in 897ms
+ GET /research 200 in 1454ms
+ GET /research 200 in 726ms
+ GET /research 200 in 1286ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 371ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /about ...
+ ✓ Compiled /about in 3.7s (1239 modules)
+ GET /about 200 in 4521ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 415ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /contact 200 in 244ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 384ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /about 200 in 355ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /contact 200 in 174ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1242ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 2549ms
+ GET /research 200 in 558ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /contact 200 in 186ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 246ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%81 200 in 2434ms
+ GET /research?q=%E0%B8%81 200 in 663ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%81%E0%B8%81 200 in 1390ms
+ GET /research?q=%E0%B8%81%E0%B8%81 200 in 1055ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%81 200 in 902ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%81%E0%B8%81 200 in 774ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%81 200 in 294ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%81%E0%B8%B2 200 in 658ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%81%E0%B8%B2%E0%B8%A3 200 in 685ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B 200 in 323ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1 200 in 548ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%88 200 in 572ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B 200 in 280ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B 200 in 366ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B 200 in 295ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B 200 in 328ms
+ GET /research?q=%E0%B8%9B 200 in 190ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%9B 200 in 563ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%9B%E0%B8%B1 200 in 410ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%9B%E0%B8%88 200 in 432ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B 200 in 228ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1 200 in 351ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88 200 in 733ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88 200 in 484ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%B1 200 in 331ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88 200 in 449ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88 200 in 434ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 398ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2 200 in 364ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%B1 200 in 3126ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%B1 200 in 1746ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%B1 200 in 2122ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 2751ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%B1 200 in 2767ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 456ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%B1 200 in 463ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 448ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 523ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 461ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 610ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 457ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 515ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 537ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 800ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%AB 200 in 608ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 842ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81 200 in 1074ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%AB 200 in 1155ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1 200 in 1165ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81 200 in 1038ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%AB 200 in 857ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81 200 in 960ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%AB 200 in 890ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81 200 in 960ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%AB 200 in 787ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81 200 in 778ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%AB 200 in 964ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81 200 in 814ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%AB 200 in 749ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81 200 in 686ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%AB 200 in 683ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%AB 200 in 400ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%81 200 in 685ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%AB 200 in 528ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%81 200 in 683ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%AB 200 in 607ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%81 200 in 782ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%AB 200 in 662ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%81 200 in 713ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%AB 200 in 624ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%81 200 in 754ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%AB 200 in 642ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%81 200 in 811ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%AB 200 in 609ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%81 200 in 558ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%AB 200 in 472ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABs 200 in 366ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABd 200 in 634ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABf 200 in 683ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABs 200 in 940ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABd 200 in 881ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABf 200 in 811ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABs 200 in 1263ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABd 200 in 1105ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABe 200 in 1253ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABr 200 in 1218ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABq 200 in 1025ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABf 200 in 992ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABw 200 in 695ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABe 200 in 721ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABq 200 in 677ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABw 200 in 693ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABe 200 in 715ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABq 200 in 637ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABw 200 in 555ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABe 200 in 558ms
+ GET /research 200 in 395ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABq 200 in 867ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABw 200 in 460ms
+ GET /research?q=%E0%B8%9B%E0%B8%B1%E0%B8%88%E0%B8%88%E0%B8%B1%E0%B8%A2%E0%B8%81%E0%B8%ABe 200 in 801ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=w 200 in 229ms
+ GET /research?q=e 200 in 246ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=q 200 in 290ms
+ GET /research?q=w 200 in 298ms
+ GET /research?q=e 200 in 301ms
+ GET /research?q=q 200 in 346ms
+ GET /research?q=w 200 in 344ms
+ GET /research?q=e 200 in 348ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research?q=e 200 in 294ms
+ GET /research?q=w 200 in 301ms
+ GET /research?q=q 200 in 309ms
+ GET /research?q=w 200 in 290ms
+ GET /research?q=q 200 in 293ms
+ GET /research?q=e 200 in 293ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 2193ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ⨯ Error: ไม่สามารถดึงข้อมูลหน่วยงานจาก Supabase ได้: JWT issued at future
+    at getOrganizations (lib\data\organizations.server.ts:91:11)
+    at async HomePage (app\page.tsx:38:64)
+  89 |
+  90 |   if (error) {
+> 91 |     throw new Error(`ไม่สามารถดึงข้อมูลหน่วยงานจาก Supabase ได้: ${error.message}`);
+     |           ^
+  92 |   }
+  93 |
+  94 |   return (data ?? []).map((row) => ({ {
+  digest: '2002241789'
+}
+[error] render / ไม่สามารถดึงข้อมูลหน่วยงานจาก Supabase ได้: JWT issued at future {}
+ GET / 200 in 6326ms
+ POST /login 303 in 9848ms
+ ✓ Compiled in 5.8s (1208 modules)
+ GET / 200 in 4347ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 2453ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 6.2s (1228 modules)
+ GET /dashboard 200 in 7862ms
+ ○ Compiling /dashboard/users ...
+ ✓ Compiled /dashboard/users in 7s (1032 modules)
+ GET /dashboard/users 200 in 8989ms
+ GET /dashboard 200 in 423ms
+ ○ Compiling /mfa-challenge ...
+ ✓ Compiled /mfa-challenge in 7.1s (931 modules)
+ GET /mfa-challenge?redirect=%2Fsuperadmin%2Foverview 200 in 7677ms
+ ○ Compiling /superadmin/overview ...
+ ✓ Compiled /superadmin/overview in 7.2s (1430 modules)
+ GET /superadmin/overview 200 in 9309ms
+ GET /superadmin/overview 200 in 1352ms
+ ○ Compiling /superadmin/users ...
+ ✓ Compiled /superadmin/users in 2.6s (1426 modules)
+ GET /superadmin/users 200 in 3316ms
+ ○ Compiling /superadmin/roles ...
+ ✓ Compiled /superadmin/roles in 4.7s (2507 modules)
+ GET /superadmin/roles 200 in 5262ms
+ GET /superadmin/roles 200 in 282ms
+ ○ Compiling /superadmin/security ...
+ ✓ Compiled /superadmin/security in 16.3s (2527 modules)
+ GET /superadmin/security 200 in 18126ms
+ GET /superadmin/security 200 in 406ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /login ...
+ ✓ Compiled /login in 9.6s (1468 modules)
+ GET /login?timeout=1 200 in 10248ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login?timeout=1 200 in 439ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling / ...
+ ✓ Compiled / in 13.4s (1532 modules)
+ GET / 200 in 16258ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 4047ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1371ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /_not-found ...
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ✓ Compiled /_not-found in 8.2s (1001 modules)
+ GET /robots.txt 404 in 9735ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 3610ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1382ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 3202ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 768ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 809ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1294ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1553ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /research ...
+ ✓ Compiled /research in 11.1s (1047 modules)
+ GET /research 200 in 12961ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 512ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /research/[id] ...
+ ✓ Compiled /research/[id] in 7.5s (2189 modules)
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 994ms
+ GET /research/eng-2024-001 200 in 12185ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research/eng-2024-001 200 in 1602ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 287ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 281ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /register ...
+ ✓ Compiled /register in 3.6s (2192 modules)
+ GET /register 200 in 4423ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /register 200 in 841ms
+ GET / 200 in 875ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 892ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 903ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 566ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 445ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 620ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research/eng-2024-001 200 in 733ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research/eng-2024-001 200 in 696ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 478ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 267ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /register 200 in 584ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /register 200 in 410ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 717ms (1109 modules)
+ GET /robots.txt 404 in 1235ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 283ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1312ms
+ GET / 200 in 875ms
+ POST /login 303 in 2346ms
+ GET / 200 in 1363ms
+ GET / 200 in 986ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1341ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 293ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 834ms
+ POST /login 303 in 1402ms
+ ○ Compiling /account ...
+ ✓ Compiled /account in 1924ms (1157 modules)
+ GET /account 200 in 2801ms
+ GET /account 200 in 627ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 209ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 693ms
+ POST /login 303 in 1155ms
+ ○ Compiling /favorites ...
+ ✓ Compiled /favorites in 2.1s (1174 modules)
+ GET /favorites 200 in 2799ms
+ GET /favorites 200 in 1258ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 193ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 662ms
+ POST /login 303 in 1111ms
+ ○ Compiling /notifications ...
+ ✓ Compiled /notifications in 1707ms (1190 modules)
+ GET /notifications 200 in 2653ms
+ GET /notifications 200 in 567ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 165ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 722ms
+ POST /login 303 in 1116ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 1565ms (1207 modules)
+ GET /dashboard 200 in 2535ms
+ GET /dashboard 200 in 680ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 179ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 636ms
+ POST /login 303 in 1057ms
+ ○ Compiling /dashboard/reports ...
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ✓ Compiled /research in 5.3s (1122 modules)
+ ✓ Compiled (1169 modules)
+ GET /research 200 in 7858ms
+ GET /dashboard/reports 200 in 10016ms
+ GET /dashboard/reports 200 in 341ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 149ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 462ms
+ POST /login 303 in 824ms
+ GET / 200 in 660ms
+ GET / 200 in 810ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 206ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 549ms
+ POST /login 303 in 865ms
+ GET /account 200 in 596ms
+ GET /account 200 in 504ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 184ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 539ms
+ POST /login 303 in 893ms
+ GET /favorites 200 in 622ms
+ GET /favorites 200 in 379ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 308ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 567ms
+ POST /login 303 in 913ms
+ GET /notifications 200 in 532ms
+ GET /notifications 200 in 434ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 205ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 770ms
+ POST /login 303 in 1127ms
+ GET /dashboard 200 in 922ms
+ GET /dashboard 200 in 730ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 181ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 732ms
+ POST /login 303 in 1095ms
+ GET /dashboard/reports 200 in 540ms
+ GET /dashboard/reports 200 in 456ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 169ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 478ms
+ POST /login 303 in 838ms
+ ○ Compiling /mfa-challenge ...
+ ✓ Compiled /mfa-challenge in 1402ms (1157 modules)
+ GET /mfa-challenge?redirect=%2Fsuperadmin%2Foverview 200 in 2072ms
+ GET /mfa-challenge?redirect=%2Fsuperadmin%2Foverview 200 in 444ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 278ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 842ms
+ POST /login 303 in 1383ms
+ GET /mfa-challenge?redirect=%2Fsuperadmin%2Foverview 200 in 472ms
+ GET /mfa-challenge?redirect=%2Fsuperadmin%2Foverview 200 in 370ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 655ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 493ms
+ POST /login 303 in 828ms
+ GET /account 200 in 469ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 651ms
+ GET / 200 in 399ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login?redirect=%2Faccount 200 in 202ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login?redirect=%2Faccount 200 in 153ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login?redirect=%2Ffavorites 200 in 146ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login?redirect=%2Fsubmit-research 200 in 138ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login?redirect=%2Fdashboard 200 in 132ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login?redirect=%2Fsuperadmin 200 in 195ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 244ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 803ms
+ POST /login 303 in 2026ms
+ GET /account 200 in 580ms
+ GET /favorites 200 in 394ms
+ ○ Compiling /403 ...
+ ✓ Compiled /403 in 3.1s (2244 modules)
+ GET /403 200 in 3726ms
+ GET /403 200 in 246ms
+ GET /403 200 in 253ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 139ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 575ms
+ POST /login 303 in 1067ms
+ GET /account 200 in 489ms
+ ○ Compiling /submit-research ...
+ ✓ Compiled /submit-research in 4.8s (1261 modules)
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 743ms
+ GET /submit-research 200 in 6612ms
+ ○ Compiling /my-submissions ...
+ ✓ Compiled /my-submissions in 1275ms (1273 modules)
+ GET /my-submissions 200 in 2093ms
+ GET /403 200 in 436ms
+ GET /403 200 in 546ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 326ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1460ms
+ POST /login 303 in 2066ms
+ GET /dashboard 200 in 1173ms
+ GET /403 200 in 844ms
+ GET /403 200 in 781ms
+ GET /403 200 in 645ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 754ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1001ms
+ POST /login 303 in 1705ms
+ GET /dashboard 200 in 1381ms
+ ○ Compiling /dashboard/users ...
+ ✓ Compiled /dashboard/users in 8.8s (1275 modules)
+ GET /dashboard/users 200 in 19109ms
+ ○ Compiling /dashboard/settings ...
+ ✓ Compiled /dashboard/settings in 5.4s (1263 modules)
+ GET /dashboard/settings 200 in 7087ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 857ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 5054ms
+ POST /login 303 in 8301ms
+ GET /dashboard 200 in 894ms
+ GET /dashboard/users 200 in 751ms
+ ○ Compiling /mfa-challenge ...
+ ✓ Compiled /mfa-challenge in 5.6s (1085 modules)
+ GET /mfa-challenge?redirect=%2Fsuperadmin 200 in 7434ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 407ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1053ms
+ POST /login 303 in 1673ms
+@supabase/ssr: chunked cookie decoded to invalid JSON, treating as absent. This usually indicates that cookie chunks from different writes were combined (e.g. response committed before all Set-Cookie headers were sent).
+@supabase/ssr: chunked cookie decoded to invalid JSON, treating as absent. This usually indicates that cookie chunks from different writes were combined (e.g. response committed before all Set-Cookie headers were sent).
+@supabase/ssr: chunked cookie decoded to invalid JSON, treating as absent. This usually indicates that cookie chunks from different writes were combined (e.g. response committed before all Set-Cookie headers were sent).
+updateSession: getUser() ล้มเหลว: Auth session missing!
+@supabase/ssr: chunked cookie decoded to invalid JSON, treating as absent. This usually indicates that cookie chunks from different writes were combined (e.g. response committed before all Set-Cookie headers were sent).
+@supabase/ssr: chunked cookie decoded to invalid JSON, treating as absent. This usually indicates that cookie chunks from different writes were combined (e.g. response committed before all Set-Cookie headers were sent).
+@supabase/ssr: chunked cookie decoded to invalid JSON, treating as absent. This usually indicates that cookie chunks from different writes were combined (e.g. response committed before all Set-Cookie headers were sent).
+@supabase/ssr: chunked cookie decoded to invalid JSON, treating as absent. This usually indicates that cookie chunks from different writes were combined (e.g. response committed before all Set-Cookie headers were sent).
+updateSession: getUser() ล้มเหลว: Auth session missing!
+@supabase/ssr: chunked cookie decoded to invalid JSON, treating as absent. This usually indicates that cookie chunks from different writes were combined (e.g. response committed before all Set-Cookie headers were sent).
+ GET /login?redirect=%2Faccount 200 in 324ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling /research/[id] ...
+ ✓ Compiled /research/[id] in 5.6s (1089 modules)
+ GET /research/eng-2024-001 200 in 7624ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research/it-2024-002 404 in 387ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 381ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1460ms
+ POST /login 303 in 2192ms
+ GET /research/edu-2024-005 200 in 2296ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 307ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1312ms
+ POST /login 303 in 1816ms
+ GET /research/it-2024-002 200 in 1063ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1165ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1174ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /research 200 in 380ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 352ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1090ms
+ POST /login 303 in 1618ms
+ GET / 200 in 1380ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 306ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1098ms
+ POST /login 303 in 4976ms
+ GET / 200 in 1124ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 285ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 788ms
+ POST /login 303 in 1298ms
+ GET / 200 in 1017ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 242ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 844ms
+ POST /login 303 in 1211ms
+ GET / 200 in 990ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 319ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 655ms
+ POST /login 303 in 987ms
+ GET / 200 in 1138ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 1092ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1042ms
+ POST /login 303 in 1626ms
+ GET / 200 in 1384ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 322ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 895ms
+ POST /login 303 in 1314ms
+ GET / 200 in 1185ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 387ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 849ms
+ POST /login 303 in 1215ms
+ GET / 200 in 1168ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 294ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 858ms
+ POST /login 303 in 1265ms
+ GET / 200 in 1436ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 176ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 655ms
+ POST /login 303 in 1035ms
+ GET / 200 in 696ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 191ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 496ms
+ POST /login 303 in 848ms
+ GET / 200 in 663ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET /login 200 in 146ms
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 470ms
+ POST /login 303 in 743ms
+ GET / 200 in 802ms
+ ○ Compiling /dashboard/categories ...
+ ✓ Compiled /dashboard/categories in 3.7s (1034 modules)
+ GET /dashboard/categories 200 in 4821ms
+ POST /dashboard/categories 200 in 917ms
+ GET / 200 in 940ms
+ GET /dashboard/categories 200 in 398ms
+ POST /dashboard/categories 200 in 575ms
+ GET / 200 in 855ms
+ GET / 200 in 556ms

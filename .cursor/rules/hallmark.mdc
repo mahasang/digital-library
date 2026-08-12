@@ -1,0 +1,34 @@
+---
+description: Hallmark anti-AI-slop design — use for new pages, UI redesign, audits, and component polish
+globs: app/**/*.{tsx,css},components/**/*.{tsx,css},**/*.css
+alwaysApply: false
+---
+
+# Hallmark (design taste)
+
+When the task is **visual or interaction design** — new landing/marketing pages, layout redesign, “make this look less generic,” single-component UI polish, or explicit `hallmark audit` / `hallmark redesign` / `hallmark study` — **read and follow** the full skill:
+
+`.agents/skills/hallmark/SKILL.md`
+
+Load referenced files from `.agents/skills/hallmark/references/` as the skill directs (slop test, themes, macrostructures, responsive gates, etc.).
+
+## Scope in this repo
+
+- **Default:** in-place edits; preserve routes, data fetching, auth, and business logic. Hallmark is the rendered surface only.
+- **Do not** delete production routes or components unless the user explicitly approves a file-level plan.
+- **Do not** invent metrics, testimonials, or “trusted by N teams” copy.
+- **Tokens:** use named CSS variables / project Tailwind theme — no mid-render one-off hex or raw `font-family` strings.
+- **Existing styles:** append to `app/globals.css` (or project global CSS); do not remove `@tailwind` / framework entry directives.
+
+## Verbs (user-facing)
+
+| User says | Action |
+| --- | --- |
+| `hallmark audit <target>` | Score against anti-patterns; **do not edit** |
+| `hallmark redesign <target>` | New structure inside existing boundaries |
+| `hallmark study <URL or screenshot>` | Extract DNA; load `references/study.md` first |
+| Build/redesign a page or component (default) | Full Design flow or Component-scope flow per skill |
+
+## When Hallmark does *not* apply
+
+Pure backend, SQL, RLS, tests, deploy checklists, or bug fixes with no UI change — skip this rule unless the user asks for design work.

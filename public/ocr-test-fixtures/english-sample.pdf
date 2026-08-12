@@ -1,0 +1,31 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 220 >>
+stream
+BT
+/F1 20 Tf
+72 700 Td
+(Mock Research Document - Placeholder File) Tj
+0 -30 Td
+/F1 12 Tf
+(This is sample/demo content for the Digital Research) Tj
+0 -16 Td
+(Library project. No real research data is included.) Tj
+ET
+endstream
+endobj
+trailer
+<< /Root 1 0 R /Size 6 >>
+%%EOF

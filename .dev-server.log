@@ -1,0 +1,26 @@
+
+> digital-research-library@0.1.0 dev
+> next dev -p 3001
+
+   ▲ Next.js 15.5.22
+   - Local:        http://localhost:3001
+   - Network:      http://172.16.100.115:3001
+   - Environments: .env.local
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 1268ms (34 modules)
+ ✓ Ready in 6s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 3.3s (180 modules)
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ ○ Compiling / ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (106kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (258kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled / in 17.7s (1182 modules)
+updateSession: getUser() ล้มเหลว: Auth session missing!
+ GET / 200 in 1813ms
+ ✓ Compiled in 5.8s (195 modules)
+[?25h

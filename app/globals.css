@@ -1,0 +1,326 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design foundation tokens (Hallmark Audit Phase 0, completed in Phase 5).
+ * `:root` is the light palette (default). `@media (prefers-color-scheme:
+ * dark)` provides the OS-level fallback for users with no explicit
+ * in-app choice, guarded by `:not([data-theme="light"])` so an explicit
+ * light choice always wins over the OS setting. `[data-theme="dark"]` is
+ * the explicit override the ThemeToggle sets via next-themes (see
+ * components/layout/ThemeToggle.tsx and docs/theme-system.md) — same
+ * 3-state pattern used for every token group in this file.
+ */
+:root {
+  /* Without this, native form controls (date/time inputs, checkboxes,
+   * scrollbars, select dropdown chrome) ignore our data-theme attribute
+   * and instead follow the OS/browser's own color-scheme preference —
+   * which can land on a native-dark control sitting on our light theme,
+   * or vice versa, with a browser-chosen foreground/background pairing
+   * that isn't guaranteed to be readable against ours. Tying color-scheme
+   * to the same 3-state token pattern as everything else in this file
+   * keeps native chrome in sync with the rest of the page. */
+  color-scheme: light;
+
+  --color-background: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef1f7;
+  --color-surface-translucent: rgba(255, 255, 255, 0.95);
+  --color-border: #dde2ec;
+  --color-border-strong: #c7cee0;
+
+  --color-ink: #14213d;
+  --color-ink-soft: #55617a;
+  --color-ink-faint: #8892a6;
+
+  --color-accent: #185ff2;
+  --color-accent-strong: #134bd6;
+  --color-accent-soft: #eaf2ff;
+  --color-accent-soft-hover: #d9eaff;
+  --color-accent-ink: #0c3aa6;
+
+  --color-success: #0f766e;
+  --color-warning: #9a5b06;
+  --color-danger: #c0152f;
+  --color-info: #6941c6;
+
+  --color-focus-ring: #185ff2;
+
+  --shadow-sm: 0 1px 2px rgba(20, 33, 61, 0.06);
+  --shadow-md: 0 6px 20px rgba(20, 33, 61, 0.08);
+
+  /* Tailwind's stock palette, remapped so every existing bg-gray-500,
+   * text-red-600, border-green-200, etc. across the whole app becomes
+   * theme-aware automatically — see tailwind.config.ts and
+   * docs/theme-system.md for why this is the chosen mechanism. Light
+   * values below are Tailwind's exact defaults (zero visual change in
+   * light mode); dark values are new. */
+  --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db; --gray-400: #9ca3af;
+  --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
+
+  --red-50: #fef2f2; --red-100: #fee2e2; --red-200: #fecaca; --red-300: #fca5a5; --red-400: #f87171;
+  --red-500: #ef4444; --red-600: #dc2626; --red-700: #b91c1c; --red-800: #991b1b; --red-900: #7f1d1d;
+
+  --green-50: #f0fdf4; --green-100: #dcfce7; --green-200: #bbf7d0; --green-300: #86efac; --green-400: #4ade80;
+  --green-500: #22c55e; --green-600: #16a34a; --green-700: #15803d; --green-800: #166534; --green-900: #14532d;
+
+  --amber-50: #fffbeb; --amber-100: #fef3c7; --amber-200: #fde68a; --amber-300: #fcd34d; --amber-400: #fbbf24;
+  --amber-500: #f59e0b; --amber-600: #d97706; --amber-700: #b45309; --amber-800: #92400e; --amber-900: #78350f;
+
+  --blue-50: #eff6ff; --blue-100: #dbeafe; --blue-200: #bfdbfe; --blue-300: #93c5fd; --blue-400: #60a5fa;
+  --blue-500: #3b82f6; --blue-600: #2563eb; --blue-700: #1d4ed8; --blue-800: #1e40af; --blue-900: #1e3a8a;
+
+  --purple-50: #faf5ff; --purple-100: #f3e8ff; --purple-200: #e9d5ff; --purple-300: #d8b4fe; --purple-400: #c084fc;
+  --purple-500: #a855f7; --purple-600: #9333ea; --purple-700: #7e22ce; --purple-800: #6b21a8; --purple-900: #581c87;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --color-background: #0b1220;
+    --color-surface: #111a2e;
+    --color-surface-muted: #172239;
+    --color-surface-translucent: rgba(11, 18, 32, 0.9);
+    --color-border: #263252;
+    --color-border-strong: #34426a;
+
+    --color-ink: #eef1f8;
+    --color-ink-soft: #aab4cc;
+    --color-ink-faint: #7986a6;
+
+    --color-accent: #5b9dff;
+    --color-accent-strong: #8fbeff;
+    --color-accent-soft: #16233d;
+    --color-accent-soft-hover: #1e2f52;
+    --color-accent-ink: #bcdaff;
+
+    --color-success: #6fe0d3;
+    --color-warning: #f0b45e;
+    --color-danger: #ff9fb0;
+    --color-info: #c3aefc;
+
+    --color-focus-ring: #5b9dff;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
+
+    --gray-50: #10182b; --gray-100: #141d33; --gray-200: #202b45; --gray-300: #2e3b5c; --gray-400: #4a5878;
+    --gray-500: #7986a6; --gray-600: #9aa6c2; --gray-700: #b8c1d9; --gray-800: #d3d9ec; --gray-900: #eef1f8;
+
+    --red-50: #2a1216; --red-100: #3a171c; --red-200: #4a1e24; --red-300: #6b2b34; --red-400: #a83f4c;
+    --red-500: #d95468; --red-600: #ff8394; --red-700: #ff9fac; --red-800: #ffb8c2; --red-900: #ffd2d9;
+
+    --green-50: #0f2018; --green-100: #12291e; --green-200: #173726; --green-300: #1f4a33; --green-400: #2f6b48;
+    --green-500: #459468; --green-600: #5fce8e; --green-700: #7fdba6; --green-800: #a3e6c1; --green-900: #c8f0dc;
+
+    --amber-50: #241a08; --amber-100: #2e210a; --amber-200: #402c0e; --amber-300: #5c3f14; --amber-400: #84591d;
+    --amber-500: #b57a28; --amber-600: #f0a53e; --amber-700: #f5bc6b; --amber-800: #f8ce93; --amber-900: #fbe0bb;
+
+    --blue-50: #0c1b30; --blue-100: #11233d; --blue-200: #163050; --blue-300: #1e4270; --blue-400: #2c5c99;
+    --blue-500: #4f7cc9; --blue-600: #71a0ee; --blue-700: #93bbf5; --blue-800: #b7d2fa; --blue-900: #dae9fd;
+
+    --purple-50: #1c1330; --purple-100: #241a3d; --purple-200: #332352; --purple-300: #48326f; --purple-400: #684a94;
+    --purple-500: #9169c4; --purple-600: #b28ce0; --purple-700: #c7a9ea; --purple-800: #dcc7f2; --purple-900: #eeddfa;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-background: #0b1220;
+  --color-surface: #111a2e;
+  --color-surface-muted: #172239;
+  --color-surface-translucent: rgba(11, 18, 32, 0.9);
+  --color-border: #263252;
+  --color-border-strong: #34426a;
+
+  --color-ink: #eef1f8;
+  --color-ink-soft: #aab4cc;
+  --color-ink-faint: #7986a6;
+
+  --color-accent: #5b9dff;
+  --color-accent-strong: #8fbeff;
+  --color-accent-soft: #16233d;
+  --color-accent-soft-hover: #1e2f52;
+  --color-accent-ink: #bcdaff;
+
+  --color-success: #6fe0d3;
+  --color-warning: #f0b45e;
+  --color-danger: #ff9fb0;
+  --color-info: #c3aefc;
+
+  --color-focus-ring: #5b9dff;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
+
+  --gray-50: #10182b; --gray-100: #141d33; --gray-200: #202b45; --gray-300: #2e3b5c; --gray-400: #4a5878;
+  --gray-500: #7986a6; --gray-600: #9aa6c2; --gray-700: #b8c1d9; --gray-800: #d3d9ec; --gray-900: #eef1f8;
+
+  --red-50: #2a1216; --red-100: #3a171c; --red-200: #4a1e24; --red-300: #6b2b34; --red-400: #a83f4c;
+  --red-500: #d95468; --red-600: #ff8394; --red-700: #ff9fac; --red-800: #ffb8c2; --red-900: #ffd2d9;
+
+  --green-50: #0f2018; --green-100: #12291e; --green-200: #173726; --green-300: #1f4a33; --green-400: #2f6b48;
+  --green-500: #459468; --green-600: #5fce8e; --green-700: #7fdba6; --green-800: #a3e6c1; --green-900: #c8f0dc;
+
+  --amber-50: #241a08; --amber-100: #2e210a; --amber-200: #402c0e; --amber-300: #5c3f14; --amber-400: #84591d;
+  --amber-500: #b57a28; --amber-600: #f0a53e; --amber-700: #f5bc6b; --amber-800: #f8ce93; --amber-900: #fbe0bb;
+
+  --blue-50: #0c1b30; --blue-100: #11233d; --blue-200: #163050; --blue-300: #1e4270; --blue-400: #2c5c99;
+  --blue-500: #4f7cc9; --blue-600: #71a0ee; --blue-700: #93bbf5; --blue-800: #b7d2fa; --blue-900: #dae9fd;
+
+  --purple-50: #1c1330; --purple-100: #241a3d; --purple-200: #332352; --purple-300: #48326f; --purple-400: #684a94;
+  --purple-500: #9169c4; --purple-600: #b28ce0; --purple-700: #c7a9ea; --purple-800: #dcc7f2; --purple-900: #eeddfa;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--color-ink);
+  background-color: var(--color-background);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * Global keyboard-focus baseline (WCAG 2.4.7). Applies to every focusable
+ * element — links, buttons, inputs, selects, textareas, dialogs, menus,
+ * and custom widgets — that doesn't already declare its own focus-visible
+ * style. Components that already set their own `focus-visible:outline-*`
+ * (e.g. components/ui/Button.tsx) or `focus:ring-*` (most form inputs)
+ * are unaffected: their own utility classes have higher CSS specificity
+ * than this bare `:focus-visible` selector and continue to win.
+ */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/*
+ * Skip-to-content link. Visually hidden until it receives keyboard focus;
+ * see the <a class="skip-link"> in app/layout.tsx and #main-content below.
+ */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  z-index: 100;
+  background: var(--color-surface);
+  color: var(--color-accent-strong);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+}
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/*
+ * Category cover tones (Hallmark Audit Phase 1). Deterministic per-category
+ * palette used by components/research/CategoryCover.tsx when a research
+ * item has no real uploaded cover image — see lib/categoryCover.ts for the
+ * hash that picks one of these 8 tones from a category id. A small,
+ * self-contained new element, so — like the Phase 0 focus ring and skip
+ * link — it carries real dark-mode values even though the surrounding
+ * page chrome (Header/Footer) doesn't switch yet.
+ */
+.cover-tone-0 { --tone-bg: #eef0fb; --tone-fg: #3730a3; --tone-line: #c7cbf0; }
+.cover-tone-1 { --tone-bg: #eaf6f3; --tone-fg: #0f6b5c; --tone-line: #bfe4da; }
+.cover-tone-2 { --tone-bg: #fdf3e3; --tone-fg: #8a5b06; --tone-line: #f0d9ab; }
+.cover-tone-3 { --tone-bg: #fbeee9; --tone-fg: #9a3412; --tone-line: #edc7ba; }
+.cover-tone-4 { --tone-bg: #eef6ec; --tone-fg: #3f6b2c; --tone-line: #c9dfc0; }
+.cover-tone-5 { --tone-bg: #f6eef6; --tone-fg: #74297e; --tone-line: #e3c7e6; }
+.cover-tone-6 { --tone-bg: #eaf1f7; --tone-fg: #275372; --tone-line: #c3dbea; }
+.cover-tone-7 { --tone-bg: #f4f0ea; --tone-fg: #6b5a3d; --tone-line: #e1d5bf; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cover-tone-0 { --tone-bg: #1d2044; --tone-fg: #b7bdf5; --tone-line: #343a72; }
+  :root:not([data-theme="light"]) .cover-tone-1 { --tone-bg: #102a25; --tone-fg: #7cd9c5; --tone-line: #1f5349; }
+  :root:not([data-theme="light"]) .cover-tone-2 { --tone-bg: #2c2210; --tone-fg: #eec27a; --tone-line: #56431c; }
+  :root:not([data-theme="light"]) .cover-tone-3 { --tone-bg: #301c14; --tone-fg: #f0a988; --tone-line: #5c3324; }
+  :root:not([data-theme="light"]) .cover-tone-4 { --tone-bg: #1c2a17; --tone-fg: #a9d69a; --tone-line: #37502c; }
+  :root:not([data-theme="light"]) .cover-tone-5 { --tone-bg: #2a1a2c; --tone-fg: #e2aeea; --tone-line: #4f2f54; }
+  :root:not([data-theme="light"]) .cover-tone-6 { --tone-bg: #16283a; --tone-fg: #9dc7e6; --tone-line: #2a4b68; }
+  :root:not([data-theme="light"]) .cover-tone-7 { --tone-bg: #29241a; --tone-fg: #d9c69f; --tone-line: #4d4230; }
+}
+
+:root[data-theme="dark"] .cover-tone-0 { --tone-bg: #1d2044; --tone-fg: #b7bdf5; --tone-line: #343a72; }
+:root[data-theme="dark"] .cover-tone-1 { --tone-bg: #102a25; --tone-fg: #7cd9c5; --tone-line: #1f5349; }
+:root[data-theme="dark"] .cover-tone-2 { --tone-bg: #2c2210; --tone-fg: #eec27a; --tone-line: #56431c; }
+:root[data-theme="dark"] .cover-tone-3 { --tone-bg: #301c14; --tone-fg: #f0a988; --tone-line: #5c3324; }
+:root[data-theme="dark"] .cover-tone-4 { --tone-bg: #1c2a17; --tone-fg: #a9d69a; --tone-line: #37502c; }
+:root[data-theme="dark"] .cover-tone-5 { --tone-bg: #2a1a2c; --tone-fg: #e2aeea; --tone-line: #4f2f54; }
+:root[data-theme="dark"] .cover-tone-6 { --tone-bg: #16283a; --tone-fg: #9dc7e6; --tone-line: #2a4b68; }
+:root[data-theme="dark"] .cover-tone-7 { --tone-bg: #29241a; --tone-fg: #d9c69f; --tone-line: #4d4230; }
+
+/*
+ * PDF reader shell tokens (Hallmark Audit Phase 2). Values are taken
+ * directly from Phase 0's approved --color-* palette (dark = the existing
+ * :root dark block, light = the existing :root light block) but declared
+ * independently here so the reader's own light/dark TOGGLE — not the OS
+ * prefers-color-scheme query — controls them. This keeps the reader a
+ * bounded, self-contained "reading mode" the same way the Phase 1 category
+ * cover system is: it can carry a real, testable dark/light switch without
+ * the rest of the still-light-only site (Header/Footer/Dashboard) flipping
+ * inconsistently. Default is dark, matching the reader's original
+ * always-dark appearance exactly, so nothing changes until a reader
+ * explicitly toggles it. See components/research/FlipbookViewer.tsx.
+ */
+.reader-shell[data-reader-theme="dark"] {
+  --reader-bg: #0b1220;
+  --reader-surface: #111a2e;
+  --reader-border: #263252;
+  --reader-ink: #eef1f8;
+  --reader-ink-soft: #aab4cc;
+  --reader-ink-faint: #7986a6;
+  --reader-control-hover: #1b2740;
+  --reader-page-slot-bg: #172239;
+}
+
+.reader-shell[data-reader-theme="light"] {
+  --reader-bg: #eef1f7;
+  --reader-surface: #ffffff;
+  --reader-border: #dde2ec;
+  --reader-ink: #14213d;
+  --reader-ink-soft: #55617a;
+  --reader-ink-faint: #8892a6;
+  --reader-control-hover: #eef1f7;
+  --reader-page-slot-bg: #f6f7fb;
+}
