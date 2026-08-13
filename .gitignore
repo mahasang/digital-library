@@ -36,3 +36,8 @@ next-env.d.ts
 # editor
 .vscode/*
 !.vscode/extensions.json
+
+# Local development and test artifacts
+dev-server.log
+test-results/
+homepage-initial.png
