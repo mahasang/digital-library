@@ -304,4 +304,4 @@
 
 ---
 
-**เอกสารที่เกี่ยวข้อง**: `docs/auth-verification-audit.md` (การตรวจสอบการยืนยันตัวตนแยกก่อนหน้านี้), `docs/caching.md`, `docs/accessibility-audit.md`, `docs/deployment-checklist.md`, `docs/production-checklist.md`, `docs/superadmin-guide.md`
+**เอกสารที่เกี่ยวข้อง**: `docs/auth-verification-audit.md` (การตรวจสอบการยืนยันตัวตนแยกก่อนหน้านี้), `docs/homepage-caching.md`, `docs/accessibility-audit.md`, `docs/deployment-checklist.md`, `docs/production-checklist.md`, `docs/superadmin-guide.md`

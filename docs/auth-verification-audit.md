@@ -50,7 +50,7 @@ middleware ยังคงอยู่ที่ 1 เท่าเดิมทั
 
 ## 3. สิ่งที่ลดได้อย่างปลอดภัย — React `cache()` ภายใน request เดียวกัน
 
-**เครื่องมือ**: React `cache()` (จาก `"react"`, **ไม่ใช่** `unstable_cache`) — memoize เฉพาะภายในการ render RSC ของ 1 request เท่านั้น รีเซ็ตใหม่ทุก request เสมอ (เป็น API มาตรฐานของ Next.js App Router สำหรับ dedupe การเรียกฟังก์ชันซ้ำในทรีเดียวกัน — โปรเจกต์นี้ใช้ pattern เดียวกันนี้อยู่แล้วกับ `getCategories()` มาก่อน ดู `docs/caching.md`)
+**เครื่องมือ**: React `cache()` (จาก `"react"`, **ไม่ใช่** `unstable_cache`) — memoize เฉพาะภายในการ render RSC ของ 1 request เท่านั้น รีเซ็ตใหม่ทุก request เสมอ (เป็น API มาตรฐานของ Next.js App Router สำหรับ dedupe การเรียกฟังก์ชันซ้ำในทรีเดียวกัน — โปรเจกต์นี้ใช้ pattern เดียวกันนี้อยู่แล้วกับ `getCategories()` มาก่อน ดู `docs/homepage-caching.md`)
 
 **เปลี่ยน 2 ไฟล์:**
 
