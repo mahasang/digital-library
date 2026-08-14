@@ -2,8 +2,8 @@
 
 import { useActionState, useState, useTransition } from "react";
 import { AlertCircle, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
-import { updateAuthorAction } from "@/app/dashboard/authors/actions";
-import { checkSimilarAuthorsAction } from "@/app/dashboard/authors/check-similar-actions";
+import { updateAuthorAction } from "@/app/[locale]/dashboard/authors/actions";
+import { checkSimilarAuthorsAction } from "@/app/[locale]/dashboard/authors/check-similar-actions";
 import { idleActionResult } from "@/lib/actions/types";
 import type { Organization } from "@/types/research";
 import type { AdminAuthorDetail } from "@/lib/data/authors-admin.server";

@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, GripVertical, Loader2 } from "lucide-react";
-import { reorderOrganizationsAction } from "@/app/superadmin/organizations/actions";
+import { reorderOrganizationsAction } from "@/app/[locale]/superadmin/organizations/actions";
 import type { AdminOrganizationRow } from "@/lib/data/organizations.server";
 
 export default function OrganizationOrderManager({

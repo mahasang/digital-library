@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { AlertCircle, CheckCircle2, Loader2, Save } from "lucide-react";
-import { updateSecuritySettingsAction } from "@/app/superadmin/security/actions";
+import { updateSecuritySettingsAction } from "@/app/[locale]/superadmin/security/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import type { AppSettings } from "@/types/research";
 

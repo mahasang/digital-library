@@ -19,7 +19,7 @@ import {
   linkAuthorProfileAction,
   unlinkAuthorProfileAction,
   checkOrcidPublicApiAction,
-} from "@/app/dashboard/authors/actions";
+} from "@/app/[locale]/dashboard/authors/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { orcidProfileUrl } from "@/lib/validation/orcid";
 import { useDialogA11y } from "@/lib/hooks/useDialogA11y";

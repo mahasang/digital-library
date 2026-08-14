@@ -2,7 +2,7 @@
 
 import { useActionState, useRef } from "react";
 import { Loader2, Trash2, AlertCircle } from "lucide-react";
-import { deleteOrphanedFileAction } from "@/app/superadmin/storage/actions";
+import { deleteOrphanedFileAction } from "@/app/[locale]/superadmin/storage/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { formatFileSize } from "@/lib/storage/limits";
 import type { OrphanedFile } from "@/lib/data/superadmin-stats.server";

@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { AlertCircle, CheckCircle2, UserPlus } from "lucide-react";
-import { registerAction } from "@/app/register/actions";
+import { registerAction } from "@/app/[locale]/register/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import TurnstileWidget from "@/components/auth/TurnstileWidget";
 

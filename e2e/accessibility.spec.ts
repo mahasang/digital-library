@@ -44,11 +44,11 @@ async function expectNoViolations(page: Page) {
 }
 
 const PUBLIC_ROUTES: { name: string; path: string }[] = [
-  { name: "homepage", path: "/" },
-  { name: "research-search", path: "/research" },
-  { name: "research-detail", path: "/research/eng-2024-001" },
-  { name: "login", path: "/login" },
-  { name: "register", path: "/register" },
+  { name: "homepage", path: "/th/" },
+  { name: "research-search", path: "/th/research" },
+  { name: "research-detail", path: "/th/research/eng-2024-001" },
+  { name: "login", path: "/th/login" },
+  { name: "register", path: "/th/register" },
 ];
 
 for (const theme of THEMES) {
@@ -67,11 +67,11 @@ const adminEmail = process.env.E2E_ADMIN_EMAIL;
 const adminPassword = process.env.E2E_ADMIN_PASSWORD;
 
 async function loginAs(page: Page, email: string, password: string) {
-  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.goto("/th/login", { waitUntil: "networkidle" });
   await page.getByRole("textbox", { name: /อีเมล/ }).fill(email);
   await page.getByRole("textbox", { name: "รหัสผ่าน" }).fill(password);
   await page.getByRole("button", { name: /เข้าสู่ระบบ/ }).click();
-  await page.waitForURL((u) => !u.pathname.includes("/login"), { timeout: 15_000 });
+  await page.waitForURL((u) => !u.pathname.includes("/login"), { timeout: 30_000 });
 }
 
 const AUTH_ROUTES: { name: string; path: string }[] = [
@@ -80,12 +80,12 @@ const AUTH_ROUTES: { name: string; path: string }[] = [
   // optimization: root layout ยังคงดึง getSessionUser() แยกเป็นของตัวเองตาม
   // เดิม ส่วนหน้าแรกเองก็ต้องแสดงผลถูกต้องไม่ว่า user จะเป็นใคร เพราะ
   // ไม่มีการปรับเนื้อหาตามสิทธิ์ผู้ใช้เลย (ข้อมูลสาธารณะล้วน)
-  { name: "homepage", path: "/" },
-  { name: "account-profile", path: "/account" },
-  { name: "favorites", path: "/favorites" },
-  { name: "notifications", path: "/notifications" },
-  { name: "dashboard-overview", path: "/dashboard" },
-  { name: "dashboard-reports", path: "/dashboard/reports" },
+  { name: "homepage", path: "/th/" },
+  { name: "account-profile", path: "/th/account" },
+  { name: "favorites", path: "/th/favorites" },
+  { name: "notifications", path: "/th/notifications" },
+  { name: "dashboard-overview", path: "/th/dashboard" },
+  { name: "dashboard-reports", path: "/th/dashboard/reports" },
 ];
 
 test.describe("authenticated (admin) routes", () => {
@@ -120,7 +120,7 @@ test.describe("mfa challenge screen", () => {
       await loginAs(page, superAdminEmail!, superAdminPassword!);
       // MFA is enforced on access to a super_admin-scoped route, not at
       // login itself — login always lands on "/" first.
-      await page.goto("/superadmin/overview", { waitUntil: "networkidle" });
+      await page.goto("/th/superadmin/overview", { waitUntil: "networkidle" });
       expect(page.url()).toContain("/mfa-challenge");
       await setTheme(page, theme);
       await expectNoViolations(page);

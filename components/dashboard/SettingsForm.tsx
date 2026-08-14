@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { AlertCircle, CheckCircle2, Loader2, Save } from "lucide-react";
-import { updateSettingsAction } from "@/app/dashboard/settings/actions";
+import { updateSettingsAction } from "@/app/[locale]/dashboard/settings/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import type { AppSettings } from "@/types/research";
 

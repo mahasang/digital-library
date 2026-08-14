@@ -6,7 +6,7 @@ import { AlertTriangle, CheckCircle2, Loader2, X } from "lucide-react";
 import {
   grantSuperAdminAction,
   revokeSuperAdminAction,
-} from "@/app/superadmin/users/actions";
+} from "@/app/[locale]/superadmin/users/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { useDialogA11y } from "@/lib/hooks/useDialogA11y";
 

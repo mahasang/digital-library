@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { CheckCircle2, AlertCircle, Link2, ExternalLink, Info } from "lucide-react";
-import { startOrcidConnectAction } from "@/app/account/orcid-actions";
+import { startOrcidConnectAction } from "@/app/[locale]/account/orcid-actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { orcidProfileUrl } from "@/lib/validation/orcid";
 import type { MyOrcidStatus } from "@/lib/data/orcid-profile.server";

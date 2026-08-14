@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { updateNotificationSettingsAction } from "@/app/profile/notification-settings/actions";
+import { updateNotificationSettingsAction } from "@/app/[locale]/profile/notification-settings/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import type { NotificationPreferences } from "@/lib/data/notification-preferences.server";
 

@@ -16,7 +16,7 @@ import {
   publishAction,
   rejectAction,
   requestRevisionAction,
-} from "@/app/dashboard/approvals/[id]/actions";
+} from "@/app/[locale]/dashboard/approvals/[id]/actions";
 import type { DocumentStatus } from "@/types/research";
 
 export default function ApprovalActions({

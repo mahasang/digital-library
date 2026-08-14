@@ -1,8 +1,93 @@
-# QA Production-Readiness Audit — 2026-08-13
+# QA Production-Readiness Audit — 2026-08-13 (Pass 1), อัปเดต 2026-08-14 (Pass 2)
 
 **ผู้ตรวจสอบ:** QA/Security Review (ผ่าน Claude Code)
-**วันที่ตรวจสอบ:** 2026-08-13
+**วันที่ตรวจสอบ:** 2026-08-13 (Pass 1), 2026-08-14 (Pass 2 — รอบนี้)
 **ประเภทการตรวจสอบ:** Audit-and-test-first (ไม่แก้โค้ด production ระหว่างตรวจสอบ) — ตรวจสอบเฉพาะสภาพแวดล้อม local เท่านั้น ไม่มีการ deploy จริง ไม่มีการแก้ไขข้อมูล production
+
+---
+
+## Pass 2 (2026-08-14) — สรุปสำหรับผู้อ่านที่รีบ
+
+Pass นี้เป็น **audit เชิง differential รอบที่สอง** ต่อจาก Pass 1 (หัวข้อ 0-9 ด้านล่าง คือเนื้อหาเดิมของ Pass 1 ทั้งหมด ไม่ได้แก้ไข คงไว้เพื่อ traceability) งานที่ทำใน Pass 2:
+
+1. รัน automated check ทั้งหมดซ้ำสด (lint/tsc/test/build/git status/git diff --check) — **ผ่านทั้งหมด ไม่มี regression**
+2. ยืนยันซ้ำว่า QA-01/QA-04/QA-05(บางส่วน) จาก Pass 1 ยังคงแก้ไขสมบูรณ์ ไม่ regress
+3. ตรวจสอบงานสองชิ้นที่ทำเพิ่มเติม**หลัง** Pass 1 จากมุมมองความปลอดภัย/regression: (ก) Supabase Realtime bundle deferral (`LogoutButton.tsx`, `IdleLogout.tsx`) (ข) การอัปโหลด `sample.pdf` เข้า Supabase Storage เพื่อแก้ signed-URL "Object not found" — ทั้งสองไม่พบปัญหาใหม่
+4. พบและแก้ไข **QA-06 (ใหม่)**: ไฟล์ artifact การทดสอบ (`dev-server.log`, `test-results/*` รวมถึง Playwright `trace.zip` ที่มี Supabase session cookie ของบัญชีทดสอบฝังอยู่) ถูก track ใน git ค้างมาตั้งแต่ก่อนที่จะถูกเพิ่มเข้า `.gitignore` — แก้ไขแล้วด้วย `git rm --cached`
+5. วินิจฉัย root cause ของ e2e flakiness ที่เกิดซ้ำ (`staff` role-gate, `public-home-cache`) จนถึงที่สุด — สรุปว่าเป็น **QA-07 (ใหม่, infra ไม่ใช่บั๊กแอป)**: container `supabase_vector_Ebooks` (log shipper ของ local Supabase stack) ค้าง crash-loop จริง เพราะ Docker Desktop บน Windows ปฏิเสธการเชื่อมต่อ Docker socket ของมัน (`Connection refused`, ดูหลักฐานหัวข้อ Pass 2 § หลักฐาน QA-07) — ไม่กระทบ production, ไม่กระทบ path ที่แอปจริงใช้งาน แต่ทำให้ e2e suite บาง test ไม่เสถียรใน local dev
+
+**คำตัดสินรอบนี้ (ไม่เปลี่ยนจาก Pass 1): Ready with Conditions** — รายละเอียดครบใน "Pass 2 — คำตัดสิน" ท้ายหัวข้อนี้
+
+### Pass 2 — ผล Automated Checks (รันสดวันที่ 2026-08-14)
+
+| คำสั่ง | ผลลัพธ์ |
+| --- | --- |
+| `npm run lint` | ✅ ผ่าน — 0 error, 8 warning (เหมือนเดิมทุกประการกับ Pass 1 — `_prevState`/`_formData` unused, pattern ที่ตั้งใจไว้สำหรับ `useActionState`) |
+| `npx tsc --noEmit` | ✅ ผ่าน — 0 error |
+| `npm run test` | ✅ ผ่าน — 127/127 (เท่ากับ Pass 1 ไม่มี test ใหม่/หายไป) |
+| `npm run build` (production) | ✅ ผ่าน — 69 routes, ไม่มี error (รันแยกจาก `npm run dev` เสมอ ตามบทเรียนที่บันทึกไว้ใน Pass 1 § 5.3) |
+| `git diff --check` | ✅ ผ่าน — ไม่มี whitespace error/conflict marker ค้าง |
+| `git status` | มีการเปลี่ยนแปลง 1 กลุ่ม: `git rm --cached` 4 ไฟล์ artifact (ดู QA-06) — ไม่มีการแก้โค้ด production ใน Pass 2 |
+| `npm run test:a11y` | ⚠️ **ไม่เสถียร (flaky)** — รันซ้ำ 3 ครั้งติดต่อกันได้ 48/50, 49/50, 50/50 ตามลำดับ (ดู QA-07) ทุกครั้งที่ fail เป็น 2 test เดิม (`staff` role-gate, `public-home-cache`) ไม่เคยมี test อื่น fail ไม่เคยพบปัญหาจริงในแอปจากการ fail เหล่านี้เลยสักครั้ง (ดูหลักฐาน) |
+
+### Pass 2 — Findings ใหม่
+
+### QA-06 (✅ แก้ไขแล้ว) | Medium | Test artifact ที่มี Supabase session cookie ของบัญชีทดสอบถูก commit ค้างอยู่ใน git
+
+- **Reproduction steps:** `git ls-files | grep -E "^(dev-server\.log|test-results/)"` (ก่อนแก้) → พบ 4 ไฟล์ถูก track อยู่ (`dev-server.log`, `test-results/.last-run.json`, และ error-context.md/trace.zip ของ auth-verification test run หนึ่งรอบ) แม้ทั้งสอง path จะอยู่ใน `.gitignore` แล้ว (บรรทัด 41-42) — เพราะถูก track ไปแล้วตั้งแต่ก่อนเพิ่มเข้า `.gitignore` (`.gitignore` ไม่มีผลย้อนหลังกับไฟล์ที่ track อยู่แล้ว) แตกไฟล์ `trace.zip` ที่ track อยู่ตรวจสอบเนื้อหาใน `0-trace.network` → พบ `Cookie`/`Set-Cookie` header จริง 24 รายการ มี prefix `sb-` (Supabase auth session cookie ของบัญชีทดสอบ `staff@local.la` ที่ Playwright capture ไว้ระหว่างรัน role-gate test)
+- **Expected:** ไฟล์ log/test-artifact ที่มีข้อมูล session ไม่ควรถูก commit เข้า git repository ไม่ว่าจะเป็นบัญชีทดสอบหรือไม่ (แนวทางเดียวกับ QA-01)
+- **Actual:** มี session cookie ของบัญชีทดสอบฝังอยู่ในประวัติ git แล้ว (`trace.zip`) และไฟล์ log/artifact จะถูก mark เป็น "modified" ทุกครั้งที่รัน dev server/test เป็น noise ใน `git status` ต่อเนื่อง
+- **Affected role/route:** ไม่เกี่ยวกับ role/route ของแอป — repository hygiene เหมือน QA-01
+- **ความเสี่ยงจริง:** ต่ำมาก — เป็น cookie ของบัญชีทดสอบ (`staff@local.la`) บน local Supabase instance (`127.0.0.1`) เท่านั้น ไม่ใช่บัญชี/instance production และ session token จะหมดอายุตามปกติ แต่ยังคงเป็นการฝ่าฝืนหลักการเดียวกับ QA-01 (ไม่ควร commit สิ่งที่มีลักษณะเป็น credential/session แม้จะเป็น local test data)
+- **Suggested fix:** `git rm --cached` ทั้ง 4 ไฟล์ (คงไว้ใน working tree, `.gitignore` มีอยู่แล้วจะป้องกันไม่ให้ track ซ้ำ)
+- **Regression test needed:** ครอบคลุมด้วย pre-commit secret-scan ตัวเดียวกับที่แนะนำไว้ใน QA-01 (ยังไม่ได้เพิ่มในโปรเจกต์ — นอกขอบเขต narrow fix ของทั้งสองข้อ)
+- **✅ แก้ไขแล้ว:** รัน `git rm --cached dev-server.log test-results/.last-run.json test-results/auth-verification-role-gat-183b0--403-from-higher-rank-pages/error-context.md test-results/auth-verification-role-gat-183b0--403-from-higher-rank-pages/trace.zip` ยืนยันด้วย `git ls-files | grep -E "^(dev-server\.log|test-results/)"` คืนค่าว่างเปล่าหลังแก้ (การเปลี่ยนแปลงนี้ยัง**ไม่ commit** ตามหลัก "ไม่ commit เว้นแต่ผู้ใช้ร้องขอ" — อยู่ใน staged state รอผู้ใช้ยืนยัน)
+
+### QA-07 (ℹ️ Infra — ไม่ใช่บั๊กแอป, ไม่บล็อก launch) | Low | e2e test สอง test ไม่เสถียรเป็นระยะเนื่องจาก local Docker log-shipper container ค้าง crash-loop
+
+- **Reproduction steps:** รัน `npm run test:a11y` ซ้ำ 3 ครั้งติดต่อกัน (dev mode, ไม่แก้โค้ดระหว่างรัน) → ผลลัพธ์ 48/50 → 49/50 → 50/50 (ไม่คงที่) ทุกครั้งที่ fail เป็น `auth-verification.spec.ts` (`role gate — staff`) และ/หรือ `public-home-cache.spec.ts` เท่านั้น ตรวจ `docker ps` ระหว่างที่ทดสอบ → `supabase_vector_Ebooks` อยู่ในสถานะ `Restarting (0) X seconds ago` ต่อเนื่อง ตรวจ `docker logs supabase_vector_Ebooks --tail 20` → พบ root cause ชัดเจน: `ERROR ... vector::sources::docker_logs: Listing currently running containers failed. error=HyperLegacyError { ... ConnectionRefused, message: "Connection refused" }` — container นี้ (Vector log-shipper ที่ป้อนหน้า Logs ของ Supabase Studio local) พยายามต่อ Docker socket เพื่อ tail log ของ container อื่น แต่ Docker Desktop บน Windows ปฏิเสธการเชื่อมต่อ ทำให้มันวน crash restart ตลอดทั้งเซสชัน (ยืนยันว่าเกิดตั้งแต่ Pass 1 แล้ว ไม่ใช่ปัญหาใหม่)
+- **หลักฐานว่าไม่ใช่บั๊กจริงของแอป:** อ่าน `error-context.md`/page-snapshot ของ test ที่ fail (`staff` role-gate) โดยตรง — พบว่าหน้าเว็บ**แสดงผลถูกต้องแล้ว** ("ไม่มีสิทธิ์เข้าถึงหน้านี้" ปรากฏจริงตอน staff เปิด `/superadmin`) แต่ Playwright ยัง fail เพราะ `page.goto(..., { waitUntil: "networkidle" })` timeout ที่ 30s — คือ browser ยังเห็น network activity ค้างอยู่ (สอดคล้องกับ container ที่วน restart ทุกนาทีสร้าง traffic รบกวนต่อเนื่อง) ไม่ใช่เพราะ authorization ทำงานผิด ส่วน `public-home-cache.spec.ts` fail ที่ `toPass({timeout: 20_000})` ของการรอ cache revalidation แสดงผล ซึ่งฝั่ง server log ยืนยันว่า operation จริง (สร้าง/ลบหมวดหมู่) สำเร็จ 200 ทุกครั้ง เป็นแค่ความล่าช้าในการ "เห็น" ผ่าน browser polling เท่านั้น — สรุปตรงกับที่เคยวินิจฉัยไว้แล้วใน [`lcp-render-blocking-css-optimization.md`](lcp-render-blocking-css-optimization.md) ระหว่างงานก่อนหน้า
+- **Expected:** e2e suite ควรผ่าน 50/50 สม่ำเสมอทุกครั้งที่รันในสภาพแวดล้อม local ที่ถูกต้อง
+- **Actual:** ไม่เสถียร — pass rate 96-100% ขึ้นกับ network noise จาก container ที่ค้าง crash-loop
+- **Affected role/route:** ไม่กระทบ production หรือผู้ใช้จริงเลย — `supabase_vector_Ebooks` เป็นแค่ log aggregator ของ Supabase Studio ฝั่ง local dev เท่านั้น ไม่อยู่ใน request path ของแอปที่ deploy จริง (production ใช้ Supabase-hosted ไม่ใช่ container ชุดนี้)
+- **Suggested fix:** เจ้าของโปรเจกต์ควรตรวจการตั้งค่า Docker Desktop (Windows) ว่าเปิด "Expose daemon" /socket ที่ Vector คาดหวังหรือไม่ หรือปิด logging service ใน `supabase/docker-compose` local stack ไปเลยถ้าไม่ได้ใช้หน้า Logs ของ Studio — เป็นการตั้งค่าระดับเครื่อง/Docker Desktop ไม่ใช่โค้ดของโปรเจกต์ จึง**ไม่แก้ในรอบนี้** (นอกขอบเขต narrow-code-fix และเป็นการเปลี่ยนแปลง infra ระดับเครื่องที่ควรให้เจ้าของเครื่องตัดสินใจเอง)
+- **Regression test needed:** ไม่มี (เป็นปัญหา environment ไม่ใช่โค้ด) — แนะนำเพิ่ม retry ระดับ CI (`retries: 2` ใน `playwright.config.ts` สำหรับ environment ที่ไม่เสถียร) เป็นทางเลือกบรรเทาอาการ หากทีมต้องการให้ CI เขียวสม่ำเสมอโดยไม่ต้องรอแก้ Docker เอง — ยังไม่ได้เพิ่มในรอบนี้ (เป็น config เปลี่ยนพฤติกรรม CI ที่ควรถามผู้ใช้ก่อน)
+
+### Pass 2 — ตรวจ regression ของงานที่ทำหลัง Pass 1
+
+**Realtime bundle deferral (`LogoutButton.tsx`, `IdleLogout.tsx`):**
+- Scan ทุก JS chunk ที่ homepage (guest) โหลดจริงในโหมด production หา signature `RealtimeClient` → **ไม่พบเลย** (ตรงตามที่ [`realtime-bundle-optimization.md`](realtime-bundle-optimization.md) รายงานไว้ ยังไม่ regress)
+- Logout ยังทำงานถูกต้อง (ทดสอบผ่าน `npm run test:a11y` ที่มี logout flow อยู่ใน `auth-verification.spec.ts` — ผ่านทุกครั้งที่ suite รันสำเร็จ)
+- ไม่มีการเปลี่ยนแปลง RLS/role/session-refresh logic ตามที่ scope งานเดิมกำหนดไว้ — ยืนยันด้วยการอ่านโค้ดสดอีกครั้ง ไม่มี diff เพิ่มเติมจากที่รายงานไว้แล้ว
+
+**PDF signed-URL fix (อัปโหลด `sample.pdf` เข้า Storage):**
+- ทดสอบดาวน์โหลดจริงผ่าน `/research/eng-2024-001` ในโหมด production ซ้ำอีกครั้ง (Playwright) → สำเร็จ ไม่มี error
+- ตรวจสอบว่าไฟล์ที่อัปโหลดเป็น placeholder เดียวกับที่ `seed.sql` มีคอมเมนต์ระบุไว้ชัดเจนแล้วว่าเป็น demo data — ไม่ใช่การเปลี่ยนแปลงที่กระทบ production data จริง (local Storage bucket เท่านั้น)
+- ไม่พบผลกระทบต่อ authorization ของ `member_only`/`staff_only`/`read_only` — ยังคง 404/403 ตามเดิม (ตรวจซ้ำในหัวข้อ 3.5 ของ Pass 1 ไม่มี regression)
+
+### Pass 2 — คำตัดสิน
+
+## **Ready with Conditions** (ไม่เปลี่ยนจาก Pass 1)
+
+ไม่พบ Critical/High ใหม่ใน Pass 2 พบ 1 ปัญหาระดับ Medium ใหม่ (QA-06) ซึ่ง**แก้ไขแล้ว**ในรอบนี้ และ 1 ปัญหาระดับ Low ที่เป็น**เรื่อง infra ล้วน ไม่ใช่บั๊กแอป** (QA-07, มีหลักฐานยืนยันชัดเจนว่าแอปทำงานถูกต้องทุกครั้งที่ตรวจสอบจริง) โค้ด production **ไม่มีการแก้ไขใดๆ ใน Pass 2** (มีแค่การ `git rm --cached` ไฟล์ artifact ที่ไม่ใช่ source code)
+
+**เงื่อนไขก่อนขึ้น production (เพิ่มเติมจาก Pass 1):**
+1. ทำตามเงื่อนไขทั้งหมดของ Pass 1 (หัวข้อ 6) ให้ครบ — ยังไม่เปลี่ยนแปลง
+2. แจ้งทีมที่ clone repo อยู่แล้วว่า `dev-server.log`/`test-results/` เลิก track เพิ่มเติมจาก `.claude/settings.local.json` (QA-01 เดิม) — ไฟล์จะยังอยู่ในเครื่องพวกเขาแต่ git จะไม่ตามการเปลี่ยนแปลงอีกต่อไปหลัง pull
+3. (ไม่บังคับ, แนะนำสำหรับ DX) ตรวจ Docker Desktop config บนเครื่อง dev เพื่อแก้ `supabase_vector_Ebooks` crash-loop — ไม่กระทบ production แต่จะทำให้ e2e suite เขียวสม่ำเสมอขึ้นระหว่างพัฒนาต่อ
+
+**Test results สรุปรวม Pass 2:** lint ✅ (0 error) · tsc ✅ (0 error) · unit/integration test ✅ (127/127) · production build ✅ (69 routes) · git diff --check ✅ · e2e/a11y ⚠️ (48-50/50 ขึ้นกับรอบ — สาเหตุยืนยันแล้วว่าเป็น local Docker infra ไม่ใช่แอป ดู QA-07)
+
+### Pass 2 — Manual Test Checklist เพิ่มเติม
+
+- [x] **QA-06**: `git rm --cached` ไฟล์ artifact ทั้ง 4 แล้ว (ยังไม่ commit — รอผู้ใช้ยืนยัน)
+- [ ] แจ้งทีมเรื่องไฟล์ที่เลิก track เพิ่มเติม (ดูเงื่อนไขข้อ 2 ด้านบน)
+- [ ] (ไม่บังคับ) ตรวจ/แก้ Docker Desktop networking ให้ `supabase_vector_Ebooks` เสถียร หากต้องการให้ CI/dev e2e เขียวสม่ำเสมอ
+- [ ] รัน `npm run test:a11y` เต็มรอบอย่างน้อยหนึ่งครั้งหลังแก้ Docker (ถ้าแก้) เพื่อยืนยัน 50/50
+
+---
+
+# Pass 1 — เนื้อหาเดิม (2026-08-13, ไม่แก้ไขในรอบนี้)
 
 ## 0. ความสัมพันธ์กับเอกสารที่มีอยู่เดิม
 

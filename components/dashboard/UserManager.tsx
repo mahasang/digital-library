@@ -5,7 +5,7 @@ import { Loader2, Power, ShieldCheck, Crown } from "lucide-react";
 import {
   changeUserRoleAction,
   toggleUserActiveAction,
-} from "@/app/dashboard/users/actions";
+} from "@/app/[locale]/dashboard/users/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { roleLabels } from "@/lib/labels";
 import type { AdminUserRow } from "@/lib/data/admin-users.server";

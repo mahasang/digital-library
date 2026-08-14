@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle2, Loader2, ShieldOff, X } from "lucide-react";
-import { resetUserMfaAction } from "@/app/superadmin/users/actions";
+import { resetUserMfaAction } from "@/app/[locale]/superadmin/users/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { useDialogA11y } from "@/lib/hooks/useDialogA11y";
 

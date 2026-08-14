@@ -6,7 +6,7 @@ import {
   confirmDuplicateAction,
   dismissDuplicateAction,
   mergeResearchItemsAction,
-} from "@/app/dashboard/duplicate-reviews/actions";
+} from "@/app/[locale]/dashboard/duplicate-reviews/actions";
 import { idleActionResult, type ActionResult } from "@/lib/actions/types";
 
 function ResultMessage({ state }: { state: ActionResult }) {

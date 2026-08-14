@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Loader2, AlertCircle, CheckCircle2, ShieldAlert } from "lucide-react";
-import { addUserRoleAction, removeUserRoleAction } from "@/app/superadmin/users/actions";
+import { addUserRoleAction, removeUserRoleAction } from "@/app/[locale]/superadmin/users/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { roleLabels } from "@/lib/labels";
 import SuperAdminRoleConfirmDialog from "@/components/superadmin/SuperAdminRoleConfirmDialog";

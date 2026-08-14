@@ -2,7 +2,7 @@
 
 import { useActionState, useRef, useState } from "react";
 import { AlertCircle, CheckCircle2, ImageIcon, Loader2, Save, UploadCloud } from "lucide-react";
-import { updateSystemSettingsAction } from "@/app/superadmin/system-settings/actions";
+import { updateSystemSettingsAction } from "@/app/[locale]/superadmin/system-settings/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { createDraftKey } from "@/lib/storage/paths";
 import { uploadResearchFile } from "@/lib/storage/upload.client";

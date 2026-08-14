@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CheckCircle2, Clock, KeyRound, ShieldOff } from "lucide-react";
 import MfaResetConfirmDialog from "@/components/superadmin/MfaResetConfirmDialog";
 import type { MfaFactorSummary } from "@/types/research";
@@ -68,9 +69,9 @@ export default function MfaResetControl({
       {isSelf ? (
         <p className="text-xs text-gray-500">
           ไม่สามารถรีเซ็ต MFA ของตัวเองผ่านหน้านี้ได้ — จัดการอุปกรณ์ของตัวเองที่{" "}
-          <a href="/account" className="text-accent hover:underline">
+          <Link href="/account" className="text-accent hover:underline">
             หน้าบัญชีของฉัน
-          </a>
+          </Link>
         </p>
       ) : hasFactors ? (
         <button

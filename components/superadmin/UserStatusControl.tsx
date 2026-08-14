@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Loader2, AlertCircle, CheckCircle2, Power, Clock } from "lucide-react";
-import { setUserStatusAction } from "@/app/superadmin/users/actions";
+import { setUserStatusAction } from "@/app/[locale]/superadmin/users/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function UserStatusControl({

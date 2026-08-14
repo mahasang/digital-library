@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, Eye, EyeOff, LogIn } from "lucide-react";
-import { loginAction } from "@/app/login/actions";
+import { loginAction } from "@/app/[locale]/login/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function LoginForm({ redirectTo }: { redirectTo: string }) {

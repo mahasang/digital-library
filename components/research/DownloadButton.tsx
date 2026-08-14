@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AlertCircle, CheckCircle2, Download, Lock } from "lucide-react";
 import { canDownload } from "@/lib/labels";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { requestDownloadUrlAction } from "@/app/research/[id]/actions";
+import { requestDownloadUrlAction } from "@/app/[locale]/research/[id]/actions";
 import type { AccessLevel } from "@/types/research";
 
 export default function DownloadButton({

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, Loader2 } from "lucide-react";
-import { toggleFavoriteAction } from "@/app/research/[id]/actions";
+import { toggleFavoriteAction } from "@/app/[locale]/research/[id]/actions";
 
 export default function FavoriteButton({
   researchSlug,

@@ -6,7 +6,7 @@ import {
   approveAccessRequestAction,
   rejectAccessRequestAction,
   requestMoreInfoAction,
-} from "@/app/dashboard/access-requests/[id]/actions";
+} from "@/app/[locale]/dashboard/access-requests/[id]/actions";
 import { idleActionResult, type ActionResult } from "@/lib/actions/types";
 
 type Tab = "approve" | "reject" | "more_info";

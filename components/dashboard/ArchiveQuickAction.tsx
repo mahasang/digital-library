@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Archive, Loader2 } from "lucide-react";
-import { archiveAction } from "@/app/dashboard/approvals/[id]/actions";
+import { archiveAction } from "@/app/[locale]/dashboard/approvals/[id]/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function ArchiveQuickAction({ researchId }: { researchId: string }) {

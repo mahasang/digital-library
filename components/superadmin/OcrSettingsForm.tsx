@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { AlertCircle, CheckCircle2, Loader2, Save } from "lucide-react";
-import { updateOcrSettingsAction } from "@/app/superadmin/ocr/actions";
+import { updateOcrSettingsAction } from "@/app/[locale]/superadmin/ocr/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { accessLevelLabels } from "@/lib/labels";
 import type { AppSettings, AccessLevel } from "@/types/research";

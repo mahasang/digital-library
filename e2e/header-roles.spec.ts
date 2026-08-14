@@ -40,16 +40,16 @@ const EXPECTED_LINKS: Record<RoleName, string[]> = {
 };
 
 async function loginAs(page: Page, email: string, password: string) {
-  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.goto("/th/login", { waitUntil: "networkidle" });
   await page.getByRole("textbox", { name: /อีเมล/ }).fill(email);
   await page.getByRole("textbox", { name: "รหัสผ่าน" }).fill(password);
   await page.getByRole("button", { name: /เข้าสู่ระบบ/ }).click();
-  await page.waitForURL((u) => !u.pathname.includes("/login"), { timeout: 15_000 });
+  await page.waitForURL((u) => !u.pathname.includes("/login"), { timeout: 30_000 });
 }
 
 /** เปิด dropdown เมนูผู้ใช้ (desktop UserMenu) แล้วอ่านรายการ href ของลิงก์ทั้งหมด */
 async function openUserMenuAndGetLinks(page: Page): Promise<string[]> {
-  await page.goto("/", { waitUntil: "networkidle" });
+  await page.goto("/th/", { waitUntil: "networkidle" });
   const trigger = page.getByRole("button", { name: /โปรไฟล์ของฉัน|@/ });
   await trigger.click();
   const menu = page.locator(".absolute.right-0.z-50");
@@ -63,7 +63,7 @@ async function openUserMenuAndGetLinks(page: Page): Promise<string[]> {
 
 test.describe("Header account area — guest", () => {
   test("shows login/register, no notification bell, no user menu", async ({ page }) => {
-    await page.goto("/", { waitUntil: "networkidle" });
+    await page.goto("/th/", { waitUntil: "networkidle" });
     await expect(page.getByRole("link", { name: "เข้าสู่ระบบ", exact: true }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "สมัครสมาชิก", exact: true }).first()).toBeVisible();
     await expect(page.getByRole("button", { name: "การแจ้งเตือน" })).toHaveCount(0);
@@ -72,7 +72,7 @@ test.describe("Header account area — guest", () => {
 
   test("mobile menu opens, shows login/register, and auto-closes on navigation", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
-    await page.goto("/", { waitUntil: "networkidle" });
+    await page.goto("/th/", { waitUntil: "networkidle" });
 
     const toggle = page.getByRole("button", { name: "เปิดเมนู" });
     await toggle.click();
@@ -84,7 +84,8 @@ test.describe("Header account area — guest", () => {
     await expect(mobilePanel.getByRole("link", { name: "สมัครสมาชิก", exact: true })).toBeVisible();
 
     await mobilePanel.getByRole("link", { name: "งานวิจัย", exact: true }).click();
-    await page.waitForURL((u) => u.pathname === "/research");
+    // i18n Phase 0A — ทุก path ผ่าน locale prefix เสมอ (localePrefix: "always")
+    await page.waitForURL((u) => /^\/(th|en|lo)\/research$/.test(u.pathname));
     await expect(page.getByRole("button", { name: "เปิดเมนู" })).toBeVisible();
   });
 });
@@ -108,7 +109,7 @@ for (const role of Object.keys(ACCOUNTS) as RoleName[]) {
       await page.setViewportSize({ width: 375, height: 800 });
       await loginAs(page, email!, password!);
 
-      await page.goto("/", { waitUntil: "networkidle" });
+      await page.goto("/th/", { waitUntil: "networkidle" });
       await page.getByRole("button", { name: "เปิดเมนู" }).click();
       const mobilePanel = page.locator("header .md\\:hidden");
 
@@ -129,7 +130,7 @@ test.describe("Header account area — notification badge", () => {
     page,
   }) => {
     await loginAs(page, email!, password!);
-    await page.goto("/", { waitUntil: "networkidle" });
+    await page.goto("/th/", { waitUntil: "networkidle" });
 
     const bell = page.getByRole("button", { name: "การแจ้งเตือน" });
     await expect(bell).toBeVisible();

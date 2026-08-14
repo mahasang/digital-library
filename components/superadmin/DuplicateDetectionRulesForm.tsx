@@ -6,7 +6,7 @@ import { idleActionResult } from "@/lib/actions/types";
 import {
   updateDuplicateDetectionRulesAction,
   resetDuplicateDetectionRulesToDefaultAction,
-} from "@/app/superadmin/data-quality/settings/actions";
+} from "@/app/[locale]/superadmin/data-quality/settings/actions";
 import type { DuplicateDetectionRule } from "@/lib/data/duplicate-detection-rules.server";
 
 type WeightKey = "weightTitle" | "weightAuthor" | "weightYear" | "weightIdentifier" | "weightFileHash";

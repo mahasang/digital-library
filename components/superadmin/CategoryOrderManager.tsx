@@ -27,7 +27,7 @@ import {
   GripVertical,
   Loader2,
 } from "lucide-react";
-import { moveCategoryAction, reorderCategoriesAction } from "@/app/superadmin/categories/actions";
+import { moveCategoryAction, reorderCategoriesAction } from "@/app/[locale]/superadmin/categories/actions";
 import type { AdminCategoryRow } from "@/lib/data/categories.server";
 
 const ROOT = "root";

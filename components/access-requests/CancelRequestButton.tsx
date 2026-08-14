@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Loader2, X } from "lucide-react";
-import { cancelAccessRequestAction } from "@/app/research/[id]/access-request-actions";
+import { cancelAccessRequestAction } from "@/app/[locale]/research/[id]/access-request-actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function CancelRequestButton({ requestId }: { requestId: string }) {

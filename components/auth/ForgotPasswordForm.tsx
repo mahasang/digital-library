@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { AlertCircle, CheckCircle2, Send } from "lucide-react";
-import { forgotPasswordAction } from "@/app/auth/forgot-password/actions";
+import { forgotPasswordAction } from "@/app/[locale]/auth/forgot-password/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function ForgotPasswordForm() {

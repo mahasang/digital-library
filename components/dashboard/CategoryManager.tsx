@@ -7,7 +7,7 @@ import {
   deleteCategoryAction,
   toggleCategoryActiveAction,
   updateCategoryAction,
-} from "@/app/dashboard/categories/actions";
+} from "@/app/[locale]/dashboard/categories/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import type { AdminCategoryRow } from "@/lib/data/categories.server";
 

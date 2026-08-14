@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { AlertCircle, CheckCircle2, Loader2, Save } from "lucide-react";
-import { updateAccessExpirationWarningSettingsAction } from "@/app/superadmin/notifications/actions";
+import { updateAccessExpirationWarningSettingsAction } from "@/app/[locale]/superadmin/notifications/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import type { AppSettings } from "@/types/research";
 

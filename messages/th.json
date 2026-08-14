@@ -1,0 +1,89 @@
+{
+  "common": {
+    "loading": "กำลังโหลด...",
+    "error": "เกิดข้อผิดพลาด",
+    "retry": "ลองอีกครั้ง",
+    "cancel": "ยกเลิก",
+    "save": "บันทึก",
+    "delete": "ลบ",
+    "edit": "แก้ไข",
+    "view": "ดู",
+    "download": "ดาวน์โหลด",
+    "search": "ค้นหา",
+    "filter": "กรอง",
+    "clear": "ล้าง",
+    "submit": "ส่ง",
+    "confirm": "ยืนยัน",
+    "close": "ปิด",
+    "back": "กลับ",
+    "next": "ถัดไป",
+    "previous": "ก่อนหน้า",
+    "required": "จำเป็น",
+    "optional": "ไม่บังคับ"
+  },
+  "header": {
+    "home": "หน้าแรก",
+    "research": "คลังงานวิจัย",
+    "login": "เข้าสู่ระบบ",
+    "register": "สมัครสมาชิก",
+    "logout": "ออกจากระบบ",
+    "loggingOut": "กำลังออกจากระบบ...",
+    "myAccount": "บัญชีของฉัน",
+    "dashboard": "แดชบอร์ด",
+    "admin": "ผู้ดูแลระบบ",
+    "skipToContent": "ข้ามไปยังเนื้อหาหลัก"
+  },
+  "nav": {
+    "language": "ภาษา",
+    "languageLabel": "เลือกภาษา",
+    "th": "ไทย",
+    "en": "English",
+    "lo": "ລາວ"
+  },
+  "home": {
+    "title": "คลังงานวิจัยดิจิทัล",
+    "subtitle": "ค้นหาและเข้าถึงงานวิจัย วิทยานิพนธ์ และเอกสารวิชาการ",
+    "searchPlaceholder": "ค้นหางานวิจัย...",
+    "searchButton": "ค้นหา",
+    "browseAll": "ดูทั้งหมด",
+    "featuredResearch": "งานวิจัยแนะนำ",
+    "recentResearch": "งานวิจัยล่าสุด",
+    "categories": "หมวดหมู่",
+    "viewAll": "ดูทั้งหมด"
+  },
+  "research": {
+    "pageTitle": "คลังงานวิจัย",
+    "pageSubtitle": "ค้นหาและกรองงานวิจัยขององค์กรจากคลังเอกสารดิจิทัล — รวมค้นหาเนื้อหาภายในไฟล์ PDF",
+    "searchPlaceholder": "ค้นหาชื่อเรื่อง ผู้แต่ง คีย์เวิร์ด...",
+    "noResults": "ไม่พบงานวิจัยที่ตรงกับเงื่อนไข",
+    "noResultsHint": "ลองเปลี่ยนคำค้นหาหรือลบตัวกรองบางรายการ",
+    "totalResults": "{count} รายการ",
+    "filterBy": "กรองโดย",
+    "sortBy": "เรียงโดย",
+    "sortNewest": "ใหม่ล่าสุด",
+    "sortOldest": "เก่าที่สุด",
+    "sortTitle": "ชื่อเรื่อง",
+    "sortRelevance": "ความเกี่ยวข้อง",
+    "allCategories": "ทุกหมวดหมู่",
+    "allYears": "ทุกปี",
+    "accessLevel": "ระดับการเข้าถึง",
+    "allAccess": "ทุกระดับ"
+  },
+  "auth": {
+    "loginTitle": "เข้าสู่ระบบ",
+    "registerTitle": "สมัครสมาชิก",
+    "email": "อีเมล",
+    "password": "รหัสผ่าน",
+    "forgotPassword": "ลืมรหัสผ่าน?",
+    "noAccount": "ยังไม่มีบัญชี?",
+    "hasAccount": "มีบัญชีอยู่แล้ว?",
+    "loginHere": "เข้าสู่ระบบที่นี่",
+    "registerHere": "สมัครสมาชิกที่นี่"
+  },
+  "errors": {
+    "notFound": "ไม่พบหน้าที่ต้องการ",
+    "forbidden": "คุณไม่มีสิทธิ์เข้าถึงหน้านี้",
+    "serverError": "เกิดข้อผิดพลาดในระบบ กรุณาลองอีกครั้ง",
+    "sessionExpired": "เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่"
+  }
+}

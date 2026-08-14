@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { AlertCircle, Loader2, ShieldOff } from "lucide-react";
-import { revokeAccessGrantAction } from "@/app/dashboard/access-requests/[id]/actions";
+import { revokeAccessGrantAction } from "@/app/[locale]/dashboard/access-requests/[id]/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function RevokeGrantButton({

@@ -8,8 +8,8 @@ import {
   mergeOrganizationsAction,
   toggleOrganizationActiveAction,
   updateOrganizationAction,
-} from "@/app/dashboard/organizations/actions";
-import { checkSimilarOrganizationsAction } from "@/app/dashboard/authors/check-similar-actions";
+} from "@/app/[locale]/dashboard/organizations/actions";
+import { checkSimilarOrganizationsAction } from "@/app/[locale]/dashboard/authors/check-similar-actions";
 import { idleActionResult } from "@/lib/actions/types";
 import type { AdminOrganizationRow } from "@/lib/data/organizations.server";
 

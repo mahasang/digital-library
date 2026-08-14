@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { CheckCircle2, AlertCircle, Clock, ImageOff, Loader2, RefreshCw, ScanText } from "lucide-react";
-import { reprocessResearchTextAction, triggerOcrAction } from "@/app/dashboard/research/[id]/edit/actions";
+import { reprocessResearchTextAction, triggerOcrAction } from "@/app/[locale]/dashboard/research/[id]/edit/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { extractionStatusLabels, ocrStatusLabels } from "@/lib/labels";
 import type { ExtractionStatusRow, OcrStatusRow } from "@/lib/supabase/database.types";

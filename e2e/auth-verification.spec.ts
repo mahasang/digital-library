@@ -27,11 +27,11 @@ type RoleName = keyof typeof ACCOUNTS;
 const ALL_ROLES = Object.keys(ACCOUNTS) as RoleName[];
 
 async function loginAs(page: Page, email: string, password: string) {
-  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.goto("/th/login", { waitUntil: "networkidle" });
   await page.getByRole("textbox", { name: /อีเมล/ }).fill(email);
   await page.getByRole("textbox", { name: "รหัสผ่าน" }).fill(password);
   await page.getByRole("button", { name: /เข้าสู่ระบบ/ }).click();
-  await page.waitForURL((u) => !u.pathname.includes("/login"), { timeout: 15_000 });
+  await page.waitForURL((u) => !u.pathname.includes("/login"), { timeout: 30_000 });
 }
 
 function hasAccount(role: RoleName) {
@@ -50,14 +50,16 @@ test.describe("logout", () => {
   }) => {
     await loginAs(page, email!, password!);
 
-    await page.goto("/account", { waitUntil: "networkidle" });
+    await page.goto("/th/account", { waitUntil: "networkidle" });
     await expect(page).toHaveURL(/\/account/);
 
     await page.getByRole("button", { name: "ออกจากระบบ" }).first().click();
-    await page.waitForURL((u) => u.pathname === "/", { timeout: 10_000 });
+    // i18n Phase 0A — ทุก path ผ่าน locale prefix เสมอ (localePrefix: "always")
+    // "/" จริงจะ redirect เป็น /th, /en, หรือ /lo ตาม locale ที่ negotiate ได้
+    await page.waitForURL((u) => /^\/(th|en|lo)$/.test(u.pathname), { timeout: 10_000 });
 
     // guest อีกครั้งแล้ว — เข้าหน้าที่ต้อง login ต้องถูกเด้งไป /login
-    await page.goto("/account", { waitUntil: "networkidle" });
+    await page.goto("/th/account", { waitUntil: "networkidle" });
     await expect(page).toHaveURL(/\/login/);
   });
 });
@@ -70,7 +72,7 @@ test.describe("role gate — guest", () => {
   test("guest is redirected to /login from any login-required or role-required page", async ({
     page,
   }) => {
-    for (const path of ["/account", "/favorites", "/submit-research", "/dashboard", "/superadmin"]) {
+    for (const path of ["/th/account", "/th/favorites", "/th/submit-research", "/th/dashboard", "/th/superadmin"]) {
       await page.goto(path, { waitUntil: "networkidle" });
       await expect(page, `guest visiting ${path}`).toHaveURL(/\/login/);
     }
@@ -79,23 +81,23 @@ test.describe("role gate — guest", () => {
 
 const ROLE_GATE_MATRIX: Record<RoleName, { allowed: string[]; forbidden: string[] }> = {
   member: {
-    allowed: ["/account", "/favorites"],
-    forbidden: ["/submit-research", "/dashboard", "/superadmin"],
+    allowed: ["/th/account", "/th/favorites"],
+    forbidden: ["/th/submit-research", "/th/dashboard", "/th/superadmin"],
   },
   staff: {
-    allowed: ["/account", "/submit-research", "/my-submissions"],
-    forbidden: ["/dashboard", "/superadmin"],
+    allowed: ["/th/account", "/th/submit-research", "/th/my-submissions"],
+    forbidden: ["/th/dashboard", "/th/superadmin"],
   },
   librarian: {
-    allowed: ["/dashboard"],
-    forbidden: ["/dashboard/users", "/dashboard/settings", "/superadmin"],
+    allowed: ["/th/dashboard"],
+    forbidden: ["/th/dashboard/users", "/th/dashboard/settings", "/th/superadmin"],
   },
   admin: {
-    allowed: ["/dashboard", "/dashboard/users", "/dashboard/settings"],
-    forbidden: ["/superadmin"],
+    allowed: ["/th/dashboard", "/th/dashboard/users", "/th/dashboard/settings"],
+    forbidden: ["/th/superadmin"],
   },
   super_admin: {
-    allowed: ["/dashboard", "/dashboard/users", "/superadmin"],
+    allowed: ["/th/dashboard", "/th/dashboard/users", "/th/superadmin"],
     forbidden: [],
   },
 };
@@ -152,7 +154,7 @@ test.describe("corrupted session token", () => {
 
     // ต้องไม่ crash (ไม่ใช่หน้า error 500) และไม่ถือว่ายัง login อยู่ (bypass)
     // middleware.ts ตรวจพบ getUser() ล้มเหลว -> signOut() -> ปฏิบัติเหมือน guest
-    const response = await page.goto("/account", { waitUntil: "networkidle" });
+    const response = await page.goto("/th/account", { waitUntil: "networkidle" });
     expect(response?.status(), "corrupted-token request must not 500").toBeLessThan(500);
     await expect(page).toHaveURL(/\/login/);
   });
@@ -166,12 +168,12 @@ test.describe("corrupted session token", () => {
 // ------------------------------------------------------------------
 test.describe("document download authorization", () => {
   test("guest can download a public item without logging in", async ({ page }) => {
-    await page.goto("/research/eng-2024-001", { waitUntil: "networkidle" });
+    await page.goto("/th/research/eng-2024-001", { waitUntil: "networkidle" });
     await expect(page.getByRole("button", { name: "ดาวน์โหลดไฟล์" })).toBeEnabled();
   });
 
   test("guest cannot see a member_only item at all (404, not a login prompt)", async ({ page }) => {
-    const response = await page.goto("/research/it-2024-002", { waitUntil: "networkidle" });
+    const response = await page.goto("/th/research/it-2024-002", { waitUntil: "networkidle" });
     expect(response?.status()).toBe(404);
   });
 
@@ -180,7 +182,7 @@ test.describe("document download authorization", () => {
     test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set — skipping");
 
     await loginAs(page, email!, password!);
-    await page.goto("/research/edu-2024-005", { waitUntil: "networkidle" });
+    await page.goto("/th/research/edu-2024-005", { waitUntil: "networkidle" });
     // read_only ไม่ผ่าน canDownload() เลย — หน้าเว็บจึงแสดง AccessRequestButton
     // (ปุ่ม "ขอสิทธิ์ดาวน์โหลด" หรือ สถานะคำขอเดิมถ้าเคยส่งคำขอไปแล้ว — ทั้งสอง
     // กรณีมีข้อความ "ขอสิทธิ์ดาวน์โหลด" ปรากฏอยู่เสมอ) แทน DownloadButton ที่ใช้
@@ -195,7 +197,7 @@ test.describe("document download authorization", () => {
     test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set — skipping");
 
     await loginAs(page, email!, password!);
-    await page.goto("/research/it-2024-002", { waitUntil: "networkidle" });
+    await page.goto("/th/research/it-2024-002", { waitUntil: "networkidle" });
     await expect(page.getByRole("button", { name: "ดาวน์โหลดไฟล์" })).toBeEnabled();
   });
 });

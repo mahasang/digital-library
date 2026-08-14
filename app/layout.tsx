@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Noto_Sans_Thai } from "next/font/google";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import HeaderAccountArea, { HeaderAccountAreaSkeleton } from "@/components/layout/HeaderAccountArea";
-import FooterData, { FooterSkeleton } from "@/components/layout/FooterData";
-import IdleLogoutGate from "@/components/auth/IdleLogoutGate";
-import ThemeProvider from "@/components/layout/ThemeProvider";
-import { getPublicHomeSettings } from "@/lib/data/settings.server";
 
 const notoSansThai = Noto_Sans_Thai({
   subsets: ["thai", "latin"],
@@ -26,69 +20,32 @@ export const metadata: Metadata = {
 };
 
 /**
- * Hallmark — header rendering refactor (ต่อยอดจาก Hallmark — homepage
- * data-flow optimization และ public homepage caching) เดิม RootLayout เรียก
- * getSessionUser() + getSettings() + getCategories() + (ถ้ามี user)
- * getMyNotifications()/getUnreadNotificationCount() รวมเป็น Promise.all เดียว
- * ที่บล็อกทุก route ทั้งเว็บ — ต้องรอให้ครบทุกตัวก่อน React ถึงจะเริ่ม render
- * อะไรได้เลยแม้แต่ {children} เพราะไม่มี <Suspense> คั่นไว้เลย
+ * i18n Phase 0A — root layout ตัวจริงตามข้อบังคับของ Next.js App Router
+ * (<html>/<body> เรนเดอร์ได้ที่จุดเดียวในทั้งแอปเท่านั้น) คงไว้ที่นี่เพื่อรองรับ
+ * route ที่อยู่นอก app/[locale]/ เช่น app/not-found.tsx และ app/api/* — UI จริง
+ * ทั้งหมด (Header, Footer, ThemeProvider, IdleLogout, NextIntlClientProvider)
+ * ย้ายไปอยู่ที่ app/[locale]/layout.tsx (nested layout) แล้วทั้งหมด
  *
- * ตอนนี้ RootLayout เหลือ await เดียว (getPublicHomeSettings() — cache ไว้
- * แล้วผ่าน unstable_cache จาก Hallmark ก่อนหน้า จึงเบามาก ใช้แค่ siteName/
- * logoUrl สำหรับโลโก้ใน Header ซึ่งเป็นส่วนหนึ่งของ "เมนูนำทางสาธารณะ" ที่ควร
- * render ทันทีไม่ต้องมี skeleton กระพริบ) ส่วนที่เหลือทั้งหมด (บัญชีผู้ใช้ x2,
- * Footer, IdleLogout) ย้ายไปเป็น Server Component แยกที่ห่อด้วย <Suspense>
- * ของตัวเอง — {children} (เนื้อหาแต่ละหน้า) จึงเริ่ม stream ได้ทันทีโดยไม่ต้อง
- * รอข้อมูลบัญชีผู้ใช้ที่ช้ากว่าและเปลี่ยนไปตามแต่ละคนเลย
- *
- * การตรวจสอบสิทธิ์ (role) ทั้งหมดยังคงทำฝั่งเซิร์ฟเวอร์ผ่าน getSessionUser()
- * เหมือนเดิมทุกประการ (ดู components/layout/HeaderAccountArea.tsx,
- * components/auth/IdleLogoutGate.tsx) — middleware.ts ก็ยังตรวจสอบ/ป้องกัน
- * route ที่ต้องมีสิทธิ์เหมือนเดิมทุกประการ ไม่ถูกแตะต้องเลยในงานนี้ ไม่มีการส่ง
- * user/role จาก middleware ผ่าน request header ที่เชื่อถือได้แทนการตรวจสอบ
- * ฝั่งเซิร์ฟเวอร์แต่อย่างใด
+ * lang ใช้ getLocale() จาก next-intl/server แทนการ hardcode "th" เพื่อให้ถูก
+ * ต้องแม้ในหน้าภาษาอังกฤษ/ลาว — next-intl resolve locale จาก request ที่
+ * middleware.ts กำหนดไว้แล้วเสมอสำหรับ route ปกติทุกเส้นทาง ส่วน route ที่หลุด
+ * จาก [locale] จริงๆ (ไม่ผ่าน intl middleware เลย) จะได้ routing.defaultLocale
+ * ("th") เป็นค่าเริ่มต้นอย่างปลอดภัยจาก i18n/request.ts
  */
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { siteName, logoUrl } = await getPublicHomeSettings();
+  const locale = await getLocale();
 
   return (
-    <html lang="th" className={notoSansThai.variable} suppressHydrationWarning>
+    <html lang={locale} className={notoSansThai.variable} suppressHydrationWarning>
       <body
         className="flex min-h-screen flex-col font-sans antialiased"
         suppressHydrationWarning
       >
-        <ThemeProvider>
-          <a href="#main-content" className="skip-link">
-            ข้ามไปยังเนื้อหาหลัก
-          </a>
-          <Header
-            siteName={siteName}
-            logoUrl={logoUrl}
-            desktopAccountArea={
-              <Suspense fallback={<HeaderAccountAreaSkeleton variant="desktop" />}>
-                <HeaderAccountArea variant="desktop" />
-              </Suspense>
-            }
-            mobileAccountArea={
-              <Suspense fallback={<HeaderAccountAreaSkeleton variant="mobile" />}>
-                <HeaderAccountArea variant="mobile" />
-              </Suspense>
-            }
-          />
-          <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
-            {children}
-          </main>
-          <Suspense fallback={<FooterSkeleton />}>
-            <FooterData />
-          </Suspense>
-          <Suspense fallback={null}>
-            <IdleLogoutGate />
-          </Suspense>
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   );

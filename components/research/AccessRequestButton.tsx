@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, Clock, FileQuestion, KeyRound, Loader2, XCircle } from "lucide-react";
-import { submitAccessRequestAction } from "@/app/research/[id]/access-request-actions";
+import { submitAccessRequestAction } from "@/app/[locale]/research/[id]/access-request-actions";
 import { idleActionResult } from "@/lib/actions/types";
 import { accessRequestStatusLabels } from "@/lib/labels";
 import type { AccessRequestStatus, AccessRequestType } from "@/types/research";

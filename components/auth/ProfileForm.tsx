@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { AlertCircle, CheckCircle2, Save } from "lucide-react";
-import { updateProfileAction } from "@/app/account/actions";
+import { updateProfileAction } from "@/app/[locale]/account/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function ProfileForm({

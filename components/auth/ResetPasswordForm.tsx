@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { AlertCircle, Eye, EyeOff, KeyRound } from "lucide-react";
-import { resetPasswordAction } from "@/app/auth/reset-password/actions";
+import { resetPasswordAction } from "@/app/[locale]/auth/reset-password/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function ResetPasswordForm() {

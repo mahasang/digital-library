@@ -1,0 +1,89 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "download": "Download",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "required": "Required",
+    "optional": "Optional"
+  },
+  "header": {
+    "home": "Home",
+    "research": "Research Repository",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "logout": "Sign Out",
+    "loggingOut": "Signing out...",
+    "myAccount": "My Account",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "skipToContent": "Skip to main content"
+  },
+  "nav": {
+    "language": "Language",
+    "languageLabel": "Select language",
+    "th": "ไทย",
+    "en": "English",
+    "lo": "ລາວ"
+  },
+  "home": {
+    "title": "Digital Research Repository",
+    "subtitle": "Search and access research papers, theses, and academic documents",
+    "searchPlaceholder": "Search research...",
+    "searchButton": "Search",
+    "browseAll": "Browse All",
+    "featuredResearch": "Featured Research",
+    "recentResearch": "Recent Research",
+    "categories": "Categories",
+    "viewAll": "View All"
+  },
+  "research": {
+    "pageTitle": "Research Repository",
+    "pageSubtitle": "Search and filter organizational research from the digital document repository — including full-text PDF search",
+    "searchPlaceholder": "Search by title, author, keywords...",
+    "noResults": "No research found matching your criteria",
+    "noResultsHint": "Try changing your search terms or removing some filters",
+    "totalResults": "{count} results",
+    "filterBy": "Filter by",
+    "sortBy": "Sort by",
+    "sortNewest": "Newest first",
+    "sortOldest": "Oldest first",
+    "sortTitle": "Title",
+    "sortRelevance": "Relevance",
+    "allCategories": "All Categories",
+    "allYears": "All Years",
+    "accessLevel": "Access Level",
+    "allAccess": "All Levels"
+  },
+  "auth": {
+    "loginTitle": "Sign In",
+    "registerTitle": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginHere": "Sign in here",
+    "registerHere": "Sign up here"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "forbidden": "You don't have permission to access this page",
+    "serverError": "A server error occurred. Please try again.",
+    "sessionExpired": "Your session has expired. Please sign in again."
+  }
+}

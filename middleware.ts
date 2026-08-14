@@ -1,8 +1,73 @@
-import type { NextRequest } from "next/server";
+import { NextRequest } from "next/server";
+import createIntlMiddleware from "next-intl/middleware";
 import { updateSession } from "@/lib/supabase/middleware";
+import { routing } from "@/i18n/routing";
 
+const intlMiddleware = createIntlMiddleware(routing);
+
+const LOCALE_PREFIX_PATTERN = /^\/(th|en|lo)(?=\/|$)/;
+
+function addLocalePrefix(pathname: string, locale: string): string {
+  if (LOCALE_PREFIX_PATTERN.test(pathname)) return pathname;
+  return pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
+}
+
+/**
+ * lib/supabase/middleware.ts (role rank guard, MFA aal2 step-up) เป็นไฟล์ที่
+ * ห้ามแตะ — โครงการนี้จึงไม่สามารถทำให้ตัว updateSession() รู้จัก locale
+ * prefix ได้โดยตรง (มันเทียบ pathname กับ ROLE_REQUIRED_PREFIXES/
+ * LOGIN_REQUIRED_PREFIXES ตรงๆ และ redirect ไปยัง path เปล่าอย่าง /login,
+ * /403, /setup-mfa, /mfa-challenge) จึงทำ 2 อย่างที่นี่แทนโดยไม่แก้ไฟล์นั้น:
+ *
+ * 1. ก่อนเรียก updateSession() สร้าง request จำลองที่ตัด locale prefix ออก
+ *    จาก pathname แล้ว (คงทุก header/cookie เดิมไว้) เพื่อให้การเทียบ prefix
+ *    ภายในไฟล์นั้นทำงานถูกต้องเหมือนไม่มี i18n เข้ามาเกี่ยวข้องเลย
+ * 2. ถ้า updateSession() ตัดสินใจ redirect (Location header ของ response) ให้
+ *    เติม locale prefix กลับเข้าไปใน pathname ปลายทาง (และใน query param
+ *    ?redirect= ถ้ามี) ก่อนส่งต่อ — ไม่ได้สร้าง response ใหม่ ใช้ response
+ *    เดิมของ updateSession() เพื่อคง cookie/header อื่นๆ ที่มันตั้งไว้ครบถ้วน
+ */
 export async function middleware(request: NextRequest) {
-  return updateSession(request);
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/api/")) {
+    // /api/* ไม่เกี่ยวกับ locale เลย — คงพฤติกรรมเดิมทุกประการ (session
+    // refresh ผ่าน updateSession() เหมือนก่อนมี i18n)
+    return updateSession(request);
+  }
+
+  const localeMatch = pathname.match(LOCALE_PREFIX_PATTERN);
+  const locale = localeMatch ? localeMatch[1] : routing.defaultLocale;
+  const strippedPathname = localeMatch
+    ? pathname.slice(localeMatch[0].length) || "/"
+    : pathname;
+
+  const strippedUrl = request.nextUrl.clone();
+  strippedUrl.pathname = strippedPathname;
+  const strippedRequest = new NextRequest(strippedUrl, {
+    headers: request.headers,
+    method: request.method,
+  });
+
+  const authResponse = await updateSession(strippedRequest);
+
+  const redirectLocation = authResponse.headers.get("location");
+  if (redirectLocation) {
+    const redirectUrl = new URL(redirectLocation);
+    redirectUrl.pathname = addLocalePrefix(redirectUrl.pathname, locale);
+    const redirectParam = redirectUrl.searchParams.get("redirect");
+    if (redirectParam?.startsWith("/")) {
+      redirectUrl.searchParams.set("redirect", addLocalePrefix(redirectParam, locale));
+    }
+    authResponse.headers.set("location", redirectUrl.toString());
+    return authResponse;
+  }
+
+  const intlResponse = intlMiddleware(request);
+  authResponse.cookies.getAll().forEach((cookie) => {
+    intlResponse.cookies.set(cookie.name, cookie.value);
+  });
+  return intlResponse;
 }
 
 export const config = {

@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Loader2, TimerReset, CheckCircle2, AlertCircle } from "lucide-react";
-import { processAccessExpirationNowAction } from "@/app/superadmin/notifications/actions";
+import { processAccessExpirationNowAction } from "@/app/[locale]/superadmin/notifications/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 /** ปุ่ม "ประมวลผลสิทธิ์ที่หมดอายุทันที" — จำกัดเฉพาะ job ประเภท access_expiration เท่านั้น */
