@@ -3,14 +3,27 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 
+/**
+ * โหลด `lib/supabase/client.ts` (และ `@supabase/supabase-js` ทั้งก้อนที่มัน
+ * ผูกมาด้วย — รวม Realtime client ที่ instantiate เสมอไม่ว่าจะใช้จริงหรือไม่)
+ * แบบ dynamic import() ภายใน handler แทนการ import แบบ static ไว้บนสุดของ
+ * ไฟล์ — ปุ่มนี้ render อยู่ในทุกหน้าผ่าน UserMenu/HeaderAccountArea (root
+ * layout) ดังนั้น static import เดิมทำให้ปุ่มนี้ (พร้อม dependency ทั้งหมด)
+ * ถูก bundle รวมเข้า chunk ที่โหลดทุก route แม้แต่หน้า guest ที่ไม่มีปุ่มนี้
+ * render เลยก็ตาม (ดู docs/realtime-bundle-optimization.md) — ย้ายมาเป็น
+ * dynamic import() ไม่เปลี่ยนพฤติกรรมใดๆ ที่มองเห็นได้เลย (ปุ่มยัง render
+ * ทันทีเหมือนเดิมทุกประการ, ไม่มี loading state ใหม่) เพราะ createClient()
+ * ถูกเรียกใช้ตอนกดปุ่มอยู่แล้วในโค้ดเดิม ไม่ได้เรียกตอน mount — แค่ตอนนี้
+ * ตัวไฟล์ที่มี createClient() เองก็โหลดตอนกดปุ่มเช่นกัน ไม่ใช่โหลดล่วงหน้า
+ */
 export default function LogoutButton({ className = "" }: { className?: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   function handleLogout() {
     startTransition(async () => {
+      const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
       await supabase.auth.signOut();
       router.push("/");

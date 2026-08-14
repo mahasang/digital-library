@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 
 const IDLE_LIMIT_MS = 10 * 60 * 1000;
 const CHECK_INTERVAL_MS = 15 * 1000;
@@ -20,6 +19,16 @@ const ACTIVITY_EVENTS = [
 /**
  * ออกจากระบบอัตโนมัติเมื่อไม่มีการใช้งานเกิน 10 นาที
  * ใช้ localStorage เก็บเวลากิจกรรมล่าสุด เพื่อให้ทำงานสอดคล้องกันทุกแท็บที่เปิดอยู่
+ *
+ * `lib/supabase/client.ts` โหลดผ่าน dynamic import() ภายใน callback ที่เช็ค
+ * idle timeout เท่านั้น (ไม่ import แบบ static ไว้บนสุดของไฟล์เหมือนเดิม) —
+ * component นี้ render อยู่ทุกหน้าผ่าน IdleLogoutGate (root layout) สำหรับ
+ * ผู้ใช้ที่ login อยู่ ตัว component เองไม่มี UI ที่มองเห็นเลย (คืน null เสมอ)
+ * แต่ static import เดิมทำให้ dependency ของ Supabase client (รวม Realtime
+ * client ที่ import มาด้วยเสมอ) ถูก bundle เข้า chunk ที่โหลดทุก route แม้แต่
+ * ตอนที่ยังไม่ครบ 10 นาที (คือแทบทุกครั้ง) ก็ตาม — ย้ายเป็น dynamic import()
+ * ทำให้โมดูลนี้ถูกโหลดเฉพาะตอน idle timeout เกิดขึ้นจริงเท่านั้น (นานๆ ครั้ง)
+ * ไม่กระทบพฤติกรรมใดๆ เลยเพราะไม่มี UI ให้เกิด loading state ที่มองเห็นได้อยู่แล้ว
  */
 export default function IdleLogout() {
   const router = useRouter();
@@ -56,6 +65,7 @@ export default function IdleLogout() {
         try {
           localStorage.removeItem(STORAGE_KEY);
         } catch {}
+        const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
         await supabase.auth.signOut();
         router.push("/login?timeout=1");
