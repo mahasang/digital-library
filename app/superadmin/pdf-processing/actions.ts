@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserRoleRank, SUPER_ADMIN_RANK } from "@/lib/supabase/roles";
+import { SUPER_ADMIN_RANK } from "@/lib/supabase/roles";
+import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { enqueueBackgroundJob, retryFailedJob } from "@/lib/jobs/queue.server";
 import { createBulkJobBatch } from "@/lib/jobs/bulk-batch.server";
 import { getPdfProcessingCandidatesCount } from "@/lib/data/pdf-processing.server";
@@ -29,16 +30,9 @@ export async function bulkEnqueuePdfExtractionAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const auth = await requireMinRank(SUPER_ADMIN_RANK);
+  if (!auth.ok) return auth.result;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
-
-  const rank = await getCurrentUserRoleRank();
-  if (rank < SUPER_ADMIN_RANK) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็น Super Admin เท่านั้น" };
-  }
 
   const selectedIds = formData.getAll("selectedIds").map(String).filter(Boolean);
   if (selectedIds.length === 0) {
@@ -70,7 +64,7 @@ export async function bulkEnqueuePdfExtractionAction(
       entityType: "research_items",
       entityId: item.id,
       batchId,
-      createdBy: user.id,
+      createdBy: auth.userId,
     });
     if (result.ok && !result.alreadyQueued) {
       queued += 1;
@@ -80,7 +74,7 @@ export async function bulkEnqueuePdfExtractionAction(
   }
 
   await logAudit(supabase, {
-    actorId: user.id,
+    actorId: auth.userId,
     action: "pdf_processing_bulk_backfill",
     entityType: "background_jobs",
     metadata: { batchId, requested: targetIds.length, queued, skipped },
@@ -109,16 +103,9 @@ export async function bulkEnqueueOcrAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const auth = await requireMinRank(SUPER_ADMIN_RANK);
+  if (!auth.ok) return auth.result;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
-
-  const rank = await getCurrentUserRoleRank();
-  if (rank < SUPER_ADMIN_RANK) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็น Super Admin เท่านั้น" };
-  }
 
   const selectedIds = formData.getAll("selectedIds").map(String).filter(Boolean);
   if (selectedIds.length === 0) {
@@ -152,7 +139,7 @@ export async function bulkEnqueueOcrAction(
       pdfPath: item.pdf_file,
       accessLevel: item.access_level,
       pageCount: item.page_count,
-      actorUserId: user.id,
+      actorUserId: auth.userId,
       settings,
     });
     if (!eligibility.ok) {
@@ -168,7 +155,7 @@ export async function bulkEnqueueOcrAction(
       entityType: "research_items",
       entityId: item.id,
       batchId,
-      createdBy: user.id,
+      createdBy: auth.userId,
       maxAttempts: OCR_JOB_MAX_ATTEMPTS,
     });
     if (result.ok && !result.alreadyQueued) {
@@ -179,7 +166,7 @@ export async function bulkEnqueueOcrAction(
   }
 
   await logAudit(supabase, {
-    actorId: user.id,
+    actorId: auth.userId,
     action: "ocr_bulk_process",
     entityType: "background_jobs",
     metadata: { batchId, requested: targetIds.length, queued, skipped, rejectedByLimits, rejectedByCode },
@@ -202,17 +189,9 @@ export async function retryFailedOcrJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const auth = await requireMinRank(SUPER_ADMIN_RANK);
+  if (!auth.ok) return auth.result;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
-
-  const rank = await getCurrentUserRoleRank();
-  if (rank < SUPER_ADMIN_RANK) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้" };
-  }
-
   const jobId = String(formData.get("jobId") || "");
   if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
 
@@ -222,7 +201,7 @@ export async function retryFailedOcrJobAction(
   }
 
   await logAudit(supabase, {
-    actorId: user.id,
+    actorId: auth.userId,
     action: "ocr_retry",
     entityType: "background_jobs",
     entityId: jobId,
@@ -262,16 +241,9 @@ export async function bulkEnqueueAllMatchingFilterAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const auth = await requireMinRank(SUPER_ADMIN_RANK);
+  if (!auth.ok) return auth.result;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
-
-  const rank = await getCurrentUserRoleRank();
-  if (rank < SUPER_ADMIN_RANK) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็น Super Admin เท่านั้น" };
-  }
 
   const mode = formData.get("mode") === "ocr" ? "ocr" : "extract";
   const jobType = mode === "ocr" ? "ocr_processing" : "pdf_text_extraction";
@@ -298,7 +270,7 @@ export async function bulkEnqueueAllMatchingFilterAction(
     jobType,
     filterSnapshot: filter,
     totalItems,
-    createdBy: user.id,
+    createdBy: auth.userId,
     batchSize,
   });
   if (!result.ok) {
@@ -310,7 +282,7 @@ export async function bulkEnqueueAllMatchingFilterAction(
   }
 
   await logAudit(supabase, {
-    actorId: user.id,
+    actorId: auth.userId,
     action: mode === "ocr" ? "ocr_bulk_process_all" : "pdf_processing_bulk_backfill_all",
     entityType: "background_jobs",
     metadata: { batchId: result.batchId, filter, totalItems },
@@ -327,16 +299,9 @@ export async function retryFailedPdfJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const auth = await requireMinRank(SUPER_ADMIN_RANK);
+  if (!auth.ok) return auth.result;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
-
-  const rank = await getCurrentUserRoleRank();
-  if (rank < SUPER_ADMIN_RANK) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้" };
-  }
 
   const jobId = String(formData.get("jobId") || "");
   if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
@@ -347,7 +312,7 @@ export async function retryFailedPdfJobAction(
   }
 
   await logAudit(supabase, {
-    actorId: user.id,
+    actorId: auth.userId,
     action: "pdf_processing_retry",
     entityType: "background_jobs",
     entityId: jobId,

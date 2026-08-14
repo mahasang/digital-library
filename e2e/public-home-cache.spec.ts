@@ -74,7 +74,7 @@ test.describe("public homepage cache invalidation — categories", () => {
     // synchronous เป๊ะ — สังเกตได้ตั้งแต่แทบจะทันทีไปจนถึงประมาณ 2-3 วินาที
     // (ยังคงเร็วกว่าเวลาหมดอายุสำรอง 60 วินาทีมาก) จึงใช้ retry/timeout ที่นี่
     // แทนการคาดหวังว่าจะเห็นผลใน request แรกเป๊ะ — ดู
-    // docs/caching.md หัวข้อ "เวลาที่วัดได้จริง" สำหรับรายละเอียดเต็ม
+    // docs/homepage-caching.md หัวข้อ "เวลาที่วัดได้จริง" สำหรับรายละเอียดเต็ม
     await expect(async () => {
       await page.goto("/", { waitUntil: "networkidle" });
       await expect(page.getByText(nameTh, { exact: true })).toBeVisible({ timeout: 2_000 });

@@ -32,7 +32,7 @@ export const PUBLIC_RESEARCH_TAG = "public-research";
  * (วัดจริงระหว่างพัฒนา ~2-3 วินาที — ไม่ใช่ synchronous ทันทีเป๊ะ เพราะเป็นการ
  * ทำงานของ Next.js เอง ไม่ใช่สิ่งที่แอปนี้ควบคุมเวลาได้ตรงๆ) เร็วกว่าเวลาหมด
  * อายุสำรองนี้มาก ใช้ค่าเดียวกันทั้งหมด (ไม่แยกตามตาราง) เพื่อให้เข้าใจ/ตรวจสอบ
- * นโยบาย cache ได้ง่าย — ดูรายละเอียดเต็มใน docs/caching.md
+ * นโยบาย cache ได้ง่าย — ดูรายละเอียดเต็มใน docs/homepage-caching.md
  */
 export const PUBLIC_HOME_REVALIDATE_SECONDS = 60;
 

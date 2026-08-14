@@ -1,7 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserRoleRank, SUPER_ADMIN_RANK } from "@/lib/supabase/roles";
+import { SUPER_ADMIN_RANK } from "@/lib/supabase/roles";
+import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { processJobQueue } from "@/lib/jobs/dispatch.server";
 import { logAudit } from "@/lib/data/audit.server";
 import type { ActionResult } from "@/lib/actions/types";
@@ -15,21 +16,14 @@ export async function processQueueNowAction(
   _prevState: ActionResult,
   _formData: FormData
 ): Promise<ActionResult> {
+  const auth = await requireMinRank(SUPER_ADMIN_RANK);
+  if (!auth.ok) return auth.result;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
-
-  const rank = await getCurrentUserRoleRank();
-  if (rank < SUPER_ADMIN_RANK) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้" };
-  }
 
   const summary = await processJobQueue(10);
 
   await logAudit(supabase, {
-    actorId: user.id,
+    actorId: auth.userId,
     action: "background_jobs_process_now",
     entityType: "background_jobs",
     metadata: { claimed: summary.claimed, results: summary.results },

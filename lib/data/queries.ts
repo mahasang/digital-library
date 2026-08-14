@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import type {
   AccessLevelRow,
   Database,
@@ -10,6 +11,8 @@ import type {
   RawHomepageResearchRow,
   RawResearchCategoryLinkRow,
 } from "@/lib/data/types";
+
+const RESEARCH_FETCH_FALLBACK_MESSAGE = "ไม่สามารถดึงข้อมูลงานวิจัยจาก Supabase ได้ กรุณาลองใหม่อีกครั้ง";
 
 /**
  * select string ที่ใช้ร่วมกันสำหรับดึงข้อมูลงานวิจัยพร้อมความสัมพันธ์ทั้งหมด
@@ -48,7 +51,9 @@ export async function fetchPublishedResearchRows(
     .order("published_at", { ascending: false });
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลงานวิจัยจาก Supabase ได้: ${error.message}`);
+    throw new Error(
+      toSafeErrorMessage(error, RESEARCH_FETCH_FALLBACK_MESSAGE, "fetchPublishedResearchRows")
+    );
   }
 
   return (data ?? []) as unknown as RawResearchRow[];
@@ -99,7 +104,9 @@ export async function fetchHomepageResearchRows(
   const { data, error } = await query.limit(limit);
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลงานวิจัยสำหรับหน้าแรกจาก Supabase ได้: ${error.message}`);
+    throw new Error(
+      toSafeErrorMessage(error, RESEARCH_FETCH_FALLBACK_MESSAGE, "fetchHomepageResearchRows")
+    );
   }
 
   return (data ?? []) as unknown as RawHomepageResearchRow[];
@@ -120,7 +127,13 @@ export async function fetchPublishedResearchCategoryLinkRows(
     .eq("status", "published");
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงสถิติงานวิจัยสำหรับหน้าแรกจาก Supabase ได้: ${error.message}`);
+    throw new Error(
+      toSafeErrorMessage(
+        error,
+        "ไม่สามารถดึงสถิติงานวิจัยสำหรับหน้าแรกจาก Supabase ได้ กรุณาลองใหม่อีกครั้ง",
+        "fetchPublishedResearchCategoryLinkRows"
+      )
+    );
   }
 
   return (data ?? []) as unknown as RawResearchCategoryLinkRow[];
@@ -138,7 +151,9 @@ export async function fetchResearchRowBySlug(
     .maybeSingle();
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลงานวิจัยจาก Supabase ได้: ${error.message}`);
+    throw new Error(
+      toSafeErrorMessage(error, RESEARCH_FETCH_FALLBACK_MESSAGE, "fetchResearchRowBySlug")
+    );
   }
 
   return (data ?? null) as unknown as RawResearchRow | null;
@@ -156,7 +171,9 @@ export async function fetchManagementResearchRowById(
     .maybeSingle();
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลงานวิจัยจาก Supabase ได้: ${error.message}`);
+    throw new Error(
+      toSafeErrorMessage(error, RESEARCH_FETCH_FALLBACK_MESSAGE, "fetchManagementResearchRowById")
+    );
   }
 
   return (data ?? null) as unknown as RawManagementResearchRow | null;
@@ -174,7 +191,9 @@ export async function fetchOwnSubmissionRows(
     .order("updated_at", { ascending: false });
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลงานวิจัยจาก Supabase ได้: ${error.message}`);
+    throw new Error(
+      toSafeErrorMessage(error, RESEARCH_FETCH_FALLBACK_MESSAGE, "fetchOwnSubmissionRows")
+    );
   }
 
   return (data ?? []) as unknown as RawManagementResearchRow[];
@@ -194,7 +213,9 @@ export async function fetchPublishedResearchRowsByIds(
     .in("id", ids);
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลงานวิจัยจาก Supabase ได้: ${error.message}`);
+    throw new Error(
+      toSafeErrorMessage(error, RESEARCH_FETCH_FALLBACK_MESSAGE, "fetchPublishedResearchRowsByIds")
+    );
   }
 
   return (data ?? []) as unknown as RawResearchRow[];
@@ -212,7 +233,9 @@ export async function fetchResearchRowsByStatus(
     .order("updated_at", { ascending: false });
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลงานวิจัยจาก Supabase ได้: ${error.message}`);
+    throw new Error(
+      toSafeErrorMessage(error, RESEARCH_FETCH_FALLBACK_MESSAGE, "fetchResearchRowsByStatus")
+    );
   }
 
   return (data ?? []) as unknown as RawManagementResearchRow[];
@@ -263,7 +286,9 @@ export async function searchManagementResearchRows(
   const { data, error, count } = await query;
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลงานวิจัยจาก Supabase ได้: ${error.message}`);
+    throw new Error(
+      toSafeErrorMessage(error, RESEARCH_FETCH_FALLBACK_MESSAGE, "searchManagementResearchRows")
+    );
   }
 
   return {

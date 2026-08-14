@@ -41,3 +41,8 @@ next-env.d.ts
 dev-server.log
 test-results/
 homepage-initial.png
+
+# Claude Code local settings — per-developer, may contain credentials pasted
+# into permission allow-list entries during interactive sessions (see
+# docs/qa-production-readiness.md QA-01)
+.claude/settings.local.json
