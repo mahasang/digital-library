@@ -1,4 +1,5 @@
 import { BookMarked, FileText, Users2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import Container from "@/components/ui/Container";
 import HomeSearchBox from "@/components/home/HomeSearchBox";
 
@@ -10,7 +11,7 @@ import HomeSearchBox from "@/components/home/HomeSearchBox";
  * (จึงไม่ต้องเป็น async component แล้วด้วย) หน้าตา/ข้อความที่แสดงเหมือนเดิม
  * ทุกประการ
  */
-export default function Hero({
+export default async function Hero({
   siteName,
   publishedCount,
   categoryCount,
@@ -21,10 +22,12 @@ export default function Hero({
   categoryCount: number;
   organizationCount: number;
 }) {
+  const t = await getTranslations("home");
+
   const stats = [
-    { icon: FileText, label: "งานวิจัยที่เผยแพร่", value: `${publishedCount}+` },
-    { icon: BookMarked, label: "หมวดหมู่งานวิจัย", value: `${categoryCount}` },
-    { icon: Users2, label: "หน่วยงานที่ร่วมเผยแพร่", value: `${organizationCount}` },
+    { icon: FileText, label: t("statPublished"), value: `${publishedCount}+` },
+    { icon: BookMarked, label: t("statCategories"), value: `${categoryCount}` },
+    { icon: Users2, label: t("statOrganizations"), value: `${organizationCount}` },
   ];
 
   return (
@@ -38,14 +41,11 @@ export default function Hero({
           {siteName}
         </span>
         <h1 className="max-w-3xl text-h1 font-semibold leading-tight text-white sm:text-display">
-          ค้นคว้าและเผยแพร่งานวิจัยขององค์กร
+          {t("heroHeadingLine1")}
           <br className="hidden sm:block" />
-          ในรูปแบบดิจิทัล ทุกที่ ทุกเวลา
+          {t("heroHeadingLine2")}
         </h1>
-        <p className="max-w-2xl text-sm text-brand-100/80 sm:text-base">
-          รวบรวมงานวิจัย บทความวิชาการ และเอกสาร eBook จากบุคลากรและหน่วยงานภายในองค์กร
-          พร้อมระบบค้นหา อ่านออนไลน์ และดาวน์โหลดตามสิทธิ์การเข้าถึง
-        </p>
+        <p className="max-w-2xl text-sm text-brand-100/80 sm:text-base">{t("heroSubtitle")}</p>
 
         <div className="w-full max-w-2xl">
           <HomeSearchBox />

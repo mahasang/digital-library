@@ -63,17 +63,34 @@
   "home": {
     "title": "Digital Research Repository",
     "subtitle": "Search and access research papers, theses, and academic documents",
-    "searchPlaceholder": "Search research...",
-    "searchButton": "Search",
+    "searchPlaceholder": "Search by title, researcher, or keyword...",
+    "searchButton": "Search Research",
     "browseAll": "Browse All",
     "featuredResearch": "Featured Research",
     "recentResearch": "Recent Research",
     "categories": "Categories",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "heroHeadingLine1": "Research and publish your organization's research",
+    "heroHeadingLine2": "in digital format, anywhere, anytime",
+    "heroSubtitle": "A collection of research papers, academic articles, and eBooks from organizational personnel and departments, with search, online reading, and permission-based download.",
+    "statPublished": "Published Research",
+    "statCategories": "Research Categories",
+    "statOrganizations": "Contributing Organizations",
+    "categoryHeading": "Research Categories",
+    "categorySubtitle": "Browse research by field of interest",
+    "categoryCount": "{count} items",
+    "viewAllResearch": "View All",
+    "latestTitle": "Latest Research",
+    "latestDescription": "Sorted by publication date, newest first",
+    "popularTitle": "Popular Research",
+    "popularDescription": "Sorted by total views"
   },
   "research": {
-    "pageTitle": "Research Repository",
+    "pageTitle": "Search Research",
+    "pageHeading": "All Research",
     "pageSubtitle": "Search and filter organizational research from the digital document repository — including full-text PDF search",
+    "pageDescription": "Search, filter, and sort organizational research by category, year, and popularity — search both bibliographic data and PDF content",
+    "loading": "Loading...",
     "searchPlaceholder": "Search by title, author, keywords...",
     "noResults": "No research found matching your criteria",
     "noResultsHint": "Try changing your search terms or removing some filters",
@@ -100,9 +117,33 @@
     "loginHere": "Sign in here",
     "registerHere": "Sign up here"
   },
+  "login": {
+    "pageTitle": "Sign In",
+    "pageDescription": "Sign in to the digital research library",
+    "title": "Sign In",
+    "description": "Sign in to access member-level research and save favorites",
+    "noAccount": "Don't have an account?",
+    "registerLink": "Sign up",
+    "confirmedEmail": "Email confirmed successfully. Please sign in.",
+    "sessionTimeout": "You were signed out automatically due to 10 minutes of inactivity. Please sign in again.",
+    "passwordResetSuccess": "Password reset successful. Please sign in with your new password."
+  },
+  "register": {
+    "pageTitle": "Sign Up",
+    "pageDescription": "Sign up for the digital research library",
+    "title": "Create Account",
+    "description": "Sign up to access research and additional features of the digital library",
+    "hasAccount": "Already have an account?",
+    "loginLink": "Sign in"
+  },
   "errors": {
     "notFound": "Page not found",
     "forbidden": "You don't have permission to access this page",
+    "forbiddenTitle": "Access Denied",
+    "forbiddenHeading": "You don't have access to this page",
+    "forbiddenBody": "Your account doesn't have sufficient permissions to access this page. If you believe this is an error, please contact an administrator.",
+    "backHome": "Back to Home",
+    "myProfile": "My Profile",
     "serverError": "A server error occurred. Please try again.",
     "sessionExpired": "Your session has expired. Please sign in again."
   }

@@ -1,15 +1,24 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { CheckCircle2, Clock } from "lucide-react";
 import AuthFormShell from "@/components/auth/AuthFormShell";
 import LoginForm from "@/components/auth/LoginForm";
 import SupabaseNotConfiguredNotice from "@/components/auth/SupabaseNotConfiguredNotice";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
-export const metadata: Metadata = {
-  title: "เข้าสู่ระบบ",
-  description: "เข้าสู่ระบบห้องสมุดดิจิทัลเพื่อเผยแพร่งานวิจัยขององค์กร",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "login" });
+  return {
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  };
+}
 
 export default async function LoginPage({
   searchParams,
@@ -21,6 +30,7 @@ export default async function LoginPage({
     timeout?: string;
   }>;
 }) {
+  const t = await getTranslations("login");
   const params = await searchParams;
   const redirectTo =
     typeof params.redirect === "string" && params.redirect.startsWith("/")
@@ -29,13 +39,13 @@ export default async function LoginPage({
 
   return (
     <AuthFormShell
-      title="เข้าสู่ระบบ"
-      description="เข้าสู่ระบบเพื่อเข้าถึงงานวิจัยระดับสมาชิกและบันทึกรายการโปรด"
+      title={t("title")}
+      description={t("description")}
       footer={
         <>
-          ยังไม่มีบัญชีผู้ใช้?{" "}
+          {t("noAccount")}{" "}
           <Link href="/register" className="font-medium text-accent hover:underline">
-            สมัครสมาชิก
+            {t("registerLink")}
           </Link>
         </>
       }
@@ -47,19 +57,19 @@ export default async function LoginPage({
           {params.confirmed === "1" && (
             <div className="mb-4 flex items-start gap-2 rounded-lg bg-green-50 p-3 text-xs text-green-700">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>ยืนยันอีเมลสำเร็จ กรุณาเข้าสู่ระบบ</p>
+              <p>{t("confirmedEmail")}</p>
             </div>
           )}
           {params.timeout === "1" && (
             <div className="mb-4 flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-700">
               <Clock className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>ระบบออกจากระบบให้อัตโนมัติเนื่องจากไม่มีการใช้งานเกิน 10 นาที กรุณาเข้าสู่ระบบใหม่</p>
+              <p>{t("sessionTimeout")}</p>
             </div>
           )}
           {params.reset === "success" && (
             <div className="mb-4 flex items-start gap-2 rounded-lg bg-green-50 p-3 text-xs text-green-700">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>ตั้งรหัสผ่านใหม่สำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่</p>
+              <p>{t("passwordResetSuccess")}</p>
             </div>
           )}
           <LoginForm redirectTo={redirectTo} />

@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
 import Container from "@/components/ui/Container";
 import { getCategoryIcon } from "@/lib/icons";
@@ -12,30 +13,32 @@ import type { Category } from "@/types/research";
  * app/page.tsx จาก getPublishedResearchStats() ครั้งเดียว) ไม่มีการดึงข้อมูล
  * ในคอมโพเนนต์นี้อีกต่อไป หน้าตา/ข้อความที่แสดงเหมือนเดิมทุกประการ
  */
-export default function CategorySection({
+export default async function CategorySection({
   categories,
   countByCategoryId,
 }: {
   categories: Category[];
   countByCategoryId: Record<string, number>;
 }) {
+  const t = await getTranslations("home");
+
   return (
     <section className="py-14 sm:py-16">
       <Container>
         <div className="mb-8 flex items-end justify-between">
           <div>
             <h2 className="text-h2 font-semibold text-gray-900">
-              หมวดหมู่งานวิจัย
+              {t("categoryHeading")}
             </h2>
             <p className="mt-1 text-sm text-gray-500">
-              เลือกชมงานวิจัยตามสาขาวิชาที่คุณสนใจ
+              {t("categorySubtitle")}
             </p>
           </div>
           <Link
             href="/research"
             className="hidden items-center gap-1 text-sm font-medium text-accent hover:text-accent-strong sm:flex"
           >
-            ดูทั้งหมด <ArrowRight className="h-4 w-4" />
+            {t("viewAllResearch")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
@@ -57,7 +60,7 @@ export default function CategorySection({
                     {category.nameTh}
                   </h3>
                   <p className="mt-0.5 text-xs text-gray-500">
-                    {count} รายการ
+                    {t("categoryCount", { count })}
                   </p>
                 </div>
               </Link>

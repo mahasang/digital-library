@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Search } from "lucide-react";
 
 export default function HomeSearchBox() {
+  const t = useTranslations("home");
   const [query, setQuery] = useState("");
   const router = useRouter();
 
@@ -26,7 +28,7 @@ export default function HomeSearchBox() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ค้นหาชื่อเรื่อง ผู้วิจัย หรือคำสำคัญ..."
+          placeholder={t("searchPlaceholder")}
           className="w-full border-0 bg-transparent text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-0"
         />
       </div>
@@ -34,7 +36,7 @@ export default function HomeSearchBox() {
         type="submit"
         className="shrink-0 rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
       >
-        ค้นหางานวิจัย
+        {t("searchButton")}
       </button>
     </form>
   );

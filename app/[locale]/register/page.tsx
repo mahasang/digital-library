@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import AuthFormShell from "@/components/auth/AuthFormShell";
 import RegisterForm from "@/components/auth/RegisterForm";
 import SupabaseNotConfiguredNotice from "@/components/auth/SupabaseNotConfiguredNotice";
@@ -7,12 +8,21 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { isCaptchaConfigured } from "@/lib/captcha.server";
 import { getSettings } from "@/lib/data/settings.server";
 
-export const metadata: Metadata = {
-  title: "สมัครสมาชิก",
-  description: "สมัครสมาชิกห้องสมุดดิจิทัลเพื่อเผยแพร่งานวิจัยขององค์กร",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "register" });
+  return {
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  };
+}
 
 export default async function RegisterPage() {
+  const t = await getTranslations("register");
   const settings = isSupabaseConfigured() ? await getSettings() : null;
   const captchaSiteKey =
     settings?.captchaEnabled && isCaptchaConfigured()
@@ -21,13 +31,13 @@ export default async function RegisterPage() {
 
   return (
     <AuthFormShell
-      title="สมัครสมาชิก"
-      description="สมัครสมาชิกเพื่อเข้าถึงงานวิจัยและฟีเจอร์เพิ่มเติมของห้องสมุดดิจิทัล"
+      title={t("title")}
+      description={t("description")}
       footer={
         <>
-          มีบัญชีผู้ใช้อยู่แล้ว?{" "}
+          {t("hasAccount")}{" "}
           <Link href="/login" className="font-medium text-accent hover:underline">
-            เข้าสู่ระบบ
+            {t("loginLink")}
           </Link>
         </>
       }

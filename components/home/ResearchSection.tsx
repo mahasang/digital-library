@@ -1,10 +1,11 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { ArrowRight, type LucideIcon } from "lucide-react";
 import Container from "@/components/ui/Container";
 import ResearchGrid from "@/components/research/ResearchGrid";
 import type { ResearchItem } from "@/types/research";
 
-export default function ResearchSection({
+export default async function ResearchSection({
   title,
   description,
   icon: Icon,
@@ -22,6 +23,8 @@ export default function ResearchSection({
    * ซ้ำหน้ากัน */
   variant?: "default" | "latest" | "popular";
 }) {
+  const t = await getTranslations("home");
+
   return (
     <section className={`py-14 sm:py-16 ${tone === "muted" ? "bg-gray-50" : ""}`}>
       <Container>
@@ -41,7 +44,7 @@ export default function ResearchSection({
             href="/research"
             className="hidden items-center gap-1 text-sm font-medium text-accent hover:text-accent-strong sm:flex"
           >
-            ดูทั้งหมด <ArrowRight className="h-4 w-4" />
+            {t("viewAllResearch")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Container from "@/components/ui/Container";
 import ResearchExplorer from "@/components/research/ResearchExplorer";
 import { getCategories } from "@/lib/data/categories.server";
@@ -7,11 +8,18 @@ import { searchResearchServer, type SearchMode } from "@/lib/data/research-searc
 import type { AccessLevel } from "@/types/research";
 import type { SortOption } from "@/lib/search";
 
-export const metadata: Metadata = {
-  title: "ค้นหางานวิจัย",
-  description:
-    "ค้นหา กรอง และเรียงลำดับงานวิจัยขององค์กรตามหมวดหมู่ ปี และความนิยม — ค้นหาได้ทั้งข้อมูลบรรณานุกรมและเนื้อหาภายในไฟล์ PDF",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "research" });
+  return {
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  };
+}
 
 const VALID_MODES: SearchMode[] = ["bibliographic", "pdf", "all"];
 const VALID_ACCESS_LEVELS: AccessLevel[] = [
@@ -35,6 +43,7 @@ export default async function ResearchListPage({
     page?: string;
   }>;
 }) {
+  const t = await getTranslations("research");
   const params = await searchParams;
   const mode: SearchMode = VALID_MODES.includes(params.mode as SearchMode)
     ? (params.mode as SearchMode)
@@ -63,14 +72,14 @@ export default async function ResearchListPage({
       <Container>
         <div className="mb-8">
           <h1 className="text-h1 font-semibold text-gray-900">
-            งานวิจัยทั้งหมด
+            {t("pageHeading")}
           </h1>
           <p className="mt-1.5 text-sm text-gray-500">
-            ค้นหาและกรองงานวิจัยขององค์กรจากคลังเอกสารดิจิทัล — รวมค้นหาเนื้อหาภายในไฟล์ PDF
+            {t("pageSubtitle")}
           </p>
         </div>
 
-        <Suspense fallback={<div className="text-sm text-gray-500">กำลังโหลด...</div>}>
+        <Suspense fallback={<div className="text-sm text-gray-500">{t("loading")}</div>}>
           <ResearchExplorer
             categories={categories}
             result={result}

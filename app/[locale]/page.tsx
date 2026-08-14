@@ -1,4 +1,5 @@
 import { Clock, TrendingUp } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import Hero from "@/components/home/Hero";
 import CategorySection from "@/components/home/CategorySection";
 import ResearchSection from "@/components/home/ResearchSection";
@@ -35,6 +36,7 @@ import { getPublicHomeSettings } from "@/lib/data/settings.server";
  * (นอกขอบเขตที่ระบุไว้ของงานนี้ — ยังคงดึงสดทุกครั้งเหมือนเดิมทุกประการ)
  */
 export default async function HomePage() {
+  const t = await getTranslations("home");
   const [settings, categories, organizations, researchStats] = await Promise.all([
     getPublicHomeSettings(),
     getCategories(),
@@ -57,16 +59,16 @@ export default async function HomePage() {
       />
       <CategorySection categories={categories} countByCategoryId={researchStats.countByCategoryId} />
       <ResearchSection
-        title="งานวิจัยล่าสุด"
-        description="เรียงตามวันที่เผยแพร่ ใหม่ไปเก่า"
+        title={t("latestTitle")}
+        description={t("latestDescription")}
         icon={Clock}
         items={latest}
         tone="muted"
         variant="latest"
       />
       <ResearchSection
-        title="งานวิจัยยอดนิยม"
-        description="เรียงตามยอดเข้าชมสะสมสูงสุดในระบบ"
+        title={t("popularTitle")}
+        description={t("popularDescription")}
         icon={TrendingUp}
         items={popular}
         variant="popular"
