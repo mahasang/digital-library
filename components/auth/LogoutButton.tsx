@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { LogOut } from "lucide-react";
 
 /**
@@ -20,6 +21,7 @@ import { LogOut } from "lucide-react";
 export default function LogoutButton({ className = "" }: { className?: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("header");
 
   function handleLogout() {
     startTransition(async () => {
@@ -42,7 +44,7 @@ export default function LogoutButton({ className = "" }: { className?: string })
       }
     >
       <LogOut className="h-4 w-4" />
-      {isPending ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}
+      {isPending ? t("loggingOut") : t("logout")}
     </button>
   );
 }

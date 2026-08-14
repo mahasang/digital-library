@@ -1,18 +1,12 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { Menu, X, Search, BookOpen } from "lucide-react";
 import Container from "@/components/ui/Container";
 import ThemeToggle from "@/components/layout/ThemeToggle";
-
-const navLinks = [
-  { href: "/", label: "หน้าแรก" },
-  { href: "/research", label: "งานวิจัย" },
-  { href: "/about", label: "เกี่ยวกับเรา" },
-  { href: "/contact", label: "ติดต่อเรา" },
-];
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 /**
  * Hallmark — header rendering refactor. Header เป็น "เปลือก" ของแถบเมนูบนสุด
@@ -43,8 +37,17 @@ export default function Header({
   siteName?: string;
   logoUrl?: string;
 }) {
+  const t = useTranslations("nav");
+  const tHeader = useTranslations("header");
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  const navLinks = [
+    { href: "/" as const, label: t("home") },
+    { href: "/research" as const, label: t("research") },
+    { href: "/about" as const, label: t("about") },
+    { href: "/contact" as const, label: t("contact") },
+  ];
 
   useEffect(() => {
     setOpen(false);
@@ -72,7 +75,7 @@ export default function Header({
             </span>
           </Link>
 
-          <nav aria-label="เมนูหลัก" className="hidden items-center gap-1 md:flex">
+          <nav aria-label={tHeader("mainMenu")} className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => {
               const active =
                 link.href === "/"
@@ -95,10 +98,11 @@ export default function Header({
           </nav>
 
           <div className="hidden items-center gap-2 md:flex">
+            <LanguageSwitcher />
             <ThemeToggle />
             <Link
               href="/research"
-              aria-label="ค้นหางานวิจัย"
+              aria-label={tHeader("searchResearch")}
               className="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
             >
               <Search className="h-5 w-5" />
@@ -110,7 +114,7 @@ export default function Header({
             type="button"
             className="rounded-md p-2 text-gray-600 hover:bg-gray-100 md:hidden"
             onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "ปิดเมนู" : "เปิดเมนู"}
+            aria-label={open ? tHeader("closeMenu") : tHeader("openMenu")}
             aria-expanded={open}
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -122,8 +126,12 @@ export default function Header({
         <div className="border-t border-gray-200 bg-surface md:hidden">
           <Container className="flex flex-col gap-1 py-3">
             <div className="mb-1 flex items-center justify-between rounded-md px-3 py-1.5">
-              <span className="text-xs font-medium text-gray-500">โหมดสี</span>
+              <span className="text-xs font-medium text-gray-500">{tHeader("colorMode")}</span>
               <ThemeToggle />
+            </div>
+            <div className="mb-1 flex items-center justify-between rounded-md px-3 py-1.5">
+              <span className="text-xs font-medium text-gray-500">{t("languageLabel")}</span>
+              <LanguageSwitcher />
             </div>
             {navLinks.map((link) => (
               <Link

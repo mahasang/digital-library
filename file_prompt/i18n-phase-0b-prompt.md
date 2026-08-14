@@ -1,58 +1,183 @@
 # i18n Phase 0B — Header + LanguageSwitcher
 # Prompt สำหรับ Claude Code / Cursor
 
-## บริบทและ prerequisite
+## สถานะก่อนเริ่ม (Phase 0A เสร็จแล้ว)
 
-**Phase 0A ต้องผ่านก่อนทั้งหมด:**
 - `npm run lint` → 0 error
-- `npx tsc --noEmit` → 0 error
-- `npm run test` → 127/127 (หรือมากกว่า)
-- `npm run test:a11y` → 50/50 (หรือมากกว่า)
+- `npm run test` → 127/127
+- `npm run test:a11y` → 50/50 (รันบน production build)
 - `npm run build` → 0 error
-- `/th/`, `/en/`, `/lo/` → แต่ละ locale โหลดได้
-- `i18n/routing.ts`, `i18n/request.ts`, `messages/th.json`, `messages/en.json`, `messages/lo.json` มีอยู่แล้ว
+- pages ทั้งหมดอยู่ใน `app/[locale]/` แล้ว
+- URL structure: `/th/`, `/en/`, `/lo/` พร้อมใช้งาน
+- `next-intl` ติดตั้งและ config แล้วใน `i18n/routing.ts`, `i18n/request.ts`, `next.config.ts`
 - `app/[locale]/layout.tsx` มี `NextIntlClientProvider` แล้ว
 
-ถ้า Phase 0A ยังไม่ผ่านครบ → หยุดและแจ้งทันที ห้ามเริ่ม Phase 0B
+ถ้า checks ยังไม่ผ่านครบ → หยุดและแจ้งทันที ห้ามเริ่ม Phase 0B
+
+---
+
+## โครงสร้าง Header ปัจจุบัน (จาก inspect จริง)
+
+```
+Header.tsx          — Client Component ("use client")
+                      รับ desktopAccountArea และ mobileAccountArea เป็น ReactNode props
+                      มี navLinks array hardcode ภาษาไทย
+                      ใช้ usePathname จาก next/navigation
+                      ใช้ Link จาก next/link
+
+HeaderAccountArea.tsx — Server Component (async)
+                        แสดง NotificationBell + UserMenu (authenticated)
+                        หรือ Login + Register buttons (guest)
+                        มี string ภาษาไทย hardcode
+
+LogoutButton.tsx    — Client Component ("use client")
+                      มี dynamic import() ของ supabase client (ห้ามเปลี่ยน pattern นี้)
+                      ใช้ useRouter จาก next/navigation
+                      มี string "ออกจากระบบ" และ "กำลังออกจากระบบ..." hardcode
+
+workspace-links.ts  — ไฟล์ .ts ธรรมดา (ไม่ใช่ component)
+                      มี label ภาษาไทย hardcode
+                      *** ไม่แปลใน Phase นี้ — เก็บไว้ Phase 0C ***
+```
 
 ---
 
 ## งานที่ต้องทำ: Phase 0B
 
-แปล string ใน **Header เท่านั้น** และสร้าง **LanguageSwitcher** component ใหม่
-ยังไม่แตะ page content ใดเลย (นั่นคือ Phase 0C)
+### ขอบเขต (ทำ)
+1. อัปเดต `messages/th.json`, `messages/en.json`, `messages/lo.json` — เพิ่ม keys ใหม่
+2. สร้าง `components/layout/LanguageSwitcher.tsx` — ใหม่ทั้งหมด
+3. แก้ไข `components/layout/Header.tsx` — แปล strings + เพิ่ม LanguageSwitcher
+4. แก้ไข `components/layout/HeaderAccountArea.tsx` — แปล strings
+5. แก้ไข `components/auth/LogoutButton.tsx` — แปล strings เท่านั้น
+
+### ไม่ทำใน Phase นี้
+- `lib/auth/workspace-links.ts` — label ใน .ts ไม่ใช่ component ทำใน Phase 0C
+- page content ทุกไฟล์ — Phase 0C
+- dashboard, superadmin, account pages — Phase 1+
 
 ---
 
 ## ขั้นตอนที่ต้องทำตามลำดับ
 
-### ขั้น 0 — Inspect ก่อนเขียนโค้ดทุกครั้ง
+### ขั้น 0 — Inspect ไฟล์จริงก่อนทุกครั้ง
 
 ```bash
-# อ่านไฟล์ที่จะแก้ก่อนเสมอ
 cat components/layout/Header.tsx
-cat components/layout/UserMenu.tsx       # ถ้ามี
+cat components/layout/HeaderAccountArea.tsx
 cat components/auth/LogoutButton.tsx
-cat app/\[locale\]/layout.tsx
-cat messages/th.json                     # ยืนยัน keys ที่มีอยู่แล้ว
+cat messages/th.json
 ```
 
-### ขั้น 1 — สร้าง LanguageSwitcher component (ใหม่ทั้งหมด)
+### ขั้น 1 — อัปเดต messages (3 ไฟล์)
 
-สร้าง `components/layout/LanguageSwitcher.tsx`
+เปิด `messages/th.json` แล้วเพิ่ม/แก้ไข keys ต่อไปนี้:
 
-**Requirements:**
-- เป็น Client Component (`'use client'`)
-- ใช้ `useLocale`, `useTranslations` จาก `next-intl`
-- ใช้ `useRouter`, `usePathname` จาก `next-intl/navigation` (ไม่ใช่ `next/navigation`)
-- แสดง dropdown หรือ button group สำหรับ 3 ภาษา: ไทย / English / ລາວ
-- ภาษาที่ active ต้องมี visual indicator (bold, underline, หรือ aria-current="true")
-- ต้องมี `aria-label` ที่ได้จาก `t('nav.languageLabel')`
-- เมื่อสลับภาษา ต้องคง path ปัจจุบันไว้ เช่น `/th/research` → `/en/research`
-- ไม่ reload หน้าทั้งหน้า (ใช้ router.replace หรือ Link จาก next-intl)
-- รองรับ keyboard navigation (tab + enter)
+**ใน namespace `"header"` เพิ่ม:**
+```json
+{
+  "header": {
+    "home": "หน้าแรก",
+    "research": "คลังงานวิจัย",
+    "login": "เข้าสู่ระบบ",
+    "register": "สมัครสมาชิก",
+    "logout": "ออกจากระบบ",
+    "loggingOut": "กำลังออกจากระบบ...",
+    "myAccount": "บัญชีของฉัน",
+    "dashboard": "แดชบอร์ด",
+    "admin": "ผู้ดูแลระบบ",
+    "skipToContent": "ข้ามไปยังเนื้อหาหลัก",
+    "openMenu": "เปิดเมนู",
+    "closeMenu": "ปิดเมนู",
+    "searchResearch": "ค้นหางานวิจัย",
+    "colorMode": "โหมดสี",
+    "mainMenu": "เมนูหลัก",
+    "myProfile": "โปรไฟล์ของฉัน",
+    "loadingUserMenu": "กำลังโหลดเมนูผู้ใช้"
+  }
+}
+```
 
-**Pattern ที่แนะนำ:**
+**เพิ่ม namespace `"nav"` ใหม่:**
+```json
+{
+  "nav": {
+    "home": "หน้าแรก",
+    "research": "งานวิจัย",
+    "about": "เกี่ยวกับเรา",
+    "contact": "ติดต่อเรา",
+    "languageLabel": "เลือกภาษา",
+    "th": "ไทย",
+    "en": "English",
+    "lo": "ລາວ"
+  }
+}
+```
+
+**เพิ่ม namespace `"workspace"` ใหม่:**
+```json
+{
+  "workspace": {
+    "favorites": "รายการโปรด",
+    "accessRequests": "คำขอเข้าถึงเอกสาร",
+    "submitResearch": "ส่งงานวิจัย",
+    "mySubmissions": "งานของฉัน",
+    "dashboard": "แดชบอร์ด",
+    "superAdmin": "Super Admin",
+    "myProfile": "โปรไฟล์ของฉัน"
+  }
+}
+```
+
+**`messages/en.json`** — เพิ่ม keys เดียวกัน:
+```json
+{
+  "header": {
+    "home": "Home",
+    "research": "Research Repository",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "logout": "Sign Out",
+    "loggingOut": "Signing out...",
+    "myAccount": "My Account",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "skipToContent": "Skip to main content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "searchResearch": "Search research",
+    "colorMode": "Color mode",
+    "mainMenu": "Main menu",
+    "myProfile": "My Profile",
+    "loadingUserMenu": "Loading user menu"
+  },
+  "nav": {
+    "home": "Home",
+    "research": "Research",
+    "about": "About Us",
+    "contact": "Contact",
+    "languageLabel": "Select language",
+    "th": "ไทย",
+    "en": "English",
+    "lo": "ລາວ"
+  },
+  "workspace": {
+    "favorites": "Favorites",
+    "accessRequests": "Access Requests",
+    "submitResearch": "Submit Research",
+    "mySubmissions": "My Submissions",
+    "dashboard": "Dashboard",
+    "superAdmin": "Super Admin",
+    "myProfile": "My Profile"
+  }
+}
+```
+
+**`messages/lo.json`** — copy keys เดียวกันจาก `th.json` (placeholder)
+
+### ขั้น 2 — สร้าง LanguageSwitcher.tsx
+
+สร้างไฟล์ใหม่ `components/layout/LanguageSwitcher.tsx`:
 
 ```tsx
 'use client';
@@ -63,7 +188,7 @@ import { routing } from '@/i18n/routing';
 
 const LOCALE_LABELS: Record<string, string> = {
   th: 'ไทย',
-  en: 'English',
+  en: 'EN',
   lo: 'ລາວ',
 };
 
@@ -78,13 +203,22 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <div role="navigation" aria-label={t('languageLabel')}>
+    <div
+      role="navigation"
+      aria-label={t('languageLabel')}
+      className="flex items-center gap-0.5"
+    >
       {routing.locales.map((loc) => (
         <button
           key={loc}
           onClick={() => handleChange(loc)}
           aria-current={loc === locale ? 'true' : undefined}
           lang={loc}
+          className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+            loc === locale
+              ? 'bg-brand-600 text-white'
+              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+          }`}
         >
           {LOCALE_LABELS[loc]}
         </button>
@@ -94,88 +228,202 @@ export function LanguageSwitcher() {
 }
 ```
 
-**ปรับ style ให้เข้ากับ design system เดิมของโปรเจกต์** (Tailwind classes ที่ใช้อยู่แล้ว)
-อย่าเพิ่ม library ใหม่เพื่อ component นี้โดยเฉพาะ
+**ข้อกำหนด:**
+- ต้องใช้ `useRouter` และ `usePathname` จาก `next-intl/navigation` เท่านั้น ไม่ใช่ `next/navigation`
+- ปุ่ม active ต้องมี visual indicator และ `aria-current="true"`
+- รองรับ keyboard (tab + enter)
 
-### ขั้น 2 — แก้ไข Header.tsx
+### ขั้น 3 — แก้ไข Header.tsx
 
-**อ่าน Header.tsx ก่อน** แล้ว:
+**อ่านไฟล์จริงก่อน** แล้วแก้ไขดังนี้:
 
-1. เพิ่ม `import { useTranslations } from 'next-intl'` (ถ้า Server Component ใช้ `getTranslations`)
-2. เพิ่ม `import { LanguageSwitcher } from './LanguageSwitcher'`
-3. แทนที่ string ต่อไปนี้ด้วย translation keys:
+**3.1 เปลี่ยน imports:**
+```tsx
+// ลบออก
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-| String เดิม (hardcode ไทย) | Key ใน messages |
-|---------------------------|----------------|
-| `"หน้าแรก"` | `header.home` |
-| `"คลังงานวิจัย"` | `header.research` |
-| `"เข้าสู่ระบบ"` | `header.login` |
-| `"สมัครสมาชิก"` | `header.register` |
-| `"ออกจากระบบ"` | `header.logout` |
-| `"กำลังออกจากระบบ..."` | `header.loggingOut` |
-| `"บัญชีของฉัน"` | `header.myAccount` |
-| `"แดชบอร์ด"` | `header.dashboard` |
-| `"ผู้ดูแลระบบ"` | `header.admin` |
-| `"ข้ามไปยังเนื้อหาหลัก"` (skip link) | `header.skipToContent` |
+// เพิ่มเข้า
+import { useTranslations } from 'next-intl';
+import { Link, usePathname } from 'next-intl/navigation';
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
+```
 
-4. วาง `<LanguageSwitcher />` ในตำแหน่งที่เหมาะสมใน Header
-   - แนะนำ: ด้านขวาสุดของ nav bar ก่อน account area
-   - ต้องไม่กระทบ layout ของ element อื่น
+**3.2 ย้าย navLinks เข้าใน component function และใช้ translation:**
+```tsx
+export default function Header({ ... }) {
+  const t = useTranslations('nav');
+  const tHeader = useTranslations('header');
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();  // ตอนนี้มาจาก next-intl/navigation
 
-**ข้อควรระวัง:**
-- Header อาจเป็น Server Component (`async function`) → ใช้ `getTranslations` จาก `next-intl/server`
-- ถ้า Header มี Client Component ย่อย (เช่น UserMenu, LogoutButton) → แยก translation prop ลงไปหรือให้ component ย่อยเรียก `useTranslations` เอง
-- ห้ามเปลี่ยน logic การตรวจสอบ session/user/role ใดๆ ทั้งสิ้น
+  const navLinks = [
+    { href: "/" as const, label: t('home') },
+    { href: "/research" as const, label: t('research') },
+    { href: "/about" as const, label: t('about') },
+    { href: "/contact" as const, label: t('contact') },
+  ];
+  // ...
+}
+```
 
-### ขั้น 3 — แก้ไข LogoutButton.tsx (ถ้าจำเป็น)
+**3.3 แทนที่ string hardcode ด้วย translation:**
+- `aria-label="เมนูหลัก"` → `aria-label={tHeader('mainMenu')}`
+- `aria-label="ค้นหางานวิจัย"` → `aria-label={tHeader('searchResearch')}`
+- `aria-label={open ? "ปิดเมนู" : "เปิดเมนู"}` → `aria-label={open ? tHeader('closeMenu') : tHeader('openMenu')}`
+- `"โหมดสี"` → `{tHeader('colorMode')}`
 
-ถ้า `LogoutButton.tsx` มี string `"ออกจากระบบ"` หรือ `"กำลังออกจากระบบ..."` hardcode:
-- เพิ่ม prop `logoutLabel` และ `loggingOutLabel` แบบ optional พร้อม default value ภาษาไทย
-- หรือให้ component เรียก `useTranslations('header')` เองโดยตรง (ถ้าเป็น Client Component อยู่แล้ว)
-- ห้ามเปลี่ยน `handleLogout` logic หรือ dynamic import pattern เดิม
+**3.4 วาง LanguageSwitcher — desktop:**
+```tsx
+<div className="hidden items-center gap-2 md:flex">
+  <LanguageSwitcher />
+  <ThemeToggle />
+  <Link href="/research" aria-label={tHeader('searchResearch')} ...>
+    <Search className="h-5 w-5" />
+  </Link>
+  {desktopAccountArea}
+</div>
+```
 
-### ขั้น 4 — เพิ่ม keys ที่ขาดใน messages (ถ้าพบ)
+**3.5 วาง LanguageSwitcher — mobile:**
+```tsx
+<Container className="flex flex-col gap-1 py-3">
+  <div className="mb-1 flex items-center justify-between rounded-md px-3 py-1.5">
+    <span className="text-xs font-medium text-gray-500">{tHeader('colorMode')}</span>
+    <ThemeToggle />
+  </div>
+  <div className="mb-1 flex items-center justify-between rounded-md px-3 py-1.5">
+    <span className="text-xs font-medium text-gray-500">{t('languageLabel')}</span>
+    <LanguageSwitcher />
+  </div>
+  {navLinks.map(...)}
+  {mobileAccountArea}
+</Container>
+```
 
-ถ้า inspect Header แล้วพบ string ที่ยังไม่มี key ใน `messages/th.json`:
-- เพิ่มใน `messages/th.json` ก่อน
-- เพิ่ม key เดียวกันใน `messages/en.json` พร้อม English translation
-- เพิ่ม key เดียวกันใน `messages/lo.json` (copy จาก th ก่อน)
-- ห้ามลบ key เดิมที่มีอยู่แล้ว
+**หมายเหตุ:** `usePathname` จาก `next-intl/navigation` คืน path ที่ตัด locale ออกแล้ว
+(`/research` ไม่ใช่ `/th/research`) — active link detection ยังใช้ logic เดิมได้โดยไม่ต้องแก้
 
-### ขั้น 5 — ตรวจ aria และ skip link
+### ขั้น 4 — แก้ไข HeaderAccountArea.tsx
 
-ตรวจสอบว่า:
-- Skip link (`ข้ามไปยังเนื้อหาหลัก`) ยังทำงานถูกต้อง และ text มาจาก translation
-- `aria-label` บน nav element ได้รับค่าที่ถูกต้องตาม locale
-- `lang` attribute บน html element ตรงกับ locale ปัจจุบัน (ควรทำตั้งแต่ Phase 0A แล้ว)
+**อ่านไฟล์จริงก่อน** — Server Component (async) ใช้ `getTranslations`:
 
-### ขั้น 6 — รัน checks และ report
+```tsx
+import { getTranslations } from 'next-intl/server';
+
+export default async function HeaderAccountArea({ variant }: { variant: "desktop" | "mobile" }) {
+  const { user, notifications, unreadCount, workspaceLinks } = await loadAccountData();
+  const t = await getTranslations('header');
+
+  if (variant === "desktop") {
+    return user ? (
+      <>
+        <NotificationBell notifications={notifications} unreadCount={unreadCount} />
+        <UserMenu user={user} workspaceLinks={workspaceLinks} />
+      </>
+    ) : (
+      <>
+        <LinkButton href="/login" variant="outline" size="sm">
+          {t('login')}
+        </LinkButton>
+        <LinkButton href="/register" variant="primary" size="sm">
+          {t('register')}
+        </LinkButton>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {workspaceLinks.map((link) => (
+        <Link key={link.href} href={link.href} ...>
+          {link.label}  {/* label ของ workspaceLinks ยังเป็น string เดิม ไม่เปลี่ยน */}
+        </Link>
+      ))}
+      {user ? (
+        <div ...>
+          <Link href="/account" ...>
+            <UserCircle className="h-4 w-4" />
+            {user.fullName || user.email || t('myProfile')}
+          </Link>
+          <LogoutButton ... />
+        </div>
+      ) : (
+        <div ...>
+          <LinkButton href="/login" variant="outline" size="sm" className="flex-1">
+            {t('login')}
+          </LinkButton>
+          <LinkButton href="/register" variant="primary" size="sm" className="flex-1">
+            {t('register')}
+          </LinkButton>
+        </div>
+      )}
+    </>
+  );
+}
+```
+
+### ขั้น 5 — แก้ไข LogoutButton.tsx
+
+**อ่านไฟล์จริงก่อน** — ห้ามแตะ handleLogout() เด็ดขาด
+
+```tsx
+'use client';
+
+import { useTransition } from "react";
+import { useRouter } from 'next-intl/navigation';  // เปลี่ยนจาก next/navigation
+import { useTranslations } from 'next-intl';
+import { LogOut } from "lucide-react";
+
+export default function LogoutButton({ className = "" }: { className?: string }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const t = useTranslations('header');
+
+  function handleLogout() {
+    startTransition(async () => {
+      const { createClient } = await import("@/lib/supabase/client");  // ห้ามแก้บรรทัดนี้
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleLogout}
+      disabled={isPending}
+      className={className || "inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"}
+    >
+      <LogOut className="h-4 w-4" />
+      {isPending ? t('loggingOut') : t('logout')}
+    </button>
+  );
+}
+```
+
+### ขั้น 6 — รัน checks
 
 ```bash
-rm -rf .next
-
 npx tsc --noEmit
 npm run lint
 npm run test
 npm run test:a11y
-npm run build
 ```
 
-**Manual smoke test หลัง dev server ขึ้น:**
+**Manual smoke test (dev server):**
 ```bash
 npm run dev
-# เปิด http://localhost:3000/th
-# คลิกสลับ EN → URL เปลี่ยนเป็น /en, text Header เปลี่ยนเป็น English
-# คลิกสลับ LO → URL เปลี่ยนเป็น /lo, text Header เปลี่ยน (placeholder ไทย)
-# ที่ /en/research คลิก TH → เปลี่ยนเป็น /th/research (path คงเดิม)
-# ทดสอบ keyboard: Tab ไปถึง LanguageSwitcher, Enter สลับภาษาได้
+# เปิด http://localhost:3001/th
+# ✓ Header แสดงภาษาไทย
+# ✓ เห็น LanguageSwitcher (ไทย / EN / ລາວ)
+# คลิก EN → URL เปลี่ยนเป็น /en/, Header เปลี่ยนเป็นอังกฤษ
+# ที่ /en/research คลิก TH → ไป /th/research (path คงเดิม)
+# Logout button แสดงข้อความถูก locale
+# Keyboard: Tab ถึง LanguageSwitcher → Enter สลับได้
 ```
-
-รายงานผล:
-- ไฟล์ที่สร้างใหม่
-- ไฟล์ที่แก้ไข (พร้อมสรุปว่าแก้อะไร)
-- test count ก่อน/หลัง (ต้องไม่ลดลง)
-- screenshot หรือ URL path ยืนยัน language switching ทำงานได้
 
 ---
 
@@ -183,52 +431,37 @@ npm run dev
 
 - [ ] `npx tsc --noEmit` → 0 error
 - [ ] `npm run lint` → 0 error
-- [ ] `npm run test` → ไม่น้อยกว่า baseline Phase 0A
-- [ ] `npm run test:a11y` → ไม่น้อยกว่า baseline Phase 0A
-- [ ] `npm run build` → 0 error
-- [ ] `/th/` → Header แสดงภาษาไทย
-- [ ] `/en/` → Header แสดงภาษาอังกฤษ
-- [ ] `/lo/` → Header แสดง (placeholder ไทย ยังโอเค)
-- [ ] สลับภาษาที่ `/th/research` → URL เปลี่ยนเป็น `/en/research` (path คงเดิม)
-- [ ] LanguageSwitcher มี `aria-label` และ `aria-current` ที่ถูกต้อง
-- [ ] Session/user/role logic ใน Header ไม่เปลี่ยนแปลง
-- [ ] `LogoutButton` dynamic import pattern ยังเหมือนเดิม
-- [ ] ไม่มี string ภาษาไทย hardcode เหลือใน Header (ยกเว้น lo.json ที่ยัง placeholder)
+- [ ] `npm run test` → 127/127
+- [ ] `npm run test:a11y` → 50/50
+- [ ] `/th/` → Header ภาษาไทย, LanguageSwitcher แสดง TH active
+- [ ] `/en/` → Header ภาษาอังกฤษ, LanguageSwitcher แสดง EN active
+- [ ] `/lo/` → Header ภาษาไทย (placeholder), LanguageSwitcher แสดง ລາວ active
+- [ ] สลับที่ `/th/research` → `/en/research` (slug คงเดิม)
+- [ ] LanguageSwitcher มี `aria-current="true"` บน locale ที่ active
+- [ ] Logout button ใช้งานได้ปกติ session หมดจริง
+- [ ] dynamic import pattern ใน LogoutButton ยังอยู่ครบ
+- [ ] ไม่มี string ภาษาไทย hardcode เหลือใน Header.tsx, HeaderAccountArea.tsx, LogoutButton.tsx
 
 ---
 
-## ไฟล์ที่ต้องแก้ (คาดการณ์)
+## ข้อห้าม
 
-| ไฟล์ | การกระทำ | ความเสี่ยง |
-|------|----------|-----------|
-| `components/layout/LanguageSwitcher.tsx` | สร้างใหม่ | ต่ำ |
-| `components/layout/Header.tsx` | เพิ่ม translations + LanguageSwitcher | กลาง |
-| `components/auth/LogoutButton.tsx` | เพิ่ม translation support (ถ้าจำเป็น) | ต่ำ |
-| `components/layout/UserMenu.tsx` | เพิ่ม translations (ถ้ามี string ใน component นี้) | ต่ำ |
-| `messages/th.json` | เพิ่ม keys ที่พบระหว่าง inspect (ถ้ามี) | ต่ำ |
-| `messages/en.json` | เพิ่ม keys เดียวกัน (ถ้ามี) | ต่ำ |
-| `messages/lo.json` | เพิ่ม keys เดียวกัน (placeholder) | ต่ำ |
-
-**ห้ามแตะ:**
-- `middleware.ts` — ไม่มีงานเพิ่มใน Phase นี้
-- `lib/supabase/` ทุกไฟล์
-- `app/[locale]/layout.tsx` — เสร็จแล้วใน Phase 0A
-- page files ทุกไฟล์ — จะทำใน Phase 0C
-- RLS, migrations, audit logs
+- ห้ามแตะ `lib/auth/workspace-links.ts` — Phase 0C
+- ห้ามแตะ `middleware.ts`
+- ห้ามแตะ `lib/supabase/` ทุกไฟล์
+- ห้ามเปลี่ยน `dynamic import("@/lib/supabase/client")` pattern ใน LogoutButton
+- ห้ามแตะ page files ทุกไฟล์ — Phase 0C
+- ถ้า test จำนวนลดลง → หยุดทันที ห้าม commit
 
 ---
 
-## ข้อควรระวังพิเศษ
+## ความเสี่ยงที่ต้องระวัง
 
-1. **Header อาจ mix Server + Client Components** — ตรวจก่อนว่า Header.tsx เป็น Server หรือ Client Component
-   - Server Component → ใช้ `getTranslations('header')` จาก `next-intl/server` (async)
-   - Client Component → ใช้ `useTranslations('header')` (sync hook)
-   - ถ้า Header เป็น Server Component แต่ UserMenu เป็น Client → pass translation strings เป็น props ลงไป หรือให้ UserMenu เรียก `useTranslations` เอง
+1. **`next-intl/navigation` vs `next/navigation`** — Header และ LogoutButton ต้องใช้ `useRouter`/`usePathname` จาก `next-intl/navigation` เท่านั้น มิฉะนั้น locale จะหายตอน navigate
 
-2. **`next-intl/navigation` vs `next/navigation`** — LanguageSwitcher ต้องใช้ `useRouter` และ `usePathname` จาก `next-intl/navigation` เสมอ ไม่ใช่ `next/navigation` มิฉะนั้น locale จะไม่ถูกส่งไปด้วยตอน navigate
+2. **Server vs Client Component** — `HeaderAccountArea` เป็น Server Component ใช้ `getTranslations` (async), `Header` และ `LogoutButton` เป็น Client Component ใช้ `useTranslations` (sync hook) ห้ามสลับกัน
 
-3. **LogoutButton dynamic import** — ตรวจสอบว่า pattern `await import('@/lib/supabase/client')` ภายใน `handleLogout()` ยังคงอยู่ครบหลังแก้ไข ห้ามเปลี่ยน import pattern นี้
+3. **`usePathname` จาก next-intl** — คืน path ที่ตัด locale ออกแล้ว (`/research` ไม่ใช่ `/th/research`) — active link detection ยังใช้ logic เดิมได้
 
-4. **NotificationBell** — ถ้ามี string ใน NotificationBell ที่อยู่ใน Header ให้บันทึกไว้แต่ยังไม่แปลในรอบนี้ (Phase 0C หรือหลังจากนั้น) เพื่อ scope ให้แคบ
-
-5. **ถ้า test จำนวนลดลง** → หยุดและ report ทันที ห้าม merge
+4. **Port 3001 ค้าง** — ถ้ารัน `npm run test:a11y` แล้ว error `EADDRINUSE` ให้รันใน PowerShell:
+   `Stop-Process -Id $(Get-NetTCPConnection -LocalPort 3001).OwningProcess -Force`

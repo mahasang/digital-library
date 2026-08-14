@@ -31,14 +31,34 @@
     "myAccount": "บัญชีของฉัน",
     "dashboard": "แดชบอร์ด",
     "admin": "ผู้ดูแลระบบ",
-    "skipToContent": "ข้ามไปยังเนื้อหาหลัก"
+    "skipToContent": "ข้ามไปยังเนื้อหาหลัก",
+    "openMenu": "เปิดเมนู",
+    "closeMenu": "ปิดเมนู",
+    "searchResearch": "ค้นหางานวิจัย",
+    "colorMode": "โหมดสี",
+    "mainMenu": "เมนูหลัก",
+    "myProfile": "โปรไฟล์ของฉัน",
+    "loadingUserMenu": "กำลังโหลดเมนูผู้ใช้"
   },
   "nav": {
     "language": "ภาษา",
+    "home": "หน้าแรก",
+    "research": "งานวิจัย",
+    "about": "เกี่ยวกับเรา",
+    "contact": "ติดต่อเรา",
     "languageLabel": "เลือกภาษา",
     "th": "ไทย",
     "en": "English",
     "lo": "ລາວ"
+  },
+  "workspace": {
+    "favorites": "รายการโปรด",
+    "accessRequests": "คำขอเข้าถึงเอกสาร",
+    "submitResearch": "ส่งงานวิจัย",
+    "mySubmissions": "งานของฉัน",
+    "dashboard": "แดชบอร์ด",
+    "superAdmin": "Super Admin",
+    "myProfile": "โปรไฟล์ของฉัน"
   },
   "home": {
     "title": "คลังงานวิจัยดิจิทัล",

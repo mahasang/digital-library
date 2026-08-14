@@ -31,14 +31,34 @@
     "myAccount": "My Account",
     "dashboard": "Dashboard",
     "admin": "Admin",
-    "skipToContent": "Skip to main content"
+    "skipToContent": "Skip to main content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "searchResearch": "Search research",
+    "colorMode": "Color mode",
+    "mainMenu": "Main menu",
+    "myProfile": "My Profile",
+    "loadingUserMenu": "Loading user menu"
   },
   "nav": {
     "language": "Language",
+    "home": "Home",
+    "research": "Research",
+    "about": "About Us",
+    "contact": "Contact",
     "languageLabel": "Select language",
     "th": "ไทย",
     "en": "English",
     "lo": "ລາວ"
+  },
+  "workspace": {
+    "favorites": "Favorites",
+    "accessRequests": "Access Requests",
+    "submitResearch": "Submit Research",
+    "mySubmissions": "My Submissions",
+    "dashboard": "Dashboard",
+    "superAdmin": "Super Admin",
+    "myProfile": "My Profile"
   },
   "home": {
     "title": "Digital Research Repository",

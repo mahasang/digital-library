@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { UserCircle } from "lucide-react";
 import { LinkButton } from "@/components/ui/Button";
 import LogoutButton from "@/components/auth/LogoutButton";
@@ -47,10 +48,12 @@ async function loadAccountData() {
  * เนื้อหาจริงเพื่อลด layout shift เมื่อสลับเป็นเนื้อหาจริง แอนิเมชัน pulse
  * เคารพ prefers-reduced-motion อยู่แล้วผ่าน CSS กลางของทั้งเว็บ (app/globals.css)
  */
-export function HeaderAccountAreaSkeleton({ variant }: { variant: "desktop" | "mobile" }) {
+export async function HeaderAccountAreaSkeleton({ variant }: { variant: "desktop" | "mobile" }) {
+  const t = await getTranslations("header");
+
   if (variant === "desktop") {
     return (
-      <span role="status" aria-label="กำลังโหลดเมนูผู้ใช้" className="flex items-center gap-2">
+      <span role="status" aria-label={t("loadingUserMenu")} className="flex items-center gap-2">
         <span aria-hidden="true" className="h-9 w-9 animate-pulse rounded-md bg-gray-100" />
         <span aria-hidden="true" className="h-9 w-24 animate-pulse rounded-lg bg-gray-100" />
       </span>
@@ -60,7 +63,7 @@ export function HeaderAccountAreaSkeleton({ variant }: { variant: "desktop" | "m
   return (
     <span
       role="status"
-      aria-label="กำลังโหลดเมนูผู้ใช้"
+      aria-label={t("loadingUserMenu")}
       className="mt-2 flex flex-col gap-2 border-t border-gray-100 pt-3"
     >
       <span aria-hidden="true" className="h-10 w-full animate-pulse rounded-md bg-gray-100" />
@@ -74,6 +77,7 @@ export default async function HeaderAccountArea({
   variant: "desktop" | "mobile";
 }) {
   const { user, notifications, unreadCount, workspaceLinks } = await loadAccountData();
+  const t = await getTranslations("header");
 
   if (variant === "desktop") {
     return user ? (
@@ -84,10 +88,10 @@ export default async function HeaderAccountArea({
     ) : (
       <>
         <LinkButton href="/login" variant="outline" size="sm">
-          เข้าสู่ระบบ
+          {t("login")}
         </LinkButton>
         <LinkButton href="/register" variant="primary" size="sm">
-          สมัครสมาชิก
+          {t("register")}
         </LinkButton>
       </>
     );
@@ -116,17 +120,17 @@ export default async function HeaderAccountArea({
             className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
           >
             <UserCircle className="h-4 w-4" />
-            {user.fullName || user.email || "โปรไฟล์ของฉัน"}
+            {user.fullName || user.email || t("myProfile")}
           </Link>
           <LogoutButton className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50" />
         </div>
       ) : (
         <div className="mt-2 flex gap-2 border-t border-gray-100 pt-3">
           <LinkButton href="/login" variant="outline" size="sm" className="flex-1">
-            เข้าสู่ระบบ
+            {t("login")}
           </LinkButton>
           <LinkButton href="/register" variant="primary" size="sm" className="flex-1">
-            สมัครสมาชิก
+            {t("register")}
           </LinkButton>
         </div>
       )}

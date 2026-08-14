@@ -114,7 +114,9 @@ for (const role of Object.keys(ACCOUNTS) as RoleName[]) {
       const mobilePanel = page.locator("header .md\\:hidden");
 
       for (const href of EXPECTED_LINKS[role]) {
-        await expect(mobilePanel.locator(`a[href="${href}"]`)).toBeVisible();
+        // i18n Phase 0B — HeaderAccountArea แปลงเป็น next-intl Link แล้ว จึงมี
+        // locale prefix เสมอ (หน้านี้ทดสอบภายใต้ /th/ เท่านั้น)
+        await expect(mobilePanel.locator(`a[href="/th${href}"]`)).toBeVisible();
       }
       await expect(mobilePanel.getByRole("link", { name: /โปรไฟล์|@/ }).first()).toBeVisible();
       await expect(mobilePanel.getByRole("button", { name: "ออกจากระบบ" })).toBeVisible();
