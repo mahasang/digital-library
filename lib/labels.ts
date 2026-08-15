@@ -6,6 +6,11 @@ import type {
   OcrStatusRow,
 } from "@/lib/supabase/database.types";
 
+/**
+ * @deprecated ใช้ t(`accessLevels.${level}`) จาก next-intl แทน (namespace root
+ * หรือ getTranslations('accessLevels') แล้วเรียก t(level)) คงไว้สำหรับหน้าที่
+ * ยังไม่ได้แปล — จะลบใน Phase 2B เมื่อทุก call site แปลครบแล้ว
+ */
 export const accessLevelLabels: Record<AccessLevel, string> = {
   public: "เข้าถึงสาธารณะ",
   member_only: "เฉพาะสมาชิก",
@@ -14,6 +19,11 @@ export const accessLevelLabels: Record<AccessLevel, string> = {
   metadata_only: "แสดงเฉพาะข้อมูลเบื้องต้น",
 };
 
+/**
+ * @deprecated ใช้ t(`accessLevels.descriptions.${level}`) จาก next-intl แทน
+ * คงไว้สำหรับหน้าที่ยังไม่ได้แปล (เช่น app/[locale]/research/[id]/page.tsx) —
+ * จะลบใน Phase 2B
+ */
 export const accessLevelDescriptions: Record<AccessLevel, string> = {
   public: "ผู้เข้าชมทุกคนสามารถอ่านและดาวน์โหลดเอกสารฉบับเต็มได้",
   member_only: "ต้องเข้าสู่ระบบในฐานะสมาชิกจึงจะอ่านและดาวน์โหลดได้",
@@ -22,6 +32,10 @@ export const accessLevelDescriptions: Record<AccessLevel, string> = {
   metadata_only: "แสดงเฉพาะชื่อเรื่อง บทคัดย่อ และข้อมูลผู้วิจัย ไม่สามารถอ่านฉบับเต็ม",
 };
 
+/**
+ * @deprecated ใช้ t(`statuses.${status}`) จาก next-intl แทน คงไว้สำหรับ
+ * sub-pages ที่ยังไม่ได้แปล — จะลบใน Phase 2B
+ */
 export const statusLabels: Record<DocumentStatus, string> = {
   draft: "ฉบับร่าง",
   pending_review: "รอตรวจสอบ",
@@ -33,6 +47,10 @@ export const statusLabels: Record<DocumentStatus, string> = {
   merged: "ถูกรวมเข้ากับรายการอื่น",
 };
 
+/**
+ * @deprecated ใช้ t(`scanStatuses.${status}`) จาก next-intl แทน คงไว้สำหรับ
+ * sub-pages ที่ยังไม่ได้แปล — จะลบใน Phase 2B
+ */
 export const scanStatusLabels: Record<ScanStatus, string> = {
   pending: "รอสแกนความปลอดภัย (background job)",
   clean: "ตรวจสอบแล้ว ปลอดภัย",
@@ -41,6 +59,10 @@ export const scanStatusLabels: Record<ScanStatus, string> = {
   skipped: "ยังไม่ได้สแกนจริง (โหมดจำลอง/ข้อมูลเก่า)",
 };
 
+/**
+ * @deprecated ใช้ t(`extractionStatuses.${status}`) จาก next-intl แทน คงไว้
+ * สำหรับ sub-pages ที่ยังไม่ได้แปล — จะลบใน Phase 2B
+ */
 export const extractionStatusLabels: Record<ExtractionStatusRow, string> = {
   pending: "รอประมวลผล",
   processing: "กำลังประมวลผล",
@@ -49,6 +71,10 @@ export const extractionStatusLabels: Record<ExtractionStatusRow, string> = {
   failed: "ประมวลผลไม่สำเร็จ",
 };
 
+/**
+ * @deprecated ใช้ t(`ocrStatuses.${status}`) จาก next-intl แทน คงไว้สำหรับ
+ * sub-pages ที่ยังไม่ได้แปล — จะลบใน Phase 2B
+ */
 export const ocrStatusLabels: Record<OcrStatusRow, string> = {
   not_required: "ยังไม่จำเป็นต้อง OCR",
   pending: "รอ OCR",
@@ -58,11 +84,19 @@ export const ocrStatusLabels: Record<OcrStatusRow, string> = {
   blocked: "ยังไม่ได้ทำ OCR (ติดปัญหาการตั้งค่า/นโยบาย)",
 };
 
+/**
+ * @deprecated ใช้ t(`accessRequestTypes.${type}`) จาก next-intl แทน คงไว้
+ * สำหรับ sub-pages ที่ยังไม่ได้แปล — จะลบใน Phase 2B
+ */
 export const accessRequestTypeLabels: Record<AccessRequestTypeRow, string> = {
   read: "อ่านออนไลน์",
   download: "ดาวน์โหลด",
 };
 
+/**
+ * @deprecated ใช้ t(`accessRequestStatuses.${status}`) จาก next-intl แทน
+ * คงไว้สำหรับ sub-pages ที่ยังไม่ได้แปล — จะลบใน Phase 2B
+ */
 export const accessRequestStatusLabels: Record<AccessRequestStatusRow, string> = {
   pending: "รอตรวจสอบ",
   under_review: "กำลังพิจารณา",
@@ -73,6 +107,10 @@ export const accessRequestStatusLabels: Record<AccessRequestStatusRow, string> =
   expired: "สิทธิ์หมดอายุ",
 };
 
+/**
+ * @deprecated ใช้ t(`roles.${role}`) จาก next-intl แทน คงไว้สำหรับ sub-pages
+ * ที่ยังไม่ได้แปล — จะลบใน Phase 2B
+ */
 export const roleLabels: Record<UserRole, string> = {
   guest: "ผู้เยี่ยมชม",
   member: "สมาชิก",
@@ -82,7 +120,12 @@ export const roleLabels: Record<UserRole, string> = {
   super_admin: "ผู้ดูแลระบบสูงสุด",
 };
 
-/** ป้ายกำกับภาษาไทยของ action ในตาราง audit_logs — ใช้ร่วมกันทั้ง /dashboard/audit-logs และ /superadmin/audit-logs */
+/**
+ * ป้ายกำกับภาษาไทยของ action ในตาราง audit_logs — ใช้ร่วมกันทั้ง
+ * /dashboard/audit-logs และ /superadmin/audit-logs
+ * @deprecated ใช้ t(`auditActions.${action}`) จาก next-intl แทน คงไว้สำหรับ
+ * sub-pages ที่ยังไม่ได้แปล — จะลบใน Phase 2B
+ */
 export const auditActionLabels: Record<string, string> = {
   research_create: "สร้างงานวิจัย",
   research_update: "แก้ไขงานวิจัย",

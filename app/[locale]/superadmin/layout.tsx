@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import Container from "@/components/ui/Container";
 import SuperAdminSidebar from "@/components/superadmin/SuperAdminSidebar";
 import SupabaseNotConfiguredNotice from "@/components/auth/SupabaseNotConfiguredNotice";
@@ -35,13 +36,17 @@ export default async function SuperAdminLayout({
     );
   }
 
+  const locale = await getLocale();
+
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/superadmin");
+  if (!user) return redirect({ href: "/login?redirect=/superadmin", locale });
 
   const rank = await getCurrentUserRoleRank();
-  if (rank < SUPER_ADMIN_RANK) redirect("/403");
+  if (rank < SUPER_ADMIN_RANK) return redirect({ href: "/403", locale });
 
-  if (!user.hasVerifiedMfa) redirect("/setup-mfa?redirect=/superadmin");
+  if (!user.hasVerifiedMfa) {
+    return redirect({ href: "/setup-mfa?redirect=/superadmin", locale });
+  }
 
   return (
     <div className="mx-auto flex max-w-[1440px] flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:px-8">

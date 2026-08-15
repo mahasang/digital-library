@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import {
   Users,
   FileText,
@@ -44,10 +45,17 @@ import {
   CategoryBarChart,
   StatusPieChart,
 } from "@/components/superadmin/OverviewCharts";
-import { roleLabels, statusLabels } from "@/lib/labels";
 import type { UserRole, DocumentStatus } from "@/types/research";
 
-export const metadata: Metadata = { title: "ภาพรวมระบบ — Super Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "superadmin" });
+  return { title: t("pageTitle") };
+}
 
 /**
  * บังคับ dynamic render เสมอ (ไม่พยายาม static-generate) — หน้านี้ดึงข้อมูล
@@ -106,14 +114,14 @@ export default async function SuperAdminOverviewPage({
   const to = params.to || defaultTo;
   const toExclusive = isoDate(new Date(new Date(to).getTime() + 24 * 60 * 60 * 1000));
   const granularity: ChartGranularity = params.granularity === "month" ? "month" : "day";
+  const t = await getTranslations("superadmin");
 
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">ภาพรวมระบบ</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("heading")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          สรุปสถานะระบบทั้งหมดสำหรับ Super Admin — ผู้ใช้ งานวิจัย พื้นที่จัดเก็บ
-          และเหตุการณ์สำคัญ
+          {t("subtitle")}
         </p>
       </div>
 
@@ -121,7 +129,7 @@ export default async function SuperAdminOverviewPage({
       <div className="flex flex-col gap-3">
         <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
           <ListChecks className="h-4 w-4" aria-hidden="true" />
-          ต้องดำเนินการ
+          {t("sectionActionRequired")}
         </h2>
         <Suspense fallback={<CardsSkeleton count={1} />}>
           <PendingReviewCallout />
@@ -136,7 +144,7 @@ export default async function SuperAdminOverviewPage({
       <div className="flex flex-col gap-3">
         <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
           <Activity className="h-4 w-4" aria-hidden="true" />
-          ติดตามการทำงานของระบบ
+          {t("sectionMonitoring")}
         </h2>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Suspense fallback={<PanelSkeleton />}>
@@ -155,7 +163,7 @@ export default async function SuperAdminOverviewPage({
       <div className="flex flex-col gap-3">
         <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
           <BarChart3 className="h-4 w-4" aria-hidden="true" />
-          ข้อมูลอ้างอิง
+          {t("sectionReference")}
         </h2>
 
         <Suspense fallback={<CardsSkeleton count={6} />}>
@@ -177,7 +185,7 @@ export default async function SuperAdminOverviewPage({
 
         <Panel
           icon={BarChart3}
-          title="แนวโน้มเชิงลึก"
+          title={t("trendsTitle")}
           action={
             <form className="flex flex-wrap items-center gap-2 text-sm" method="get">
               <input
@@ -185,16 +193,16 @@ export default async function SuperAdminOverviewPage({
                 name="from"
                 defaultValue={from}
                 max={to}
-                aria-label="จากวันที่"
+                aria-label={t("trendDateFrom")}
                 className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900"
               />
-              <span className="text-gray-500">ถึง</span>
+              <span className="text-gray-500">{t("trendDateToLabel")}</span>
               <input
                 type="date"
                 name="to"
                 defaultValue={to}
                 max={defaultTo}
-                aria-label="ถึงวันที่"
+                aria-label={t("trendDateTo")}
                 className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900"
               />
               <select
@@ -202,14 +210,14 @@ export default async function SuperAdminOverviewPage({
                 defaultValue={granularity}
                 className="rounded-lg border border-gray-300 bg-surface px-2.5 py-1.5 text-xs"
               >
-                <option value="day">รายวัน</option>
-                <option value="month">รายเดือน</option>
+                <option value="day">{t("trendGranularityDay")}</option>
+                <option value="month">{t("trendGranularityMonth")}</option>
               </select>
               <button
                 type="submit"
                 className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-700"
               >
-                ดูข้อมูล
+                {t("trendViewData")}
               </button>
             </form>
           }
@@ -228,10 +236,11 @@ export default async function SuperAdminOverviewPage({
  * ============================================================================ */
 async function PendingReviewCallout() {
   const stats = await getDashboardStats();
+  const t = await getTranslations("superadmin");
   return (
     <StatCard
       icon={Clock}
-      label="งานวิจัยรอตรวจสอบ — กดเพื่อไปหน้าอนุมัติ"
+      label={t("pendingReview")}
       value={stats.pendingReview}
       tone="action"
       href="/dashboard/approvals"
@@ -243,12 +252,13 @@ async function PendingReviewCallout() {
  * ความปลอดภัย) — ไม่ได้ดึงข้อมูลจำนวนมาแสดงซ้ำที่นี่ เพราะหน้านี้ไม่เคยดึง
  * ข้อมูลเหล่านั้นมาก่อน (ไม่เพิ่ม query ใหม่) แต่ละหน้าปลายทางมีสรุปสถานะ
  * ของตัวเองอยู่แล้ว */
-function QuickLinksPanel() {
+async function QuickLinksPanel() {
+  const t = await getTranslations("superadmin");
   const links = [
-    { href: "/superadmin/jobs", label: "งานล้มเหลวถาวร (DLQ)" },
-    { href: "/superadmin/cron-monitoring", label: "ตรวจสอบ Cron/Worker" },
-    { href: "/superadmin/security", label: "ความปลอดภัย" },
-    { href: "/dashboard/access-requests", label: "คำขอเข้าถึงเอกสาร" },
+    { href: "/superadmin/jobs", labelKey: "quickLinkDlq" },
+    { href: "/superadmin/cron-monitoring", labelKey: "quickLinkCron" },
+    { href: "/superadmin/security", labelKey: "quickLinkSecurity" },
+    { href: "/dashboard/access-requests", labelKey: "quickLinkAccessRequests" },
   ];
   return (
     <div className="flex flex-wrap gap-2">
@@ -258,7 +268,7 @@ function QuickLinksPanel() {
           href={link.href}
           className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-surface px-3 py-2 text-xs font-medium text-gray-600 transition-colors hover:border-brand-200 hover:text-accent"
         >
-          {link.label}
+          {t(link.labelKey)}
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
       ))}
@@ -269,15 +279,16 @@ function QuickLinksPanel() {
 async function SystemAlertsSection() {
   const result = await getSystemAlerts();
   const hasAlerts = result.available && result.data.length > 0;
+  const t = await getTranslations("superadmin");
 
   return (
-    <Panel icon={ShieldAlert} title="การแจ้งเตือนและปัญหาสำคัญของระบบ" tone={hasAlerts ? "alert" : "default"}>
+    <Panel icon={ShieldAlert} title={t("alertsTitle")} tone={hasAlerts ? "alert" : "default"}>
       {!result.available ? (
-        <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" description="ไม่สามารถดึงข้อมูลนี้ได้ในขณะนี้ กรุณาลองใหม่อีกครั้งภายหลัง" compact />
+        <EmptyState tone="unavailable" title={t("unavailable")} description={t("unavailableDesc")} compact />
       ) : result.data.length === 0 ? (
         <div className="flex items-center gap-2 py-4 text-sm text-green-700">
           <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
-          ไม่พบปัญหาสำคัญในขณะนี้
+          {t("noAlerts")}
         </div>
       ) : (
         <ul className="flex flex-col gap-2">
@@ -301,13 +312,14 @@ async function SystemAlertsSection() {
  * ============================================================================ */
 async function StorageUsageSection() {
   const result = await getStorageUsage();
+  const t = await getTranslations("superadmin");
 
   return (
-    <Panel icon={HardDrive} title="พื้นที่ Storage ที่ใช้งาน">
+    <Panel icon={HardDrive} title={t("storageTitle")}>
       {!result.available ? (
-        <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" description="ไม่สามารถดึงข้อมูลพื้นที่ Storage ได้ในขณะนี้" compact />
+        <EmptyState tone="unavailable" title={t("unavailable")} description={t("unavailableStorage")} compact />
       ) : result.data.length === 0 ? (
-        <EmptyState title="ยังไม่มี Bucket ในระบบ" description="เมื่อมีการตั้งค่า Storage bucket แล้ว จะแสดงพื้นที่ใช้งานที่นี่" compact />
+        <EmptyState title={t("noBuckets")} description={t("noBucketsDesc")} compact />
       ) : (
         <div className="flex flex-col gap-2">
           {result.data.map((bucket) => (
@@ -318,7 +330,7 @@ async function StorageUsageSection() {
               <div>
                 <p className="text-sm font-medium text-gray-900">{bucket.bucketId}</p>
                 <p className="text-xs text-gray-500">
-                  {bucket.objectCount.toLocaleString("th-TH")} ไฟล์
+                  {t("storageFiles", { count: bucket.objectCount.toLocaleString("th-TH") })}
                 </p>
               </div>
               <p className={`text-sm font-semibold ${bucket.totalBytes === 0 ? "text-gray-500" : "text-gray-700"}`}>
@@ -332,34 +344,36 @@ async function StorageUsageSection() {
   );
 }
 
-function BackupStatusSection() {
+async function BackupStatusSection() {
   const status = getBackupStatus();
+  const t = await getTranslations("superadmin");
 
   return (
-    <Panel icon={DatabaseBackup} title="สถานะ Backup ล่าสุด">
-      <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" description={status.reason} action={status.guidance && <p className="text-xs text-gray-500">{status.guidance}</p>} compact />
+    <Panel icon={DatabaseBackup} title={t("backupTitle")}>
+      <EmptyState tone="unavailable" title={t("unavailable")} description={status.reason} action={status.guidance && <p className="text-xs text-gray-500">{status.guidance}</p>} compact />
     </Panel>
   );
 }
 
 async function RecentAuditLogSection() {
   const result = await getAuditLogs({ page: 1, pageSize: 10 });
+  const t = await getTranslations("superadmin");
 
   return (
-    <Panel icon={ScrollText} title="รายการ Audit Log ล่าสุด">
+    <Panel icon={ScrollText} title={t("auditLogTitle")}>
       {!result.available ? (
-        <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" compact />
+        <EmptyState tone="unavailable" title={t("unavailable")} compact />
       ) : result.rows.length === 0 ? (
-        <EmptyState title="ยังไม่มีรายการ Audit Log" description="เมื่อมีการดำเนินการสำคัญในระบบ จะบันทึกไว้ที่นี่" compact />
+        <EmptyState title={t("noAuditLog")} description={t("noAuditLogDesc")} compact />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="text-xs uppercase tracking-wide text-gray-500">
               <tr>
-                <th className="pb-2 font-medium">ผู้กระทำ</th>
-                <th className="pb-2 font-medium">การกระทำ</th>
-                <th className="pb-2 font-medium">ประเภทข้อมูล</th>
-                <th className="pb-2 font-medium">วันที่/เวลา</th>
+                <th className="pb-2 font-medium">{t("auditColActor")}</th>
+                <th className="pb-2 font-medium">{t("auditColAction")}</th>
+                <th className="pb-2 font-medium">{t("auditColEntity")}</th>
+                <th className="pb-2 font-medium">{t("auditColDate")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -381,7 +395,7 @@ async function RecentAuditLogSection() {
         href="/superadmin/audit-logs"
         className="mt-3 inline-block text-xs font-medium text-accent hover:underline"
       >
-        ดูประวัติทั้งหมด →
+        {t("auditLogViewAll")}
       </Link>
     </Panel>
   );
@@ -401,45 +415,48 @@ async function ReferenceStatsSection() {
     getUsersByRole(),
     getResearchByStatus(),
   ]);
+  const t = await getTranslations("superadmin");
 
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
       <StatCard
         icon={Users}
-        label="ผู้ใช้ทั้งหมด"
-        value={usersByRole.available ? usersByRole.data.total : "ไม่พร้อมใช้งาน"}
+        label={t("refTotalUsers")}
+        value={usersByRole.available ? usersByRole.data.total : t("unavailable")}
       />
       <StatCard
         icon={UserPlus}
-        label="สมาชิกใหม่ (30 วันล่าสุด)"
+        label={t("refNewMembers")}
         value={rangeStats.newMembersInRange}
       />
       <StatCard
         icon={FileText}
-        label="งานวิจัยทั้งหมด"
-        value={researchByStatus.available ? researchByStatus.data.total : "ไม่พร้อมใช้งาน"}
+        label={t("refTotalResearch")}
+        value={researchByStatus.available ? researchByStatus.data.total : t("unavailable")}
       />
-      <StatCard icon={Eye} label="ยอดเข้าชมสะสม" value={dashboardStats.totalViews} />
-      <StatCard icon={Download} label="ยอดดาวน์โหลดสะสม" value={dashboardStats.totalDownloads} />
-      <StatCard icon={Eye} label="อ่านออนไลน์ (30 วันล่าสุด)" value={rangeStats.readsInRange} />
+      <StatCard icon={Eye} label={t("refTotalViews")} value={dashboardStats.totalViews} />
+      <StatCard icon={Download} label={t("refTotalDownloads")} value={dashboardStats.totalDownloads} />
+      <StatCard icon={Eye} label={t("refReadsInRange")} value={rangeStats.readsInRange} />
     </div>
   );
 }
 
 async function UsersByRoleSection() {
   const result = await getUsersByRole();
+  const t = await getTranslations("superadmin");
+  const tRoles = await getTranslations("roles");
 
   return (
-    <Panel icon={Users} title="ผู้ใช้ทั้งหมด แยกตามบทบาท">
+    <Panel icon={Users} title={t("usersByRoleTitle")}>
       {!result.available ? (
-        <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" compact />
+        <EmptyState tone="unavailable" title={t("unavailable")} compact />
       ) : result.data.total === 0 ? (
-        <EmptyState title="ยังไม่มีผู้ใช้งานในระบบ" compact />
+        <EmptyState title={t("noUsersYet")} compact />
       ) : (
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {ROLE_ORDER.map((role) => (
             <div key={role} className="rounded-lg bg-gray-50 p-3">
-              <dt className="text-xs text-gray-500">{roleLabels[role]}</dt>
+              <dt className="text-xs text-gray-500">{tRoles(role)}</dt>
               <dd className="mt-0.5 text-lg font-bold text-gray-900">
                 {result.data.byRole[role].toLocaleString("th-TH")}
               </dd>
@@ -447,7 +464,7 @@ async function UsersByRoleSection() {
           ))}
           {result.data.unassigned > 0 && (
             <div className="rounded-lg bg-amber-50 p-3">
-              <dt className="text-xs text-amber-700">ยังไม่มีบทบาท</dt>
+              <dt className="text-xs text-amber-700">{t("unassignedRole")}</dt>
               <dd className="mt-0.5 text-lg font-bold text-amber-800">
                 {result.data.unassigned.toLocaleString("th-TH")}
               </dd>
@@ -461,18 +478,20 @@ async function UsersByRoleSection() {
 
 async function ResearchByStatusSection() {
   const result = await getResearchByStatus();
+  const t = await getTranslations("superadmin");
+  const tStatuses = await getTranslations("statuses");
 
   return (
-    <Panel icon={FileText} title="งานวิจัยทั้งหมด แยกตามสถานะ">
+    <Panel icon={FileText} title={t("researchByStatusTitle")}>
       {!result.available ? (
-        <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" compact />
+        <EmptyState tone="unavailable" title={t("unavailable")} compact />
       ) : result.data.total === 0 ? (
-        <EmptyState title="ยังไม่มีงานวิจัยในระบบ" compact />
+        <EmptyState title={t("noResearchYet")} compact />
       ) : (
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {STATUS_ORDER.map((status) => (
             <div key={status} className="rounded-lg bg-gray-50 p-3">
-              <dt className="text-xs text-gray-500">{statusLabels[status]}</dt>
+              <dt className="text-xs text-gray-500">{tStatuses(status)}</dt>
               <dd className="mt-0.5 text-lg font-bold text-gray-900">
                 {result.data.byStatus[status].toLocaleString("th-TH")}
               </dd>
@@ -486,19 +505,20 @@ async function ResearchByStatusSection() {
 
 async function PopularResearchSection() {
   const stats = await getDashboardStats();
+  const t = await getTranslations("superadmin");
 
   return (
-    <Panel icon={TrendingUp} title="งานวิจัยยอดนิยม">
+    <Panel icon={TrendingUp} title={t("popularResearchTitle")}>
       {stats.popularResearch.length === 0 ? (
-        <EmptyState title="ยังไม่มีข้อมูล" compact />
+        <EmptyState title={t("noData")} compact />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="text-xs uppercase tracking-wide text-gray-500">
               <tr>
-                <th className="pb-2 font-medium">ชื่อเรื่อง</th>
-                <th className="pb-2 font-medium">เข้าชม</th>
-                <th className="pb-2 font-medium">ดาวน์โหลด</th>
+                <th className="pb-2 font-medium">{t("colTitle")}</th>
+                <th className="pb-2 font-medium">{t("colViews")}</th>
+                <th className="pb-2 font-medium">{t("colDownloads")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -538,46 +558,47 @@ async function ChartsSection({
     getResearchCountByCategory(),
     getResearchByStatus(),
   ]);
+  const t = await getTranslations("superadmin");
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div>
-        <h3 className="mb-2 text-xs font-semibold text-gray-500">สมาชิกใหม่</h3>
+        <h3 className="mb-2 text-xs font-semibold text-gray-500">{t("chartNewMembers")}</h3>
         {!membersResult.available ? (
-          <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" compact />
+          <EmptyState tone="unavailable" title={t("unavailable")} compact />
         ) : membersResult.data.every((d) => d.count === 0) ? (
-          <EmptyState title="ไม่มีสมาชิกใหม่ในช่วงเวลาที่เลือก" compact />
+          <EmptyState title={t("noNewMembersInRange")} compact />
         ) : (
           <MembersLineChart data={membersResult.data} />
         )}
       </div>
 
       <div>
-        <h3 className="mb-2 text-xs font-semibold text-gray-500">ยอดเข้าชมและดาวน์โหลด</h3>
+        <h3 className="mb-2 text-xs font-semibold text-gray-500">{t("chartViewsDownloads")}</h3>
         {!viewsDownloadsResult.available ? (
-          <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" compact />
+          <EmptyState tone="unavailable" title={t("unavailable")} compact />
         ) : viewsDownloadsResult.data.every((d) => d.views === 0 && d.downloads === 0) ? (
-          <EmptyState title="ไม่มีข้อมูลในช่วงเวลาที่เลือก" compact />
+          <EmptyState title={t("noDataInRange")} compact />
         ) : (
           <ViewsDownloadsLineChart data={viewsDownloadsResult.data} />
         )}
       </div>
 
       <div>
-        <h3 className="mb-2 text-xs font-semibold text-gray-500">งานวิจัยตามหมวดหมู่</h3>
+        <h3 className="mb-2 text-xs font-semibold text-gray-500">{t("chartByCategory")}</h3>
         {!categoryResult.available ? (
-          <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" compact />
+          <EmptyState tone="unavailable" title={t("unavailable")} compact />
         ) : categoryResult.data.length === 0 ? (
-          <EmptyState title="ยังไม่มีข้อมูล" compact />
+          <EmptyState title={t("noData")} compact />
         ) : (
           <CategoryBarChart data={categoryResult.data} />
         )}
       </div>
 
       <div>
-        <h3 className="mb-2 text-xs font-semibold text-gray-500">สัดส่วนงานวิจัยตามสถานะ</h3>
+        <h3 className="mb-2 text-xs font-semibold text-gray-500">{t("chartByStatus")}</h3>
         {!statusResult.available ? (
-          <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" compact />
+          <EmptyState tone="unavailable" title={t("unavailable")} compact />
         ) : (
           <StatusPieChart
             data={STATUS_ORDER.map((status) => ({
