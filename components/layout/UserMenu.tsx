@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import {
   UserCircle,
   ChevronDown,
@@ -51,6 +52,7 @@ export default function UserMenu({
   user: SessionUser;
   workspaceLinks: WorkspaceLink[];
 }) {
+  const t = useTranslations("header");
   const [open, setOpen] = useState(false);
 
   return (
@@ -62,7 +64,7 @@ export default function UserMenu({
       >
         <UserCircle className="h-4 w-4" />
         <span className="max-w-[140px] truncate">
-          {user.fullName || user.email || "โปรไฟล์ของฉัน"}
+          {user.fullName || user.email || t("myProfile")}
         </span>
         <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
@@ -96,7 +98,7 @@ export default function UserMenu({
               className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
               <Settings className="h-4 w-4 text-gray-500" />
-              โปรไฟล์ของฉัน
+              {t("myProfile")}
             </Link>
             <div className="my-1.5 border-t border-gray-100" />
             <div className="px-2">

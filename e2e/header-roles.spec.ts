@@ -55,8 +55,10 @@ async function openUserMenuAndGetLinks(page: Page): Promise<string[]> {
   const menu = page.locator(".absolute.right-0.z-50");
   await expect(menu).toBeVisible();
   // ลิงก์ก่อนเส้นคั่นอันแรกคือ workspaceLinks (ตามด้วย "โปรไฟล์ของฉัน" เสมอ)
+  // i18n cleanup pass — UserMenu ใช้ next-intl Link แล้ว จึงมี locale prefix
+  // เสมอ (หน้านี้ทดสอบภายใต้ /th/ เท่านั้น) ตัด prefix ออกก่อนเทียบ
   const hrefs = await menu.getByRole("link").evaluateAll((els) =>
-    els.map((el) => new URL((el as HTMLAnchorElement).href).pathname)
+    els.map((el) => new URL((el as HTMLAnchorElement).href).pathname.replace(/^\/th/, ""))
   );
   return hrefs.filter((href) => href !== "/account");
 }
