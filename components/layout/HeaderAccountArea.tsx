@@ -37,7 +37,16 @@ async function loadAccountData() {
   const [notifications, unreadCount] = user
     ? await Promise.all([getMyNotifications(), getUnreadNotificationCount()])
     : [[], 0];
-  return { user, notifications, unreadCount, workspaceLinks: buildWorkspaceLinks(user) };
+  // workspace-links.ts เป็น plain .ts เรียก getTranslations() เองไม่ได้ —
+  // แปล labelKey -> label ที่นี่ (root translator รับ full dotted key ได้)
+  // ก่อนส่งลง UserMenu.tsx ซึ่งยังคาดหวัง label: string เหมือนเดิมทุกประการ
+  const tRoot = await getTranslations();
+  const workspaceLinks = buildWorkspaceLinks(user).map((link) => ({
+    href: link.href,
+    label: tRoot(link.labelKey),
+    iconKey: link.iconKey,
+  }));
+  return { user, notifications, unreadCount, workspaceLinks };
 }
 
 /**

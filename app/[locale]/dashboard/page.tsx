@@ -1,5 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import {
   Users,
   FileText,
@@ -16,7 +17,15 @@ import Panel from "@/components/ui/Panel";
 import EmptyState from "@/components/ui/EmptyState";
 import { getDashboardStats, getDateRangeStats } from "@/lib/data/admin-stats.server";
 
-export const metadata: Metadata = { title: "แดชบอร์ด" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard" });
+  return { title: t("pageTitle") };
+}
 
 function isoDate(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -27,6 +36,7 @@ export default async function DashboardOverviewPage({
 }: {
   searchParams: Promise<{ from?: string; to?: string }>;
 }) {
+  const t = await getTranslations("dashboard");
   const params = await searchParams;
 
   const today = new Date();
@@ -46,18 +56,18 @@ export default async function DashboardOverviewPage({
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">แดชบอร์ด</h1>
-        <p className="mt-1 text-sm text-gray-500">ภาพรวมระบบห้องสมุดดิจิทัล</p>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("heading")}</h1>
+        <p className="mt-1 text-sm text-gray-500">{t("pageSubtitle")}</p>
       </div>
 
       <div className="flex flex-col gap-3">
         <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
           <ListChecks className="h-4 w-4" aria-hidden="true" />
-          ต้องดำเนินการ
+          {t("actionRequired")}
         </h2>
         <StatCard
           icon={Clock}
-          label="งานวิจัยรอตรวจสอบ — กดเพื่อไปหน้าอนุมัติ"
+          label={t("pendingReview")}
           value={stats.pendingReview}
           tone="action"
           href="/dashboard/approvals"
@@ -67,19 +77,19 @@ export default async function DashboardOverviewPage({
       <div className="flex flex-col gap-3">
         <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
           <BarChart3 className="h-4 w-4" aria-hidden="true" />
-          ข้อมูลอ้างอิง
+          {t("referenceData")}
         </h2>
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <StatCard icon={Users} label="จำนวนสมาชิกทั้งหมด" value={stats.memberCount} />
-          <StatCard icon={FileText} label="งานวิจัยทั้งหมด" value={stats.totalResearch} />
-          <StatCard icon={Eye} label="ยอดเข้าชมสะสม" value={stats.totalViews} />
-          <StatCard icon={Download} label="ยอดดาวน์โหลดสะสม" value={stats.totalDownloads} />
+          <StatCard icon={Users} label={t("totalMembers")} value={stats.memberCount} />
+          <StatCard icon={FileText} label={t("totalResearch")} value={stats.totalResearch} />
+          <StatCard icon={Eye} label={t("totalViews")} value={stats.totalViews} />
+          <StatCard icon={Download} label={t("totalDownloads")} value={stats.totalDownloads} />
         </div>
 
         <Panel
           icon={Calendar}
-          title="สถิติตามช่วงวันที่"
+          title={t("dateRangeStats")}
           action={
             <form className="flex flex-wrap items-center gap-2 text-sm" method="get">
               <input
@@ -87,53 +97,53 @@ export default async function DashboardOverviewPage({
                 name="from"
                 defaultValue={from}
                 max={to}
-                aria-label="จากวันที่"
+                aria-label={t("dateFrom")}
                 className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900"
               />
-              <span className="text-gray-500">ถึง</span>
+              <span className="text-gray-500">{t("dateToLabel")}</span>
               <input
                 type="date"
                 name="to"
                 defaultValue={to}
                 max={defaultTo}
-                aria-label="ถึงวันที่"
+                aria-label={t("dateTo")}
                 className="rounded-lg border border-gray-300 px-2.5 py-1.5 text-xs text-gray-900"
               />
               <button
                 type="submit"
                 className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-700"
               >
-                ดูข้อมูล
+                {t("viewData")}
               </button>
             </form>
           }
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <StatCard icon={Eye} label="อ่านออนไลน์ในช่วงนี้" value={rangeStats.readsInRange} />
+            <StatCard icon={Eye} label={t("readsInRange")} value={rangeStats.readsInRange} />
             <StatCard
               icon={Download}
-              label="ดาวน์โหลดในช่วงนี้"
+              label={t("downloadsInRange")}
               value={rangeStats.downloadsInRange}
             />
             <StatCard
               icon={Users}
-              label="สมาชิกใหม่ในช่วงนี้"
+              label={t("newMembersInRange")}
               value={rangeStats.newMembersInRange}
             />
           </div>
         </Panel>
 
-        <Panel icon={TrendingUp} title="งานวิจัยยอดนิยม">
+        <Panel icon={TrendingUp} title={t("popularResearch")}>
           {stats.popularResearch.length === 0 ? (
-            <EmptyState title="ยังไม่มีข้อมูล" compact />
+            <EmptyState title={t("noData")} compact />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="text-xs uppercase tracking-wide text-gray-500">
                   <tr>
-                    <th className="pb-2 font-medium">ชื่อเรื่อง</th>
-                    <th className="pb-2 font-medium">เข้าชม</th>
-                    <th className="pb-2 font-medium">ดาวน์โหลด</th>
+                    <th className="pb-2 font-medium">{t("colTitle")}</th>
+                    <th className="pb-2 font-medium">{t("colViews")}</th>
+                    <th className="pb-2 font-medium">{t("colDownloads")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">

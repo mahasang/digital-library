@@ -3,6 +3,16 @@ import type { SessionUser } from "@/lib/supabase/session";
 import type { UserRole } from "@/types/research";
 
 /**
+ * i18n Phase 1 — ไฟล์นี้เป็น plain .ts (ไม่ใช่ component) จึงเรียก
+ * useTranslations()/getTranslations() เองไม่ได้ ส่งคืน labelKey (เช่น
+ * "workspace.favorites") แทน label ที่แปลแล้วตรงๆ — ผู้เรียก
+ * (HeaderAccountArea.tsx ซึ่งเป็น Server Component) เป็นผู้แปล labelKey ->
+ * label ก่อนส่งลง UserMenu.tsx ต่อ (WorkspaceLink ที่ UserMenu คาดหวังยังคง
+ * มี label: string เหมือนเดิมทุกประการ ไม่ได้แก้ type ของ UserMenu เลย)
+ */
+export type WorkspaceLinkKey = Omit<WorkspaceLink, "label"> & { labelKey: string };
+
+/**
  * Pure role -> workspace-link logic, kept in a plain .ts file (Hallmark —
  * header rendering refactor) so it can be unit-tested directly with Vitest
  * — this project's Vitest config doesn't have a JSX/React plugin set up
@@ -23,7 +33,7 @@ export const ROLE_RANK: Record<UserRole, number> = {
   super_admin: 50,
 };
 
-export function buildWorkspaceLinks(user: SessionUser | null): WorkspaceLink[] {
+export function buildWorkspaceLinks(user: SessionUser | null): WorkspaceLinkKey[] {
   const rank = user ? ROLE_RANK[user.role] : 0;
   const isStaffOrAbove = rank >= 20;
   const isLibrarianOrAbove = rank >= 30;
@@ -32,25 +42,39 @@ export function buildWorkspaceLinks(user: SessionUser | null): WorkspaceLink[] {
   return [
     ...(user
       ? [
-          { href: "/favorites", label: "รายการโปรด", iconKey: "favorites" as const },
+          { href: "/favorites", labelKey: "workspace.favorites", iconKey: "favorites" as const },
           {
             href: "/access-requests",
-            label: "คำขอเข้าถึงเอกสาร",
+            labelKey: "workspace.accessRequests",
             iconKey: "accessRequests" as const,
           },
         ]
       : []),
     ...(isStaffOrAbove
       ? [
-          { href: "/submit-research", label: "ส่งงานวิจัย", iconKey: "submitResearch" as const },
-          { href: "/my-submissions", label: "งานของฉัน", iconKey: "mySubmissions" as const },
+          {
+            href: "/submit-research",
+            labelKey: "workspace.submitResearch",
+            iconKey: "submitResearch" as const,
+          },
+          {
+            href: "/my-submissions",
+            labelKey: "workspace.mySubmissions",
+            iconKey: "mySubmissions" as const,
+          },
         ]
       : []),
     ...(isLibrarianOrAbove
-      ? [{ href: "/dashboard", label: "แดชบอร์ด", iconKey: "dashboard" as const }]
+      ? [{ href: "/dashboard", labelKey: "workspace.dashboard", iconKey: "dashboard" as const }]
       : []),
     ...(isSuperAdmin
-      ? [{ href: "/superadmin/overview", label: "Super Admin", iconKey: "superAdmin" as const }]
+      ? [
+          {
+            href: "/superadmin/overview",
+            labelKey: "workspace.superAdmin",
+            iconKey: "superAdmin" as const,
+          },
+        ]
       : []),
   ];
 }

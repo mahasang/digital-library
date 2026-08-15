@@ -67,13 +67,13 @@ describe("buildWorkspaceLinks", () => {
     ]);
   });
 
-  it("produces plain serializable objects (href/label/iconKey strings only)", () => {
+  it("produces plain serializable objects (href/labelKey/iconKey strings only)", () => {
     const links = buildWorkspaceLinks(makeUser("super_admin"));
     expect(links.length).toBeGreaterThan(0);
     for (const link of links) {
-      expect(Object.keys(link).sort()).toEqual(["href", "iconKey", "label"]);
+      expect(Object.keys(link).sort()).toEqual(["href", "iconKey", "labelKey"]);
       expect(typeof link.href).toBe("string");
-      expect(typeof link.label).toBe("string");
+      expect(typeof link.labelKey).toBe("string");
       expect(typeof link.iconKey).toBe("string");
     }
   });

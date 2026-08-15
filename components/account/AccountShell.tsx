@@ -1,21 +1,21 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { Bell, Clock, Heart, UserCircle, type LucideIcon } from "lucide-react";
 import Container from "@/components/ui/Container";
 
 interface AccountNavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
 }
 
 const NAV_ITEMS: AccountNavItem[] = [
-  { href: "/favorites", label: "รายการโปรด", icon: Heart },
-  { href: "/reading-history", label: "ประวัติการอ่าน", icon: Clock },
-  { href: "/account", label: "โปรไฟล์ของฉัน", icon: UserCircle },
-  { href: "/notifications", label: "การแจ้งเตือน", icon: Bell },
+  { href: "/favorites", labelKey: "nav.favorites", icon: Heart },
+  { href: "/reading-history", labelKey: "nav.readingHistory", icon: Clock },
+  { href: "/account", labelKey: "nav.profile", icon: UserCircle },
+  { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
 ];
 
 /**
@@ -26,13 +26,14 @@ const NAV_ITEMS: AccountNavItem[] = [
  * ไม่ได้อยู่ใต้ URL segment เดียวกัน การย้าย URL จะกระทบลิงก์เดิมทั้งหมด
  */
 export default function AccountShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("account");
   const pathname = usePathname();
 
   return (
     <div className="py-8 sm:py-10">
       <Container>
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
-          <nav aria-label="เมนูบัญชีของฉัน" className="lg:sticky lg:top-6 lg:w-56 lg:shrink-0">
+          <nav aria-label={t("navLabel")} className="lg:sticky lg:top-6 lg:w-56 lg:shrink-0">
             {/* มือถือ/แท็บเล็ต: แถบแท็บเลื่อนแนวนอน */}
             <ul role="list" className="flex gap-1.5 overflow-x-auto pb-1 lg:hidden">
               {NAV_ITEMS.map((item) => {
@@ -50,7 +51,7 @@ export default function AccountShell({ children }: { children: React.ReactNode }
                       }`}
                     >
                       <Icon className="h-4 w-4" />
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   </li>
                 );
@@ -77,7 +78,7 @@ export default function AccountShell({ children }: { children: React.ReactNode }
                       }`}
                     >
                       <Icon className="h-4 w-4" />
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   </li>
                 );

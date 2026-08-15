@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { redirect, Link } from "@/i18n/navigation";
 import { Bell, FileQuestion, Mail, ShieldCheck, UserCircle } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import AccountShell from "@/components/account/AccountShell";
@@ -15,18 +15,25 @@ import { getMyOrcidStatus } from "@/lib/data/orcid-profile.server";
 import { isOrcidOAuthConfigured } from "@/lib/orcid/orcid-oauth.server";
 import { roleLabels } from "@/lib/labels";
 
-export const metadata: Metadata = {
-  title: "โปรไฟล์ของฉัน",
-  description: "จัดการข้อมูลโปรไฟล์และบัญชีผู้ใช้ของคุณ",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "account" });
+  return { title: t("pageTitle"), description: t("pageDescription") };
+}
 
 export default async function AccountPage({
   searchParams,
 }: {
   searchParams: Promise<{ orcid?: string; reason?: string }>;
 }) {
+  const locale = await getLocale();
+
   if (!isSupabaseConfigured()) {
-    redirect("/login");
+    return redirect({ href: "/login", locale });
   }
 
   const supabase = await createClient();
@@ -35,7 +42,7 @@ export default async function AccountPage({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?redirect=/account");
+    return redirect({ href: "/login?redirect=/account", locale });
   }
 
   const { data: profile } = await supabase
@@ -48,12 +55,13 @@ export default async function AccountPage({
   const params = await searchParams;
   const orcidStatus = await getMyOrcidStatus();
   const orcidConfigured = isOrcidOAuthConfigured();
+  const t = await getTranslations("account");
 
   return (
     <AccountShell>
-      <h1 className="text-h1 font-semibold text-gray-900">โปรไฟล์ของฉัน</h1>
+      <h1 className="text-h1 font-semibold text-gray-900">{t("heading")}</h1>
       <p className="mt-1 text-sm text-gray-500">
-        จัดการข้อมูลส่วนตัวและดูสิทธิ์การใช้งานของบัญชีคุณ
+        {t("subtitle")}
       </p>
 
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1.4fr]">
@@ -64,7 +72,7 @@ export default async function AccountPage({
             </span>
             <div>
               <p className="text-sm font-semibold text-gray-900">
-                {profile?.full_name || "ไม่ระบุชื่อ"}
+                {profile?.full_name || t("noName")}
               </p>
               <p className="mt-1 flex items-center justify-center gap-1 text-xs text-gray-500">
                 <Mail className="h-3.5 w-3.5" />
@@ -80,21 +88,21 @@ export default async function AccountPage({
 
           <div className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-surface p-4">
             <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-              ลิงก์ด่วน
+              {t("quickLinks")}
             </p>
             <Link
               href="/access-requests"
               className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <FileQuestion className="h-4 w-4 text-gray-500" />
-              คำขอเข้าถึงเอกสารของฉัน
+              {t("myAccessRequests")}
             </Link>
             <Link
               href="/profile/notification-settings"
               className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <Bell className="h-4 w-4 text-gray-500" />
-              ตั้งค่าการแจ้งเตือน
+              {t("notificationSettings")}
             </Link>
           </div>
         </div>
@@ -102,10 +110,10 @@ export default async function AccountPage({
         <div className="flex flex-col gap-6">
           <div className="rounded-xl border border-gray-200 bg-surface p-6">
             <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              แก้ไขข้อมูลโปรไฟล์
+              {t("editProfile")}
             </h2>
             <p className="mt-1 text-xs text-gray-500">
-              ข้อมูลนี้จะแสดงต่อเจ้าหน้าที่เมื่อคุณส่งงานวิจัยหรือคำขอเข้าถึงเอกสาร
+              {t("editProfileNote")}
             </p>
             <div className="mt-4">
               <ProfileForm
@@ -117,10 +125,10 @@ export default async function AccountPage({
 
           <div className="rounded-xl border border-gray-200 bg-surface p-6">
             <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              ความปลอดภัยบัญชี — ยืนยันตัวตนสองขั้นตอน (MFA)
+              {t("mfaSection")}
             </h2>
             <p className="mt-1 text-xs text-gray-500">
-              เพิ่มการยืนยันตัวตนขั้นที่สองด้วยแอปยืนยันตัวตน (TOTP) เพื่อความปลอดภัยของบัญชี
+              {t("mfaNote")}
             </p>
             <div className="mt-4">
               <MfaSettings isSuperAdmin={role === "super_admin"} />
@@ -129,10 +137,10 @@ export default async function AccountPage({
 
           <div className="rounded-xl border border-gray-200 bg-surface p-6">
             <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              ORCID
+              {t("orcidSection")}
             </h2>
             <p className="mt-1 text-xs text-gray-500">
-              เชื่อมโยงรหัส ORCID ของคุณเพื่อยืนยันตัวตนนักวิจัย
+              {t("orcidNote")}
             </p>
             <div className="mt-4">
               <OrcidConnect

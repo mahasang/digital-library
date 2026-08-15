@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import {
   LayoutDashboard,
   FileText,
@@ -20,28 +20,39 @@ import {
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: typeof LayoutDashboard;
   minRank: number;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "ภาพรวม", icon: LayoutDashboard, minRank: 30 },
-  { href: "/dashboard/approvals", label: "อนุมัติงานวิจัย", icon: ClipboardCheck, minRank: 30 },
-  { href: "/dashboard/access-requests", label: "คำขอเข้าถึงเอกสาร", icon: FileQuestion, minRank: 30 },
-  { href: "/dashboard/research", label: "จัดการงานวิจัย", icon: FileText, minRank: 30 },
-  { href: "/dashboard/duplicate-reviews", label: "ตรวจสอบงานวิจัยซ้ำ", icon: Copy, minRank: 30 },
-  { href: "/dashboard/authors", label: "ผู้วิจัย", icon: Contact, minRank: 30 },
-  { href: "/dashboard/organizations", label: "หน่วยงาน", icon: Building2, minRank: 30 },
-  { href: "/dashboard/data-quality", label: "คุณภาพข้อมูล", icon: ShieldCheck, minRank: 30 },
-  { href: "/dashboard/categories", label: "หมวดหมู่", icon: FolderTree, minRank: 30 },
-  { href: "/dashboard/reports", label: "รายงาน", icon: BarChart3, minRank: 30 },
-  { href: "/dashboard/users", label: "ผู้ใช้งาน", icon: Users, minRank: 40 },
-  { href: "/dashboard/audit-logs", label: "Audit Log", icon: ScrollText, minRank: 40 },
-  { href: "/dashboard/settings", label: "ตั้งค่า", icon: Settings, minRank: 40 },
+  { href: "/dashboard", labelKey: "nav.overview", icon: LayoutDashboard, minRank: 30 },
+  { href: "/dashboard/approvals", labelKey: "nav.approvals", icon: ClipboardCheck, minRank: 30 },
+  {
+    href: "/dashboard/access-requests",
+    labelKey: "nav.accessRequests",
+    icon: FileQuestion,
+    minRank: 30,
+  },
+  { href: "/dashboard/research", labelKey: "nav.research", icon: FileText, minRank: 30 },
+  {
+    href: "/dashboard/duplicate-reviews",
+    labelKey: "nav.duplicateReviews",
+    icon: Copy,
+    minRank: 30,
+  },
+  { href: "/dashboard/authors", labelKey: "nav.authors", icon: Contact, minRank: 30 },
+  { href: "/dashboard/organizations", labelKey: "nav.organizations", icon: Building2, minRank: 30 },
+  { href: "/dashboard/data-quality", labelKey: "nav.dataQuality", icon: ShieldCheck, minRank: 30 },
+  { href: "/dashboard/categories", labelKey: "nav.categories", icon: FolderTree, minRank: 30 },
+  { href: "/dashboard/reports", labelKey: "nav.reports", icon: BarChart3, minRank: 30 },
+  { href: "/dashboard/users", labelKey: "nav.users", icon: Users, minRank: 40 },
+  { href: "/dashboard/audit-logs", labelKey: "nav.auditLog", icon: ScrollText, minRank: 40 },
+  { href: "/dashboard/settings", labelKey: "nav.settings", icon: Settings, minRank: 40 },
 ];
 
 export default function DashboardSidebar({ rank }: { rank: number }) {
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
   const items = NAV_ITEMS.filter((item) => rank >= item.minRank);
 
@@ -52,7 +63,7 @@ export default function DashboardSidebar({ rank }: { rank: number }) {
   return (
     <>
       {/* มือถือ: แถบเมนูเลื่อนแนวนอน */}
-      <nav aria-label="เมนูแดชบอร์ด (มือถือ)" className="-mx-4 mb-4 flex gap-1 overflow-x-auto border-b border-gray-200 px-4 pb-2 lg:hidden">
+      <nav aria-label={t("mobileNavLabel")} className="-mx-4 mb-4 flex gap-1 overflow-x-auto border-b border-gray-200 px-4 pb-2 lg:hidden">
         {items.map((item) => {
           const Icon = item.icon;
           return (
@@ -66,7 +77,7 @@ export default function DashboardSidebar({ rank }: { rank: number }) {
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           );
         })}
@@ -74,7 +85,7 @@ export default function DashboardSidebar({ rank }: { rank: number }) {
 
       {/* จอใหญ่: แถบข้าง */}
       <aside className="hidden w-56 shrink-0 lg:block">
-        <nav aria-label="เมนูแดชบอร์ด" className="sticky top-20 flex flex-col gap-1">
+        <nav aria-label={t("desktopNavLabel")} className="sticky top-20 flex flex-col gap-1">
           {items.map((item) => {
             const Icon = item.icon;
             return (
@@ -88,7 +99,7 @@ export default function DashboardSidebar({ rank }: { rank: number }) {
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             );
           })}
