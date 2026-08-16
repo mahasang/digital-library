@@ -1,32 +1,40 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import CategoryOrderManager from "@/components/superadmin/CategoryOrderManager";
 import { getAllCategoriesForAdmin } from "@/lib/data/categories.server";
 
-export const metadata: Metadata = { title: "จัดลำดับหมวดหมู่ — Super Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "superadmin" });
+  return { title: t("categories.pageTitle") };
+}
 export const dynamic = "force-dynamic";
 
 export default async function SuperAdminCategoriesPage() {
   const categories = await getAllCategoriesForAdmin();
+  const t = await getTranslations("superadmin");
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">จัดลำดับหมวดหมู่</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("categories.heading")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          ลากเพื่อจัดลำดับหมวดหมู่หลัก/ย่อย หรือใช้ปุ่มเลื่อนขึ้น-ลงแทนการลากได้ — ลากหมวดหมู่ย่อย
-          ข้ามไปหมวดหมู่หลักอื่น หรือใช้เมนูเลือกหมวดหมู่หลักที่แถวนั้นแทนก็ได้ การเปลี่ยนชื่อ/
-          เพิ่ม/ลบหมวดหมู่ยังทำที่{" "}
+          {t("categories.subtitleBefore")}{" "}
           <Link href="/dashboard/categories" className="text-accent hover:underline">
             /dashboard/categories
           </Link>{" "}
-          เหมือนเดิม
+          {t("categories.subtitleAfter")}
         </p>
       </div>
 
       {categories.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-surface py-16 text-center text-sm text-gray-500">
-          ยังไม่มีหมวดหมู่ในระบบ
+          {t("categories.empty")}
         </div>
       ) : (
         <CategoryOrderManager categories={categories} />

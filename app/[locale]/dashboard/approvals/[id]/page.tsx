@@ -1,6 +1,7 @@
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
+import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Container from "@/components/ui/Container";
 import SubmissionDetailView from "@/components/submission/SubmissionDetailView";
@@ -15,7 +16,15 @@ import {
   getAttachmentPreviewUrl,
 } from "@/lib/storage/signed-url.server";
 
-export const metadata: Metadata = { title: "ตรวจสอบงานวิจัย" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard.approvals.detail" });
+  return { title: t("pageTitle") };
+}
 
 export default async function ApprovalDetailPage({
   params,
@@ -33,11 +42,12 @@ export default async function ApprovalDetailPage({
   }
 
   const { id } = await params;
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect(`/login?redirect=/dashboard/approvals/${id}`);
+  if (!user) return redirect({ href: `/login?redirect=/dashboard/approvals/${id}`, locale });
 
   const rank = await getCurrentUserRoleRank();
-  if (rank < 30) redirect("/403");
+  if (rank < 30) return redirect({ href: "/403", locale });
 
   const item = await getSubmissionById(id);
   if (!item) notFound();
@@ -50,6 +60,8 @@ export default async function ApprovalDetailPage({
       : Promise.resolve({ url: null, error: null }),
   ]);
 
+  const t = await getTranslations("dashboard.approvals.detail");
+
   return (
     <div className="py-10 sm:py-14">
       <Container>
@@ -58,7 +70,7 @@ export default async function ApprovalDetailPage({
           className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-brand-700"
         >
           <ArrowLeft className="h-4 w-4" />
-          กลับไปหน้าอนุมัติงานวิจัย
+          {t("backLink")}
         </Link>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">

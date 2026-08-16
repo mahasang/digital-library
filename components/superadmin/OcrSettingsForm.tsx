@@ -1,10 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, Loader2, Save } from "lucide-react";
 import { updateOcrSettingsAction } from "@/app/[locale]/superadmin/ocr/actions";
 import { idleActionResult } from "@/lib/actions/types";
-import { accessLevelLabels } from "@/lib/labels";
 import type { AppSettings, AccessLevel } from "@/types/research";
 
 const ACCESS_LEVELS: AccessLevel[] = ["public", "member_only", "staff_only", "read_only", "metadata_only"];
@@ -14,6 +14,7 @@ export default function OcrSettingsForm({ settings }: { settings: AppSettings })
   const [dailyQuotaEnabled, setDailyQuotaEnabled] = useState(settings.ocrDailyQuotaEnabled);
   const [providerEnabled, setProviderEnabled] = useState(settings.ocrProviderEnabled);
   const [allowedLevels, setAllowedLevels] = useState<string[]>(settings.ocrAllowedAccessLevels);
+  const tAccessLevels = useTranslations("accessLevels");
 
   function toggleLevel(level: string) {
     setAllowedLevels((prev) => (prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]));
@@ -123,7 +124,7 @@ export default function OcrSettingsForm({ settings }: { settings: AppSettings })
                 onChange={() => toggleLevel(level)}
                 className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-brand-500"
               />
-              {accessLevelLabels[level]}
+              {tAccessLevels(level)}
             </label>
           ))}
         </div>

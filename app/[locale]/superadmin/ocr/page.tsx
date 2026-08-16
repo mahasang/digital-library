@@ -1,5 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { ScanText, FileCog, ShieldCheck, FlaskConical } from "lucide-react";
 import { getSettings } from "@/lib/data/settings.server";
 import { getOcrConfigSummary } from "@/lib/ocr/ocr-provider.server";
@@ -12,7 +13,15 @@ import OcrConnectivityCheckButton from "@/components/superadmin/OcrConnectivityC
 import OcrTestRunsPanel from "@/components/superadmin/OcrTestRunsPanel";
 import { checkOcrConnectivityAction, triggerOcrTestRunAction } from "./actions";
 
-export const metadata: Metadata = { title: "ตั้งค่า OCR — Super Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "superadmin" });
+  return { title: t("ocr.pageTitle") };
+}
 export const dynamic = "force-dynamic";
 
 const PROVIDER_KIND_LABEL: Record<string, string> = {
@@ -20,7 +29,19 @@ const PROVIDER_KIND_LABEL: Record<string, string> = {
   external_api: "External API (async submit + poll)",
 };
 
-function StatusIndicator({ label, ok, detail }: { label: string; ok: boolean; detail?: string }) {
+function StatusIndicator({
+  label,
+  ok,
+  detail,
+  readyLabel,
+  notReadyLabel,
+}: {
+  label: string;
+  ok: boolean;
+  detail?: string;
+  readyLabel: string;
+  notReadyLabel: string;
+}) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 px-3 py-2 text-sm">
       <div>
@@ -32,7 +53,7 @@ function StatusIndicator({ label, ok, detail }: { label: string; ok: boolean; de
           ok ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"
         }`}
       >
-        {ok ? "พร้อมใช้งาน" : "ยังไม่พร้อม"}
+        {ok ? readyLabel : notReadyLabel}
       </span>
     </div>
   );
@@ -52,87 +73,102 @@ export default async function SuperAdminOcrPage() {
   const lastOcrDlqEntry = deadLetterJobs.find((j) => j.jobType === "ocr_processing") ?? null;
 
   const fullyReady = config.enabled && config.configured && settings.ocrProviderEnabled;
+  const t = await getTranslations("superadmin");
 
   return (
     <div className="flex max-w-3xl flex-col gap-6">
       <div>
         <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-900 sm:text-3xl">
           <ScanText className="h-6 w-6 text-accent" />
-          ตั้งค่า OCR
+          {t("ocr.heading")}
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          ควบคุมขนาดไฟล์ จำนวนหน้า โควตาต่อผู้ใช้ และระดับการเข้าถึงเอกสารที่อนุญาตให้ส่ง OCR — ไม่มีการแสดง API key หรือข้อมูลค่าใช้จ่ายในหน้านี้
+          {t("ocr.subtitle")}
         </p>
       </div>
 
       <section className="rounded-xl border border-gray-200 bg-surface p-5">
         <h2 className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-gray-900">
           <ShieldCheck className="h-4 w-4 text-accent" />
-          OCR Readiness Check
+          {t("ocr.readinessTitle")}
         </h2>
         <p className="mb-4 text-xs text-gray-500">
-          สถานะความพร้อมของระบบ OCR ทั้งหมด — ต้อง &quot;พร้อมใช้งาน&quot; ครบทุกรายการจึงจะสร้างงาน OCR จริงได้
-          {!fullyReady && " (ปัจจุบันยังไม่ครบ — ระบบจะปฏิเสธการสร้างงาน OCR จริงเสมอโดยไม่มี error ต่อผู้ใช้)"}
+          {t("ocr.readinessDesc")}
+          {!fullyReady && t("ocr.readinessNotReadySuffix")}
         </p>
         <div className="flex flex-col gap-2">
           <StatusIndicator
-            label="ตั้งค่าผู้ให้บริการ OCR แล้ว"
+            label={t("ocr.providerConfigured")}
             ok={config.configured}
+            readyLabel={t("ocr.ready")}
+            notReadyLabel={t("ocr.notReady")}
             detail={`OCR_PROVIDER=${config.providerKind ?? "none"} · OCR_PROVIDER_BASE_URL: ${
-              config.baseUrlSet ? "ตั้งค่าแล้ว" : "ยังไม่ได้ตั้งค่า"
-            } · OCR_PROVIDER_API_KEY: ${config.apiKeySet ? "ตั้งค่าแล้ว" : "ไม่ได้ตั้งค่า (ไม่บังคับ)"}`}
+              config.baseUrlSet ? t("ocr.configuredValue") : t("ocr.notConfiguredValue")
+            } · OCR_PROVIDER_API_KEY: ${config.apiKeySet ? t("ocr.configuredValue") : t("ocr.notConfiguredOptionalValue")}`}
           />
-          <StatusIndicator label="เปิดใช้งาน OCR (OCR_ENABLED)" ok={config.enabled} />
-          <StatusIndicator label="เปิดใช้งาน OCR (ตั้งค่าด้านล่าง)" ok={settings.ocrProviderEnabled} />
           <StatusIndicator
-            label="โหมดทดสอบ (OCR_TEST_MODE)"
+            label={t("ocr.ocrEnabledEnv")}
+            ok={config.enabled}
+            readyLabel={t("ocr.ready")}
+            notReadyLabel={t("ocr.notReady")}
+          />
+          <StatusIndicator
+            label={t("ocr.ocrEnabledSetting")}
+            ok={settings.ocrProviderEnabled}
+            readyLabel={t("ocr.ready")}
+            notReadyLabel={t("ocr.notReady")}
+          />
+          <StatusIndicator
+            label={t("ocr.testModeLabel")}
             ok={config.testModeEnabled}
-            detail={config.testModeEnabled ? "Controlled OCR Test เปิดใช้งานอยู่" : "ปิดอยู่ — ไม่แสดงส่วนทดสอบด้านล่าง"}
+            readyLabel={t("ocr.ready")}
+            notReadyLabel={t("ocr.notReady")}
+            detail={config.testModeEnabled ? t("ocr.testModeOnDetail") : t("ocr.testModeOffDetail")}
           />
         </div>
 
         <div className="mt-4 grid grid-cols-1 gap-3 rounded-lg bg-gray-50 p-3 text-xs text-gray-600 sm:grid-cols-2">
-          <p>Provider: {config.providerKind ? (PROVIDER_KIND_LABEL[config.providerKind] ?? config.providerKind) : "ยังไม่ได้ตั้งค่า"}</p>
-          <p>Timeout ต่อคำขอ: {(config.timeoutMs / 1000).toFixed(0)} วินาที</p>
+          <p>{t("ocr.providerLabel")} {config.providerKind ? (PROVIDER_KIND_LABEL[config.providerKind] ?? config.providerKind) : t("ocr.notConfiguredValue")}</p>
+          <p>{t("ocr.timeoutLabel")} {(config.timeoutMs / 1000).toFixed(0)} {t("ocr.seconds")}</p>
           <p>
-            ขนาดไฟล์สูงสุด: {settings.ocrMaxFileSizeMb} MB
-            {config.envLimits.maxFileSizeMb !== null && ` (เพดาน env: ${config.envLimits.maxFileSizeMb} MB)`}
+            {t("ocr.maxFileSizeLabel")} {settings.ocrMaxFileSizeMb} MB
+            {config.envLimits.maxFileSizeMb !== null && ` ${t("ocr.envCeiling", { value: `${config.envLimits.maxFileSizeMb} MB` })}`}
           </p>
           <p>
-            จำนวนหน้าสูงสุด: {settings.ocrMaxPages} หน้า
-            {config.envLimits.maxPages !== null && ` (เพดาน env: ${config.envLimits.maxPages} หน้า)`}
+            {t("ocr.maxPagesLabel")} {settings.ocrMaxPages} {t("ocr.pages")}
+            {config.envLimits.maxPages !== null && ` ${t("ocr.envCeiling", { value: `${config.envLimits.maxPages} ${t("ocr.pages")}` })}`}
           </p>
           <p>
-            โควตาต่อผู้ใช้ต่อวัน: {settings.ocrDailyQuotaEnabled ? `${settings.ocrMaxJobsPerUserPerDay} งาน` : "ไม่จำกัด"}
-            {config.envLimits.maxJobsPerDay !== null && ` (เพดาน env: ${config.envLimits.maxJobsPerDay} งาน)`}
+            {t("ocr.quotaPerUserLabel")} {settings.ocrDailyQuotaEnabled ? `${settings.ocrMaxJobsPerUserPerDay} ${t("ocr.jobs")}` : t("ocr.unlimited")}
+            {config.envLimits.maxJobsPerDay !== null && ` ${t("ocr.envCeiling", { value: `${config.envLimits.maxJobsPerDay} ${t("ocr.jobs")}` })}`}
           </p>
           <p>
-            นโยบายเอกสาร private กับ external provider:{" "}
-            {config.privateDocumentsAllowed ? "อนุญาต (OCR_ALLOW_PRIVATE_DOCUMENTS=true)" : "ไม่อนุญาต (ค่าเริ่มต้น)"}
+            {t("ocr.privateDocsPolicyLabel")}{" "}
+            {config.privateDocumentsAllowed ? t("ocr.privateDocsAllowed") : t("ocr.privateDocsNotAllowed")}
           </p>
         </div>
 
         <div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-4 text-xs text-gray-500">
           <p>
-            งาน OCR ล่าสุด:{" "}
+            {t("ocr.lastOcrJobLabel")}{" "}
             {lastOcrJob
-              ? `${lastOcrJob.status} — เริ่ม ${
+              ? `${lastOcrJob.status} — ${t("ocr.lastOcrJobStarted")} ${
                   lastOcrJob.startedAt ? new Date(lastOcrJob.startedAt).toLocaleString("th-TH") : "-"
                 }`
-              : "ยังไม่มีงาน OCR"}
+              : t("ocr.noOcrJobs")}
           </p>
           <p>
-            DLQ ที่เกี่ยวกับ OCR ล่าสุด:{" "}
+            {t("ocr.lastDlqLabel")}{" "}
             {lastOcrDlqEntry
-              ? `ล้มเหลวถาวรเมื่อ ${new Date(lastOcrDlqEntry.createdAt).toLocaleString("th-TH")}`
-              : "ไม่มีรายการ"}
+              ? `${t("ocr.lastDlqFailedAt")} ${new Date(lastOcrDlqEntry.createdAt).toLocaleString("th-TH")}`
+              : t("ocr.noDlqEntries")}
           </p>
         </div>
 
         <div className="mt-4 border-t border-gray-100 pt-4">
           <OcrConnectivityCheckButton action={checkOcrConnectivityAction} />
           <p className="mt-2 text-xs text-gray-500">
-            ตรวจสอบแค่ว่าเชื่อมต่อ endpoint ที่ตั้งค่าไว้ได้หรือไม่ — ไม่ส่งไฟล์ ไม่สร้างงาน OCR ระหว่างตรวจสอบ บันทึก Audit Log ทุกครั้ง
+            {t("ocr.connectivityCheckDesc")}
           </p>
         </div>
       </section>
@@ -143,11 +179,10 @@ export default async function SuperAdminOcrPage() {
         <section className="rounded-xl border border-gray-200 bg-surface p-5">
           <h2 className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-gray-900">
             <FlaskConical className="h-4 w-4 text-accent" />
-            Controlled OCR Test
+            {t("ocr.testSectionTitle")}
           </h2>
           <p className="mb-4 text-xs text-gray-500">
-            ทดสอบ provider ด้วยไฟล์ fixture ที่ไม่เป็นความลับเท่านั้น (ไม่ใช่เอกสารงานวิจัยจริง) ใช้ตรวจสอบว่า provider
-            ทำงานได้จริงก่อนเปิดใช้งานกับผู้ใช้ทั่วไป — ผลทดสอบไม่ปรากฏในคลังงานวิจัยสาธารณะหรือผลค้นหาใดๆ
+            {t("ocr.testSectionDesc")}
           </p>
           <OcrTestRunsPanel fixtures={fixtures} initialRuns={recentTestRuns} triggerAction={triggerOcrTestRunAction} />
         </section>
@@ -156,17 +191,17 @@ export default async function SuperAdminOcrPage() {
       <section className="rounded-xl border border-gray-200 bg-surface p-5">
         <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-gray-900">
           <FileCog className="h-4 w-4 text-accent" />
-          ติดตามงาน OCR
+          {t("ocr.trackingTitle")}
         </h2>
         <p className="mb-3 text-sm text-gray-600">
-          สถานะ, ความคืบหน้าระดับหน้า (เมื่อ provider รายงานได้), เวลาเริ่ม และเวลาที่อัปเดตล่าสุดของแต่ละงาน — สั่งประมวลผลเป็นชุด/ลองใหม่/ดู Dead-letter Queue ได้ที่หน้าประมวลผล PDF
+          {t("ocr.trackingDesc")}
         </p>
-        <RecentJobsPoller jobType="ocr_processing" initialJobs={recentJobs} emptyMessage="ยังไม่มีงาน OCR" />
+        <RecentJobsPoller jobType="ocr_processing" initialJobs={recentJobs} emptyMessage={t("ocr.noOcrJobs")} />
         <Link
           href="/superadmin/pdf-processing?mode=ocr"
           className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
         >
-          ไปที่หน้าประมวลผล PDF →
+          {t("ocr.goToPdfProcessing")}
         </Link>
       </section>
     </div>

@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
+import { getTranslations, getLocale } from "next-intl/server";
 import { HardDrive, Info, FileX2 } from "lucide-react";
 import { getStorageUsage, getOrphanedFiles } from "@/lib/data/superadmin-stats.server";
 import OrphanedFileRow from "@/components/superadmin/OrphanedFileRow";
 import Panel from "@/components/ui/Panel";
 import EmptyState from "@/components/ui/EmptyState";
 
-export const metadata: Metadata = { title: "Storage — Super Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "superadmin" });
+  return { title: t("storage.pageTitle") };
+}
 export const dynamic = "force-dynamic";
 
 const BUCKETS = ["research-documents", "research-covers", "submission-attachments"] as const;
-
-const BUCKET_LABELS: Record<(typeof BUCKETS)[number], string> = {
-  "research-documents": "ไฟล์ PDF ฉบับเต็ม (private)",
-  "research-covers": "ภาพหน้าปก (public)",
-  "submission-attachments": "เอกสารประกอบการส่ง (private)",
-};
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
@@ -29,19 +32,27 @@ export default async function SuperAdminStoragePage() {
     getStorageUsage(),
     ...BUCKETS.map((b) => getOrphanedFiles(b)),
   ]);
+  const locale = await getLocale();
+  const t = await getTranslations("superadmin.storage");
+
+  const BUCKET_LABELS: Record<(typeof BUCKETS)[number], string> = {
+    "research-documents": t("bucketLabels.researchDocuments"),
+    "research-covers": t("bucketLabels.researchCovers"),
+    "submission-attachments": t("bucketLabels.submissionAttachments"),
+  };
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Storage</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("heading")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          พื้นที่ใช้งานต่อ bucket และไฟล์ที่ไม่มีการอ้างอิงในฐานข้อมูลอีกต่อไป
+          {t("subtitle")}
         </p>
       </div>
 
-      <Panel icon={HardDrive} title="พื้นที่ใช้งาน">
+      <Panel icon={HardDrive} title={t("usageTitle")}>
         {!usageResult.available ? (
-          <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" description="ไม่สามารถดึงข้อมูลพื้นที่ Storage ได้ในขณะนี้" compact />
+          <EmptyState tone="unavailable" title={t("unavailableTitle")} description={t("unavailableDesc")} compact />
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {usageResult.data.map((b) => (
@@ -52,7 +63,7 @@ export default async function SuperAdminStoragePage() {
                 >
                   {formatBytes(b.totalBytes)}
                 </p>
-                <p className="text-xs text-gray-500">{b.objectCount.toLocaleString("th-TH")} ไฟล์</p>
+                <p className="text-xs text-gray-500">{t("filesCount", { count: b.objectCount.toLocaleString(locale === "en" ? "en-US" : "th-TH") })}</p>
               </div>
             ))}
           </div>
@@ -62,11 +73,7 @@ export default async function SuperAdminStoragePage() {
       <div className="flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         <p>
-          รายการด้านล่างคือไฟล์ที่ไม่มีแถวข้อมูลใดในฐานข้อมูลอ้างอิงถึงอีกต่อไป
-          (ไฟล์เก่าที่ถูกแทนที่ตอนแก้ไข หรืออัปโหลดค้างไว้ไม่เคยบันทึกสำเร็จ) —
-          เป็นการประมาณการแบบ best-effort ระบบตรวจสอบซ้ำก่อนลบจริงทุกครั้งเพื่อ
-          ป้องกันการลบไฟล์ที่เพิ่งถูกใช้งาน และการอัปโหลดไฟล์ใหม่ในฟอร์มต่างๆ
-          จะสำเร็จก่อนเสมอก่อนที่ไฟล์เก่าจะกลายเป็นไฟล์ค้างในรายการนี้
+          {t("orphanedInfo")}
         </p>
       </div>
 
@@ -79,9 +86,9 @@ export default async function SuperAdminStoragePage() {
             </h2>
             <p className="mb-4 text-xs text-gray-500">{bucketId}</p>
             {!result.available ? (
-              <EmptyState tone="unavailable" title="ไม่พร้อมใช้งาน" compact />
+              <EmptyState tone="unavailable" title={t("bucketUnavailable")} compact />
             ) : result.data.length === 0 ? (
-              <EmptyState icon={FileX2} title="ไม่พบไฟล์ค้าง" description="ทุกไฟล์ใน bucket นี้ยังมีการอ้างอิงในฐานข้อมูลอยู่" compact />
+              <EmptyState icon={FileX2} title={t("noOrphanedTitle")} description={t("noOrphanedDesc")} compact />
             ) : (
               <ul className="flex flex-col">
                 {result.data.map((file) => (

@@ -1,24 +1,35 @@
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { getSettings } from "@/lib/data/settings.server";
 import { getSessionUser } from "@/lib/supabase/session";
 import SystemSettingsForm from "@/components/superadmin/SystemSettingsForm";
 
-export const metadata: Metadata = { title: "ตั้งค่าระบบขั้นสูง — Super Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "superadmin" });
+  return { title: t("systemSettings.pageTitle") };
+}
 export const dynamic = "force-dynamic";
 
 export default async function SuperAdminSystemSettingsPage() {
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/superadmin/system-settings");
+  if (!user) return redirect({ href: "/login?redirect=/superadmin/system-settings", locale });
 
+  const t = await getTranslations("superadmin");
   const settings = await getSettings();
 
   return (
     <div className="flex max-w-3xl flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">ตั้งค่าระบบขั้นสูง</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("systemSettings.heading")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          ชื่อระบบ โลโก้/favicon ข้อมูลติดต่อ การเปิด-ปิดฟีเจอร์หลัก และขนาดไฟล์สูงสุด
+          {t("systemSettings.subtitle")}
         </p>
       </div>
 

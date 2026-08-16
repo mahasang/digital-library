@@ -1,6 +1,8 @@
+"use client";
+
 import { Globe, Users, Building2, Eye, FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Badge from "@/components/ui/Badge";
-import { accessLevelLabels } from "@/lib/labels";
 import type { AccessLevel } from "@/types/research";
 
 const config: Record<
@@ -22,10 +24,11 @@ export default function AccessBadge({
   className?: string;
 }) {
   const { tone, icon: Icon } = config[accessLevel];
+  const tAccessLevels = useTranslations("accessLevels");
   return (
     <Badge tone={tone} className={className}>
       <Icon className="h-3.5 w-3.5" />
-      {accessLevelLabels[accessLevel]}
+      {tAccessLevels(accessLevel)}
     </Badge>
   );
 }

@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
 import { FileQuestion } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Badge from "@/components/ui/Badge";
@@ -10,13 +10,17 @@ import CancelRequestButton from "@/components/access-requests/CancelRequestButto
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getMyAccessRequests } from "@/lib/data/access-requests.server";
-import { accessRequestStatusLabels, accessRequestTypeLabels } from "@/lib/labels";
 import type { AccessRequestStatus } from "@/types/research";
 
-export const metadata: Metadata = {
-  title: "คำขอเข้าถึงเอกสารของฉัน",
-  description: "ติดตามสถานะคำขอเข้าถึง/ดาวน์โหลดเอกสารที่คุณส่งไป",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "myAccessRequestsPage" });
+  return { title: t("pageTitle"), description: t("pageDescription") };
+}
 
 const VALID_STATUSES: AccessRequestStatus[] = [
   "pending",
@@ -53,8 +57,9 @@ export default async function AccessRequestsPage({
     );
   }
 
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/access-requests");
+  if (!user) return redirect({ href: "/login?redirect=/access-requests", locale });
 
   const { status: statusRaw } = await searchParams;
   const status = VALID_STATUSES.includes(statusRaw as AccessRequestStatus)
@@ -62,15 +67,19 @@ export default async function AccessRequestsPage({
     : undefined;
 
   const requests = await getMyAccessRequests(status);
+  const t = await getTranslations("myAccessRequestsPage");
+  const tStatuses = await getTranslations("accessRequestStatuses");
+  const tTypes = await getTranslations("accessRequestTypes");
+  const dateLocale = locale === "en" ? "en-US" : "th-TH";
 
   return (
     <div className="py-10 sm:py-14">
       <Container>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">คำขอเข้าถึงเอกสารของฉัน</h1>
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("heading")}</h1>
             <p className="mt-1 text-sm text-gray-500">
-              ติดตามสถานะคำขออ่าน/ดาวน์โหลดเอกสารที่คุณส่งไปยังเจ้าหน้าที่
+              {t("subtitle")}
             </p>
           </div>
           <StatusFilterSelect basePath="/access-requests" currentStatus={status ?? ""} />
@@ -80,9 +89,9 @@ export default async function AccessRequestsPage({
           {requests.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-300 bg-surface py-16 text-center">
               <FileQuestion className="h-10 w-10 text-gray-300" />
-              <p className="text-sm font-medium text-gray-700">ยังไม่มีคำขอเข้าถึงเอกสาร</p>
+              <p className="text-sm font-medium text-gray-700">{t("emptyTitle")}</p>
               <p className="text-sm text-gray-500">
-                ส่งคำขอได้จากหน้ารายละเอียดงานวิจัยที่คุณไม่มีสิทธิ์อ่าน/ดาวน์โหลด
+                {t("emptyDesc")}
               </p>
             </div>
           ) : (
@@ -93,8 +102,8 @@ export default async function AccessRequestsPage({
               >
                 <div className="flex flex-col gap-1.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone={STATUS_TONE[req.status]}>{accessRequestStatusLabels[req.status]}</Badge>
-                    <Badge tone="gray">{accessRequestTypeLabels[req.requestType]}</Badge>
+                    <Badge tone={STATUS_TONE[req.status]}>{tStatuses(req.status)}</Badge>
+                    <Badge tone="gray">{tTypes(req.requestType)}</Badge>
                   </div>
                   <Link
                     href={`/research/${req.researchSlug}`}
@@ -102,19 +111,19 @@ export default async function AccessRequestsPage({
                   >
                     {req.researchTitleTh}
                   </Link>
-                  <p className="text-xs text-gray-500">วัตถุประสงค์: {req.purpose}</p>
+                  <p className="text-xs text-gray-500">{t("purposeLabel", { purpose: req.purpose })}</p>
                   {req.reviewerNote && (
-                    <p className="text-xs text-blue-700">หมายเหตุจากเจ้าหน้าที่: {req.reviewerNote}</p>
+                    <p className="text-xs text-blue-700">{t("reviewerNoteLabel", { note: req.reviewerNote })}</p>
                   )}
                   {req.status === "approved" && (
                     <p className="text-xs text-green-700">
                       {req.accessExpiresAt
-                        ? `สิทธิ์นี้หมดอายุวันที่ ${new Date(req.accessExpiresAt).toLocaleDateString("th-TH")}`
-                        : "สิทธิ์นี้ไม่มีวันหมดอายุ"}
+                        ? t("accessExpiresOn", { date: new Date(req.accessExpiresAt).toLocaleDateString(dateLocale) })
+                        : t("accessNoExpiry")}
                     </p>
                   )}
                   <p className="text-xs text-gray-500">
-                    ส่งคำขอเมื่อ {new Date(req.createdAt).toLocaleDateString("th-TH")}
+                    {t("submittedOn", { date: new Date(req.createdAt).toLocaleDateString(dateLocale) })}
                   </p>
                 </div>
                 {req.status === "pending" && <CancelRequestButton requestId={req.id} />}

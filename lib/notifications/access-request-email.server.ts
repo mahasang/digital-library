@@ -4,8 +4,20 @@ import type { Database } from "@/lib/supabase/database.types";
 import { getSettings } from "@/lib/data/settings.server";
 import { sendNotificationEmail } from "@/lib/notifications/email.server";
 import { sendInBatches, EMAIL_BATCH_CONCURRENCY } from "@/lib/notifications/send-in-batches.server";
-import { accessRequestTypeLabels } from "@/lib/labels";
 import type { AccessRequestType } from "@/types/research";
+
+/**
+ * ป้ายกำกับประเภทคำขอสำหรับอีเมลแจ้งเตือนเท่านั้น — คงเป็นภาษาไทยแบบ static
+ * เจตนา (ไม่ผูกกับ next-intl) เนื่องจากฟังก์ชันนี้ถูกเรียกทั้งจาก Server Action
+ * (มี locale ของผู้ดูแลที่กด approve/reject) และจาก background job handler
+ * (lib/jobs/handlers/access-expiration.server.ts) ซึ่งไม่มี request locale
+ * ให้ใช้เลย และผู้รับอีเมลคือผู้ขอสิทธิ์ ไม่ใช่ผู้ดูแลที่ทำรายการ จึงไม่มี
+ * locale ของผู้รับที่ถูกต้องให้อ้างอิงในทั้งสองกรณีอยู่ดี
+ */
+const ACCESS_REQUEST_TYPE_LABEL: Record<AccessRequestType, string> = {
+  read: "อ่านออนไลน์",
+  download: "ดาวน์โหลด",
+};
 
 /**
  * ส่งอีเมลแจ้งผู้ขอเมื่อคำขอเข้าถึงเอกสารถูกอนุมัติ/ปฏิเสธ/ขอข้อมูลเพิ่ม —
@@ -42,7 +54,7 @@ export async function notifyAccessRequestByEmail(
     if (pref && pref.access_request_email_enabled === false) return;
     if (!profile?.email) return;
 
-    const typeLabel = accessRequestTypeLabels[params.requestType];
+    const typeLabel = ACCESS_REQUEST_TYPE_LABEL[params.requestType];
     const subjectByStatus: Record<typeof params.newStatus, string> = {
       approved: `คำขอสิทธิ์${typeLabel}เอกสารได้รับการอนุมัติ: ${params.researchTitleTh}`,
       rejected: `คำขอสิทธิ์${typeLabel}เอกสารถูกปฏิเสธ: ${params.researchTitleTh}`,
@@ -115,7 +127,7 @@ export async function notifyExpiringAccessGrantsByEmail(
       const email = emailByUser.get(grant.user_id);
       if (!email) return Promise.resolve();
 
-      const typeLabel = accessRequestTypeLabels[grant.access_type as AccessRequestType] ?? grant.access_type;
+      const typeLabel = ACCESS_REQUEST_TYPE_LABEL[grant.access_type as AccessRequestType] ?? grant.access_type;
       const title = titleByItem.get(grant.research_item_id) ?? "เอกสาร";
       const expiresLabel = new Date(grant.expires_at).toLocaleDateString("th-TH");
 

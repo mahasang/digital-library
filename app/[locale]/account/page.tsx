@@ -13,7 +13,6 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRole } from "@/lib/supabase/roles";
 import { getMyOrcidStatus } from "@/lib/data/orcid-profile.server";
 import { isOrcidOAuthConfigured } from "@/lib/orcid/orcid-oauth.server";
-import { roleLabels } from "@/lib/labels";
 
 export async function generateMetadata({
   params,
@@ -56,6 +55,7 @@ export default async function AccountPage({
   const orcidStatus = await getMyOrcidStatus();
   const orcidConfigured = isOrcidOAuthConfigured();
   const t = await getTranslations("account");
+  const tRoles = await getTranslations("roles");
 
   return (
     <AccountShell>
@@ -81,7 +81,7 @@ export default async function AccountPage({
             </div>
             <Badge tone="brand">
               <ShieldCheck className="h-3.5 w-3.5" />
-              {roleLabels[role]}
+              {tRoles(role)}
             </Badge>
             <LogoutButton className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60" />
           </div>

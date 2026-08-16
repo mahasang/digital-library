@@ -1,5 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import {
   getFileSecurityCandidates,
   getFileSecurityCandidatesCount,
@@ -23,35 +24,19 @@ import {
   retryFailedInBatchAction,
 } from "./actions";
 
-export const metadata: Metadata = { title: "ความปลอดภัยไฟล์ — Super Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "superadmin" });
+  return { title: t("fileSecurity.pageTitle") };
+}
 export const dynamic = "force-dynamic";
 
-const FILTERS: { value: FileSecurityFilter; label: string }[] = [
-  { value: "all", label: "ทั้งหมด" },
-  { value: "pending", label: "รอสแกน" },
-  { value: "error", label: "สแกนไม่สำเร็จ" },
-  { value: "infected", label: "ตรวจพบภัยคุกคาม" },
-  { value: "clean", label: "ปลอดภัย" },
-  { value: "skipped", label: "ข้ามการสแกน (โหมดจำลอง/ข้อมูลเก่า)" },
-];
-
-const FILE_KIND_OPTIONS: { value: string; label: string }[] = [
-  { value: "", label: "ทุกประเภทไฟล์" },
-  { value: "pdf", label: "มีไฟล์ PDF" },
-  { value: "attachment", label: "มีไฟล์แนบ" },
-  { value: "either", label: "มีไฟล์ PDF หรือไฟล์แนบ" },
-];
-
-const BADGE_BY_SCAN_STATUS: Record<
-  string,
-  { label: string; tone: "brand" | "green" | "amber" | "red" | "gray" | "purple" }
-> = {
-  pending: { label: "รอสแกน", tone: "amber" },
-  clean: { label: "ปลอดภัย", tone: "green" },
-  infected: { label: "พบภัยคุกคาม", tone: "red" },
-  error: { label: "สแกนไม่สำเร็จ", tone: "red" },
-  skipped: { label: "ข้าม", tone: "gray" },
-};
+const FILTER_VALUES: FileSecurityFilter[] = ["all", "pending", "error", "infected", "clean", "skipped"];
+const FILE_KIND_VALUES = ["", "pdf", "attachment", "either"] as const;
 
 export default async function FileSecurityPage({
   searchParams,
@@ -65,7 +50,7 @@ export default async function FileSecurityPage({
   }>;
 }) {
   const params = await searchParams;
-  const filter: FileSecurityFilter = FILTERS.some((f) => f.value === params.filter)
+  const filter: FileSecurityFilter = FILTER_VALUES.includes(params.filter as FileSecurityFilter)
     ? (params.filter as FileSecurityFilter)
     : "all";
   const fileKind = params.fileKind || undefined;
@@ -89,6 +74,27 @@ export default async function FileSecurityPage({
     getDefaultBatchSize("file_security_rescan"),
   ]);
 
+  const t = await getTranslations("superadmin.fileSecurity");
+
+  const FILTERS: { value: FileSecurityFilter; label: string }[] = FILTER_VALUES.map((value) => ({
+    value,
+    label: t(`filters.${value}`),
+  }));
+  const FILE_KIND_OPTIONS: { value: string; label: string }[] = FILE_KIND_VALUES.map((value) => ({
+    value,
+    label: t(`fileKindOptions.${value === "" ? "all" : value}`),
+  }));
+  const BADGE_BY_SCAN_STATUS: Record<
+    string,
+    { label: string; tone: "brand" | "green" | "amber" | "red" | "gray" | "purple" }
+  > = {
+    pending: { label: t("badge.pending"), tone: "amber" },
+    clean: { label: t("badge.clean"), tone: "green" },
+    infected: { label: t("badge.infected"), tone: "red" },
+    error: { label: t("badge.error"), tone: "red" },
+    skipped: { label: t("badge.skipped"), tone: "gray" },
+  };
+
   const items: BulkSelectItem[] = candidates.map((c) => ({
     id: c.id,
     title: c.titleTh,
@@ -97,21 +103,19 @@ export default async function FileSecurityPage({
   }));
 
   const filterSummary: string[] = [];
-  if (filter !== "all") filterSummary.push(`สถานะสแกน: ${FILTERS.find((f) => f.value === filter)?.label ?? filter}`);
-  if (fileKind) filterSummary.push(`ประเภทไฟล์: ${FILE_KIND_OPTIONS.find((f) => f.value === fileKind)?.label ?? fileKind}`);
-  if (createdAfter) filterSummary.push(`อัปโหลดตั้งแต่: ${createdAfter}`);
-  if (createdBefore) filterSummary.push(`อัปโหลดก่อน: ${createdBefore}`);
-  if (neverScannedOnly) filterSummary.push("เฉพาะที่ยังไม่เคยสแกนเลย");
+  if (filter !== "all") filterSummary.push(t("filterSummaryStatus", { value: FILTERS.find((f) => f.value === filter)?.label ?? filter }));
+  if (fileKind) filterSummary.push(t("filterSummaryFileKind", { value: FILE_KIND_OPTIONS.find((f) => f.value === fileKind)?.label ?? fileKind }));
+  if (createdAfter) filterSummary.push(t("filterSummaryUploadedSince", { value: createdAfter }));
+  if (createdBefore) filterSummary.push(t("filterSummaryUploadedBefore", { value: createdBefore }));
+  if (neverScannedOnly) filterSummary.push(t("filterSummaryNeverScanned"));
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">สแกนความปลอดภัยไฟล์เป็นชุด</h1>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("heading")}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            สั่งสแกนมัลแวร์ไฟล์ PDF เดิมซ้ำหลายรายการพร้อมกันแบบ background job —
-            ไฟล์ที่เผยแพร่อยู่ยังใช้งานได้ปกติระหว่างรอคิว หากพบว่าไม่ปลอดภัยจะปิด
-            การเข้าถึงอัตโนมัติทันทีที่สแกนเสร็จ พร้อมแจ้งเตือนผู้ดูแลระบบ
+            {t("subtitle")}
           </p>
         </div>
         <ProcessQueueNowButton />
@@ -133,12 +137,10 @@ export default async function FileSecurityPage({
         ))}
       </div>
 
-      {/* ตัวกรองเพิ่มเติม (ช่วงที่ 28) — มีผลเฉพาะกับปุ่ม "สแกนทั้งหมดตามตัวกรอง"
-          ด้านล่างเท่านั้น */}
       <form method="get" className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-surface p-3 text-xs">
         <input type="hidden" name="filter" value={filter} />
         <div className="flex flex-col gap-1">
-          <label className="text-gray-500">ประเภทไฟล์</label>
+          <label className="text-gray-500">{t("fileKindLabel")}</label>
           <select name="fileKind" defaultValue={params.fileKind ?? ""} className="rounded-lg border border-gray-300 px-2 py-1.5">
             {FILE_KIND_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -146,27 +148,27 @@ export default async function FileSecurityPage({
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="file-security-created-after" className="text-gray-600">อัปโหลดตั้งแต่</label>
+          <label htmlFor="file-security-created-after" className="text-gray-600">{t("uploadedAfterLabel")}</label>
           <input id="file-security-created-after" type="date" name="createdAfter" defaultValue={params.createdAfter ?? ""} className="rounded-lg border border-gray-300 px-2 py-1.5 text-gray-900" />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="file-security-created-before" className="text-gray-600">อัปโหลดก่อน</label>
+          <label htmlFor="file-security-created-before" className="text-gray-600">{t("uploadedBeforeLabel")}</label>
           <input id="file-security-created-before" type="date" name="createdBefore" defaultValue={params.createdBefore ?? ""} className="rounded-lg border border-gray-300 px-2 py-1.5 text-gray-900" />
         </div>
         <label className="flex items-center gap-1.5 pb-1.5 text-gray-600">
           <input type="checkbox" name="neverScanned" value="1" defaultChecked={neverScannedOnly} />
-          เฉพาะที่ยังไม่เคยสแกนเลย
+          {t("neverScannedLabel")}
         </label>
         <button type="submit" className="rounded-lg bg-gray-700 px-3 py-1.5 text-white hover:bg-gray-800">
-          ใช้ตัวกรอง
+          {t("applyFilterButton")}
         </button>
       </form>
 
       <BulkJobSelector
         items={items}
         action={bulkEnqueueFileRescanAction}
-        submitLabel="สแกนซ้ำที่เลือก"
-        emptyMessage="ไม่พบรายการตามเงื่อนไขที่เลือก"
+        submitLabel={t("bulkSubmitLabel")}
+        emptyMessage={t("bulkEmptyMessage")}
       />
 
       <BulkAllMatchingFilterDialog
@@ -178,15 +180,15 @@ export default async function FileSecurityPage({
           ...(createdBefore ? { createdBefore } : {}),
           neverScannedOnly: neverScannedOnly ? "true" : "false",
         }}
-        label="สแกนทั้งหมดตามตัวกรอง (ไม่จำกัด 500 รายการ)"
-        jobTypeLabel="ตรวจสอบความปลอดภัยไฟล์"
+        label={t("bulkAllLabel")}
+        jobTypeLabel={t("bulkAllJobTypeLabel")}
         filterSummary={filterSummary}
         defaultBatchSize={defaultBatchSize}
         estimatedCount={estimatedCount}
       />
 
       <section className="rounded-xl border border-gray-200 bg-surface p-4">
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">ชุดงานล่าสุด</h2>
+        <h2 className="mb-3 text-sm font-semibold text-gray-900">{t("recentBatchesTitle")}</h2>
         <JobProgressPoller
           jobType="file_security_rescan"
           initialBatches={batches}
@@ -195,11 +197,11 @@ export default async function FileSecurityPage({
       </section>
 
       <section className="rounded-xl border border-gray-200 bg-surface p-4">
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">งานที่ล้มเหลวถาวร (ครบจำนวนครั้งลองใหม่แล้ว)</h2>
+        <h2 className="mb-3 text-sm font-semibold text-gray-900">{t("permanentlyFailedTitle")}</h2>
         <FailedJobList
           jobs={failedJobs}
           retryAction={retryFailedRescanJobAction}
-          emptyMessage="ไม่มีงานที่ล้มเหลวถาวรในขณะนี้"
+          emptyMessage={t("noPermanentlyFailed")}
         />
       </section>
     </div>

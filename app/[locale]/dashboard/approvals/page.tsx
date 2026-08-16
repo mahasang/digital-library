@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
 import { Calendar, ClipboardList, Users } from "lucide-react";
 import Container from "@/components/ui/Container";
 import StatusBadge from "@/components/research/StatusBadge";
@@ -11,10 +11,18 @@ import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getSubmissionsByStatus } from "@/lib/data/submissions.server";
 
-export const metadata: Metadata = {
-  title: "อนุมัติงานวิจัย",
-  description: "ตรวจสอบและอนุมัติงานวิจัยที่รอการพิจารณา",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard" });
+  return {
+    title: t("approvals.pageTitle"),
+    description: t("approvals.pageDescription"),
+  };
+}
 
 export default async function ApprovalsDashboardPage() {
   if (!isSupabaseConfigured()) {
@@ -27,12 +35,14 @@ export default async function ApprovalsDashboardPage() {
     );
   }
 
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/dashboard/approvals");
+  if (!user) return redirect({ href: "/login?redirect=/dashboard/approvals", locale });
 
   const rank = await getCurrentUserRoleRank();
-  if (rank < 30) redirect("/403");
+  if (rank < 30) return redirect({ href: "/403", locale });
 
+  const t = await getTranslations("dashboard");
   const [pending, revisionRequested, approved] = await Promise.all([
     getSubmissionsByStatus(["pending_review"]),
     getSubmissionsByStatus(["revision_requested"]),
@@ -43,25 +53,25 @@ export default async function ApprovalsDashboardPage() {
     <div className="py-10 sm:py-14">
       <Container>
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">อนุมัติงานวิจัย</h1>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("approvals.heading")}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            ตรวจสอบงานวิจัยที่ส่งเข้ามา อนุมัติ ขอแก้ไข หรือปฏิเสธ พร้อมเผยแพร่งานที่อนุมัติแล้ว
+            {t("approvals.subtitle")}
           </p>
         </div>
 
         <ApprovalSection
-          title="รอตรวจสอบ"
-          description="งานวิจัยที่ส่งเข้ามาใหม่ รอการตรวจสอบครั้งแรก"
+          title={t("approvals.sectionPending")}
+          description={t("approvals.sectionPendingDesc")}
           items={pending}
         />
         <ApprovalSection
-          title="ขอให้แก้ไข (รอผู้ส่งแก้ไขและส่งกลับ)"
-          description="งานวิจัยที่เคยตรวจสอบแล้วและขอให้ผู้ส่งแก้ไข"
+          title={t("approvals.sectionRevision")}
+          description={t("approvals.sectionRevisionDesc")}
           items={revisionRequested}
         />
         <ApprovalSection
-          title="อนุมัติแล้ว (รอเผยแพร่)"
-          description="งานวิจัยที่ผ่านการตรวจสอบแล้ว รอดำเนินการเผยแพร่"
+          title={t("approvals.sectionApproved")}
+          description={t("approvals.sectionApprovedDesc")}
           items={approved}
         />
       </Container>
@@ -69,7 +79,7 @@ export default async function ApprovalsDashboardPage() {
   );
 }
 
-function ApprovalSection({
+async function ApprovalSection({
   title,
   description,
   items,
@@ -78,6 +88,8 @@ function ApprovalSection({
   description: string;
   items: Awaited<ReturnType<typeof getSubmissionsByStatus>>;
 }) {
+  const t = await getTranslations("dashboard");
+
   return (
     <section className="mb-10">
       <div className="mb-4 flex items-center gap-2">
@@ -90,7 +102,7 @@ function ApprovalSection({
 
       {items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-surface py-10 text-center text-sm text-gray-500">
-          ไม่มีรายการในหมวดนี้
+          {t("approvals.emptySection")}
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -109,7 +121,7 @@ function ApprovalSection({
                   <AccessBadge accessLevel={item.accessLevel} />
                   <span className="flex items-center gap-1 text-xs text-gray-500">
                     <Users className="h-3.5 w-3.5" />
-                    {item.researchers.map((r) => r.name).join(", ") || "ไม่ระบุผู้วิจัย"}
+                    {item.researchers.map((r) => r.name).join(", ") || t("approvals.noResearcher")}
                   </span>
                   <span className="flex items-center gap-1 text-xs text-gray-500">
                     <Calendar className="h-3.5 w-3.5" />

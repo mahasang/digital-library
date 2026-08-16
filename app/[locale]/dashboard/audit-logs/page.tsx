@@ -1,11 +1,10 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
 import { ChevronLeft, ChevronRight, ScrollText } from "lucide-react";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getAuditLogs } from "@/lib/data/audit-logs.server";
-import { auditActionLabels } from "@/lib/labels";
 
 export const metadata: Metadata = { title: "Audit Log" };
 
@@ -16,12 +15,15 @@ export default async function DashboardAuditLogsPage({
 }) {
   const params = await searchParams;
 
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/dashboard/audit-logs");
+  if (!user) return redirect({ href: "/login?redirect=/dashboard/audit-logs", locale });
 
   const rank = await getCurrentUserRoleRank();
-  if (rank < 40) redirect("/403");
+  if (rank < 40) return redirect({ href: "/403", locale });
 
+  const t = await getTranslations("dashboard");
+  const tAuditActions = await getTranslations("auditActions");
   const page = Number(params.page) || 1;
   const { available, rows, total, totalPages } = await getAuditLogs({
     from: params.from,
@@ -47,7 +49,7 @@ export default async function DashboardAuditLogsPage({
           Audit Log
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          ประวัติการกระทำสำคัญทั้งหมดในระบบ — ผู้กระทำ รายการที่เปลี่ยนแปลง วันเวลา และรายละเอียด
+          {t("auditLogs.pageDescription")}
         </p>
       </div>
 
@@ -56,7 +58,7 @@ export default async function DashboardAuditLogsPage({
         className="flex flex-wrap items-center gap-2 rounded-xl border border-gray-200 bg-surface p-4 text-sm"
       >
         <label className="flex items-center gap-1.5 text-xs text-gray-600">
-          จาก
+          {t("auditLogs.filterFrom")}
           <input
             type="date"
             name="from"
@@ -65,7 +67,7 @@ export default async function DashboardAuditLogsPage({
           />
         </label>
         <label className="flex items-center gap-1.5 text-xs text-gray-600">
-          ถึง
+          {t("auditLogs.filterTo")}
           <input
             type="date"
             name="to"
@@ -78,42 +80,42 @@ export default async function DashboardAuditLogsPage({
           defaultValue={params.entity ?? ""}
           className="rounded-lg border border-gray-300 bg-surface px-2 py-1.5 text-xs"
         >
-          <option value="">ทุกประเภทรายการ</option>
-          <option value="research_items">งานวิจัย</option>
-          <option value="categories">หมวดหมู่</option>
-          <option value="organizations">หน่วยงาน</option>
-          <option value="profiles">ผู้ใช้งาน</option>
+          <option value="">{t("auditLogs.allEntityTypes")}</option>
+          <option value="research_items">{t("auditLogs.entityResearch")}</option>
+          <option value="categories">{t("auditLogs.entityCategories")}</option>
+          <option value="organizations">{t("auditLogs.entityOrganizations")}</option>
+          <option value="profiles">{t("auditLogs.entityProfiles")}</option>
         </select>
         <button
           type="submit"
           className="rounded-lg bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-700"
         >
-          กรอง
+          {t("auditLogs.filterButton")}
         </button>
       </form>
 
       <p className="text-sm text-gray-500">
-        พบ <span className="font-semibold text-gray-900">{total}</span> รายการ
+        {t("auditLogs.resultsCount", { count: total })}
       </p>
 
       {!available ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 py-16 text-center text-sm text-gray-500">
-          ไม่พร้อมใช้งาน — ไม่สามารถดึงข้อมูล Audit Log ได้ในขณะนี้
+          {t("auditLogs.unavailable")}
         </div>
       ) : rows.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-surface py-16 text-center text-sm text-gray-500">
-          ไม่พบข้อมูลตามเงื่อนไขที่เลือก
+          {t("auditLogs.noResults")}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-200 bg-surface">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500">
               <tr>
-                <th className="px-4 py-3 font-medium">ผู้กระทำ</th>
-                <th className="px-4 py-3 font-medium">การกระทำ</th>
-                <th className="px-4 py-3 font-medium">ประเภทรายการ</th>
-                <th className="px-4 py-3 font-medium">รายละเอียด</th>
-                <th className="px-4 py-3 font-medium">วันเวลา</th>
+                <th className="px-4 py-3 font-medium">{t("auditLogs.colActor")}</th>
+                <th className="px-4 py-3 font-medium">{t("auditLogs.colAction")}</th>
+                <th className="px-4 py-3 font-medium">{t("auditLogs.colEntityType")}</th>
+                <th className="px-4 py-3 font-medium">{t("auditLogs.colDetails")}</th>
+                <th className="px-4 py-3 font-medium">{t("auditLogs.colDateTime")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -121,7 +123,7 @@ export default async function DashboardAuditLogsPage({
                 <tr key={log.id}>
                   <td className="px-4 py-2.5 font-medium text-gray-900">{log.actorName}</td>
                   <td className="px-4 py-2.5 text-gray-600">
-                    {auditActionLabels[log.action] ?? log.action}
+                    {tAuditActions.has(log.action) ? tAuditActions(log.action) : log.action}
                   </td>
                   <td className="px-4 py-2.5 text-gray-500">{log.entityType}</td>
                   <td className="max-w-xs truncate px-4 py-2.5 text-xs text-gray-500">
@@ -151,10 +153,10 @@ export default async function DashboardAuditLogsPage({
             }`}
           >
             <ChevronLeft className="h-4 w-4" />
-            ก่อนหน้า
+            {t("auditLogs.prevPage")}
           </Link>
           <span className="text-sm text-gray-500">
-            หน้า {page} / {totalPages}
+            {t("auditLogs.pageOf", { page, totalPages })}
           </span>
           <Link
             href={buildUrl(Math.min(totalPages, page + 1))}
@@ -164,7 +166,7 @@ export default async function DashboardAuditLogsPage({
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            ถัดไป
+            {t("auditLogs.nextPage")}
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>

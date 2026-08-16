@@ -1,8 +1,17 @@
 import type { Metadata } from "next";
+import { getTranslations, getLocale } from "next-intl/server";
 import { Database, ShieldCheck, HardDrive, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { checkSystemHealth, type ServiceHealth } from "@/lib/data/system-health.server";
 
-export const metadata: Metadata = { title: "System Health — Super Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "superadmin" });
+  return { title: t("systemHealth.pageTitle") };
+}
 export const dynamic = "force-dynamic";
 
 const SERVICE_META = {
@@ -13,38 +22,45 @@ const SERVICE_META = {
 
 export default async function SuperAdminSystemHealthPage() {
   const results = await checkSystemHealth();
+  const locale = await getLocale();
+  const t = await getTranslations("superadmin.systemHealth");
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">System Health</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("heading")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          ตรวจสอบสถานะการเชื่อมต่อ Database, Auth และ Storage แบบสดทุกครั้งที่โหลดหน้านี้
+          {t("subtitle")}
         </p>
       </div>
 
       <div className="flex flex-col gap-3">
         {results.map((result) => (
-          <ServiceCard key={result.service} result={result} />
+          <ServiceCard key={result.service} result={result} t={t} locale={locale} />
         ))}
       </div>
 
       <p className="text-xs text-gray-500">
-        การตรวจสอบนี้เป็นการเช็คแบบสด (real-time) ณ เวลาที่โหลดหน้า ไม่มีการเก็บ
-        ประวัติสถานะย้อนหลังในระบบ — หากต้องการติดตามความพร้อมใช้งานระยะยาวแบบ
-        อัตโนมัติ พร้อมประวัติย้อนหลังและการแจ้งเตือน{" "}
-        <strong className="text-gray-500">ต้องเชื่อมต่อบริการ Uptime Monitoring ภายนอก</strong>{" "}
-        (เช่น UptimeRobot, Better Uptime, Cloudflare Health Checks) เข้ากับ endpoint{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">/api/health</code> — แอปนี้เองไม่มี
-        ทางเก็บประวัติ/แจ้งเตือนอัตโนมัติได้ ดูขั้นตอนละเอียดใน{" "}
+        {t("footerDescPart1")}{" "}
+        <strong className="text-gray-500">{t("footerStrong")}</strong>{" "}
+        {t("footerDescPart2")}{" "}
+        <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">/api/health</code> {t("footerDescPart3")}{" "}
         <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">docs/uptime-monitoring.md</code>{" "}
-        ในซอร์สโค้ดของโปรเจกต์
+        {t("footerDescPart4")}
       </p>
     </div>
   );
 }
 
-function ServiceCard({ result }: { result: ServiceHealth }) {
+function ServiceCard({
+  result,
+  t,
+  locale,
+}: {
+  result: ServiceHealth;
+  t: Awaited<ReturnType<typeof getTranslations>>;
+  locale: string;
+}) {
   const meta = SERVICE_META[result.service];
   const Icon = meta.icon;
 
@@ -56,16 +72,14 @@ function ServiceCard({ result }: { result: ServiceHealth }) {
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-sm font-semibold text-gray-900">{meta.label}</p>
-          <StatusBadge status={result.status} />
+          <StatusBadge status={result.status} t={t} />
         </div>
         <p className="mt-1 text-sm text-gray-600">
-          {result.status === "unknown"
-            ? "ยังไม่สามารถตรวจสอบอัตโนมัติได้ — กรุณาตั้งค่า NEXT_PUBLIC_SUPABASE_URL และ NEXT_PUBLIC_SUPABASE_ANON_KEY ในไฟล์ .env.local ก่อน"
-            : result.detail}
+          {result.status === "unknown" ? t("unknownStatusDesc") : result.detail}
         </p>
         <p className="mt-1 text-xs text-gray-500">
-          ตรวจสอบล่าสุด:{" "}
-          {new Date(result.checkedAt).toLocaleString("th-TH", {
+          {t("checkedAtLabel")}{" "}
+          {new Date(result.checkedAt).toLocaleString(locale === "en" ? "en-US" : "th-TH", {
             dateStyle: "medium",
             timeStyle: "medium",
           })}
@@ -75,12 +89,18 @@ function ServiceCard({ result }: { result: ServiceHealth }) {
   );
 }
 
-function StatusBadge({ status }: { status: ServiceHealth["status"] }) {
+function StatusBadge({
+  status,
+  t,
+}: {
+  status: ServiceHealth["status"];
+  t: Awaited<ReturnType<typeof getTranslations>>;
+}) {
   if (status === "ok") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
         <CheckCircle2 className="h-3 w-3" />
-        ใช้งานได้ปกติ
+        {t("statusOk")}
       </span>
     );
   }
@@ -88,14 +108,14 @@ function StatusBadge({ status }: { status: ServiceHealth["status"] }) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">
         <XCircle className="h-3 w-3" />
-        เชื่อมต่อไม่ได้
+        {t("statusError")}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500">
       <HelpCircle className="h-3 w-3" />
-      ยังไม่สามารถตรวจสอบได้
+      {t("statusUnknown")}
     </span>
   );
 }

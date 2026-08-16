@@ -1,50 +1,60 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
 import { AlertCircle, Building2, Calendar, Users } from "lucide-react";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getDataQualityReport, type DataQualityIssueItem } from "@/lib/data/data-quality.server";
 
-export const metadata: Metadata = { title: "คุณภาพข้อมูล" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard" });
+  return { title: t("dataQuality.pageTitle") };
+}
 
 export default async function DataQualityPage() {
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/dashboard/data-quality");
+  if (!user) return redirect({ href: "/login?redirect=/dashboard/data-quality", locale });
 
   const rank = await getCurrentUserRoleRank();
-  if (rank < 30) redirect("/403");
+  if (rank < 30) return redirect({ href: "/403", locale });
 
+  const t = await getTranslations("dashboard");
   const report = await getDataQualityReport();
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">คุณภาพข้อมูล</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("dataQuality.heading")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          รายการงานวิจัยที่ข้อมูลยังไม่ครบถ้วน — ช่วยให้เจ้าหน้าที่ตามแก้ไขได้ตรงจุด
+          {t("dataQuality.subtitle")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <SummaryCard label="ผู้วิจัยไม่มี ORCID" value={report.authorsMissingOrcid} icon={Users} />
-        <SummaryCard label="งานวิจัยไม่มีผู้วิจัย" value={report.missingAuthors.length} icon={Users} />
-        <SummaryCard label="งานวิจัยไม่มีหน่วยงาน" value={report.missingOrganization.length} icon={Building2} />
+        <SummaryCard label={t("dataQuality.authorsMissingOrcid")} value={report.authorsMissingOrcid} icon={Users} />
+        <SummaryCard label={t("dataQuality.researchMissingAuthors")} value={report.missingAuthors.length} icon={Users} />
+        <SummaryCard label={t("dataQuality.researchMissingOrg")} value={report.missingOrganization.length} icon={Building2} />
       </div>
 
       <IssueSection
-        title="งานวิจัยที่ไม่มีผู้วิจัย"
-        description="ไม่มีแถวใน research_authors ผูกอยู่เลย"
+        title={t("dataQuality.issueMissingAuthorsTitle")}
+        description={t("dataQuality.issueMissingAuthorsDesc")}
         items={report.missingAuthors}
       />
       <IssueSection
-        title="งานวิจัยที่ไม่มีหน่วยงาน"
-        description="ยังไม่ได้ระบุ organization_id"
+        title={t("dataQuality.issueMissingOrgTitle")}
+        description={t("dataQuality.issueMissingOrgDesc")}
         items={report.missingOrganization}
       />
       <IssueSection
-        title="งานวิจัยที่เผยแพร่แล้วแต่ไม่มีวันที่เผยแพร่"
-        description="สถานะเป็น published แต่ published_at ยังว่างอยู่"
+        title={t("dataQuality.issueMissingDateTitle")}
+        description={t("dataQuality.issueMissingDateDesc")}
         items={report.missingPublishedDate}
         icon={Calendar}
       />
@@ -74,7 +84,7 @@ function SummaryCard({
   );
 }
 
-function IssueSection({
+async function IssueSection({
   title,
   description,
   items,
@@ -85,6 +95,8 @@ function IssueSection({
   items: DataQualityIssueItem[];
   icon?: typeof AlertCircle;
 }) {
+  const t = await getTranslations("dashboard");
+
   return (
     <section className="rounded-xl border border-gray-200 bg-surface p-5">
       <div className="mb-1 flex items-center gap-2">
@@ -95,7 +107,7 @@ function IssueSection({
       </div>
       <p className="mb-3 text-xs text-gray-500">{description}</p>
       {items.length === 0 ? (
-        <p className="text-sm text-gray-500">ไม่พบรายการ</p>
+        <p className="text-sm text-gray-500">{t("dataQuality.noItems")}</p>
       ) : (
         <div className="flex flex-col gap-1.5">
           {items.map((item) => (

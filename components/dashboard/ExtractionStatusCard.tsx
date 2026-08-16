@@ -1,10 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, AlertCircle, Clock, ImageOff, Loader2, RefreshCw, ScanText } from "lucide-react";
 import { reprocessResearchTextAction, triggerOcrAction } from "@/app/[locale]/dashboard/research/[id]/edit/actions";
 import { idleActionResult } from "@/lib/actions/types";
-import { extractionStatusLabels, ocrStatusLabels } from "@/lib/labels";
 import type { ExtractionStatusRow, OcrStatusRow } from "@/lib/supabase/database.types";
 
 const STATUS_ICON: Record<ExtractionStatusRow, typeof CheckCircle2> = {
@@ -63,6 +63,8 @@ export default function ExtractionStatusCard({
     idleActionResult
   );
   const [ocrState, ocrFormAction, ocrPending] = useActionState(triggerOcrAction, idleActionResult);
+  const tExtractionStatuses = useTranslations("extractionStatuses");
+  const tOcrStatuses = useTranslations("ocrStatuses");
 
   const effectiveStatus = status ?? "pending";
   const Icon = STATUS_ICON[effectiveStatus];
@@ -77,7 +79,7 @@ export default function ExtractionStatusCard({
       <div className="flex items-center gap-2 text-sm">
         <Icon className={`h-4 w-4 ${STATUS_COLOR[effectiveStatus]} ${effectiveStatus === "processing" ? "animate-spin" : ""}`} />
         <span className={STATUS_COLOR[effectiveStatus]}>
-          {status ? extractionStatusLabels[status] : "ยังไม่เคยประมวลผล"}
+          {status ? tExtractionStatuses(status) : "ยังไม่เคยประมวลผล"}
         </span>
       </div>
 
@@ -135,7 +137,7 @@ export default function ExtractionStatusCard({
           </p>
 
           <p className={`text-sm ${OCR_STATUS_COLOR[effectiveOcrStatus]}`}>
-            {ocrStatusLabels[effectiveOcrStatus]}
+            {tOcrStatuses(effectiveOcrStatus)}
           </p>
           {ocrProcessedAt && (
             <p className="mt-1 text-xs text-gray-500">

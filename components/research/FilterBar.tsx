@@ -1,10 +1,12 @@
 "use client";
 
 import { Search, SlidersHorizontal, BookText, FileSearch, Layers } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { sortOptions, type SortOption } from "@/lib/search";
 import type { SearchMode } from "@/lib/data/research-search.server";
-import { accessLevelLabels } from "@/lib/labels";
 import type { AccessLevel, Category } from "@/types/research";
+
+const ACCESS_LEVEL_VALUES: AccessLevel[] = ["public", "member_only", "staff_only", "read_only", "metadata_only"];
 
 interface FilterBarProps {
   query: string;
@@ -45,6 +47,7 @@ export default function FilterBar({
   onAccessLevelChange,
   onSortChange,
 }: FilterBarProps) {
+  const tAccessLevels = useTranslations("accessLevels");
   return (
     <div className="rounded-xl border border-gray-200 bg-surface p-4 shadow-elevated-sm sm:p-5">
       <div className="flex items-center gap-2.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 focus-within:border-brand-400 focus-within:bg-surface focus-within:ring-1 focus-within:ring-brand-400">
@@ -121,9 +124,9 @@ export default function FilterBar({
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         >
           <option value="all">ทุกระดับสิทธิ์</option>
-          {(Object.entries(accessLevelLabels) as [AccessLevel, string][]).map(([value, label]) => (
+          {ACCESS_LEVEL_VALUES.map((value) => (
             <option key={value} value={value}>
-              {label}
+              {tAccessLevels(value)}
             </option>
           ))}
         </select>

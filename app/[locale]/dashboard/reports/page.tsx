@@ -1,5 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { Download } from "lucide-react";
 import SharedEmptyState from "@/components/ui/EmptyState";
 import {
@@ -9,19 +10,19 @@ import {
   getViewsReport,
 } from "@/lib/data/reports.server";
 import { getCategories } from "@/lib/data/categories.server";
-import { roleLabels } from "@/lib/labels";
 import type { UserRole } from "@/types/research";
 
-export const metadata: Metadata = { title: "รายงาน" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard" });
+  return { title: t("reports.pageTitle") };
+}
 
 type ReportTab = "views" | "downloads" | "popular" | "members";
-
-const TABS: { value: ReportTab; label: string }[] = [
-  { value: "views", label: "การเข้าชม" },
-  { value: "downloads", label: "การดาวน์โหลด" },
-  { value: "popular", label: "งานวิจัยยอดนิยม" },
-  { value: "members", label: "สมาชิก" },
-];
 
 const ASSIGNABLE_ROLES: UserRole[] = ["member", "staff", "librarian", "admin"];
 
@@ -36,6 +37,14 @@ export default async function DashboardReportsPage({
     role?: string;
   }>;
 }) {
+  const t = await getTranslations("dashboard");
+  const tRoles = await getTranslations("roles");
+  const TABS: { value: ReportTab; label: string }[] = [
+    { value: "views", label: t("reports.tabViews") },
+    { value: "downloads", label: t("reports.tabDownloads") },
+    { value: "popular", label: t("reports.tabPopular") },
+    { value: "members", label: t("reports.tabMembers") },
+  ];
   const params = await searchParams;
   const tab: ReportTab = (
     ["views", "downloads", "popular", "members"].includes(params.tab ?? "")
@@ -74,24 +83,24 @@ export default async function DashboardReportsPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">รายงาน</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("reports.heading")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          รายงานการเข้าชม การดาวน์โหลด งานวิจัยยอดนิยม และสมาชิก พร้อมส่งออก CSV
+          {t("reports.subtitle")}
         </p>
       </div>
 
       <div className="flex flex-wrap gap-1 border-b border-gray-200">
-        {TABS.map((t) => (
+        {TABS.map((tabItem) => (
           <Link
-            key={t.value}
-            href={buildTabUrl(t.value)}
+            key={tabItem.value}
+            href={buildTabUrl(tabItem.value)}
             className={`rounded-t-lg px-4 py-2 text-sm font-medium ${
-              tab === t.value
+              tab === tabItem.value
                 ? "border-b-2 border-brand-600 text-accent"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            {t.label}
+            {tabItem.label}
           </Link>
         ))}
       </div>
@@ -102,7 +111,7 @@ export default async function DashboardReportsPage({
       >
         <input type="hidden" name="tab" value={tab} />
         <label className="flex items-center gap-1.5 text-xs text-gray-600">
-          จาก
+          {t("reports.dateFrom")}
           <input
             type="date"
             name="from"
@@ -111,7 +120,7 @@ export default async function DashboardReportsPage({
           />
         </label>
         <label className="flex items-center gap-1.5 text-xs text-gray-600">
-          ถึง
+          {t("reports.dateTo")}
           <input
             type="date"
             name="to"
@@ -123,10 +132,10 @@ export default async function DashboardReportsPage({
           <select
             name="category"
             defaultValue={params.category ?? ""}
-            aria-label="กรองตามหมวดหมู่"
+            aria-label={t("reports.filterByCategory")}
             className="rounded-lg border border-gray-300 bg-surface px-2 py-1.5 text-xs"
           >
-            <option value="">ทุกหมวดหมู่</option>
+            <option value="">{t("reports.allCategories")}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.nameTh}
@@ -138,13 +147,13 @@ export default async function DashboardReportsPage({
           <select
             name="role"
             defaultValue={params.role ?? ""}
-            aria-label="กรองตามประเภทผู้ใช้"
+            aria-label={t("reports.filterByRole")}
             className="rounded-lg border border-gray-300 bg-surface px-2 py-1.5 text-xs"
           >
-            <option value="">ทุกประเภทผู้ใช้</option>
+            <option value="">{t("reports.allRoles")}</option>
             {ASSIGNABLE_ROLES.map((r) => (
               <option key={r} value={r}>
-                {roleLabels[r]}
+                {tRoles(r)}
               </option>
             ))}
           </select>
@@ -153,20 +162,20 @@ export default async function DashboardReportsPage({
           type="submit"
           className="rounded-lg bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-700"
         >
-          กรอง
+          {t("reports.filterButton")}
         </button>
         <a
           href={buildExportUrl()}
           className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
         >
           <Download className="h-3.5 w-3.5" />
-          ส่งออก CSV
+          {t("reports.exportCsv")}
         </a>
       </form>
 
-      {tab === "views" && <EventReportTable rows={await getViewsReport(filters)} label="ครั้งที่อ่าน" />}
+      {tab === "views" && <EventReportTable rows={await getViewsReport(filters)} label={t("reports.countViews")} />}
       {tab === "downloads" && (
-        <EventReportTable rows={await getDownloadsReport(filters)} label="ครั้งที่ดาวน์โหลด" />
+        <EventReportTable rows={await getDownloadsReport(filters)} label={t("reports.countDownloads")} />
       )}
       {tab === "popular" && <PopularReportTable filters={filters} />}
       {tab === "members" && (
@@ -184,17 +193,18 @@ async function PopularReportTable({
   filters: { categoryId?: string };
 }) {
   const rows = await getPopularReport(filters);
+  const t = await getTranslations("dashboard");
   if (rows.length === 0) {
-    return <SharedEmptyState title="ไม่พบข้อมูลตามเงื่อนไขที่เลือก" description="ลองปรับช่วงวันที่หรือตัวกรองแล้วลองใหม่อีกครั้ง" />;
+    return <SharedEmptyState title={t("reports.noResults")} description={t("reports.noResultsHint")} />;
   }
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-surface">
       <table className="w-full text-left text-sm">
         <thead className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500">
           <tr>
-            <th className="px-4 py-3 font-medium">ชื่อเรื่อง</th>
-            <th className="px-4 py-3 font-medium">เข้าชม</th>
-            <th className="px-4 py-3 font-medium">ดาวน์โหลด</th>
+            <th className="px-4 py-3 font-medium">{t("reports.colTitle")}</th>
+            <th className="px-4 py-3 font-medium">{t("reports.colViews")}</th>
+            <th className="px-4 py-3 font-medium">{t("reports.colDownloads")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -221,19 +231,21 @@ async function MembersReportTable({
   filters: { from?: string; to?: string; role?: UserRole };
 }) {
   const rows = await getMembersReport(filters);
+  const t = await getTranslations("dashboard");
+  const tRoles = await getTranslations("roles");
   if (rows.length === 0) {
-    return <SharedEmptyState title="ไม่พบข้อมูลตามเงื่อนไขที่เลือก" description="ลองปรับช่วงวันที่หรือตัวกรองแล้วลองใหม่อีกครั้ง" />;
+    return <SharedEmptyState title={t("reports.noResults")} description={t("reports.noResultsHint")} />;
   }
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-surface">
       <table className="w-full text-left text-sm">
         <thead className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500">
           <tr>
-            <th className="px-4 py-3 font-medium">ชื่อ</th>
-            <th className="px-4 py-3 font-medium">อีเมล</th>
-            <th className="px-4 py-3 font-medium">หน่วยงาน</th>
-            <th className="px-4 py-3 font-medium">บทบาท</th>
-            <th className="px-4 py-3 font-medium">วันที่สมัคร</th>
+            <th className="px-4 py-3 font-medium">{t("reports.colName")}</th>
+            <th className="px-4 py-3 font-medium">{t("reports.colEmail")}</th>
+            <th className="px-4 py-3 font-medium">{t("reports.colOrganization")}</th>
+            <th className="px-4 py-3 font-medium">{t("reports.colRole")}</th>
+            <th className="px-4 py-3 font-medium">{t("reports.colJoinedDate")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -242,7 +254,7 @@ async function MembersReportTable({
               <td className="px-4 py-2.5">{r.fullName}</td>
               <td className="px-4 py-2.5 text-gray-500">{r.email}</td>
               <td className="px-4 py-2.5 text-gray-500">{r.organizationName || "—"}</td>
-              <td className="px-4 py-2.5 text-gray-500">{roleLabels[r.role]}</td>
+              <td className="px-4 py-2.5 text-gray-500">{tRoles(r.role)}</td>
               <td className="px-4 py-2.5 text-gray-500">
                 {new Date(r.createdAt).toLocaleDateString("th-TH")}
               </td>
@@ -254,22 +266,23 @@ async function MembersReportTable({
   );
 }
 
-function EventReportTable({
+async function EventReportTable({
   rows,
   label,
 }: {
   rows: { researchId: string; slug: string; titleTh: string; count: number }[];
   label: string;
 }) {
+  const t = await getTranslations("dashboard");
   if (rows.length === 0) {
-    return <SharedEmptyState title="ไม่พบข้อมูลตามเงื่อนไขที่เลือก" description="ลองปรับช่วงวันที่หรือตัวกรองแล้วลองใหม่อีกครั้ง" />;
+    return <SharedEmptyState title={t("reports.noResults")} description={t("reports.noResultsHint")} />;
   }
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-surface">
       <table className="w-full text-left text-sm">
         <thead className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500">
           <tr>
-            <th className="px-4 py-3 font-medium">ชื่อเรื่อง</th>
+            <th className="px-4 py-3 font-medium">{t("reports.colTitle")}</th>
             <th className="px-4 py-3 font-medium">{label}</th>
           </tr>
         </thead>

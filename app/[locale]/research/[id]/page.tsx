@@ -1,7 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
 import {
   BookOpenText,
   Calendar,
@@ -28,7 +29,7 @@ import {
   getMergedRedirectSlug,
 } from "@/lib/data/research.server";
 import { getCategoryById } from "@/lib/data/categories.server";
-import { accessLevelDescriptions, canDownload, canReadOnline } from "@/lib/labels";
+import { canDownload, canReadOnline } from "@/lib/labels";
 import { getSessionUser } from "@/lib/supabase/session";
 import { isResearchFavorited } from "@/lib/data/favorites.server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -39,11 +40,14 @@ import AccessRequestButton from "@/components/research/AccessRequestButton";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { locale, id } = await params;
   const item = await getResearchById(id);
-  if (!item) return { title: "ไม่พบงานวิจัย" };
+  if (!item) {
+    const t = await getTranslations({ locale, namespace: "research.detail" });
+    return { title: t("notFoundTitle") };
+  }
   return {
     title: item.titleTh,
     description: item.abstract.slice(0, 150),
@@ -56,12 +60,13 @@ export default async function ResearchDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const locale = await getLocale();
   const item = await getResearchById(id);
   if (!item || item.status !== "published") {
     // งานวิจัยนี้อาจถูกรวม (merge) เข้ากับรายการอื่นไปแล้ว — redirect ไปยัง
     // รายการหลักแทนการแสดง 404 เฉยๆ ถ้าเป็นกรณีนี้จริง
     const redirectSlug = await getMergedRedirectSlug(id);
-    if (redirectSlug) redirect(`/research/${redirectSlug}`);
+    if (redirectSlug) return redirect({ href: `/research/${redirectSlug}`, locale });
     notFound();
   }
 
@@ -89,16 +94,20 @@ export default async function ResearchDetailPage({
         ])
       : [null, null];
 
+  const t = await getTranslations("research.detail");
+  const tAccessDescriptions = await getTranslations("accessLevels.descriptions");
+  const dateLocale = locale === "en" ? "en-US" : "th-TH";
+
   return (
     <section className="py-8 sm:py-12">
       <Container>
-        <nav aria-label="เส้นทางการนำทาง" className="mb-6 flex flex-wrap items-center gap-1 text-xs text-gray-500">
+        <nav aria-label={t("breadcrumbLabel")} className="mb-6 flex flex-wrap items-center gap-1 text-xs text-gray-500">
           <Link href="/" className="hover:text-accent">
-            หน้าแรก
+            {t("breadcrumbHome")}
           </Link>
           <span>/</span>
           <Link href="/research" className="hover:text-accent">
-            งานวิจัย
+            {t("breadcrumbResearch")}
           </Link>
           {category && (
             <>
@@ -119,7 +128,7 @@ export default async function ResearchDetailPage({
               {hasRealCoverImage(item.coverImage) ? (
                 <Image
                   src={item.coverImage}
-                  alt={`ปกงานวิจัย: ${item.titleTh}`}
+                  alt={t("coverAlt", { title: item.titleTh })}
                   fill
                   sizes="(max-width: 1024px) 60vw, 280px"
                   className="object-cover"
@@ -134,7 +143,7 @@ export default async function ResearchDetailPage({
             {readable ? (
               <LinkButton href={`/research/${item.id}/read`} variant="primary" size="lg" className="w-full">
                 <BookOpenText className="h-4 w-4" />
-                อ่านออนไลน์
+                {t("readOnline")}
               </LinkButton>
             ) : (
               <AccessRequestButton
@@ -180,29 +189,29 @@ export default async function ResearchDetailPage({
             <dl className="grid grid-cols-2 gap-3 rounded-xl border border-gray-200 bg-surface p-4 text-xs">
               <div className="flex flex-col gap-1">
                 <dt className="flex items-center gap-1 text-gray-500">
-                  <Eye className="h-3.5 w-3.5" /> เข้าชม
+                  <Eye className="h-3.5 w-3.5" /> {t("statViews")}
                 </dt>
                 <dd className="font-semibold text-gray-900">
-                  {item.views.toLocaleString("th-TH")}
+                  {item.views.toLocaleString(dateLocale)}
                 </dd>
               </div>
               <div className="flex flex-col gap-1">
                 <dt className="flex items-center gap-1 text-gray-500">
-                  <Download className="h-3.5 w-3.5" /> ดาวน์โหลด
+                  <Download className="h-3.5 w-3.5" /> {t("statDownloads")}
                 </dt>
                 <dd className="font-semibold text-gray-900">
-                  {item.downloads.toLocaleString("th-TH")}
+                  {item.downloads.toLocaleString(dateLocale)}
                 </dd>
               </div>
               <div className="flex flex-col gap-1">
                 <dt className="flex items-center gap-1 text-gray-500">
-                  <Files className="h-3.5 w-3.5" /> จำนวนหน้า
+                  <Files className="h-3.5 w-3.5" /> {t("statPages")}
                 </dt>
-                <dd className="font-semibold text-gray-900">{item.pageCount} หน้า</dd>
+                <dd className="font-semibold text-gray-900">{item.pageCount} {t("pagesUnit")}</dd>
               </div>
               <div className="flex flex-col gap-1">
                 <dt className="flex items-center gap-1 text-gray-500">
-                  <Calendar className="h-3.5 w-3.5" /> ปีที่เผยแพร่
+                  <Calendar className="h-3.5 w-3.5" /> {t("statYear")}
                 </dt>
                 <dd className="font-semibold text-gray-900">{item.year}</dd>
               </div>
@@ -216,7 +225,7 @@ export default async function ResearchDetailPage({
                 <AccessBadge accessLevel={item.accessLevel} />
                 <span className="inline-flex items-center gap-1 text-xs text-gray-500">
                   <Calendar className="h-3.5 w-3.5" />
-                  ปี {item.year}
+                  {t("yearLabel", { year: item.year })}
                 </span>
               </div>
               <h1 className="text-h1 font-semibold leading-snug text-gray-900">
@@ -228,7 +237,7 @@ export default async function ResearchDetailPage({
             <div className="flex flex-col gap-1.5 rounded-xl border border-gray-200 bg-surface p-4">
               <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 <Users className="h-4 w-4 text-accent" />
-                ผู้วิจัย
+                {t("researchersTitle")}
               </div>
               <ul className="mt-1 flex flex-col gap-1">
                 {item.researchers.map((r) => (
@@ -245,7 +254,7 @@ export default async function ResearchDetailPage({
 
             <div>
               <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                บทคัดย่อ
+                {t("abstractTitle")}
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-gray-700">
                 {item.abstract}
@@ -255,7 +264,7 @@ export default async function ResearchDetailPage({
             <div>
               <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 <Tag className="h-4 w-4 text-accent" />
-                คำสำคัญ
+                {t("keywordsTitle")}
               </h2>
               <div className="mt-2 flex flex-wrap gap-2">
                 {item.keywords.map((kw) => (
@@ -272,10 +281,10 @@ export default async function ResearchDetailPage({
 
             <div className="rounded-xl border border-gray-200 bg-accent-soft p-4 text-sm text-accent-ink">
               <p className="text-xs font-semibold uppercase tracking-wide text-accent-ink">
-                สิทธิ์การเข้าถึงเอกสารนี้
+                {t("accessTitle")}
               </p>
               <p className="mt-1.5 text-accent-ink">
-                {accessLevelDescriptions[item.accessLevel]}
+                {tAccessDescriptions(item.accessLevel)}
               </p>
             </div>
           </div>
@@ -284,7 +293,7 @@ export default async function ResearchDetailPage({
         {related.length > 0 && (
           <div className="mt-14 border-t border-gray-100 pt-10">
             <h2 className="mb-4 text-h2 font-semibold text-gray-900">
-              งานวิจัยที่เกี่ยวข้อง
+              {t("relatedTitle")}
             </h2>
             <ResearchGrid items={related} />
           </div>

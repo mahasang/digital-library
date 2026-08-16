@@ -1,4 +1,3 @@
-import { statusLabels } from "@/lib/labels";
 import type { DocumentStatus } from "@/types/research";
 
 export interface StatusCount {
@@ -20,9 +19,15 @@ export interface StatusPieSlice {
  * แยกออกมาเป็นฟังก์ชันล้วน (pure function) จาก StatusPieChart component
  * เพื่อทดสอบ regression การแปลงข้อมูลได้โดยไม่ต้อง render recharts จริง
  * (ดู statusPieChart.test.ts) — ไม่เปลี่ยนพฤติกรรมเดิมแต่อย่างใด
+ *
+ * getLabel รับ status label แบบแปลแล้วจากผู้เรียก (เช่น useTranslations("statuses"))
+ * เนื่องจากฟังก์ชันนี้เป็น pure function ที่ไม่ผูกกับ next-intl โดยตรง
  */
-export function buildStatusPieChartData(data: StatusCount[]): StatusPieSlice[] {
+export function buildStatusPieChartData(
+  data: StatusCount[],
+  getLabel: (status: DocumentStatus) => string
+): StatusPieSlice[] {
   return data
     .filter((d) => d.count > 0)
-    .map((d) => ({ name: statusLabels[d.status], value: d.count, status: d.status }));
+    .map((d) => ({ name: getLabel(d.status), value: d.count, status: d.status }));
 }

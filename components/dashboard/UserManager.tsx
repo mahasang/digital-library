@@ -1,13 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, Power, ShieldCheck, Crown } from "lucide-react";
 import {
   changeUserRoleAction,
   toggleUserActiveAction,
 } from "@/app/[locale]/dashboard/users/actions";
 import { idleActionResult } from "@/lib/actions/types";
-import { roleLabels } from "@/lib/labels";
 import type { AdminUserRow } from "@/lib/data/admin-users.server";
 import type { UserRole } from "@/types/research";
 
@@ -51,6 +51,7 @@ function UserRow({ user, isSelf }: { user: AdminUserRow; isSelf: boolean }) {
     toggleUserActiveAction,
     idleActionResult
   );
+  const tRoles = useTranslations("roles");
 
   return (
     <tr>
@@ -69,7 +70,7 @@ function UserRow({ user, isSelf }: { user: AdminUserRow; isSelf: boolean }) {
             className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700"
           >
             <Crown className="h-3 w-3" />
-            {roleLabels.super_admin}
+            {tRoles("super_admin")}
           </span>
         ) : (
           <form action={roleFormAction} className="flex items-center gap-1.5">
@@ -83,7 +84,7 @@ function UserRow({ user, isSelf }: { user: AdminUserRow; isSelf: boolean }) {
             >
               {ASSIGNABLE_ROLES.map((role) => (
                 <option key={role} value={role}>
-                  {roleLabels[role]}
+                  {tRoles(role)}
                 </option>
               ))}
             </select>

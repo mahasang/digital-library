@@ -14,7 +14,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { accessLevelLabels } from "@/lib/labels";
+import { useTranslations } from "next-intl";
 import {
   ATTACHMENT_ALLOWED_TYPES,
   COVER_ALLOWED_TYPES,
@@ -93,6 +93,7 @@ export default function SubmitResearchForm({
 
   const [captchaToken, setCaptchaToken] = useState("");
 
+  const tAccessLevels = useTranslations("accessLevels");
   const [titleTh, setTitleTh] = useState(initialData?.titleTh ?? "");
   const [titleEn, setTitleEn] = useState(initialData?.titleEn ?? "");
   const [abstract, setAbstract] = useState(initialData?.abstract ?? "");
@@ -401,9 +402,9 @@ export default function SubmitResearchForm({
                 onChange={(e) => setAccessLevel(e.target.value as AccessLevel)}
                 className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
-                {Object.entries(accessLevelLabels).map(([value, label]) => (
+                {(["public", "member_only", "staff_only", "read_only", "metadata_only"] as AccessLevel[]).map((value) => (
                   <option key={value} value={value}>
-                    {label}
+                    {tAccessLevels(value)}
                   </option>
                 ))}
               </select>

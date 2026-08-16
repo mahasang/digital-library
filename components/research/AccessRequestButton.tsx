@@ -1,11 +1,11 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { AlertCircle, CheckCircle2, Clock, FileQuestion, KeyRound, Loader2, XCircle } from "lucide-react";
 import { submitAccessRequestAction } from "@/app/[locale]/research/[id]/access-request-actions";
 import { idleActionResult } from "@/lib/actions/types";
-import { accessRequestStatusLabels } from "@/lib/labels";
 import type { AccessRequestStatus, AccessRequestType } from "@/types/research";
 
 const STATUS_ICON: Record<AccessRequestStatus, typeof Clock> = {
@@ -52,6 +52,7 @@ export default function AccessRequestButton({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [state, formAction, pending] = useActionState(submitAccessRequestAction, idleActionResult);
+  const tStatuses = useTranslations("accessRequestStatuses");
   const label = requestType === "read" ? "ขอสิทธิ์อ่านเอกสาร" : "ขอสิทธิ์ดาวน์โหลด";
   const ctaClassName =
     variant === "primary"
@@ -80,7 +81,7 @@ export default function AccessRequestButton({
       <div className={`flex flex-col gap-1 rounded-lg border px-4 py-3 text-sm ${STATUS_COLOR[latestStatus]}`}>
         <span className="flex items-center gap-2 font-medium">
           <Icon className="h-4 w-4" />
-          {label}: {accessRequestStatusLabels[latestStatus]}
+          {label}: {tStatuses(latestStatus)}
         </span>
         {reviewerNote && <p className="text-xs opacity-90">หมายเหตุจากเจ้าหน้าที่: {reviewerNote}</p>}
       </div>
@@ -100,7 +101,7 @@ export default function AccessRequestButton({
         </button>
         {latestStatus && (
           <p className="text-xs text-gray-500">
-            คำขอก่อนหน้า: {accessRequestStatusLabels[latestStatus]} — ส่งคำขอใหม่ได้
+            คำขอก่อนหน้า: {tStatuses(latestStatus)} — ส่งคำขอใหม่ได้
           </p>
         )}
       </div>

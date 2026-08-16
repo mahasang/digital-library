@@ -1,11 +1,19 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { Search, ShieldCheck } from "lucide-react";
 import { getSuperAdminUserList } from "@/lib/data/superadmin-users.server";
-import { roleLabels } from "@/lib/labels";
 import type { UserRole } from "@/types/research";
 
-export const metadata: Metadata = { title: "จัดการผู้ใช้ — Super Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "superadmin" });
+  return { title: t("users.pageTitle") };
+}
 export const dynamic = "force-dynamic";
 
 const ROLE_OPTIONS: UserRole[] = ["member", "staff", "librarian", "admin", "super_admin"];
@@ -20,13 +28,15 @@ export default async function SuperAdminUsersPage({
   const role = ROLE_OPTIONS.includes(params.role as UserRole) ? (params.role as UserRole) : undefined;
 
   const result = await getSuperAdminUserList({ search: params.search, status, role });
+  const t = await getTranslations("superadmin");
+  const tRoles = await getTranslations("roles");
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">จัดการผู้ใช้งาน</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("users.heading")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          ค้นหา กรอง กำหนดหลายบทบาท และเปิด/ระงับการใช้งานบัญชี
+          {t("users.subtitle")}
         </p>
       </div>
 
@@ -40,7 +50,7 @@ export default async function SuperAdminUsersPage({
             type="search"
             name="search"
             defaultValue={params.search}
-            placeholder="ค้นหาชื่อหรืออีเมล"
+            placeholder={t("users.searchPlaceholder")}
             className="w-full rounded-lg border border-gray-300 py-1.5 pl-8 pr-2 text-xs"
           />
         </div>
@@ -49,19 +59,19 @@ export default async function SuperAdminUsersPage({
           defaultValue={params.status ?? ""}
           className="rounded-lg border border-gray-300 bg-surface px-2 py-1.5 text-xs"
         >
-          <option value="">ทุกสถานะ</option>
-          <option value="active">ใช้งานได้</option>
-          <option value="suspended">ถูกระงับ</option>
+          <option value="">{t("users.allStatuses")}</option>
+          <option value="active">{t("users.statusActive")}</option>
+          <option value="suspended">{t("users.statusSuspended")}</option>
         </select>
         <select
           name="role"
           defaultValue={params.role ?? ""}
           className="rounded-lg border border-gray-300 bg-surface px-2 py-1.5 text-xs"
         >
-          <option value="">ทุกบทบาท</option>
+          <option value="">{t("users.allRoles")}</option>
           {ROLE_OPTIONS.map((r) => (
             <option key={r} value={r}>
-              {roleLabels[r]}
+              {tRoles(r)}
             </option>
           ))}
         </select>
@@ -69,27 +79,27 @@ export default async function SuperAdminUsersPage({
           type="submit"
           className="rounded-lg bg-brand-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-700"
         >
-          กรอง
+          {t("users.filterButton")}
         </button>
       </form>
 
       {!result.available ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 py-16 text-center text-sm text-gray-500">
-          ไม่พร้อมใช้งาน — ไม่สามารถดึงรายชื่อผู้ใช้ได้ในขณะนี้
+          {t("users.unavailable")}
         </div>
       ) : result.data.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-surface py-16 text-center text-sm text-gray-500">
-          ไม่พบผู้ใช้งานตามเงื่อนไขที่เลือก
+          {t("users.noResults")}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-gray-200 bg-surface">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500">
               <tr>
-                <th className="px-4 py-3 font-medium">ผู้ใช้</th>
-                <th className="px-4 py-3 font-medium">หน่วยงาน</th>
-                <th className="px-4 py-3 font-medium">บทบาท</th>
-                <th className="px-4 py-3 font-medium">สถานะ</th>
+                <th className="px-4 py-3 font-medium">{t("users.colUser")}</th>
+                <th className="px-4 py-3 font-medium">{t("users.colOrganization")}</th>
+                <th className="px-4 py-3 font-medium">{t("users.colRoles")}</th>
+                <th className="px-4 py-3 font-medium">{t("users.colStatus")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -108,7 +118,7 @@ export default async function SuperAdminUsersPage({
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {u.roles.length === 0 ? (
-                        <span className="text-xs text-gray-500">ไม่มีบทบาท</span>
+                        <span className="text-xs text-gray-500">{t("users.noRoles")}</span>
                       ) : (
                         u.roles.map((r) => (
                           <span
@@ -119,7 +129,7 @@ export default async function SuperAdminUsersPage({
                                 : "bg-gray-100 text-gray-600"
                             }`}
                           >
-                            {roleLabels[r]}
+                            {tRoles(r)}
                           </span>
                         ))
                       )}
@@ -132,7 +142,7 @@ export default async function SuperAdminUsersPage({
                       }`}
                     >
                       <ShieldCheck className="h-3 w-3" />
-                      {u.isActive ? "ใช้งานได้" : "ถูกระงับ"}
+                      {u.isActive ? t("users.statusActive") : t("users.statusSuspended")}
                     </span>
                   </td>
                 </tr>

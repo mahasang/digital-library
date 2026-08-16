@@ -1,5 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import {
   getPdfProcessingCandidates,
   getPdfProcessingCandidatesCount,
@@ -28,31 +29,16 @@ import {
   retryFailedInBatchAction,
 } from "./actions";
 
-export const metadata: Metadata = { title: "ประมวลผลข้อความ PDF — Super Admin" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "superadmin" });
+  return { title: t("pdfProcessing.pageTitle") };
+}
 export const dynamic = "force-dynamic";
-
-const FILTERS: { value: PdfProcessingFilter; label: string }[] = [
-  { value: "all", label: "ทั้งหมด" },
-  { value: "no_text", label: "ยังไม่มีข้อความ" },
-  { value: "failed", label: "ดึงข้อความไม่สำเร็จ" },
-  { value: "no_text_found", label: "ไม่พบข้อความ (อาจเป็นไฟล์สแกน)" },
-  { value: "replaced", label: "ไฟล์ถูกแทนที่ (ยังไม่ประมวลผลไฟล์ใหม่)" },
-];
-
-const OCR_STATUS_OPTIONS: { value: string; label: string }[] = [
-  { value: "", label: "ทุกสถานะ OCR" },
-  { value: "not_required", label: "ไม่จำเป็นต้อง OCR" },
-  { value: "pending", label: "รอ OCR" },
-  { value: "failed", label: "OCR ล้มเหลว" },
-];
-
-const PUBLISH_STATUS_OPTIONS: { value: string; label: string }[] = [
-  { value: "", label: "ทุกสถานะเผยแพร่" },
-  { value: "draft", label: "ฉบับร่าง" },
-  { value: "pending_review", label: "รอตรวจสอบ" },
-  { value: "published", label: "เผยแพร่แล้ว" },
-  { value: "archived", label: "เก็บถาวร" },
-];
 
 type Mode = "extract" | "ocr";
 
@@ -68,6 +54,28 @@ export default async function PdfProcessingPage({
     ocrStatus?: string;
   }>;
 }) {
+  const t = await getTranslations("superadmin");
+  const FILTERS: { value: PdfProcessingFilter; label: string }[] = [
+    { value: "all", label: t("pdfProcessing.filterAll") },
+    { value: "no_text", label: t("pdfProcessing.filterNoText") },
+    { value: "failed", label: t("pdfProcessing.filterFailed") },
+    { value: "no_text_found", label: t("pdfProcessing.filterNoTextFound") },
+    { value: "replaced", label: t("pdfProcessing.filterReplaced") },
+  ];
+  const OCR_STATUS_OPTIONS: { value: string; label: string }[] = [
+    { value: "", label: t("pdfProcessing.ocrStatusAll") },
+    { value: "not_required", label: t("pdfProcessing.ocrStatusNotRequired") },
+    { value: "pending", label: t("pdfProcessing.ocrStatusPending") },
+    { value: "failed", label: t("pdfProcessing.ocrStatusFailed") },
+  ];
+  const PUBLISH_STATUS_OPTIONS: { value: string; label: string }[] = [
+    { value: "", label: t("pdfProcessing.publishStatusAll") },
+    { value: "draft", label: t("pdfProcessing.publishStatusDraft") },
+    { value: "pending_review", label: t("pdfProcessing.publishStatusPendingReview") },
+    { value: "published", label: t("pdfProcessing.publishStatusPublished") },
+    { value: "archived", label: t("pdfProcessing.publishStatusArchived") },
+  ];
+
   const params = await searchParams;
   const mode: Mode = params.mode === "ocr" ? "ocr" : "extract";
   const filter: PdfProcessingFilter = FILTERS.some((f) => f.value === params.filter)
@@ -116,34 +124,34 @@ export default async function PdfProcessingPage({
           meta: c.pdfFile,
           badge:
             c.ocrStatus === "failed"
-              ? { label: "OCR ล้มเหลว", tone: "red" }
+              ? { label: t("pdfProcessing.badgeOcrFailed"), tone: "red" }
               : c.ocrStatus === "processing"
-                ? { label: "กำลัง OCR", tone: "brand" }
-                : { label: "รอ OCR", tone: "gray" },
+                ? { label: t("pdfProcessing.badgeOcrProcessing"), tone: "brand" }
+                : { label: t("pdfProcessing.badgeOcrPending"), tone: "gray" },
         }
       : {
           id: c.id,
           title: c.titleTh,
           meta: c.pdfFile,
           badge: c.fileReplaced
-            ? { label: "ไฟล์ถูกแทนที่", tone: "amber" }
+            ? { label: t("pdfProcessing.badgeReplaced"), tone: "amber" }
             : c.extractionStatus === "failed"
-              ? { label: "ล้มเหลว", tone: "red" }
+              ? { label: t("pdfProcessing.badgeFailed"), tone: "red" }
               : c.extractionStatus === "no_text_found"
-                ? { label: "ไม่พบข้อความ", tone: "gray" }
+                ? { label: t("pdfProcessing.badgeNoTextFound"), tone: "gray" }
                 : c.extractionStatus === null
-                  ? { label: "ยังไม่เคยประมวลผล", tone: "brand" }
-                  : { label: "เสร็จแล้ว", tone: "green" },
+                  ? { label: t("pdfProcessing.badgeNeverProcessed"), tone: "brand" }
+                  : { label: t("pdfProcessing.badgeCompleted"), tone: "green" },
         }
   );
 
   const filterSummary: string[] = [];
-  if (mode === "extract") filterSummary.push(`สถานะ: ${FILTERS.find((f) => f.value === filter)?.label ?? filter}`);
-  if (mode === "ocr") filterSummary.push("เฉพาะเอกสารที่ดึงข้อความปกติแล้วไม่พบข้อความ");
-  if (mode === "ocr" && ocrStatus) filterSummary.push(`สถานะ OCR: ${OCR_STATUS_OPTIONS.find((o) => o.value === ocrStatus)?.label ?? ocrStatus}`);
-  if (year) filterSummary.push(`ปี: ${year}`);
-  if (categoryId) filterSummary.push(`หมวดหมู่: ${categories.find((c) => c.id === categoryId)?.nameTh ?? categoryId}`);
-  if (publishStatus) filterSummary.push(`สถานะเผยแพร่: ${PUBLISH_STATUS_OPTIONS.find((o) => o.value === publishStatus)?.label ?? publishStatus}`);
+  if (mode === "extract") filterSummary.push(`${t("pdfProcessing.filterSummaryStatus")} ${FILTERS.find((f) => f.value === filter)?.label ?? filter}`);
+  if (mode === "ocr") filterSummary.push(t("pdfProcessing.filterSummaryOcrOnly"));
+  if (mode === "ocr" && ocrStatus) filterSummary.push(`${t("pdfProcessing.filterSummaryOcrStatus")} ${OCR_STATUS_OPTIONS.find((o) => o.value === ocrStatus)?.label ?? ocrStatus}`);
+  if (year) filterSummary.push(`${t("pdfProcessing.filterSummaryYear")} ${year}`);
+  if (categoryId) filterSummary.push(`${t("pdfProcessing.filterSummaryCategory")} ${categories.find((c) => c.id === categoryId)?.nameTh ?? categoryId}`);
+  if (publishStatus) filterSummary.push(`${t("pdfProcessing.filterSummaryPublishStatus")} ${PUBLISH_STATUS_OPTIONS.find((o) => o.value === publishStatus)?.label ?? publishStatus}`);
 
   const batchActions = { pause: pauseBatchAction, resume: resumeBatchAction, cancel: cancelBatchAction, retryFailed: retryFailedInBatchAction };
 
@@ -151,10 +159,9 @@ export default async function PdfProcessingPage({
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">ประมวลผลข้อความ PDF เป็นชุด</h1>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("pdfProcessing.heading")}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            สั่ง backfill/ประมวลผลข้อความ PDF หรือ OCR เอกสารสแกนหลายรายการพร้อมกันแบบ background job —
-            ไม่บล็อกหน้าเว็บระหว่างรอ
+            {t("pdfProcessing.subtitle")}
           </p>
         </div>
         <ProcessQueueNowButton />
@@ -167,7 +174,7 @@ export default async function PdfProcessingPage({
             mode === "extract" ? "border-brand-600 text-accent" : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
         >
-          ดึงข้อความ PDF
+          {t("pdfProcessing.tabExtract")}
         </Link>
         <Link
           href="/superadmin/pdf-processing?mode=ocr"
@@ -175,15 +182,13 @@ export default async function PdfProcessingPage({
             mode === "ocr" ? "border-brand-600 text-accent" : "border-transparent text-gray-500 hover:text-gray-700"
           }`}
         >
-          OCR เอกสารสแกน
+          {t("pdfProcessing.tabOcr")}
         </Link>
       </div>
 
       {mode === "ocr" && (
         <p className="rounded-lg bg-amber-50 p-3 text-xs text-amber-700">
-          แสดงเฉพาะเอกสารที่ดึงข้อความปกติแล้วได้ผล &quot;ไม่พบข้อความ&quot; (อาจเป็นไฟล์สแกน) — ข้อความจาก
-          OCR อาจมีความคลาดเคลื่อน โดยเฉพาะภาษาไทย ต้องตั้งค่า OCR provider ก่อนจึงจะประมวลผลสำเร็จ
-          (ดู docs/ocr-operations.md)
+          {t("pdfProcessing.ocrModeNote")}
         </p>
       )}
 
@@ -209,25 +214,25 @@ export default async function PdfProcessingPage({
         <input type="hidden" name="mode" value={mode} />
         {mode === "extract" && <input type="hidden" name="filter" value={filter} />}
         <div className="flex flex-col gap-1">
-          <label className="text-gray-500">ปี</label>
+          <label className="text-gray-500">{t("pdfProcessing.yearLabel")}</label>
           <select name="year" defaultValue={params.year ?? ""} className="rounded-lg border border-gray-300 px-2 py-1.5">
-            <option value="">ทุกปี</option>
+            <option value="">{t("pdfProcessing.allYears")}</option>
             {years.map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-gray-500">หมวดหมู่</label>
+          <label className="text-gray-500">{t("pdfProcessing.categoryLabel")}</label>
           <select name="categoryId" defaultValue={params.categoryId ?? ""} className="rounded-lg border border-gray-300 px-2 py-1.5">
-            <option value="">ทุกหมวดหมู่</option>
+            <option value="">{t("pdfProcessing.allCategories")}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>{c.nameTh}</option>
             ))}
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-gray-500">สถานะเผยแพร่</label>
+          <label className="text-gray-500">{t("pdfProcessing.publishStatusLabel")}</label>
           <select name="publishStatus" defaultValue={params.publishStatus ?? ""} className="rounded-lg border border-gray-300 px-2 py-1.5">
             {PUBLISH_STATUS_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -236,7 +241,7 @@ export default async function PdfProcessingPage({
         </div>
         {mode === "ocr" && (
           <div className="flex flex-col gap-1">
-            <label className="text-gray-500">สถานะ OCR</label>
+            <label className="text-gray-500">{t("pdfProcessing.ocrStatusLabel")}</label>
             <select name="ocrStatus" defaultValue={params.ocrStatus ?? ""} className="rounded-lg border border-gray-300 px-2 py-1.5">
               {OCR_STATUS_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -245,15 +250,15 @@ export default async function PdfProcessingPage({
           </div>
         )}
         <button type="submit" className="rounded-lg bg-gray-700 px-3 py-1.5 text-white hover:bg-gray-800">
-          ใช้ตัวกรอง
+          {t("pdfProcessing.applyFilters")}
         </button>
       </form>
 
       <BulkJobSelector
         items={items}
         action={mode === "ocr" ? bulkEnqueueOcrAction : bulkEnqueuePdfExtractionAction}
-        submitLabel={mode === "ocr" ? "เริ่ม OCR ที่เลือก" : "ประมวลผลที่เลือก"}
-        emptyMessage="ไม่พบรายการตามเงื่อนไขที่เลือก"
+        submitLabel={mode === "ocr" ? t("pdfProcessing.startOcrSelected") : t("pdfProcessing.processSelected")}
+        emptyMessage={t("pdfProcessing.noItemsFound")}
       />
 
       <BulkAllMatchingFilterDialog
@@ -266,33 +271,33 @@ export default async function PdfProcessingPage({
           ...(categoryId ? { categoryId } : {}),
           ...(publishStatus ? { publishStatus } : {}),
         }}
-        label={mode === "ocr" ? "OCR ทั้งหมดที่ตรงตัวกรอง (ไม่จำกัด 500 รายการ)" : "ประมวลผลทั้งหมดตามตัวกรอง (ไม่จำกัด 500 รายการ)"}
-        jobTypeLabel={mode === "ocr" ? "OCR เอกสารสแกน" : "ดึงข้อความ PDF"}
+        label={mode === "ocr" ? t("pdfProcessing.bulkOcrAllLabel") : t("pdfProcessing.bulkProcessAllLabel")}
+        jobTypeLabel={mode === "ocr" ? t("pdfProcessing.tabOcr") : t("pdfProcessing.tabExtract")}
         filterSummary={filterSummary}
         defaultBatchSize={defaultBatchSize}
         estimatedCount={estimatedCount}
       />
 
       <section className="rounded-xl border border-gray-200 bg-surface p-4">
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">ชุดงานล่าสุด</h2>
+        <h2 className="mb-3 text-sm font-semibold text-gray-900">{t("pdfProcessing.recentBatchesTitle")}</h2>
         <JobProgressPoller jobType={jobType} initialBatches={batches} batchActions={batchActions} />
       </section>
 
       {mode === "ocr" && (
         <section className="rounded-xl border border-gray-200 bg-surface p-4">
           <h2 className="mb-3 text-sm font-semibold text-gray-900">
-            งาน OCR รายรายการล่าสุด (สถานะ, ความคืบหน้าระดับหน้า, เวลาเริ่ม/อัปเดตล่าสุด)
+            {t("pdfProcessing.ocrItemJobsTitle")}
           </h2>
-          <RecentJobsPoller jobType="ocr_processing" initialJobs={recentOcrJobs} emptyMessage="ยังไม่มีงาน OCR" />
+          <RecentJobsPoller jobType="ocr_processing" initialJobs={recentOcrJobs} emptyMessage={t("pdfProcessing.noOcrJobs")} />
         </section>
       )}
 
       <section className="rounded-xl border border-gray-200 bg-surface p-4">
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">งานที่ล้มเหลวถาวร (ครบจำนวนครั้งลองใหม่แล้ว)</h2>
+        <h2 className="mb-3 text-sm font-semibold text-gray-900">{t("pdfProcessing.failedJobsTitle")}</h2>
         <FailedJobList
           jobs={failedJobs}
           retryAction={mode === "ocr" ? retryFailedOcrJobAction : retryFailedPdfJobAction}
-          emptyMessage="ไม่มีงานที่ล้มเหลวถาวรในขณะนี้"
+          emptyMessage={t("pdfProcessing.noFailedJobs")}
         />
       </section>
     </div>

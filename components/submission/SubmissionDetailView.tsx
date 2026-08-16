@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   AlertTriangle,
   Calendar,
@@ -13,7 +14,6 @@ import AccessBadge from "@/components/research/AccessBadge";
 import StatusBadge from "@/components/research/StatusBadge";
 import { getCategoryById } from "@/lib/data/categories.server";
 import type { ApprovalLogEntry, SubmissionItem } from "@/types/research";
-import { statusLabels, scanStatusLabels } from "@/lib/labels";
 
 const SCAN_STATUS_BADGE_TONE = {
   pending: "amber",
@@ -35,6 +35,9 @@ export default async function SubmissionDetailView({
   attachmentUrl?: string | null;
 }) {
   const category = await getCategoryById(item.categoryId);
+  const locale = await getLocale();
+  const tStatuses = await getTranslations("statuses");
+  const tScanStatuses = await getTranslations("scanStatuses");
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr]">
@@ -150,7 +153,7 @@ export default async function SubmissionDetailView({
           </h2>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <Badge tone={SCAN_STATUS_BADGE_TONE[item.scanStatus]}>
-              {scanStatusLabels[item.scanStatus]}
+              {tScanStatuses(item.scanStatus)}
             </Badge>
             {item.scanProvider && (
               <span className="text-xs text-gray-500">ผู้ให้บริการ: {item.scanProvider}</span>
@@ -188,11 +191,11 @@ export default async function SubmissionDetailView({
                 <li key={log.id} className="relative text-sm">
                   <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-brand-500" />
                   <p className="font-medium text-gray-900">
-                    {log.fromStatus ? `${statusLabels[log.fromStatus]} → ` : ""}
-                    {statusLabels[log.toStatus]}
+                    {log.fromStatus ? `${tStatuses(log.fromStatus)} → ` : ""}
+                    {tStatuses(log.toStatus)}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {new Date(log.createdAt).toLocaleString("th-TH", {
+                    {new Date(log.createdAt).toLocaleString(locale === "en" ? "en-US" : "th-TH", {
                       dateStyle: "medium",
                       timeStyle: "short",
                     })}

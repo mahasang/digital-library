@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import {
   LineChart,
   Line,
@@ -142,7 +143,8 @@ export function CategoryBarChart({ data }: { data: CategoryCount[] }) {
 
 export function StatusPieChart({ data }: { data: StatusCount[] }) {
   const colors = useChartColors();
-  const chartData = buildStatusPieChartData(data);
+  const tStatuses = useTranslations("statuses");
+  const chartData = buildStatusPieChartData(data, (status) => tStatuses(status));
 
   if (chartData.length === 0) {
     return <p className="py-10 text-center text-sm text-gray-500">ยังไม่มีข้อมูล</p>;

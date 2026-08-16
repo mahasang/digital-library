@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
 import { ChevronLeft, ChevronRight, Search, ShieldCheck } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import { getSessionUser } from "@/lib/supabase/session";
@@ -9,19 +9,29 @@ import { searchAuthorsForAdmin } from "@/lib/data/authors-admin.server";
 import AuthorCreateForm from "@/components/dashboard/AuthorCreateForm";
 import { getOrganizations } from "@/lib/data/organizations.server";
 
-export const metadata: Metadata = { title: "จัดการผู้วิจัย" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard" });
+  return { title: t("authors.pageTitle") };
+}
 
 export default async function DashboardAuthorsPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; active?: string; orcid?: string; page?: string }>;
 }) {
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/dashboard/authors");
+  if (!user) return redirect({ href: "/login?redirect=/dashboard/authors", locale });
 
   const rank = await getCurrentUserRoleRank();
-  if (rank < 30) redirect("/403");
+  if (rank < 30) return redirect({ href: "/403", locale });
 
+  const t = await getTranslations("dashboard");
   const params = await searchParams;
   const page = Number(params.page) || 1;
 
@@ -48,9 +58,9 @@ export default async function DashboardAuthorsPage({
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">จัดการผู้วิจัย</h1>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("authors.heading")}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            ค้นหา แก้ไข ปิดใช้งาน และรวมข้อมูลผู้วิจัยที่ซ้ำกัน — ทั้งหมด {total} คน
+            {t("authors.subtitle", { total })}
           </p>
         </div>
       </div>
@@ -67,7 +77,7 @@ export default async function DashboardAuthorsPage({
             type="search"
             name="q"
             defaultValue={params.q}
-            placeholder="ค้นหาชื่อผู้วิจัย..."
+            placeholder={t("authors.searchPlaceholder")}
             className="w-full border-0 bg-transparent text-sm focus:outline-none focus:ring-0"
           />
         </div>
@@ -76,24 +86,24 @@ export default async function DashboardAuthorsPage({
           defaultValue={params.active ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
-          <option value="">ทุกสถานะ</option>
-          <option value="true">เปิดใช้งาน</option>
-          <option value="false">ปิดใช้งาน</option>
+          <option value="">{t("authors.allStatuses")}</option>
+          <option value="true">{t("authors.enabled")}</option>
+          <option value="false">{t("authors.disabled")}</option>
         </select>
         <select
           name="orcid"
           defaultValue={params.orcid ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
-          <option value="">มี/ไม่มี ORCID</option>
-          <option value="true">มี ORCID</option>
-          <option value="false">ไม่มี ORCID</option>
+          <option value="">{t("authors.hasOrcidAny")}</option>
+          <option value="true">{t("authors.hasOrcid")}</option>
+          <option value="false">{t("authors.noOrcid")}</option>
         </select>
         <button
           type="submit"
           className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
         >
-          ค้นหา
+          {t("authors.search")}
         </button>
       </form>
 
@@ -101,18 +111,18 @@ export default async function DashboardAuthorsPage({
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-500">
             <tr>
-              <th className="px-4 py-3">ชื่อ</th>
-              <th className="px-4 py-3">หน่วยงาน</th>
-              <th className="px-4 py-3">ORCID</th>
-              <th className="px-4 py-3">งานวิจัย</th>
-              <th className="px-4 py-3">สถานะ</th>
+              <th className="px-4 py-3">{t("authors.colName")}</th>
+              <th className="px-4 py-3">{t("authors.colOrganization")}</th>
+              <th className="px-4 py-3">{t("authors.colOrcid")}</th>
+              <th className="px-4 py-3">{t("authors.colResearch")}</th>
+              <th className="px-4 py-3">{t("authors.colStatus")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {items.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-gray-500">
-                  ไม่พบผู้วิจัยตามเงื่อนไขที่เลือก
+                  {t("authors.noResults")}
                 </td>
               </tr>
             ) : (
@@ -125,7 +135,7 @@ export default async function DashboardAuthorsPage({
                     {author.displayNameEn && <p className="text-xs text-gray-500">{author.displayNameEn}</p>}
                     {author.mergedIntoAuthorId && (
                       <Badge tone="gray" className="mt-1">
-                        ถูกรวมข้อมูลแล้ว
+                        {t("authors.merged")}
                       </Badge>
                     )}
                   </td>
@@ -143,7 +153,7 @@ export default async function DashboardAuthorsPage({
                   <td className="px-4 py-3 text-gray-600">{author.researchCount}</td>
                   <td className="px-4 py-3">
                     <Badge tone={author.isActive ? "green" : "gray"}>
-                      {author.isActive ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                      {author.isActive ? t("authors.enabled") : t("authors.disabled")}
                     </Badge>
                   </td>
                 </tr>
@@ -162,7 +172,7 @@ export default async function DashboardAuthorsPage({
             <ChevronLeft className="h-4 w-4" />
           </Link>
           <span className="text-sm text-gray-500">
-            หน้า {page} จาก {totalPages}
+            {t("authors.pageOf", { page, totalPages })}
           </span>
           <Link
             href={buildPageUrl(Math.min(totalPages, page + 1))}

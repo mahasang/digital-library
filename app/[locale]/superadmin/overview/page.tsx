@@ -347,10 +347,17 @@ async function StorageUsageSection() {
 async function BackupStatusSection() {
   const status = getBackupStatus();
   const t = await getTranslations("superadmin");
+  const tBackups = await getTranslations("superadmin.backups");
 
   return (
     <Panel icon={DatabaseBackup} title={t("backupTitle")}>
-      <EmptyState tone="unavailable" title={t("unavailable")} description={status.reason} action={status.guidance && <p className="text-xs text-gray-500">{status.guidance}</p>} compact />
+      <EmptyState
+        tone="unavailable"
+        title={t("unavailable")}
+        description={tBackups(status.reasonKey)}
+        action={<p className="text-xs text-gray-500">{tBackups(status.guidanceKey)}</p>}
+        compact
+      />
     </Panel>
   );
 }

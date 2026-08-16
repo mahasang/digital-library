@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CheckCircle2,
   Clock,
@@ -8,8 +10,8 @@ import {
   XCircle,
   GitMerge,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Badge from "@/components/ui/Badge";
-import { statusLabels } from "@/lib/labels";
 import type { DocumentStatus } from "@/types/research";
 
 const config: Record<
@@ -34,10 +36,11 @@ export default function StatusBadge({
   className?: string;
 }) {
   const { tone, icon: Icon } = config[status];
+  const tStatuses = useTranslations("statuses");
   return (
     <Badge tone={tone} className={className}>
       <Icon className="h-3.5 w-3.5" />
-      {statusLabels[status]}
+      {tStatuses(status)}
     </Badge>
   );
 }

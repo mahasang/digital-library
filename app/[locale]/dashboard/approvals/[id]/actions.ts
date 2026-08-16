@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getSettings } from "@/lib/data/settings.server";
 import { sendNotificationEmail } from "@/lib/notifications/email.server";
 import { notifyResearchPublished } from "@/lib/publishing/publish-event.server";
-import { statusLabels } from "@/lib/labels";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import { revalidatePublicResearch } from "@/lib/cache/public-home";
 import type { ActionResult } from "@/lib/actions/types";
@@ -74,10 +74,12 @@ async function changeStatus(
           .eq("id", updated.submitted_by)
           .maybeSingle();
         if (submitterProfile?.email) {
+          const locale = await getLocale();
+          const tStatuses = await getTranslations({ locale, namespace: "statuses" });
           await sendNotificationEmail({
             to: submitterProfile.email,
             subject: `สถานะงานวิจัยเปลี่ยนแปลง: ${updated.title_th}`,
-            text: `งานวิจัย "${updated.title_th}" ของคุณเปลี่ยนสถานะเป็น "${statusLabels[newStatus]}"${note ? `\n\nหมายเหตุ: ${note}` : ""}`,
+            text: `งานวิจัย "${updated.title_th}" ของคุณเปลี่ยนสถานะเป็น "${tStatuses(newStatus)}"${note ? `\n\nหมายเหตุ: ${note}` : ""}`,
           });
         }
       }

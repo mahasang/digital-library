@@ -1,10 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, AlertCircle, CheckCircle2, ShieldAlert } from "lucide-react";
 import { addUserRoleAction, removeUserRoleAction } from "@/app/[locale]/superadmin/users/actions";
 import { idleActionResult } from "@/lib/actions/types";
-import { roleLabels } from "@/lib/labels";
 import SuperAdminRoleConfirmDialog from "@/components/superadmin/SuperAdminRoleConfirmDialog";
 import type { UserRole } from "@/types/research";
 
@@ -64,6 +64,7 @@ function RoleCheckboxRow({
   );
   const pending = addPending || removePending;
   const state = checked ? removeState : addState;
+  const tRoles = useTranslations("roles");
 
   return (
     <div>
@@ -78,7 +79,7 @@ function RoleCheckboxRow({
             onChange={(e) => e.currentTarget.form?.requestSubmit()}
             className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-brand-500"
           />
-          {roleLabels[role]}
+          {tRoles(role)}
         </label>
         {pending && <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-500" />}
       </form>
@@ -118,6 +119,7 @@ function SuperAdminRoleRow({
   isSelf: boolean;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const tRoles = useTranslations("roles");
 
   return (
     <>
@@ -130,7 +132,7 @@ function SuperAdminRoleRow({
         />
         <span className="flex items-center gap-1 font-medium text-amber-800">
           <ShieldAlert className="h-3.5 w-3.5" />
-          {roleLabels.super_admin}
+          {tRoles("super_admin")}
         </span>
       </label>
 

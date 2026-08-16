@@ -218,8 +218,8 @@ export async function getSystemAlerts(): Promise<DataResult<SystemAlert[]>> {
 
 export interface BackupStatus {
   available: false;
-  reason: string;
-  guidance: string;
+  reasonKey: string;
+  guidanceKey: string;
 }
 
 /**
@@ -227,12 +227,15 @@ export interface BackupStatus {
  * (Automatic Backups เป็นฟีเจอร์ระดับแผนราคาที่จัดการนอกฐานข้อมูล ไม่มี API
  * ให้ query จากฝั่งแอป) จึงแสดงสถานะ "ไม่พร้อมใช้งาน" อย่างตรงไปตรงมาเสมอ
  * แทนการสร้างข้อมูลปลอม พร้อมชี้ทางไปยังที่ที่ตรวจสอบได้จริง
+ *
+ * Returns translation keys (not translated text) since this is a plain
+ * data function without access to next-intl — the caller translates via
+ * getTranslations("superadmin.backups").
  */
 export function getBackupStatus(): BackupStatus {
   return {
     available: false,
-    reason: "แอปพลิเคชันไม่มีสิทธิ์เข้าถึงสถานะ Backup ของ Supabase โดยตรง",
-    guidance:
-      "ตรวจสอบได้ที่ Supabase Dashboard > Database > Backups หรือดูแนวทางสำรอง/กู้คืนข้อมูลที่ docs/backup-and-recovery.md",
+    reasonKey: "reason",
+    guidanceKey: "guidance",
   };
 }

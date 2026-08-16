@@ -1,16 +1,23 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link, redirect } from "@/i18n/navigation";
 import { Search } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getAccessRequestsForStaff } from "@/lib/data/access-requests-admin.server";
 import { getCategories } from "@/lib/data/categories.server";
-import { accessRequestStatusLabels, accessRequestTypeLabels } from "@/lib/labels";
 import type { AccessRequestStatus, AccessRequestType } from "@/types/research";
 
-export const metadata: Metadata = { title: "คำขอเข้าถึงเอกสาร" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard" });
+  return { title: t("accessRequests.pageTitle") };
+}
 
 const STATUS_TONE: Record<AccessRequestStatus, "brand" | "green" | "amber" | "red" | "gray" | "purple"> = {
   pending: "amber",
@@ -21,6 +28,17 @@ const STATUS_TONE: Record<AccessRequestStatus, "brand" | "green" | "amber" | "re
   cancelled: "gray",
   expired: "gray",
 };
+
+const ACCESS_REQUEST_STATUS_VALUES: AccessRequestStatus[] = [
+  "pending",
+  "under_review",
+  "approved",
+  "rejected",
+  "more_information_required",
+  "cancelled",
+  "expired",
+];
+const ACCESS_REQUEST_TYPE_VALUES: AccessRequestType[] = ["read", "download"];
 
 export default async function DashboardAccessRequestsPage({
   searchParams,
@@ -34,12 +52,16 @@ export default async function DashboardAccessRequestsPage({
     to?: string;
   }>;
 }) {
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/dashboard/access-requests");
+  if (!user) return redirect({ href: "/login?redirect=/dashboard/access-requests", locale });
 
   const rank = await getCurrentUserRoleRank();
-  if (rank < 30) redirect("/403");
+  if (rank < 30) return redirect({ href: "/403", locale });
 
+  const t = await getTranslations("dashboard");
+  const tAccessRequestStatuses = await getTranslations("accessRequestStatuses");
+  const tAccessRequestTypes = await getTranslations("accessRequestTypes");
   const params = await searchParams;
   const [requests, categories] = await Promise.all([
     getAccessRequestsForStaff({
@@ -56,9 +78,9 @@ export default async function DashboardAccessRequestsPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">คำขอเข้าถึงเอกสาร</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("accessRequests.heading")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          ตรวจสอบ อนุมัติ ปฏิเสธ หรือขอข้อมูลเพิ่มเติมสำหรับคำขออ่าน/ดาวน์โหลดเอกสารที่จำกัดสิทธิ์
+          {t("accessRequests.subtitle")}
         </p>
       </div>
 
@@ -72,7 +94,7 @@ export default async function DashboardAccessRequestsPage({
             type="search"
             name="requester"
             defaultValue={params.requester}
-            placeholder="ค้นหาชื่อ/อีเมลผู้ขอ..."
+            placeholder={t("accessRequests.searchPlaceholder")}
             className="w-full border-0 bg-transparent text-sm focus:outline-none focus:ring-0"
           />
         </div>
@@ -81,10 +103,10 @@ export default async function DashboardAccessRequestsPage({
           defaultValue={params.status ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
-          <option value="">ทุกสถานะ</option>
-          {Object.entries(accessRequestStatusLabels).map(([value, label]) => (
+          <option value="">{t("accessRequests.allStatuses")}</option>
+          {ACCESS_REQUEST_STATUS_VALUES.map((value) => (
             <option key={value} value={value}>
-              {label}
+              {tAccessRequestStatuses(value)}
             </option>
           ))}
         </select>
@@ -93,10 +115,10 @@ export default async function DashboardAccessRequestsPage({
           defaultValue={params.type ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
-          <option value="">ทุกประเภทคำขอ</option>
-          {Object.entries(accessRequestTypeLabels).map(([value, label]) => (
+          <option value="">{t("accessRequests.allTypes")}</option>
+          {ACCESS_REQUEST_TYPE_VALUES.map((value) => (
             <option key={value} value={value}>
-              {label}
+              {tAccessRequestTypes(value)}
             </option>
           ))}
         </select>
@@ -105,7 +127,7 @@ export default async function DashboardAccessRequestsPage({
           defaultValue={params.category ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
-          <option value="">ทุกหมวดหมู่</option>
+          <option value="">{t("accessRequests.allCategories")}</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.nameTh}
@@ -116,28 +138,28 @@ export default async function DashboardAccessRequestsPage({
           type="date"
           name="from"
           defaultValue={params.from}
-          aria-label="จากวันที่"
+          aria-label={t("accessRequests.dateFrom")}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm text-gray-600"
         />
         <input
           type="date"
           name="to"
           defaultValue={params.to}
-          aria-label="ถึงวันที่"
+          aria-label={t("accessRequests.dateTo")}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm text-gray-600"
         />
         <button
           type="submit"
           className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
         >
-          ค้นหา
+          {t("accessRequests.search")}
         </button>
       </form>
 
       <div className="flex flex-col gap-3">
         {requests.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-300 bg-surface py-10 text-center text-sm text-gray-500">
-            ไม่พบคำขอตามเงื่อนไขที่เลือก
+            {t("accessRequests.noResults")}
           </div>
         ) : (
           requests.map((req) => (
@@ -148,14 +170,14 @@ export default async function DashboardAccessRequestsPage({
             >
               <div className="min-w-0 flex-1">
                 <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                  <Badge tone={STATUS_TONE[req.status]}>{accessRequestStatusLabels[req.status]}</Badge>
-                  <Badge tone="gray">{accessRequestTypeLabels[req.requestType]}</Badge>
+                  <Badge tone={STATUS_TONE[req.status]}>{tAccessRequestStatuses(req.status)}</Badge>
+                  <Badge tone="gray">{tAccessRequestTypes(req.requestType)}</Badge>
                 </div>
                 <h3 className="line-clamp-1 text-sm font-semibold text-gray-900">{req.researchTitleTh}</h3>
                 <p className="mt-0.5 text-xs text-gray-500">
-                  ผู้ขอ: {req.requesterName} ({req.requesterEmail})
+                  {t("accessRequests.requesterLabel")}: {req.requesterName} ({req.requesterEmail})
                 </p>
-                <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">วัตถุประสงค์: {req.purpose}</p>
+                <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{t("accessRequests.purposeLabel")}: {req.purpose}</p>
               </div>
               <span className="shrink-0 text-xs text-gray-500">
                 {new Date(req.createdAt).toLocaleDateString("th-TH", {
