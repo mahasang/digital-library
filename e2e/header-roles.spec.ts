@@ -87,7 +87,7 @@ test.describe("Header account area — guest", () => {
 
     await mobilePanel.getByRole("link", { name: "งานวิจัย", exact: true }).click();
     // i18n Phase 0A — ทุก path ผ่าน locale prefix เสมอ (localePrefix: "always")
-    await page.waitForURL((u) => /^\/(th|en|lo)\/research$/.test(u.pathname));
+    await page.waitForURL((u) => /^\/(th|en|lo|vi)\/research$/.test(u.pathname));
     await expect(page.getByRole("button", { name: "เปิดเมนู" })).toBeVisible();
   });
 });

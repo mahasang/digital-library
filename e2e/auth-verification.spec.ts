@@ -55,8 +55,8 @@ test.describe("logout", () => {
 
     await page.getByRole("button", { name: "ออกจากระบบ" }).first().click();
     // i18n Phase 0A — ทุก path ผ่าน locale prefix เสมอ (localePrefix: "always")
-    // "/" จริงจะ redirect เป็น /th, /en, หรือ /lo ตาม locale ที่ negotiate ได้
-    await page.waitForURL((u) => /^\/(th|en|lo)$/.test(u.pathname), { timeout: 10_000 });
+    // "/" จริงจะ redirect เป็น /th, /en, /lo หรือ /vi ตาม locale ที่ negotiate ได้
+    await page.waitForURL((u) => /^\/(th|en|lo|vi)$/.test(u.pathname), { timeout: 10_000 });
 
     // guest อีกครั้งแล้ว — เข้าหน้าที่ต้อง login ต้องถูกเด้งไป /login
     await page.goto("/th/account", { waitUntil: "networkidle" });

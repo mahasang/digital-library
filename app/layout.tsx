@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_Thai } from "next/font/google";
+import { Noto_Sans_Thai, Noto_Serif_Lao } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
 
@@ -7,6 +7,13 @@ const notoSansThai = Noto_Sans_Thai({
   subsets: ["thai", "latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-noto-thai",
+  display: "swap",
+});
+
+const notoSerifLao = Noto_Serif_Lao({
+  subsets: ["lao"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-lao",
   display: "swap",
 });
 
@@ -40,7 +47,11 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale} className={notoSansThai.variable} suppressHydrationWarning>
+    <html
+      lang={locale}
+      className={`${notoSansThai.variable} ${notoSerifLao.variable}`}
+      suppressHydrationWarning
+    >
       <body
         className="flex min-h-screen flex-col font-sans antialiased"
         suppressHydrationWarning

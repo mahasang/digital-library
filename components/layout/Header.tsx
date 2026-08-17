@@ -5,8 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Menu, X, Search, BookOpen } from "lucide-react";
 import Container from "@/components/ui/Container";
-import ThemeToggle from "@/components/layout/ThemeToggle";
-import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { SettingsDropdown } from "@/components/layout/SettingsDropdown";
 
 /**
  * Hallmark — header rendering refactor. Header เป็น "เปลือก" ของแถบเมนูบนสุด
@@ -98,8 +97,7 @@ export default function Header({
           </nav>
 
           <div className="hidden items-center gap-2 md:flex">
-            <LanguageSwitcher />
-            <ThemeToggle />
+            <SettingsDropdown />
             <Link
               href="/research"
               aria-label={tHeader("searchResearch")}
@@ -125,13 +123,8 @@ export default function Header({
       {open && (
         <div className="border-t border-gray-200 bg-surface md:hidden">
           <Container className="flex flex-col gap-1 py-3">
-            <div className="mb-1 flex items-center justify-between rounded-md px-3 py-1.5">
-              <span className="text-xs font-medium text-gray-500">{tHeader("colorMode")}</span>
-              <ThemeToggle />
-            </div>
-            <div className="mb-1 flex items-center justify-between rounded-md px-3 py-1.5">
-              <span className="text-xs font-medium text-gray-500">{t("languageLabel")}</span>
-              <LanguageSwitcher />
+            <div className="mb-1 px-3 py-1.5">
+              <SettingsDropdown />
             </div>
             {navLinks.map((link) => (
               <Link

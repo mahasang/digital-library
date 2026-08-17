@@ -75,6 +75,11 @@
   --purple-500: #a855f7; --purple-600: #9333ea; --purple-700: #7e22ce; --purple-800: #6b21a8; --purple-900: #581c87;
 }
 
+/* Noto Serif Lao — ใช้เฉพาะ locale ลาว (/lo/*) เท่านั้น */
+:lang(lo) {
+  font-family: var(--font-noto-lao), ui-serif, serif;
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;

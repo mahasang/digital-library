@@ -5,7 +5,7 @@ import { routing } from "@/i18n/routing";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-const LOCALE_PREFIX_PATTERN = /^\/(th|en|lo)(?=\/|$)/;
+const LOCALE_PREFIX_PATTERN = /^\/(th|en|lo|vi)(?=\/|$)/;
 
 function addLocalePrefix(pathname: string, locale: string): string {
   if (LOCALE_PREFIX_PATTERN.test(pathname)) return pathname;
