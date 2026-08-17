@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { fetchPublishedResearchRowsByIds } from "@/lib/data/queries";
 import { mapRowToResearchItem } from "@/lib/data/mappers";
+import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import type { ResearchItem } from "@/types/research";
 
 export async function getFavoriteResearch(userId: string): Promise<ResearchItem[]> {
@@ -16,7 +17,7 @@ export async function getFavoriteResearch(userId: string): Promise<ResearchItem[
     .order("created_at", { ascending: false });
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงรายการโปรดได้: ${error.message}`);
+    throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงรายการโปรดได้", "getFavoriteResearch failed"));
   }
 
   const ids = (favorites ?? []).map((f) => f.research_id);
@@ -72,7 +73,7 @@ export async function getReadingHistory(userId: string): Promise<
     .limit(50);
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงประวัติการอ่านได้: ${error.message}`);
+    throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงประวัติการอ่านได้", "getReadingHistory failed"));
   }
 
   const ids = [...new Set((history ?? []).map((h) => h.research_id))];

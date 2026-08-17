@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import type { SubmissionInput } from "@/lib/validation/submission";
+import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 
 /**
  * ลบความสัมพันธ์เดิมทั้งหมด (ผู้วิจัย/หมวดหมู่/คำสำคัญ) แล้วสร้างใหม่ตามข้อมูล
@@ -28,7 +29,9 @@ export async function replaceResearchRelations(
       .single();
 
     if (authorError || !author) {
-      throw new Error(`ไม่สามารถบันทึกผู้วิจัยได้: ${authorError?.message ?? ""}`);
+      throw new Error(
+        toSafeErrorMessage(authorError, "ไม่สามารถบันทึกผู้วิจัยได้", "replaceResearchRelations: author insert failed")
+      );
     }
 
     const { error: linkError } = await supabase.from("research_authors").insert({
@@ -38,7 +41,9 @@ export async function replaceResearchRelations(
     });
 
     if (linkError) {
-      throw new Error(`ไม่สามารถเชื่อมโยงผู้วิจัยได้: ${linkError.message}`);
+      throw new Error(
+        toSafeErrorMessage(linkError, "ไม่สามารถเชื่อมโยงผู้วิจัยได้", "replaceResearchRelations: author link failed")
+      );
     }
   }
 
@@ -58,7 +63,9 @@ export async function replaceResearchRelations(
   });
 
   if (catLinkError) {
-    throw new Error(`ไม่สามารถเชื่อมโยงหมวดหมู่ได้: ${catLinkError.message}`);
+    throw new Error(
+      toSafeErrorMessage(catLinkError, "ไม่สามารถเชื่อมโยงหมวดหมู่ได้", "replaceResearchRelations: category link failed")
+    );
   }
 
   for (const keyword of data.keywords) {
@@ -69,7 +76,9 @@ export async function replaceResearchRelations(
       .single();
 
     if (kwError || !kw) {
-      throw new Error(`ไม่สามารถบันทึกคำสำคัญได้: ${kwError?.message ?? ""}`);
+      throw new Error(
+        toSafeErrorMessage(kwError, "ไม่สามารถบันทึกคำสำคัญได้", "replaceResearchRelations: keyword insert failed")
+      );
     }
 
     const { error: kwLinkError } = await supabase.from("research_keywords").insert({
@@ -78,7 +87,9 @@ export async function replaceResearchRelations(
     });
 
     if (kwLinkError) {
-      throw new Error(`ไม่สามารถเชื่อมโยงคำสำคัญได้: ${kwLinkError.message}`);
+      throw new Error(
+        toSafeErrorMessage(kwLinkError, "ไม่สามารถเชื่อมโยงคำสำคัญได้", "replaceResearchRelations: keyword link failed")
+      );
     }
   }
 }

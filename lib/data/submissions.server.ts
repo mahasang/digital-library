@@ -7,6 +7,7 @@ import {
   fetchResearchRowsByStatus,
 } from "@/lib/data/queries";
 import { mapRowToApprovalLogEntry, mapRowToSubmissionItem } from "@/lib/data/mappers";
+import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import type { ApprovalLogEntry, DocumentStatus, SubmissionItem } from "@/types/research";
 
 /**
@@ -49,7 +50,7 @@ export async function getApprovalLogs(researchId: string): Promise<ApprovalLogEn
     .order("created_at", { ascending: false });
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงประวัติการอนุมัติได้: ${error.message}`);
+    throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงประวัติการอนุมัติได้", "getApprovalLogs failed"));
   }
 
   return (data ?? []).map(mapRowToApprovalLogEntry);

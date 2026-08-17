@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import type { UserRole } from "@/types/research";
@@ -74,7 +75,7 @@ async function aggregateEventCounts(
 
   const { data: rawEvents, error } = await query;
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลรายงานได้: ${error.message}`);
+    throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงข้อมูลรายงานได้", "aggregateEventCounts failed"));
   }
   const events = (rawEvents ?? []) as unknown as { research_id: string }[];
 
@@ -142,7 +143,7 @@ export async function getPopularReport(
 
   const { data, error } = await query;
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลรายงานได้: ${error.message}`);
+    throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงข้อมูลรายงานได้", "getPopularReport failed"));
   }
 
   return (data ?? []).map((r) => ({
@@ -170,7 +171,7 @@ export async function getMembersReport(
 
   const { data: profiles, error } = await query;
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลรายงานได้: ${error.message}`);
+    throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงข้อมูลรายงานได้", "getMembersReport failed"));
   }
 
   const [userRolesRes, rolesRes] = await Promise.all([

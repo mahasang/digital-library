@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import { categories as mockCategories } from "@/data/categories";
 import {
   PUBLIC_CATEGORIES_TAG,
@@ -111,7 +112,7 @@ async function fetchCategoriesFromDb(): Promise<Category[]> {
     .eq("is_active", true);
 
   if (error) {
-    throw new Error(`ไม่สามารถดึงข้อมูลหมวดหมู่จาก Supabase ได้: ${error.message}`);
+    throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงข้อมูลหมวดหมู่จาก Supabase ได้", "fetchCategoriesFromDb failed"));
   }
 
   return sortCategoriesHierarchically(data ?? []).map(mapRow);
