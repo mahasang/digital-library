@@ -1,4 +1,7 @@
-import Link from "next/link";
+"use client";
+
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { BookOpen } from "lucide-react";
 import Container from "@/components/ui/Container";
 import type { AppSettings } from "@/types/research";
@@ -11,6 +14,8 @@ import type { AppSettings } from "@/types/research";
  * (ผ่านลิงก์ไปหน้าเกี่ยวกับเรา/ติดต่อเรา แทนการแสดงรายละเอียดเต็ม)
  */
 export default function ReaderFooter({ settings }: { settings: AppSettings }) {
+  const t = useTranslations("footer");
+
   return (
     <footer className="border-t border-gray-200 bg-gray-50">
       <Container className="flex flex-col items-center gap-3 py-6 text-center sm:flex-row sm:justify-between sm:text-left">
@@ -27,10 +32,10 @@ export default function ReaderFooter({ settings }: { settings: AppSettings }) {
 
         <div className="flex items-center gap-4 text-xs text-gray-500">
           <Link href="/about" className="hover:text-brand-700">
-            เกี่ยวกับเรา
+            {t("about")}
           </Link>
           <Link href="/contact" className="hover:text-brand-700">
-            ติดต่อเรา
+            {t("contact")}
           </Link>
         </div>
       </Container>

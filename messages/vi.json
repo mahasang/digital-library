@@ -1194,5 +1194,14 @@
     "accessExpiresOn": "Quyền truy cập này hết hạn vào ngày {date}",
     "accessNoExpiry": "Quyền truy cập này không bao giờ hết hạn",
     "submittedOn": "Đã gửi vào ngày {date}"
+  },
+  "footer": {
+    "tagline": "Kho lưu trữ nghiên cứu, bài viết học thuật và sách điện tử của tổ chức, phục vụ việc nghiên cứu và phát triển tri thức.",
+    "researchCategories": "Danh mục nghiên cứu",
+    "quickLinks": "Liên kết nhanh",
+    "browseResearch": "Duyệt nghiên cứu",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ",
+    "register": "Đăng ký"
   }
 }

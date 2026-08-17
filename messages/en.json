@@ -1194,5 +1194,14 @@
     "accessExpiresOn": "This access expires on {date}",
     "accessNoExpiry": "This access never expires",
     "submittedOn": "Submitted on {date}"
+  },
+  "footer": {
+    "tagline": "A hub for the organization's research, academic articles, and eBooks — for study and building on shared knowledge.",
+    "researchCategories": "Research Categories",
+    "quickLinks": "Quick Links",
+    "browseResearch": "Browse Research",
+    "about": "About Us",
+    "contact": "Contact",
+    "register": "Register"
   }
 }

@@ -1,4 +1,7 @@
-import Link from "next/link";
+"use client";
+
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { BookOpen, Mail, MapPin, Phone } from "lucide-react";
 import Container from "@/components/ui/Container";
 import type { AppSettings, Category } from "@/types/research";
@@ -10,6 +13,8 @@ export default function Footer({
   settings: AppSettings;
   categories: Category[];
 }) {
+  const t = useTranslations("footer");
+
   return (
     <footer className="border-t border-gray-200 bg-gray-50">
       <Container className="grid grid-cols-1 gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -21,13 +26,12 @@ export default function Footer({
             <span className="text-sm font-bold text-gray-900">{settings.siteName}</span>
           </div>
           <p className="text-sm leading-relaxed text-gray-500">
-            แหล่งรวมงานวิจัย บทความวิชาการ และเอกสาร eBook ขององค์กร
-            เพื่อการค้นคว้าและต่อยอดองค์ความรู้
+            {t("tagline")}
           </p>
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">หมวดหมู่งานวิจัย</h2>
+          <h2 className="text-sm font-semibold text-gray-900">{t("researchCategories")}</h2>
           <ul className="mt-3 space-y-2">
             {categories.slice(0, 5).map((c) => (
               <li key={c.id}>
@@ -43,33 +47,33 @@ export default function Footer({
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">เมนูลัด</h2>
+          <h2 className="text-sm font-semibold text-gray-900">{t("quickLinks")}</h2>
           <ul className="mt-3 space-y-2">
             <li>
               <Link href="/research" className="text-sm text-gray-500 hover:text-brand-700">
-                ค้นหางานวิจัย
+                {t("browseResearch")}
               </Link>
             </li>
             <li>
               <Link href="/about" className="text-sm text-gray-500 hover:text-brand-700">
-                เกี่ยวกับเรา
+                {t("about")}
               </Link>
             </li>
             <li>
               <Link href="/contact" className="text-sm text-gray-500 hover:text-brand-700">
-                ติดต่อเรา
+                {t("contact")}
               </Link>
             </li>
             <li>
               <Link href="/register" className="text-sm text-gray-500 hover:text-brand-700">
-                สมัครสมาชิก
+                {t("register")}
               </Link>
             </li>
           </ul>
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">ติดต่อเรา</h2>
+          <h2 className="text-sm font-semibold text-gray-900">{t("contact")}</h2>
           <ul className="mt-3 space-y-2.5 text-sm text-gray-500">
             {settings.contactAddress && (
               <li className="flex items-start gap-2">
