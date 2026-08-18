@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ไม่มีการเชื่อมต่ออินเทอร์เน็ต</title>
+  <style>
+    /* ใช้ system font stack เพราะไม่มี network */
+    :root {
+      --bg: #ffffff;
+      --fg: #111827;
+      --muted: #6b7280;
+      --accent: #1D4ED8;
+      --border: #e5e7eb;
+      --btn-bg: #1D4ED8;
+      --btn-fg: #ffffff;
+      --btn-hover: #1e40af;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827;
+        --fg: #f9fafb;
+        --muted: #9ca3af;
+        --accent: #60a5fa;
+        --border: #374151;
+        --btn-bg: #2563eb;
+        --btn-fg: #ffffff;
+        --btn-hover: #1d4ed8;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Noto Sans Thai", "Noto Sans Lao", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .card {
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      color: var(--muted);
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.25rem 0;
+    }
+    .lang-block {
+      margin-bottom: 0.75rem;
+    }
+    .lang-block .lang-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 0.2rem;
+    }
+    .lang-block .lang-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.75rem 2rem;
+      background: var(--btn-bg);
+      color: var(--btn-fg);
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: var(--btn-hover); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- Wifi-off icon (inline SVG ไม่ต้องโหลดจากภายนอก) -->
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+         aria-hidden="true">
+      <line x1="2" y1="2" x2="22" y2="22"/>
+      <path d="M8.5 16.5a5 5 0 0 1 7 0"/>
+      <path d="M2 8.82a15 15 0 0 1 4.17-2.65"/>
+      <path d="M10.66 5c4.01-.36 8.14.9 11.34 3.76"/>
+      <path d="M16.85 11.25a10 10 0 0 1 2.22 1.68"/>
+      <path d="M5 12.85A10 10 0 0 1 12 10c.5 0 1 .05 1.5.14"/>
+      <line x1="12" y1="20" x2="12.01" y2="20"/>
+    </svg>
+
+    <h1>ไม่มีการเชื่อมต่ออินเทอร์เน็ต</h1>
+    <p class="subtitle">
+      กรุณาตรวจสอบการเชื่อมต่อเครือข่ายของคุณแล้วลองใหม่อีกครั้ง
+    </p>
+
+    <hr class="divider" />
+
+    <div class="lang-block">
+      <div class="lang-title">No Internet Connection</div>
+      <div class="lang-sub">Please check your network connection and try again.</div>
+    </div>
+
+    <div class="lang-block">
+      <div class="lang-title">ບໍ່ມີການເຊື່ອມຕໍ່ອິນເຕີເນັດ</div>
+      <div class="lang-sub">ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ເຄືອຂ່າຍຂອງທ່ານແລ້ວລອງໃໝ່ອີກຄັ້ງ</div>
+    </div>
+
+    <div class="lang-block">
+      <div class="lang-title">Không có kết nối Internet</div>
+      <div class="lang-sub">Vui lòng kiểm tra kết nối mạng và thử lại.</div>
+    </div>
+
+    <button class="btn" onclick="window.location.reload()">
+      ลองใหม่ / Retry
+    </button>
+  </div>
+</body>
+</html>

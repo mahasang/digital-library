@@ -1,5 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="24" fill="#1D4ED8"/>
-  <text x="96" y="130" font-family="sans-serif" font-size="110" font-weight="700"
-    text-anchor="middle" fill="white">E</text>
+  <!-- พื้นหลัง -->
+  <rect width="192" height="192" rx="32" fill="#1D4ED8"/>
+  <!-- หนังสือเปิด — หน้าซ้าย -->
+  <path d="M40 60 C40 56 44 54 48 56 L90 72 L90 140 L48 124 C44 122 40 120 40 116 Z"
+        fill="white" opacity="0.95"/>
+  <!-- หนังสือเปิด — หน้าขวา -->
+  <path d="M152 60 C152 56 148 54 144 56 L102 72 L102 140 L144 124 C148 122 152 120 152 116 Z"
+        fill="white" opacity="0.85"/>
+  <!-- สันกลาง -->
+  <rect x="89" y="68" width="14" height="74" rx="3" fill="white" opacity="0.6"/>
+  <!-- เส้นบรรทัดหน้าซ้าย -->
+  <line x1="55" y1="88" x2="82" y2="94" stroke="#1D4ED8" stroke-width="3.5"
+        stroke-linecap="round" opacity="0.4"/>
+  <line x1="55" y1="100" x2="82" y2="106" stroke="#1D4ED8" stroke-width="3.5"
+        stroke-linecap="round" opacity="0.4"/>
+  <line x1="55" y1="112" x2="82" y2="118" stroke="#1D4ED8" stroke-width="3.5"
+        stroke-linecap="round" opacity="0.4"/>
+  <!-- เส้นบรรทัดหน้าขวา -->
+  <line x1="137" y1="88" x2="110" y2="94" stroke="#1D4ED8" stroke-width="3.5"
+        stroke-linecap="round" opacity="0.4"/>
+  <line x1="137" y1="100" x2="110" y2="106" stroke="#1D4ED8" stroke-width="3.5"
+        stroke-linecap="round" opacity="0.4"/>
+  <line x1="137" y1="112" x2="110" y2="118" stroke="#1D4ED8" stroke-width="3.5"
+        stroke-linecap="round" opacity="0.4"/>
 </svg>

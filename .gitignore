@@ -40,6 +40,10 @@ public/workbox-*.js
 public/workbox-*.js.map
 public/worker-*.js
 public/worker-*.js.map
+# PWA Phase 2 — offline-fallback routing script, content-hashed filename,
+# generated automatically whenever withPWAInit's `fallbacks` option is set
+public/fallback-*.js
+public/fallback-*.js.map
 
 # editor
 .vscode/*

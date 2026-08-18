@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
 const withPWA = withPWAInit({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
+  // PWA Phase 2 — เมื่อออฟไลน์และไม่มี cached version ของหน้าที่ขอ → serve
+  // offline.html แทน browser error page เดิม (ดู public/offline.html —
+  // static ล้วน ไม่มี JS/font/CSS ภายนอกใดๆ)
+  fallbacks: {
+    document: "/offline.html",
+  },
   // ========================================================
   // SECURITY: SW caching rules — ต้องตั้งค่าต่อไปนี้ทุกข้อ
   // ========================================================
