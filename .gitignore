@@ -33,6 +33,14 @@ next-env.d.ts
 # (ดู scripts/copy-pdf-worker.js) ไม่ต้อง commit เข้า Git
 /public/pdf.worker.min.mjs
 
+# PWA generated files (auto-generated at build time)
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+public/worker-*.js
+public/worker-*.js.map
+
 # editor
 .vscode/*
 !.vscode/extensions.json

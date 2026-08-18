@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Noto_Sans_Thai, Noto_Serif_Lao } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
@@ -24,6 +24,19 @@ export const metadata: Metadata = {
   },
   description:
     "แหล่งรวมงานวิจัยและเอกสาร eBook ขององค์กร ค้นหา อ่าน และดาวน์โหลดงานวิจัยตามสิทธิ์การเข้าถึง",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Ebooks",
+  },
+};
+
+// PWA Phase 1 — themeColor ต้องอยู่ใน viewport export แยกต่างหาก ไม่ใช่ใน
+// metadata (Next.js 15 deprecate metadata.themeColor แล้ว — ใส่ใน metadata
+// จะขึ้น console warning ตอน build/dev แม้ยังทำงานได้ก็ตาม)
+export const viewport: Viewport = {
+  themeColor: "#1D4ED8",
 };
 
 /**

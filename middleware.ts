@@ -73,10 +73,16 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * ทำงานกับทุก path ยกเว้นไฟล์ static, รูปภาพที่ปรับแต่งโดย Next.js และ
+     * ทำงานกับทุก path ยกเว้นไฟล์ static, รูปภาพที่ปรับแต่งโดย Next.js,
      * /api/health (endpoint สาธารณะสำหรับ uptime monitor ไม่ต้องใช้ session
      * — ยกเว้นไว้เพื่อไม่ให้ทุก health check เรียก Supabase Auth โดยไม่จำเป็น)
+     * และไฟล์ PWA (manifest.webmanifest, sw.js, workbox-*.js) ที่ต้อง serve
+     * เป็น static asset ตรงๆ ที่ root path (ไม่มี locale prefix) เท่านั้น —
+     * ถ้าไม่ยกเว้น intlMiddleware จะ redirect /manifest.webmanifest ไปเป็น
+     * /th/manifest.webmanifest ซึ่งไม่มีไฟล์จริงอยู่ (404) ทำให้ browser
+     * ลง PWA ไม่ได้เลย ไฟล์เหล่านี้ generate อัตโนมัติตอน build โดย
+     * @ducanh2912/next-pwa ไม่เกี่ยวกับ locale ใดๆ ทั้งสิ้น
      */
-    "/((?!_next/static|_next/image|favicon.ico|covers/|mock-pdfs/|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|covers/|mock-pdfs/|api/health|manifest\\.webmanifest|sw\\.js|workbox-.*\\.js|worker-.*\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
