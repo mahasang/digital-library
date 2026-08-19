@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_Thai, Noto_Serif_Lao } from "next/font/google";
 import { getLocale } from "next-intl/server";
+import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import "./globals.css";
 
 const notoSansThai = Noto_Sans_Thai({
@@ -70,6 +71,7 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
