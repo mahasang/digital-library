@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 import Header from "@/components/layout/Header";
 import HeaderAccountArea, { HeaderAccountAreaSkeleton } from "@/components/layout/HeaderAccountArea";
 import FooterData, { FooterSkeleton } from "@/components/layout/FooterData";
@@ -55,12 +55,13 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   const messages = await getMessages();
   const { siteName, logoUrl } = await getPublicHomeSettings();
+  const tHeader = await getTranslations("header");
 
   return (
     <NextIntlClientProvider messages={messages}>
       <ThemeProvider>
         <a href="#main-content" className="skip-link">
-          ข้ามไปยังเนื้อหาหลัก
+          {tHeader("skipToContent")}
         </a>
         <Header
           siteName={siteName}

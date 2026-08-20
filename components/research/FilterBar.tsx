@@ -8,6 +8,18 @@ import type { AccessLevel, Category } from "@/types/research";
 
 const ACCESS_LEVEL_VALUES: AccessLevel[] = ["public", "member_only", "staff_only", "read_only", "metadata_only"];
 
+const MODE_VALUES: SearchMode[] = ["all", "bibliographic", "pdf"];
+const MODE_ICONS: Record<SearchMode, typeof Layers> = {
+  all: Layers,
+  bibliographic: BookText,
+  pdf: FileSearch,
+};
+const MODE_LABEL_KEYS: Record<SearchMode, string> = {
+  all: "searchModeAll",
+  bibliographic: "searchModeBibliographic",
+  pdf: "searchModePdf",
+};
+
 interface FilterBarProps {
   query: string;
   mode: SearchMode;
@@ -25,12 +37,6 @@ interface FilterBarProps {
   onSortChange: (value: SortOption) => void;
 }
 
-const MODE_OPTIONS: { value: SearchMode; label: string; icon: typeof Layers }[] = [
-  { value: "all", label: "ค้นหาทั้งหมด", icon: Layers },
-  { value: "bibliographic", label: "ข้อมูลบรรณานุกรม", icon: BookText },
-  { value: "pdf", label: "เนื้อหา PDF", icon: FileSearch },
-];
-
 export default function FilterBar({
   query,
   mode,
@@ -47,6 +53,7 @@ export default function FilterBar({
   onAccessLevelChange,
   onSortChange,
 }: FilterBarProps) {
+  const t = useTranslations("research");
   const tAccessLevels = useTranslations("accessLevels");
   return (
     <div className="rounded-xl border border-gray-200 bg-surface p-4 shadow-elevated-sm sm:p-5">
@@ -56,20 +63,20 @@ export default function FilterBar({
           type="search"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="ค้นหาชื่อเรื่อง ผู้วิจัย หน่วยงาน คำสำคัญ หรือเนื้อหาในเอกสาร..."
+          placeholder={t("searchPlaceholder")}
           className="w-full border-0 bg-transparent text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-0 sm:text-base"
         />
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
-        {MODE_OPTIONS.map((opt) => {
-          const Icon = opt.icon;
-          const active = mode === opt.value;
+        {MODE_VALUES.map((value) => {
+          const Icon = MODE_ICONS[value];
+          const active = mode === value;
           return (
             <button
-              key={opt.value}
+              key={value}
               type="button"
-              onClick={() => onModeChange(opt.value)}
+              onClick={() => onModeChange(value)}
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 active
                   ? "bg-brand-600 text-white"
@@ -77,7 +84,7 @@ export default function FilterBar({
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
-              {opt.label}
+              {t(MODE_LABEL_KEYS[value])}
             </button>
           );
         })}
@@ -86,16 +93,16 @@ export default function FilterBar({
       <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-gray-500">
           <SlidersHorizontal className="h-4 w-4" />
-          กรองผลลัพธ์
+          {t("filterResultsLabel")}
         </div>
 
         <select
           value={categoryId}
           onChange={(e) => onCategoryChange(e.target.value)}
-          aria-label="กรองตามหมวดหมู่"
+          aria-label={t("filterByCategoryAriaLabel")}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         >
-          <option value="all">ทุกหมวดหมู่</option>
+          <option value="all">{t("allCategories")}</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.nameTh}
@@ -106,13 +113,13 @@ export default function FilterBar({
         <select
           value={year}
           onChange={(e) => onYearChange(e.target.value)}
-          aria-label="กรองตามปี"
+          aria-label={t("filterByYearAriaLabel")}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         >
-          <option value="all">ทุกปี</option>
+          <option value="all">{t("allYears")}</option>
           {years.map((y) => (
             <option key={y} value={y}>
-              พ.ศ. {y}
+              {t("yearPrefix")} {y}
             </option>
           ))}
         </select>
@@ -120,10 +127,10 @@ export default function FilterBar({
         <select
           value={accessLevel}
           onChange={(e) => onAccessLevelChange(e.target.value)}
-          aria-label="กรองตามระดับสิทธิ์"
+          aria-label={t("filterByAccessAriaLabel")}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         >
-          <option value="all">ทุกระดับสิทธิ์</option>
+          <option value="all">{t("allAccess")}</option>
           {ACCESS_LEVEL_VALUES.map((value) => (
             <option key={value} value={value}>
               {tAccessLevels(value)}
@@ -135,12 +142,12 @@ export default function FilterBar({
           <select
             value={sort}
             onChange={(e) => onSortChange(e.target.value as SortOption)}
-            aria-label="เรียงลำดับผลลัพธ์"
+            aria-label={t("sortResultsAriaLabel")}
             className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm text-gray-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           >
             {sortOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
-                เรียงตาม: {opt.label}
+                {t("sortByPrefix")} {t(opt.labelKey)}
               </option>
             ))}
           </select>

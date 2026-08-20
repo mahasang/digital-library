@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import FilterBar from "@/components/research/FilterBar";
 import ResearchGrid from "@/components/research/ResearchGrid";
@@ -37,6 +38,8 @@ export default function ResearchExplorer({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("research");
+  const locale = useLocale();
 
   function updateUrl(next: Record<string, string | undefined>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -83,7 +86,11 @@ export default function ResearchExplorer({
 
       <div className="flex items-center justify-between border-b border-gray-100 pb-3">
         <p className="text-sm text-gray-600">
-          พบ <span className="font-semibold text-gray-900">{result.total.toLocaleString("th-TH")}</span> รายการ
+          {t("resultsFoundBefore")}{" "}
+          <span className="font-semibold text-gray-900">
+            {result.total.toLocaleString(locale === "en" ? "en-US" : "th-TH")}
+          </span>{" "}
+          {t("resultsFoundAfter")}
         </p>
       </div>
 
@@ -98,10 +105,10 @@ export default function ResearchExplorer({
             className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4" />
-            ก่อนหน้า
+            {t("prevPage")}
           </button>
           <span className="text-sm font-medium text-gray-500">
-            หน้า {result.page} / {result.totalPages}
+            {t("pageOf", { page: result.page, totalPages: result.totalPages })}
           </span>
           <button
             type="button"
@@ -109,7 +116,7 @@ export default function ResearchExplorer({
             disabled={result.page >= result.totalPages}
             className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            ถัดไป
+            {t("nextPage")}
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

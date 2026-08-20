@@ -9,12 +9,18 @@ import {
 
 export type SortOption = "newest" | "oldest" | "popular" | "downloads" | "title";
 
-export const sortOptions: { value: SortOption; label: string }[] = [
-  { value: "newest", label: "ใหม่ล่าสุด" },
-  { value: "oldest", label: "เก่าที่สุด" },
-  { value: "popular", label: "ยอดนิยม (เข้าชมมากสุด)" },
-  { value: "downloads", label: "ดาวน์โหลดมากสุด" },
-  { value: "title", label: "ชื่อเรื่อง (ก-ฮ)" },
+/**
+ * label เป็น labelKey (ไม่ใช่ข้อความแปลแล้ว) เพราะไฟล์นี้เป็น plain .ts เรียก
+ * useTranslations/getTranslations เองไม่ได้ — ผู้เรียกใช้ (เช่น
+ * components/research/FilterBar.tsx) ต้องแปลผ่าน t(`research.${labelKey}`)
+ * เอง ดู pattern เดียวกันใน lib/auth/workspace-links.ts
+ */
+export const sortOptions: { value: SortOption; labelKey: string }[] = [
+  { value: "newest", labelKey: "sortNewest" },
+  { value: "oldest", labelKey: "sortOldest" },
+  { value: "popular", labelKey: "sortPopular" },
+  { value: "downloads", labelKey: "sortDownloads" },
+  { value: "title", labelKey: "sortTitle" },
 ];
 
 export interface ResearchFilters {

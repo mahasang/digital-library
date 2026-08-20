@@ -28,8 +28,8 @@ import { SettingsDropdown } from "@/components/layout/SettingsDropdown";
 export default function Header({
   desktopAccountArea,
   mobileAccountArea,
-  siteName = "ห้องสมุดดิจิทัลเพื่อเผยแพร่งานวิจัยขององค์กร",
-  logoUrl = "",
+  siteName,
+  logoUrl,
 }: {
   desktopAccountArea: ReactNode;
   mobileAccountArea: ReactNode;
@@ -59,18 +59,14 @@ export default function Header({
           <Link href="/" className="flex items-center gap-2 shrink-0">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={logoUrl}
-                alt={siteName}
-                className="h-9 w-9 rounded-lg object-cover"
-              />
+              <img src={logoUrl} alt={siteName ?? tHeader("siteName")} className="h-9 w-9 rounded-lg object-cover" />
             ) : (
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
                 <BookOpen className="h-5 w-5" />
               </span>
             )}
             <span className="hidden max-w-[220px] text-sm font-bold leading-tight text-gray-900 sm:line-clamp-2 sm:block">
-              {siteName}
+              {siteName ?? tHeader("siteName")}
             </span>
           </Link>
 
