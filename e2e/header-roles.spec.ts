@@ -51,23 +51,23 @@ async function loginAs(page: Page, email: string, password: string) {
 
 /** เปิด dropdown เมนูผู้ใช้ (desktop UserMenu) แล้วอ่านรายการ href ของลิงก์ทั้งหมด */
 async function openUserMenuAndGetLinks(page: Page): Promise<string[]> {
-  await page.goto("/lo/", { waitUntil: "networkidle" });
+  await page.goto("/th/", { waitUntil: "networkidle" });
   const trigger = page.getByRole("button", { name: /โปรไฟล์ของฉัน|@/ });
   await trigger.click();
   const menu = page.locator(".absolute.right-0.z-50");
   await expect(menu).toBeVisible();
   // ลิงก์ก่อนเส้นคั่นอันแรกคือ workspaceLinks (ตามด้วย "โปรไฟล์ของฉัน" เสมอ)
   // i18n cleanup pass — UserMenu ใช้ next-intl Link แล้ว จึงมี locale prefix
-  // เสมอ (หน้านี้ทดสอบภายใต้ /lo/ เท่านั้น) ตัด prefix ออกก่อนเทียบ
+  // เสมอ ตัด prefix ทุก locale ออกก่อนเทียบ (ไม่ hardcode แค่ /lo)
   const hrefs = await menu.getByRole("link").evaluateAll((els) =>
-    els.map((el) => new URL((el as HTMLAnchorElement).href).pathname.replace(/^\/lo/, ""))
+    els.map((el) => new URL((el as HTMLAnchorElement).href).pathname.replace(/^\/(th|en|lo|vi)/, ""))
   );
   return hrefs.filter((href) => href !== "/account");
 }
 
 test.describe("Header account area — guest", () => {
   test("shows login/register, no notification bell, no user menu", async ({ page }) => {
-    await page.goto("/lo/", { waitUntil: "networkidle" });
+    await page.goto("/th/", { waitUntil: "networkidle" });
     await expect(page.getByRole("link", { name: "เข้าสู่ระบบ", exact: true }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "สมัครสมาชิก", exact: true }).first()).toBeVisible();
     await expect(page.getByRole("button", { name: "การแจ้งเตือน" })).toHaveCount(0);
@@ -76,7 +76,7 @@ test.describe("Header account area — guest", () => {
 
   test("mobile menu opens, shows login/register, and auto-closes on navigation", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
-    await page.goto("/lo/", { waitUntil: "networkidle" });
+    await page.goto("/th/", { waitUntil: "networkidle" });
 
     const toggle = page.getByRole("button", { name: "เปิดเมนู" });
     await toggle.click();
@@ -113,7 +113,7 @@ for (const role of Object.keys(ACCOUNTS) as RoleName[]) {
       await page.setViewportSize({ width: 375, height: 800 });
       await loginAs(page, email!, password!);
 
-      await page.goto("/lo/", { waitUntil: "networkidle" });
+      await page.goto("/th/", { waitUntil: "networkidle" });
       await page.getByRole("button", { name: "เปิดเมนู" }).click();
       const mobilePanel = page.locator("header .md\\:hidden");
 
@@ -136,7 +136,7 @@ test.describe("Header account area — notification badge", () => {
     page,
   }) => {
     await loginAs(page, email!, password!);
-    await page.goto("/lo/", { waitUntil: "networkidle" });
+    await page.goto("/th/", { waitUntil: "networkidle" });
 
     const bell = page.getByRole("button", { name: "การแจ้งเตือน" });
     await expect(bell).toBeVisible();

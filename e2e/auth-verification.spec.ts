@@ -52,7 +52,7 @@ test.describe("logout", () => {
   }) => {
     await loginAs(page, email!, password!);
 
-    await page.goto("/lo/account", { waitUntil: "networkidle" });
+    await page.goto("/th/account", { waitUntil: "networkidle" });
     await expect(page).toHaveURL(/\/account/);
 
     await page.getByRole("button", { name: "ออกจากระบบ" }).first().click();
@@ -61,7 +61,7 @@ test.describe("logout", () => {
     await page.waitForURL((u) => /^\/(th|en|lo|vi)$/.test(u.pathname), { timeout: 10_000 });
 
     // guest อีกครั้งแล้ว — เข้าหน้าที่ต้อง login ต้องถูกเด้งไป /login
-    await page.goto("/lo/account", { waitUntil: "networkidle" });
+    await page.goto("/th/account", { waitUntil: "networkidle" });
     await expect(page).toHaveURL(/\/login/);
   });
 });
@@ -156,7 +156,7 @@ test.describe("corrupted session token", () => {
 
     // ต้องไม่ crash (ไม่ใช่หน้า error 500) และไม่ถือว่ายัง login อยู่ (bypass)
     // middleware.ts ตรวจพบ getUser() ล้มเหลว -> signOut() -> ปฏิบัติเหมือน guest
-    const response = await page.goto("/lo/account", { waitUntil: "networkidle" });
+    const response = await page.goto("/th/account", { waitUntil: "networkidle" });
     expect(response?.status(), "corrupted-token request must not 500").toBeLessThan(500);
     await expect(page).toHaveURL(/\/login/);
   });
