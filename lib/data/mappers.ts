@@ -14,6 +14,7 @@ export function mapRowToResearchItem(row: RawResearchRow): ResearchItem {
     researchers: [...row.research_authors]
       .sort((a, b) => a.author_order - b.author_order)
       .map((ra) => ({
+        authorId: ra.authors?.id ?? null,
         name: ra.authors?.name ?? "",
         organization:
           ra.authors?.organizations?.name_th ?? ra.authors?.organization_name ?? "",
@@ -58,7 +59,7 @@ export function mapHomepageRowToResearchItem(row: RawHomepageResearchRow): Resea
     titleEn: "",
     researchers: [...row.research_authors]
       .sort((a, b) => a.author_order - b.author_order)
-      .map((ra) => ({ name: ra.authors?.name ?? "", organization: "" })),
+      .map((ra) => ({ authorId: null, name: ra.authors?.name ?? "", organization: "" })),
     organization: "",
     year: row.year,
     categoryId: row.research_categories[0]?.categories?.slug ?? "",

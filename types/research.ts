@@ -24,6 +24,7 @@ export type UserRole =
   | "super_admin";
 
 export interface Researcher {
+  authorId: string | null;
   name: string;
   organization: string;
 }

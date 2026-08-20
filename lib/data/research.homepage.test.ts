@@ -109,7 +109,7 @@ describe("mapHomepageRowToResearchItem", () => {
       research_authors: [{ author_order: 0, authors: null }],
     });
     expect(mapHomepageRowToResearchItem(row).researchers).toEqual([
-      { name: "", organization: "" },
+      { authorId: null, name: "", organization: "" },
     ]);
   });
 });

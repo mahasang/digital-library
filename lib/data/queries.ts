@@ -23,7 +23,7 @@ const RESEARCH_SELECT = `
   id, slug, title_th, title_en, year, abstract, cover_image, pdf_file,
   page_count, access_level, status, views, downloads, published_at,
   organizations ( name_th ),
-  research_authors ( author_order, authors ( name, organization_name, organizations ( name_th ) ) ),
+  research_authors ( author_order, authors (id, name, organization_name, organizations ( name_th ) ) ),
   research_categories ( categories ( slug ) ),
   research_keywords ( keywords ( keyword ) )
 `;

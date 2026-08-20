@@ -19,6 +19,7 @@ export interface RawKeywordRef {
 export interface RawAuthorRef {
   author_order: number;
   authors: {
+    id: string;
     name: string;
     organization_name: string | null;
     organizations: RawOrganizationRef | null;

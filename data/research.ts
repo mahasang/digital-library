@@ -8,8 +8,8 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Development of Bridge Structural Health Monitoring System Using Wireless Sensors and Machine Learning",
     researchers: [
-      { name: "ผศ.ดร.สมชาย วัฒนกุล", organization: "คณะวิศวกรรมศาสตร์" },
-      { name: "นายกิตติพงษ์ เจริญสุข", organization: "คณะวิศวกรรมศาสตร์" },
+      { authorId: null, name: "ผศ.ดร.สมชาย วัฒนกุล", organization: "คณะวิศวกรรมศาสตร์" },
+      { authorId: null, name: "นายกิตติพงษ์ เจริญสุข", organization: "คณะวิศวกรรมศาสตร์" },
     ],
     organization: "คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2567,
@@ -33,7 +33,7 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Applying Large Language Models for Thai Government Document Summarization",
     researchers: [
-      { name: "ดร.ปิยะดา สุขสวัสดิ์", organization: "คณะเทคโนโลยีสารสนเทศ" },
+      { authorId: null, name: "ดร.ปิยะดา สุขสวัสดิ์", organization: "คณะเทคโนโลยีสารสนเทศ" },
     ],
     organization: "คณะเทคโนโลยีสารสนเทศ มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2568,
@@ -57,8 +57,8 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Factors Affecting Retail Investors' Decisions to Invest in Sustainable Mutual Funds",
     researchers: [
-      { name: "รศ.ดร.ณัฐพล ไชยเจริญ", organization: "คณะบริหารธุรกิจ" },
-      { name: "นางสาวพิมพ์ชนก ศรีสุข", organization: "คณะบริหารธุรกิจ" },
+      { authorId: null, name: "รศ.ดร.ณัฐพล ไชยเจริญ", organization: "คณะบริหารธุรกิจ" },
+      { authorId: null, name: "นางสาวพิมพ์ชนก ศรีสุข", organization: "คณะบริหารธุรกิจ" },
     ],
     organization: "คณะบริหารธุรกิจและเศรษฐศาสตร์ มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2566,
@@ -82,7 +82,7 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Effects of a Mental Health Promotion Program on Stress Levels Among Healthcare Workers",
     researchers: [
-      { name: "ผศ.พญ.กนกวรรณ ธนสาร", organization: "คณะแพทยศาสตร์" },
+      { authorId: null, name: "ผศ.พญ.กนกวรรณ ธนสาร", organization: "คณะแพทยศาสตร์" },
     ],
     organization: "คณะแพทยศาสตร์ มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2567,
@@ -106,8 +106,8 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Blended Learning Management to Develop Critical Thinking Skills Among Undergraduate Students",
     researchers: [
-      { name: "ดร.สุพัตรา เรืองวิทย์", organization: "คณะศึกษาศาสตร์" },
-      { name: "นายอนุชา พงษ์ไพบูลย์", organization: "คณะศึกษาศาสตร์" },
+      { authorId: null, name: "ดร.สุพัตรา เรืองวิทย์", organization: "คณะศึกษาศาสตร์" },
+      { authorId: null, name: "นายอนุชา พงษ์ไพบูลย์", organization: "คณะศึกษาศาสตร์" },
     ],
     organization: "คณะศึกษาศาสตร์ มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2565,
@@ -131,7 +131,7 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Changing Media Consumption Behavior of Generation Z in the Digital Era",
     researchers: [
-      { name: "ผศ.ดร.ธีรภัทร มั่นคง", organization: "คณะสังคมศาสตร์" },
+      { authorId: null, name: "ผศ.ดร.ธีรภัทร มั่นคง", organization: "คณะสังคมศาสตร์" },
     ],
     organization: "คณะสังคมศาสตร์และมนุษยศาสตร์ มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2568,
@@ -155,8 +155,8 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Using Drones to Assess Rice Field Health via Multispectral Imagery",
     researchers: [
-      { name: "ดร.วิภาวี ทองใบ", organization: "คณะเกษตรศาสตร์" },
-      { name: "นายศักดิ์ดา บุญมาก", organization: "คณะเกษตรศาสตร์" },
+      { authorId: null, name: "ดร.วิภาวี ทองใบ", organization: "คณะเกษตรศาสตร์" },
+      { authorId: null, name: "นายศักดิ์ดา บุญมาก", organization: "คณะเกษตรศาสตร์" },
     ],
     organization: "คณะเกษตรและสิ่งแวดล้อม มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2566,
@@ -180,7 +180,7 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Synthesis of Carbon Nanomaterials from Agricultural Waste Biomass for Heavy Metal Adsorption",
     researchers: [
-      { name: "รศ.ดร.มนตรี ศรีวิไล", organization: "คณะวิทยาศาสตร์" },
+      { authorId: null, name: "รศ.ดร.มนตรี ศรีวิไล", organization: "คณะวิทยาศาสตร์" },
     ],
     organization: "คณะวิทยาศาสตร์พื้นฐาน มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2567,
@@ -204,7 +204,7 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Design of a Low-Cost Dual-Axis Solar Tracking Power Generation System",
     researchers: [
-      { name: "ผศ.ดร.ประเสริฐ วงศ์สกุล", organization: "คณะวิศวกรรมศาสตร์" },
+      { authorId: null, name: "ผศ.ดร.ประเสริฐ วงศ์สกุล", organization: "คณะวิศวกรรมศาสตร์" },
     ],
     organization: "คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2568,
@@ -228,8 +228,8 @@ export const researchItems: ResearchItem[] = [
     titleEn:
       "Cyberattack Detection System for IoT Networks Using Deep Learning Techniques",
     researchers: [
-      { name: "ดร.ชนากานต์ ทิพย์วงศ์", organization: "คณะเทคโนโลยีสารสนเทศ" },
-      { name: "นายภาณุพงศ์ แสงทอง", organization: "คณะเทคโนโลยีสารสนเทศ" },
+      { authorId: null, name: "ดร.ชนากานต์ ทิพย์วงศ์", organization: "คณะเทคโนโลยีสารสนเทศ" },
+      { authorId: null, name: "นายภาณุพงศ์ แสงทอง", organization: "คณะเทคโนโลยีสารสนเทศ" },
     ],
     organization: "คณะเทคโนโลยีสารสนเทศ มหาวิทยาลัยเทคโนโลยีองค์กร",
     year: 2566,

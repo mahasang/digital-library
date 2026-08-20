@@ -242,8 +242,19 @@ export default async function ResearchDetailPage({
               <ul className="mt-1 flex flex-col gap-1">
                 {item.researchers.map((r) => (
                   <li key={r.name} className="text-sm text-gray-700">
-                    {r.name}
-                    <span className="text-gray-500"> — {r.organization}</span>
+                    {r.authorId ? (
+                      <Link
+                        href={`/authors/${r.authorId}`}
+                        className="font-medium text-accent-ink hover:underline"
+                      >
+                        {r.name}
+                      </Link>
+                    ) : (
+                      <span>{r.name}</span>
+                    )}
+                    {r.organization && (
+                      <span className="text-gray-500"> — {r.organization}</span>
+                    )}
                   </li>
                 ))}
               </ul>
