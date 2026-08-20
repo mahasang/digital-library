@@ -29,7 +29,7 @@ const adminEmail = process.env.E2E_ADMIN_EMAIL;
 const adminPassword = process.env.E2E_ADMIN_PASSWORD;
 
 async function loginAs(page: Page, email: string, password: string) {
-  await page.goto("/th/login", { waitUntil: "networkidle" });
+  await page.goto("/lo/login", { waitUntil: "networkidle" });
   await page.getByRole("textbox", { name: /อีเมล/ }).fill(email);
   await page.getByRole("textbox", { name: "รหัสผ่าน" }).fill(password);
   await page.getByRole("button", { name: /เข้าสู่ระบบ/ }).click();
@@ -53,12 +53,12 @@ test.describe("public homepage cache invalidation — categories", () => {
 
     // 1) โฮมเพจก่อนสร้าง — ต้องยังไม่เห็นชื่อหมวดหมู่ทดสอบ (กัน false positive
     // จาก run ก่อนหน้าที่อาจล้มเหลวกลางทางแล้วไม่ได้ลบทิ้ง)
-    await page.goto("/th/", { waitUntil: "networkidle" });
+    await page.goto("/lo/", { waitUntil: "networkidle" });
     await expect(page.getByText(nameTh, { exact: true })).toHaveCount(0);
 
     // 2) สร้างหมวดหมู่ใหม่ผ่าน Server Action จริง (createCategoryAction ->
     // revalidatePublicCategories())
-    await page.goto("/th/dashboard/categories", { waitUntil: "networkidle" });
+    await page.goto("/lo/dashboard/categories", { waitUntil: "networkidle" });
     await page.getByRole("button", { name: "เพิ่มหมวดหมู่" }).click();
     await page.getByPlaceholder("ชื่อหมวดหมู่ (ภาษาไทย)").fill(nameTh);
     await page.getByPlaceholder("ชื่อหมวดหมู่ (ภาษาอังกฤษ)").fill(nameEn);
@@ -76,13 +76,13 @@ test.describe("public homepage cache invalidation — categories", () => {
     // แทนการคาดหวังว่าจะเห็นผลใน request แรกเป๊ะ — ดู
     // docs/homepage-caching.md หัวข้อ "เวลาที่วัดได้จริง" สำหรับรายละเอียดเต็ม
     await expect(async () => {
-      await page.goto("/th/", { waitUntil: "networkidle" });
+      await page.goto("/lo/", { waitUntil: "networkidle" });
       await expect(page.getByText(nameTh, { exact: true })).toBeVisible({ timeout: 2_000 });
     }).toPass({ timeout: 20_000 });
 
     // 4) ลบหมวดหมู่ทดสอบทิ้ง (deleteCategoryAction -> revalidatePublicCategories()
     // อีกครั้ง) — ทำความสะอาดข้อมูลทดสอบเสมอไม่ว่า assertion ด้านบนจะผ่านหรือไม่
-    await page.goto("/th/dashboard/categories", { waitUntil: "networkidle" });
+    await page.goto("/lo/dashboard/categories", { waitUntil: "networkidle" });
     const row = page.locator("tr", { hasText: nameTh });
     page.once("dialog", (dialog) => dialog.accept());
     await row.getByRole("button", { name: "ลบ" }).click();
@@ -92,7 +92,7 @@ test.describe("public homepage cache invalidation — categories", () => {
     // (ไม่ใช่ต้องรอครบ 60 วินาที) — พิสูจน์ว่า cache ถูกล้างอีกครั้งตอนลบเช่นกัน
     // ไม่ใช่แค่ตอนสร้าง ดูหมายเหตุเรื่องเวลาที่ข้อ 3 ด้านบน
     await expect(async () => {
-      await page.goto("/th/", { waitUntil: "networkidle" });
+      await page.goto("/lo/", { waitUntil: "networkidle" });
       await expect(page.getByText(nameTh, { exact: true })).toHaveCount(0);
     }).toPass({ timeout: 20_000 });
   });
