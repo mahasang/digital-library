@@ -47,7 +47,7 @@ export async function forgotPasswordAction(
   // ไม่เปิดเผยว่ามีอีเมลนี้อยู่ในระบบหรือไม่ (ป้องกัน user enumeration)
   // ยกเว้นกรณีถูกจำกัดอัตราการร้องขอ ซึ่งควรแจ้งผู้ใช้ตามจริง
   if (error && error.message.toLowerCase().includes("rate limit")) {
-    return { status: "error", message: mapAuthErrorMessage(error.message) };
+    return { status: "error", message: await mapAuthErrorMessage(error.message) };
   }
 
   return {

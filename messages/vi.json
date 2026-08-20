@@ -181,7 +181,12 @@
     "acceptTerms": "Tôi đồng ý với điều khoản sử dụng và chính sách quyền riêng tư của Thư viện Số.",
     "registerSuccess": "Đăng ký thành công",
     "registerSubmit": "Đăng ký",
-    "registerSubmitting": "Đang đăng ký..."
+    "registerSubmitting": "Đang đăng ký...",
+    "resetLinkExpiredTitle": "Liên kết đã hết hạn hoặc không hợp lệ",
+    "resetLinkExpiredDescription": "Vui lòng mở trang này từ liên kết trong email bạn đã nhận, hoặc yêu cầu liên kết đặt lại mật khẩu mới tại trang",
+    "resetLinkForgotPasswordLink": "Quên mật khẩu",
+    "organizationPlaceholder": "Ví dụ: Khoa Kỹ thuật",
+    "authErrorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại."
   },
   "login": {
     "pageTitle": "Đăng nhập",
@@ -211,7 +216,13 @@
     "backHome": "Về trang chủ",
     "myProfile": "Hồ sơ của tôi",
     "serverError": "Đã xảy ra lỗi máy chủ. Vui lòng thử lại.",
-    "sessionExpired": "Phiên của bạn đã hết hạn. Vui lòng đăng nhập lại."
+    "sessionExpired": "Phiên của bạn đã hết hạn. Vui lòng đăng nhập lại.",
+    "invalidCredentials": "Email hoặc mật khẩu không chính xác",
+    "emailNotConfirmed": "Vui lòng xác minh email của bạn trước khi đăng nhập (kiểm tra hộp thư của bạn)",
+    "alreadyRegistered": "Email này đã được đăng ký. Vui lòng đăng nhập hoặc sử dụng email khác",
+    "passwordTooShort": "Mật khẩu quá ngắn. Vui lòng đặt mật khẩu ít nhất 8 ký tự",
+    "rateLimitExceeded": "Có quá nhiều yêu cầu. Vui lòng thử lại sau",
+    "networkError": "Không thể kết nối với hệ thống. Vui lòng kiểm tra kết nối internet của bạn"
   },
   "roles": {
     "guest": "Khách",

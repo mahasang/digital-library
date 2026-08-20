@@ -181,7 +181,12 @@
     "acceptTerms": "I accept the terms of use and privacy policy of the Digital Library.",
     "registerSuccess": "Registration successful",
     "registerSubmit": "Register",
-    "registerSubmitting": "Registering..."
+    "registerSubmitting": "Registering...",
+    "resetLinkExpiredTitle": "Link expired or invalid",
+    "resetLinkExpiredDescription": "Please open this page from the link in your email, or request a new reset link at the",
+    "resetLinkForgotPasswordLink": "Forgot password",
+    "organizationPlaceholder": "e.g. Faculty of Engineering",
+    "authErrorGeneric": "An error occurred. Please try again."
   },
   "login": {
     "pageTitle": "Sign In",
@@ -211,7 +216,13 @@
     "backHome": "Back to Home",
     "myProfile": "My Profile",
     "serverError": "A server error occurred. Please try again.",
-    "sessionExpired": "Your session has expired. Please sign in again."
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "invalidCredentials": "Invalid email or password",
+    "emailNotConfirmed": "Please verify your email before signing in (check your inbox)",
+    "alreadyRegistered": "This email is already registered. Please sign in or use a different email",
+    "passwordTooShort": "Password is too short. Please use at least 8 characters",
+    "rateLimitExceeded": "Too many requests. Please try again later",
+    "networkError": "Unable to connect to the system. Please check your internet connection"
   },
   "dashboard": {
     "pageTitle": "Dashboard",

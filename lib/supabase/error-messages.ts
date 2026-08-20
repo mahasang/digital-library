@@ -1,29 +1,42 @@
+import { getLocale, getTranslations } from "next-intl/server";
+
 /**
- * แปลข้อความ error ที่พบบ่อยจาก Supabase Auth ให้เป็นภาษาไทย
- * เพื่อไม่ให้ผู้ใช้เห็นข้อความ error ดิบจากระบบ (ตามหลัก security ที่ดี
- * ไม่ควรเปิดเผยรายละเอียดภายในของระบบ auth มากเกินไปด้วย)
+ * แปลข้อความ error ที่พบบ่อยจาก Supabase Auth ให้ตรงกับภาษาปัจจุบันของผู้ใช้
+ * (เดิม hardcode ภาษาไทยเสมอไม่ว่า locale ไหน) เพื่อไม่ให้ผู้ใช้เห็นข้อความ
+ * error ดิบจากระบบ (ตามหลัก security ที่ดี ไม่ควรเปิดเผยรายละเอียดภายในของ
+ * ระบบ auth มากเกินไปด้วย)
+ *
+ * เรียก getLocale() เองภายในฟังก์ชันนี้แทนการรับ locale เป็น parameter จาก
+ * caller — Server Action ที่เรียกใช้ (login/register/forgot-password/
+ * reset-password actions.ts) ทำงานภายใต้ request เดียวกับหน้า /[locale]/...
+ * ที่เรียกมันอยู่แล้ว จึง resolve locale ถูกต้องเองโดยอัตโนมัติ (pattern
+ * เดียวกับที่ใช้ใน app/[locale]/dashboard/approvals/[id]/actions.ts) ผู้เรียก
+ * จึงแค่ต้องเติม await หน้าการเรียกเท่านั้น ไม่ต้องแก้ signature อื่นใด
  */
-export function mapAuthErrorMessage(rawMessage: string): string {
+export async function mapAuthErrorMessage(rawMessage: string): Promise<string> {
+  const locale = await getLocale();
+  const tErrors = await getTranslations({ locale, namespace: "errors" });
+  const tAuth = await getTranslations({ locale, namespace: "auth" });
   const message = rawMessage.toLowerCase();
 
   if (message.includes("invalid login credentials")) {
-    return "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+    return tErrors("invalidCredentials");
   }
   if (message.includes("email not confirmed")) {
-    return "กรุณายืนยันอีเมลของคุณก่อนเข้าสู่ระบบ (ตรวจสอบกล่องจดหมายของคุณ)";
+    return tErrors("emailNotConfirmed");
   }
   if (message.includes("user already registered") || message.includes("already registered")) {
-    return "อีเมลนี้ถูกใช้สมัครสมาชิกแล้ว กรุณาเข้าสู่ระบบหรือใช้อีเมลอื่น";
+    return tErrors("alreadyRegistered");
   }
   if (message.includes("password should be at least")) {
-    return "รหัสผ่านสั้นเกินไป กรุณาตั้งรหัสผ่านอย่างน้อย 8 ตัวอักษร";
+    return tErrors("passwordTooShort");
   }
   if (message.includes("rate limit")) {
-    return "มีการร้องขอบ่อยเกินไป กรุณาลองใหม่อีกครั้งในภายหลัง";
+    return tErrors("rateLimitExceeded");
   }
   if (message.includes("network")) {
-    return "ไม่สามารถเชื่อมต่อกับระบบได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต";
+    return tErrors("networkError");
   }
 
-  return "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง";
+  return tAuth("authErrorGeneric");
 }

@@ -36,7 +36,7 @@ export async function loginAction(
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
-    return { status: "error", message: mapAuthErrorMessage(error.message) };
+    return { status: "error", message: await mapAuthErrorMessage(error.message) };
   }
 
   const redirectTarget = formData.get("redirectTo");

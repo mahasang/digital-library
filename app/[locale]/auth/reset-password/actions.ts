@@ -51,7 +51,7 @@ export async function resetPasswordAction(
   });
 
   if (error) {
-    return { status: "error", message: mapAuthErrorMessage(error.message) };
+    return { status: "error", message: await mapAuthErrorMessage(error.message) };
   }
 
   redirect("/login?reset=success");

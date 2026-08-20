@@ -87,7 +87,7 @@ export async function registerAction(
   });
 
   if (error) {
-    return { status: "error", message: mapAuthErrorMessage(error.message) };
+    return { status: "error", message: await mapAuthErrorMessage(error.message) };
   }
 
   if (data.session) {

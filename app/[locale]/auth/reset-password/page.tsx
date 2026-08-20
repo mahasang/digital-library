@@ -41,13 +41,12 @@ export default async function ResetPasswordPage() {
         <div className="flex flex-col items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
           <AlertTriangle className="h-8 w-8 text-amber-600" />
           <p className="text-sm font-semibold text-amber-800">
-            ลิงก์หมดอายุหรือไม่ถูกต้อง
+            {t("resetLinkExpiredTitle")}
           </p>
           <p className="text-xs leading-relaxed text-amber-700">
-            กรุณาเปิดหน้านี้จากลิงก์ในอีเมลที่ได้รับ หรือขอลิงก์ตั้งรหัสผ่านใหม่อีกครั้ง
-            ที่หน้า{" "}
+            {t("resetLinkExpiredDescription")}{" "}
             <Link href="/auth/forgot-password" className="underline">
-              ลืมรหัสผ่าน
+              {t("resetLinkForgotPasswordLink")}
             </Link>
           </p>
         </div>
