@@ -2,33 +2,26 @@
 
 ## Context
 
-ต่อเนื่องจาก PWA Phase 1+2 ที่เสร็จแล้ว:
-- `public/manifest.webmanifest` มีอยู่แล้ว (ใช้ SVG icons ปัจจุบัน)
+ต่อเนื่องจาก PWA Phase 1+2:
 - `public/icons/icon-192.svg` และ `icon-512.svg` เป็น open-book design สีน้ำเงิน
-- `public/sw.js` เป็น custom SW (manual, ไม่ใช้ library)
-- `app/layout.tsx` มี metadata manifest และ ServiceWorkerRegister อยู่แล้ว
+- `public/manifest.webmanifest` ใช้ SVG icons อยู่, `theme_color: "#1D4ED8"`, `start_url: "/lo/"`, `lang: "lo"`
+- `app/layout.tsx` มี metadata manifest อยู่แล้ว
 - `app/globals.css` มี `--color-accent: #185ff2` (สีจริงของแอป)
-- `manifest.webmanifest` ใช้ `theme_color: "#1D4ED8"` (ไม่ตรงกับสีจริง — ต้องแก้)
-- URL structure: `/th/`, `/en/`, `/lo/`, `/vi/`
 - OS: Windows, shell: Git Bash, dev port: 3001
 
-## Scope — ทำเฉพาะสิ่งต่อไปนี้เท่านั้น
+## Scope
 
-1. แปลง SVG icons → PNG ขนาด 192×192 และ 512×512
-2. สร้าง apple-touch-icon PNG 180×180
-3. อัปเดต `manifest.webmanifest` ให้ใช้ PNG icons
-4. เพิ่ม `<link rel="apple-touch-icon">` ใน `app/layout.tsx`
-5. แก้ `theme_color` ใน manifest จาก `#1D4ED8` → `#185ff2`
-6. รัน lint + tsc + test + build แล้วรายงานผล
+1. แปลง SVG → PNG 192×192, 512×512, และ apple-touch-icon 180×180
+2. อัปเดต `manifest.webmanifest` ให้ใช้ PNG และแก้ `theme_color: "#185ff2"`
+3. เพิ่ม `apple-touch-icon` ใน `app/layout.tsx`
+4. รัน lint + tsc + test + build
 
 ## ห้ามทำ (Out of Scope)
 
-- ห้ามแตะ RLS, middleware auth logic, signed URL, MFA flow
-- ห้ามแตะ `app/api/` ทุกไฟล์
+- ห้ามแตะ RLS, middleware, signed URL, MFA, `app/api/`
 - ห้ามแตะ i18n messages หรือ translation logic
 - ห้ามแตะ Supabase client, server actions, database schema
-- ห้ามแตะ `public/sw.js` (custom SW จาก Phase 2)
-- ห้ามแตะ `public/offline.html`
+- ห้ามแตะ `public/sw.js`, `public/offline.html`
 - ห้าม deploy หรือเปลี่ยน production config
 
 ---
@@ -36,22 +29,10 @@
 ## Step 1 — ตรวจไฟล์ก่อนทำ
 
 ```bash
-# ดูโครงสร้าง public/icons/
 ls -la public/icons/
-
-# ดู manifest ปัจจุบัน
 cat public/manifest.webmanifest
-
-# ดู metadata ใน app/layout.tsx
-grep -A 20 "metadata" app/layout.tsx | head -30
-
-# ตรวจว่า sharp หรือ canvas มีอยู่ไหม
+grep -n "metadata\|icons\|apple\|manifest\|viewport\|themeColor" app/layout.tsx | head -20
 node -e "require('sharp')" 2>/dev/null && echo "sharp: OK" || echo "sharp: not found"
-node -e "require('canvas')" 2>/dev/null && echo "canvas: OK" || echo "canvas: not found"
-
-# ตรวจ Inkscape หรือ rsvg-convert (สำหรับแปลง SVG→PNG)
-inkscape --version 2>/dev/null || echo "inkscape: not found"
-rsvg-convert --version 2>/dev/null || echo "rsvg-convert: not found"
 ```
 
 รายงานสิ่งที่พบก่อนดำเนินการต่อ
@@ -60,190 +41,117 @@ rsvg-convert --version 2>/dev/null || echo "rsvg-convert: not found"
 
 ## Step 2 — แปลง SVG → PNG
 
-เลือกวิธีแปลงตามสิ่งที่มีในระบบ ตามลำดับความสำคัญ:
+เลือกวิธีตามผล Step 1:
 
-### วิธี A — ใช้ sharp (แนะนำ ถ้ามีอยู่แล้ว)
+### วิธี A — ถ้า sharp มีอยู่แล้ว (แนะนำ):
 
 ```bash
 node -e "
 const sharp = require('sharp');
 const fs = require('fs');
-
-// อ่าน SVG แล้วแปลงเป็น PNG
 async function convert() {
   const svg192 = fs.readFileSync('public/icons/icon-192.svg');
   const svg512 = fs.readFileSync('public/icons/icon-512.svg');
-
-  await sharp(svg192).resize(192, 192).png().toFile('public/icons/icon-192.png');
-  await sharp(svg512).resize(512, 512).png().toFile('public/icons/icon-512.png');
-  await sharp(svg192).resize(180, 180).png().toFile('public/icons/apple-touch-icon.png');
-
+  await sharp(svg192).resize(192,192).png().toFile('public/icons/icon-192.png');
+  await sharp(svg512).resize(512,512).png().toFile('public/icons/icon-512.png');
+  await sharp(svg192).resize(180,180).png().toFile('public/icons/apple-touch-icon.png');
   console.log('Done: icon-192.png, icon-512.png, apple-touch-icon.png');
 }
 convert().catch(console.error);
 "
 ```
 
-### วิธี B — ติดตั้ง sharp แล้วใช้ (ถ้ายังไม่มี)
+### วิธี B — ติดตั้ง sharp แล้วใช้:
 
 ```bash
 npm install --save-dev sharp
-# แล้วรัน script จาก วิธี A
+# แล้วรัน script จากวิธี A
 ```
 
-### วิธี C — ใช้ Node.js Canvas API (ถ้า sharp ไม่ทำงาน)
+### วิธี C — ใช้ Playwright (มีอยู่แล้วในโปรเจกต์):
 
 สร้าง `scripts/generate-icons.mjs`:
 
-```javascript
-import { createCanvas } from 'canvas';
-import { writeFileSync } from 'fs';
-
-function drawIcon(size) {
-  const canvas = createCanvas(size, size);
-  const ctx = canvas.getContext('2d');
-  const r = size * 0.17; // border radius
-
-  // พื้นหลังสีน้ำเงิน
-  ctx.fillStyle = '#185ff2';
-  ctx.beginPath();
-  ctx.moveTo(r, 0);
-  ctx.lineTo(size - r, 0);
-  ctx.quadraticCurveTo(size, 0, size, r);
-  ctx.lineTo(size, size - r);
-  ctx.quadraticCurveTo(size, size, size - r, size);
-  ctx.lineTo(r, size);
-  ctx.quadraticCurveTo(0, size, 0, size - r);
-  ctx.lineTo(0, r);
-  ctx.quadraticCurveTo(0, 0, r, 0);
-  ctx.closePath();
-  ctx.fill();
-
-  // หนังสือเปิด — หน้าซ้าย
-  ctx.fillStyle = 'rgba(255,255,255,0.95)';
-  ctx.beginPath();
-  const lx = size * 0.21, ly = size * 0.31;
-  const lw = size * 0.24, lh = size * 0.42;
-  ctx.moveTo(lx, ly);
-  ctx.lineTo(lx + lw, ly + size * 0.08);
-  ctx.lineTo(lx + lw, ly + lh + size * 0.08);
-  ctx.lineTo(lx, ly + lh);
-  ctx.closePath();
-  ctx.fill();
-
-  // หนังสือเปิด — หน้าขวา
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.beginPath();
-  const rx2 = size * 0.79, ry = size * 0.31;
-  ctx.moveTo(rx2, ry);
-  ctx.lineTo(rx2 - lw, ry + size * 0.08);
-  ctx.lineTo(rx2 - lw, ry + lh + size * 0.08);
-  ctx.lineTo(rx2, ry + lh);
-  ctx.closePath();
-  ctx.fill();
-
-  // สันกลาง
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillRect(size * 0.463, size * 0.354, size * 0.073, size * 0.385);
-
-  return canvas.toBuffer('image/png');
-}
-
-writeFileSync('public/icons/icon-192.png', drawIcon(192));
-writeFileSync('public/icons/icon-512.png', drawIcon(512));
-writeFileSync('public/icons/apple-touch-icon.png', drawIcon(180));
-console.log('Icons generated successfully');
-```
-
-```bash
-npm install --save-dev canvas
-node scripts/generate-icons.mjs
-```
-
-### วิธี D — สร้างจาก HTML Canvas ผ่าน Playwright (ถ้าทุกอย่างข้างต้นไม่ได้)
-
-```javascript
-// scripts/generate-icons.mjs
+```js
 import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
 
-const html = (size) => `
-<html><body style="margin:0;background:transparent">
-<canvas id="c" width="${size}" height="${size}"></canvas>
-<script>
-const c = document.getElementById('c');
-const ctx = c.getContext('2d');
-const size = ${size}, r = size * 0.17;
-ctx.fillStyle = '#185ff2';
-ctx.beginPath();
-ctx.roundRect(0, 0, size, size, r);
-ctx.fill();
-// หน้าซ้าย
-ctx.fillStyle = 'rgba(255,255,255,0.95)';
-ctx.beginPath();
-ctx.moveTo(size*.21,size*.31);ctx.lineTo(size*.45,size*.39);
-ctx.lineTo(size*.45,size*.73);ctx.lineTo(size*.21,size*.73);ctx.fill();
-// หน้าขวา
-ctx.fillStyle = 'rgba(255,255,255,0.85)';
-ctx.beginPath();
-ctx.moveTo(size*.79,size*.31);ctx.lineTo(size*.55,size*.39);
-ctx.lineTo(size*.55,size*.73);ctx.lineTo(size*.79,size*.73);ctx.fill();
-// สัน
-ctx.fillStyle = 'rgba(255,255,255,0.6)';
-ctx.fillRect(size*.463,size*.354,size*.073,size*.385);
-<\/script></body></html>`;
+const makePage = (size) => `
+<html><body style="margin:0;padding:0;background:transparent">
+<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="32" fill="#185ff2"/>
+  <path d="M40 60 C40 56 44 54 48 56 L90 72 L90 140 L48 124 C44 122 40 120 40 116 Z"
+        fill="white" opacity="0.95"/>
+  <path d="M152 60 C152 56 148 54 144 56 L102 72 L102 140 L144 124 C148 122 152 120 152 116 Z"
+        fill="white" opacity="0.85"/>
+  <rect x="89" y="68" width="14" height="74" rx="3" fill="white" opacity="0.6"/>
+  <line x1="55" y1="88" x2="82" y2="94" stroke="#185ff2" stroke-width="3.5" stroke-linecap="round" opacity="0.4"/>
+  <line x1="55" y1="100" x2="82" y2="106" stroke="#185ff2" stroke-width="3.5" stroke-linecap="round" opacity="0.4"/>
+  <line x1="55" y1="112" x2="82" y2="118" stroke="#185ff2" stroke-width="3.5" stroke-linecap="round" opacity="0.4"/>
+  <line x1="137" y1="88" x2="110" y2="94" stroke="#185ff2" stroke-width="3.5" stroke-linecap="round" opacity="0.4"/>
+  <line x1="137" y1="100" x2="110" y2="106" stroke="#185ff2" stroke-width="3.5" stroke-linecap="round" opacity="0.4"/>
+  <line x1="137" y1="112" x2="110" y2="118" stroke="#185ff2" stroke-width="3.5" stroke-linecap="round" opacity="0.4"/>
+</svg>
+</body></html>`;
 
 const browser = await chromium.launch();
-for (const size of [192, 512, 180]) {
+for (const [name, size] of [['icon-192', 192], ['icon-512', 512], ['apple-touch-icon', 180]]) {
   const page = await browser.newPage();
-  await page.setContent(html(size));
-  await page.waitForTimeout(200);
-  const buf = await page.locator('canvas').screenshot({ type: 'png' });
-  const name = size === 180 ? 'apple-touch-icon' : `icon-${size}`;
+  await page.setViewportSize({ width: size, height: size });
+  await page.setContent(makePage(size));
+  await page.waitForTimeout(300);
+  const buf = await page.screenshot({
+    type: 'png',
+    clip: { x: 0, y: 0, width: size, height: size }
+  });
   writeFileSync(`public/icons/${name}.png`, buf);
-  console.log(`Generated ${name}.png`);
+  console.log(`Generated ${name}.png (${buf.length} bytes)`);
   await page.close();
 }
 await browser.close();
 ```
 
-**เลือกวิธีที่เหมาะสมที่สุดกับสภาพแวดล้อม** — ตรวจสอบจาก Step 1 ก่อน
+```bash
+node scripts/generate-icons.mjs
+```
+
+**เลือกวิธีที่เหมาะกับสภาพแวดล้อม ตรวจ Step 1 ก่อนเสมอ**
 
 ---
 
 ## Step 3 — ตรวจ PNG ที่ได้
 
 ```bash
-ls -la public/icons/*.png
-# ต้องมี: icon-192.png, icon-512.png, apple-touch-icon.png
-
-# ตรวจขนาดไฟล์ (ต้องไม่เป็น 0 bytes)
 node -e "
 const fs = require('fs');
 ['icon-192.png','icon-512.png','apple-touch-icon.png'].forEach(f => {
-  const s = fs.statSync('public/icons/' + f).size;
-  console.log(f + ': ' + s + ' bytes ' + (s > 1000 ? 'OK' : 'ERROR - too small'));
+  try {
+    const s = fs.statSync('public/icons/'+f).size;
+    console.log(f+': '+s+' bytes '+(s>1000?'OK':'ERROR - too small'));
+  } catch(e) { console.log(f+': NOT FOUND'); }
 });
 "
 ```
 
+ถ้าไฟล์ใดได้ขนาด < 1000 bytes หรือไม่พบ ให้หยุดและรายงานก่อนดำเนินการต่อ
+
 ---
 
-## Step 4 — อัปเดต manifest.webmanifest
+## Step 4 — อัปเดต public/manifest.webmanifest
 
-เปิด `public/manifest.webmanifest` แล้วแก้ `icons` array และ `theme_color`:
+แทนที่เนื้อหาทั้งหมดด้วย:
 
 ```json
 {
-  "name": "ห้องสมุดงานวิจัย",
-  "short_name": "Ebooks",
-  "description": "ระบบห้องสมุดดิจิทัลและที่เก็บงานวิจัย",
-  "start_url": "/th/",
+  "name": "ຫ້ອງສະໝຸດດິຈິຕອນເພື່ອເຜີຍແຜ່ງານວິໄຈຂອງອົງກອນ",
+  "short_name": "ຫ້ອງສະໝຸດ",
+  "description": "ລະບົບຫ້ອງສະໝຸດດິຈິຕອນ",
+  "start_url": "/lo/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#185ff2",
-  "lang": "th",
+  "lang": "lo",
   "dir": "ltr",
   "orientation": "any",
   "icons": [
@@ -270,25 +178,27 @@ const fs = require('fs');
 }
 ```
 
-**สังเกต:**
-- `theme_color` เปลี่ยนจาก `#1D4ED8` → `#185ff2` (ตรงกับ `--color-accent` จริง)
-- SVG icons ถูกแทนที่ด้วย PNG ทั้งหมด
-- `icon-512.png` ใช้สองครั้ง: `purpose: "any"` และ `purpose: "maskable"`
+**สำคัญ:** `start_url` และ `lang` ต้องเป็น `lo` เสมอ (defaultLocale เปลี่ยนเป็น lo แล้ว)
 
 ---
 
 ## Step 5 — เพิ่ม apple-touch-icon ใน app/layout.tsx
 
-เปิด `app/layout.tsx` แล้วเพิ่มใน `metadata` export:
+ตรวจโครงสร้างจริงก่อน:
+```bash
+sed -n '1,50p' app/layout.tsx
+```
+
+**ถ้ามี `export const metadata: Metadata`** — เพิ่ม/อัปเดต fields เหล่านี้:
 
 ```typescript
 export const metadata: Metadata = {
-  // ... metadata เดิมที่มีอยู่ทั้งหมด ...
+  // ... fields เดิมทั้งหมด ...
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Ebooks",
+    title: "ຫ້ອງສະໝຸດ",
   },
   icons: {
     apple: "/icons/apple-touch-icon.png",
@@ -300,28 +210,29 @@ export const metadata: Metadata = {
 };
 ```
 
-ถ้า layout ใช้ Viewport export แยก ให้อัปเดต themeColor ด้วย:
+**ถ้ามี `export const viewport: Viewport`** — อัปเดต themeColor:
 
 ```typescript
 export const viewport: Viewport = {
+  // ... fields เดิม ...
   themeColor: "#185ff2",
 };
 ```
 
-**ตรวจโครงสร้าง layout จริงก่อน** แล้วเลือกวิธีที่เหมาะสม
+ถ้ายังไม่มี viewport export ให้เพิ่มใหม่ และ import `Viewport` จาก `next`:
+```typescript
+import type { Metadata, Viewport } from "next";
+```
 
 ---
 
-## Step 6 — เพิ่ม PNG icons เข้า .gitignore ออก
-
-PNG icons ต้อง commit เข้า repo (ไม่ใช่ generated file):
+## Step 6 — ตรวจ .gitignore
 
 ```bash
-# ตรวจว่า .gitignore มี pattern ที่ครอบ PNG ไหม
-grep "png\|icons" .gitignore
+grep -n "png\|icon" .gitignore
 ```
 
-ถ้ามี pattern ที่ exclude PNG icons ออก ให้ลบออก
+PNG icons ต้อง commit เข้า repo ถ้ามี pattern ที่ exclude ออกให้ลบ
 
 ---
 
@@ -333,13 +244,13 @@ npm run lint
 npm run test
 npm run build
 
-# ตรวจ icons HTTP
+# ตรวจ HTTP หลัง build
 npm run start &
 sleep 5
-curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/icons/icon-192.png
-curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/icons/icon-512.png
-curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/icons/apple-touch-icon.png
-curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/manifest.webmanifest
+curl -s -o /dev/null -w "icon-192.png: %{http_code}\n" http://localhost:3001/icons/icon-192.png
+curl -s -o /dev/null -w "icon-512.png: %{http_code}\n" http://localhost:3001/icons/icon-512.png
+curl -s -o /dev/null -w "apple-touch-icon.png: %{http_code}\n" http://localhost:3001/icons/apple-touch-icon.png
+curl -s -o /dev/null -w "manifest: %{http_code}\n" http://localhost:3001/manifest.webmanifest
 # ทุกค่าต้องเป็น 200
 ```
 
@@ -350,26 +261,13 @@ Stop-Process -Name "node" -Force
 
 ---
 
-## Step 8 — ตรวจ manifest ใน Chrome DevTools
-
-หลัง build และ start แล้ว:
-1. Chrome → `http://localhost:3001/th/`
-2. F12 → Application → Manifest
-3. ตรวจ:
-   - Icons แสดงผลถูกต้อง (ต้องเห็น PNG preview)
-   - `theme_color` แสดง `#185ff2`
-   - ไม่มี warning เรื่อง icons
-
----
-
 ## รายงานผลที่ต้องการ
 
-1. วิธีที่เลือกในการแปลง SVG → PNG และเหตุผล
-2. ขนาดไฟล์ PNG ที่ได้ (bytes)
+1. วิธีที่เลือกแปลง SVG→PNG และขนาดไฟล์ที่ได้ (bytes)
+2. ไฟล์ที่สร้างใหม่และไฟล์ที่แก้ไข
 3. ผล tsc / lint / test / build
-4. HTTP status ของ icons ทั้ง 3 ไฟล์
-5. ผล Application → Manifest ใน DevTools (screenshot ถ้าทำได้)
-6. ปัญหาที่พบ (ถ้ามี) + วิธีแก้
+4. HTTP status ของ icons ทั้ง 3 และ manifest
+5. ปัญหาที่พบ + วิธีแก้
 
 ---
 
@@ -377,8 +275,8 @@ Stop-Process -Name "node" -Force
 
 | ความเสี่ยง | การป้องกัน |
 |---|---|
-| PNG เป็น 0 bytes หรือ corrupt | ตรวจขนาดไฟล์ใน Step 3 ก่อนดำเนินการต่อ |
-| sharp ไม่รองรับ Windows path | ใช้ forward slash ใน path เสมอ |
-| `maskable` icon มีพื้นที่ safe zone ไม่พอ | icon-512 ใช้สี solid background → ผ่าน maskable ได้ |
-| `theme_color` ไม่อัปเดตใน browser เดิม | ต้อง unregister SW + clear cache ก่อนทดสอบ |
-| `apple-touch-icon` ไม่แสดงบน iOS | ต้องเป็น PNG ไม่ใช่ SVG และต้อง link ใน `<head>` |
+| PNG เป็น 0 bytes หรือ corrupt | ตรวจขนาดใน Step 3 ก่อนดำเนินการต่อ |
+| sharp ไม่รองรับ Windows arm64 | ใช้วิธี C (Playwright) แทน |
+| `theme_color` ไม่อัปเดตใน browser | Unregister SW + Clear cache ก่อนทดสอบ |
+| `apple-touch-icon` ไม่แสดงบน iOS | ต้องเป็น PNG ไม่ใช่ SVG และ link ใน `<head>` |
+| manifest `start_url` กลับเป็น `/th/` | ตรวจให้แน่ใจว่าเป็น `/lo/` ตาม defaultLocale ใหม่ |

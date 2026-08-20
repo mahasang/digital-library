@@ -29,7 +29,14 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Ebooks",
+    title: "ຫ້ອງສະໝຸດ",
+  },
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
   },
 };
 
@@ -37,7 +44,7 @@ export const metadata: Metadata = {
 // metadata (Next.js 15 deprecate metadata.themeColor แล้ว — ใส่ใน metadata
 // จะขึ้น console warning ตอน build/dev แม้ยังทำงานได้ก็ตาม)
 export const viewport: Viewport = {
-  themeColor: "#1D4ED8",
+  themeColor: "#185ff2",
 };
 
 /**
