@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, UserPlus } from "lucide-react";
 import { registerAction } from "@/app/[locale]/register/actions";
 import { idleActionResult } from "@/lib/actions/types";
@@ -11,6 +12,7 @@ export default function RegisterForm({
 }: {
   captchaSiteKey?: string;
 }) {
+  const t = useTranslations("auth");
   const [state, formAction, isPending] = useActionState(
     registerAction,
     idleActionResult
@@ -69,7 +71,7 @@ export default function RegisterForm({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="reg-email" className="text-sm font-medium text-gray-700">
-          อีเมล
+          {t("email")}
         </label>
         <input
           id="reg-email"
@@ -88,7 +90,7 @@ export default function RegisterForm({
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="reg-password" className="text-sm font-medium text-gray-700">
-            รหัสผ่าน
+            {t("password")}
           </label>
           <input
             id="reg-password"

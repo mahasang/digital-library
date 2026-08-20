@@ -59,7 +59,7 @@ export default function Header({
           <Link href="/" className="flex items-center gap-2 shrink-0">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt={siteName ?? tHeader("siteName")} className="h-9 w-9 rounded-lg object-cover" />
+              <img src={logoUrl} alt="" className="h-9 w-9 rounded-lg object-cover" />
             ) : (
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
                 <BookOpen className="h-5 w-5" />

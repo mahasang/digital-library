@@ -67,7 +67,13 @@ const adminEmail = process.env.E2E_ADMIN_EMAIL;
 const adminPassword = process.env.E2E_ADMIN_PASSWORD;
 
 async function loginAs(page: Page, email: string, password: string) {
-  await page.goto("/lo/login", { waitUntil: "networkidle" });
+  // ไปที่ /th/login โดยเจาะจง (ไม่ใช่ /lo/login เหมือน route อื่นในไฟล์นี้)
+  // เพราะ locator ด้านล่างจับข้อความภาษาไทยของฟอร์มตรงๆ — ตอนนี้ auth.email/
+  // auth.password ผูกกับ next-intl แล้ว (ก่อนหน้านี้ฟอร์ม hardcode ภาษาไทย
+  // เสมอไม่ว่า locale ไหน จึงบังเอิญตรงกับ /lo/login มาตลอด) หลัง login สำเร็จ
+  // แต่ละ test ยัง page.goto("/lo/...") ต่อได้ตามปกติ เพราะ session cookie
+  // ของ Supabase auth ไม่ผูกกับ locale prefix ใน URL เลย
+  await page.goto("/th/login", { waitUntil: "networkidle" });
   await page.getByRole("textbox", { name: /อีเมล/ }).fill(email);
   await page.getByRole("textbox", { name: "รหัสผ่าน" }).fill(password);
   await page.getByRole("button", { name: /เข้าสู่ระบบ/ }).click();

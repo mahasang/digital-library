@@ -1,12 +1,14 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { AlertCircle, Eye, EyeOff, LogIn } from "lucide-react";
 import { loginAction } from "@/app/[locale]/login/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function LoginForm({ redirectTo }: { redirectTo: string }) {
+  const t = useTranslations("auth");
   const [showPassword, setShowPassword] = useState(false);
   const [state, formAction, isPending] = useActionState(
     loginAction,
@@ -26,7 +28,7 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-gray-700">
-          อีเมล
+          {t("email")}
         </label>
         <input
           id="email"
@@ -44,7 +46,7 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-sm font-medium text-gray-700">
-          รหัสผ่าน
+          {t("password")}
         </label>
         <div className="relative">
           <input
@@ -79,7 +81,7 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
           href="/auth/forgot-password"
           className="font-medium text-accent hover:underline"
         >
-          ลืมรหัสผ่าน?
+          {t("forgotPassword")}
         </Link>
       </div>
 

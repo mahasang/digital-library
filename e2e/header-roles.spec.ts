@@ -40,7 +40,9 @@ const EXPECTED_LINKS: Record<RoleName, string[]> = {
 };
 
 async function loginAs(page: Page, email: string, password: string) {
-  await page.goto("/lo/login", { waitUntil: "networkidle" });
+  // /th/login โดยเจาะจง — locator ด้านล่างจับข้อความภาษาไทยของฟอร์มตรงๆ
+  // (auth.email/auth.password ผูกกับ next-intl แล้ว จึงต่างกันไปตาม locale)
+  await page.goto("/th/login", { waitUntil: "networkidle" });
   await page.getByRole("textbox", { name: /อีเมล/ }).fill(email);
   await page.getByRole("textbox", { name: "รหัสผ่าน" }).fill(password);
   await page.getByRole("button", { name: /เข้าสู่ระบบ/ }).click();
