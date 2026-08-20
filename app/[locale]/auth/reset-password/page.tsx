@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { AlertTriangle } from "lucide-react";
 import AuthFormShell from "@/components/auth/AuthFormShell";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
@@ -7,12 +7,13 @@ import SupabaseNotConfiguredNotice from "@/components/auth/SupabaseNotConfigured
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = {
-  title: "ตั้งรหัสผ่านใหม่",
-  description: "ตั้งรหัสผ่านใหม่สำหรับบัญชีของคุณ",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("auth");
+  return { title: t("resetPasswordTitle") };
+}
 
 export default async function ResetPasswordPage() {
+  const t = await getTranslations("auth");
   const configured = isSupabaseConfigured();
   let hasRecoverySession = false;
 
@@ -26,11 +27,11 @@ export default async function ResetPasswordPage() {
 
   return (
     <AuthFormShell
-      title="ตั้งรหัสผ่านใหม่"
-      description="กรอกรหัสผ่านใหม่ที่ต้องการใช้เข้าสู่ระบบ"
+      title={t("resetPasswordTitle")}
+      description={t("resetPasswordDescription")}
       footer={
         <Link href="/login" className="font-medium text-accent hover:underline">
-          กลับไปหน้าเข้าสู่ระบบ
+          {t("backToLogin")}
         </Link>
       }
     >

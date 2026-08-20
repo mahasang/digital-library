@@ -1,23 +1,27 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import AuthFormShell from "@/components/auth/AuthFormShell";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 import SupabaseNotConfiguredNotice from "@/components/auth/SupabaseNotConfiguredNotice";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
-export const metadata: Metadata = {
-  title: "ลืมรหัสผ่าน",
-  description: "ขอลิงก์สำหรับตั้งรหัสผ่านใหม่",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("auth");
+  return {
+    title: t("forgotPasswordTitle"),
+    description: t("forgotPasswordDescription"),
+  };
+}
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage() {
+  const t = await getTranslations("auth");
   return (
     <AuthFormShell
-      title="ลืมรหัสผ่าน"
-      description="กรอกอีเมลที่ใช้สมัครสมาชิก เราจะส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ไปให้"
+      title={t("forgotPasswordTitle")}
+      description={t("forgotPasswordDescription")}
       footer={
         <Link href="/login" className="font-medium text-accent hover:underline">
-          กลับไปหน้าเข้าสู่ระบบ
+          {t("backToLogin")}
         </Link>
       }
     >

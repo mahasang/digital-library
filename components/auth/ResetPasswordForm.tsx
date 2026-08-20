@@ -1,11 +1,13 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, Eye, EyeOff, KeyRound } from "lucide-react";
 import { resetPasswordAction } from "@/app/[locale]/auth/reset-password/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function ResetPasswordForm() {
+  const t = useTranslations("auth");
   const [showPassword, setShowPassword] = useState(false);
   const [state, formAction, isPending] = useActionState(
     resetPasswordAction,
@@ -23,7 +25,7 @@ export default function ResetPasswordForm() {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-sm font-medium text-gray-700">
-          รหัสผ่านใหม่
+          {t("newPassword")}
         </label>
         <div className="relative">
           <input
@@ -39,7 +41,7 @@ export default function ResetPasswordForm() {
             type="button"
             onClick={() => setShowPassword((v) => !v)}
             className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-600"
-            aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+            aria-label={showPassword ? t("hidePassword") : t("showPassword")}
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -55,7 +57,7 @@ export default function ResetPasswordForm() {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
-          ยืนยันรหัสผ่านใหม่
+          {t("confirmNewPassword")}
         </label>
         <input
           id="confirmPassword"
@@ -79,7 +81,7 @@ export default function ResetPasswordForm() {
         className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <KeyRound className="h-4 w-4" />
-        {isPending ? "กำลังบันทึก..." : "ตั้งรหัสผ่านใหม่"}
+        {isPending ? t("resetPasswordSubmitting") : t("resetPasswordSubmit")}
       </button>
     </form>
   );

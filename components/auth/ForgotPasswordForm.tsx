@@ -1,11 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, Send } from "lucide-react";
 import { forgotPasswordAction } from "@/app/[locale]/auth/forgot-password/actions";
 import { idleActionResult } from "@/lib/actions/types";
 
 export default function ForgotPasswordForm() {
+  const t = useTranslations("auth");
   const [state, formAction, isPending] = useActionState(
     forgotPasswordAction,
     idleActionResult
@@ -15,7 +17,7 @@ export default function ForgotPasswordForm() {
     return (
       <div className="flex flex-col items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-6 text-center">
         <CheckCircle2 className="h-10 w-10 text-green-600" />
-        <p className="text-sm font-semibold text-green-800">ส่งคำขอสำเร็จ</p>
+        <p className="text-sm font-semibold text-green-800">{t("forgotPasswordSuccess")}</p>
         <p className="text-xs leading-relaxed text-green-700">{state.message}</p>
       </div>
     );
@@ -32,7 +34,7 @@ export default function ForgotPasswordForm() {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-sm font-medium text-gray-700">
-          อีเมลที่ใช้สมัครสมาชิก
+          {t("forgotPasswordEmailLabel")}
         </label>
         <input
           id="email"
@@ -54,7 +56,7 @@ export default function ForgotPasswordForm() {
         className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Send className="h-4 w-4" />
-        {isPending ? "กำลังส่งลิงก์..." : "ส่งลิงก์ตั้งรหัสผ่านใหม่"}
+        {isPending ? t("forgotPasswordSubmitting") : t("forgotPasswordSubmit")}
       </button>
     </form>
   );

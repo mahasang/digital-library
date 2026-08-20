@@ -23,7 +23,7 @@ export default function RegisterForm({
     return (
       <div className="flex flex-col items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-6 text-center">
         <CheckCircle2 className="h-10 w-10 text-green-600" />
-        <p className="text-sm font-semibold text-green-800">สมัครสมาชิกสำเร็จ</p>
+        <p className="text-sm font-semibold text-green-800">{t("registerSuccess")}</p>
         <p className="text-xs leading-relaxed text-green-700">{state.message}</p>
       </div>
     );
@@ -40,7 +40,7 @@ export default function RegisterForm({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="fullname" className="text-sm font-medium text-gray-700">
-          ชื่อ-นามสกุล
+          {t("fullName")}
         </label>
         <input
           id="fullname"
@@ -48,7 +48,7 @@ export default function RegisterForm({
           type="text"
           required
           autoComplete="name"
-          placeholder="กรอกชื่อ-นามสกุล"
+          placeholder={t("fullNamePlaceholder")}
           className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         />
         {state.status === "error" && state.fieldErrors?.fullName && (
@@ -58,7 +58,7 @@ export default function RegisterForm({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="org" className="text-sm font-medium text-gray-700">
-          หน่วยงาน/สังกัด
+          {t("organization")}
         </label>
         <input
           id="org"
@@ -107,7 +107,7 @@ export default function RegisterForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="reg-confirm" className="text-sm font-medium text-gray-700">
-            ยืนยันรหัสผ่าน
+            {t("confirmPassword")}
           </label>
           <input
             id="reg-confirm"
@@ -128,7 +128,7 @@ export default function RegisterForm({
 
       <label className="flex items-start gap-2 text-xs text-gray-500">
         <input type="checkbox" required className="mt-0.5 rounded border-gray-300" />
-        ฉันยอมรับข้อกำหนดการใช้งานและนโยบายความเป็นส่วนตัวของห้องสมุดดิจิทัล
+        {t("acceptTerms")}
       </label>
 
       {captchaSiteKey && (
@@ -141,7 +141,7 @@ export default function RegisterForm({
         className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <UserPlus className="h-4 w-4" />
-        {isPending ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
+        {isPending ? t("registerSubmitting") : t("registerSubmit")}
       </button>
     </form>
   );
