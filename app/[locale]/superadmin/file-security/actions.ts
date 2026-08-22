@@ -193,6 +193,8 @@ async function batchControlAction(
   formData: FormData,
   fn: (batchId: string) => ReturnType<typeof pauseJobBatch>
 ): Promise<ActionResult> {
+  const auth = await requireMinRank(50);
+  if (!auth.ok) return auth.result;
   const batchId = String(formData.get("batchId") || "");
   if (!batchId) return { status: "error", message: "ไม่พบรหัสชุดงาน" };
   const result = await fn(batchId);
@@ -211,6 +213,8 @@ export async function cancelBatchAction(_prevState: ActionResult, formData: Form
   return batchControlAction(formData, cancelJobBatch);
 }
 export async function retryFailedInBatchAction(_prevState: ActionResult, formData: FormData): Promise<ActionResult> {
+  const auth = await requireMinRank(50);
+  if (!auth.ok) return auth.result;
   const batchId = String(formData.get("batchId") || "");
   if (!batchId) return { status: "error", message: "ไม่พบรหัสชุดงาน" };
   const result = await retryFailedInBatch(batchId);
