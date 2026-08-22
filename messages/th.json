@@ -186,7 +186,9 @@
     "resetLinkExpiredDescription": "กรุณาเปิดหน้านี้จากลิงก์ในอีเมลที่ได้รับ หรือขอลิงก์ตั้งรหัสผ่านใหม่อีกครั้งที่หน้า",
     "resetLinkForgotPasswordLink": "ลืมรหัสผ่าน",
     "organizationPlaceholder": "เช่น คณะวิศวกรรมศาสตร์",
-    "authErrorGeneric": "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง"
+    "authErrorGeneric": "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+    "loginSubmit": "เข้าสู่ระบบ",
+    "loginSubmitting": "กำลังเข้าสู่ระบบ..."
   },
   "login": {
     "pageTitle": "เข้าสู่ระบบ",

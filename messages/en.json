@@ -186,7 +186,9 @@
     "resetLinkExpiredDescription": "Please open this page from the link in your email, or request a new reset link at the",
     "resetLinkForgotPasswordLink": "Forgot password",
     "organizationPlaceholder": "e.g. Faculty of Engineering",
-    "authErrorGeneric": "An error occurred. Please try again."
+    "authErrorGeneric": "An error occurred. Please try again.",
+    "loginSubmit": "Sign In",
+    "loginSubmitting": "Signing in..."
   },
   "login": {
     "pageTitle": "Sign In",

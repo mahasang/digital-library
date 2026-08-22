@@ -216,7 +216,9 @@
     "resetLinkExpiredDescription": "ກະລຸນາເປີດໜ້ານີ້ຈາກລິ້ງໃນອີເມລທີ່ໄດ້ຮັບ ຫຼື ຂໍລິ້ງຕັ້ງລະຫັດຜ່ານໃໝ່ອີກຄັ້ງທີ່ໜ້າ",
     "resetLinkForgotPasswordLink": "ລືມລະຫັດຜ່ານ",
     "organizationPlaceholder": "ເຊັ່ນ: ຄະນະວິສະວະກຳສາດ",
-    "authErrorGeneric": "ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ"
+    "authErrorGeneric": "ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
+    "loginSubmit": "ເຂົ້າສູ່ລະບົບ",
+    "loginSubmitting": "ກຳລັງເຂົ້າສູ່ລະບົບ..."
   },
   "login": {
     "pageTitle": "ເຂົ້າສູ່ລະບົບ",

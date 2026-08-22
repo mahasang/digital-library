@@ -186,7 +186,9 @@
     "resetLinkExpiredDescription": "Vui lòng mở trang này từ liên kết trong email bạn đã nhận, hoặc yêu cầu liên kết đặt lại mật khẩu mới tại trang",
     "resetLinkForgotPasswordLink": "Quên mật khẩu",
     "organizationPlaceholder": "Ví dụ: Khoa Kỹ thuật",
-    "authErrorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại."
+    "authErrorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "loginSubmit": "Đăng nhập",
+    "loginSubmitting": "Đang đăng nhập..."
   },
   "login": {
     "pageTitle": "Đăng nhập",

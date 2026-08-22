@@ -91,7 +91,7 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
         className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <LogIn className="h-4 w-4" />
-        {isPending ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+        {isPending ? t("loginSubmitting") : t("loginSubmit")}
       </button>
     </form>
   );

@@ -46,3 +46,5 @@ homepage-initial.png
 # into permission allow-list entries during interactive sessions (see
 # docs/qa-production-readiness.md QA-01)
 .claude/settings.local.json
+
+.vercel
