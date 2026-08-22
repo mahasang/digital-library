@@ -48,3 +48,6 @@ homepage-initial.png
 .claude/settings.local.json
 
 .vercel
+
+# Capacitor Android (generated — do not commit)
+/android/

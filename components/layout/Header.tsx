@@ -65,7 +65,7 @@ export default function Header({
                 <BookOpen className="h-5 w-5" />
               </span>
             )}
-            <span className="hidden max-w-[220px] text-sm font-bold leading-tight text-gray-900 sm:line-clamp-2 sm:block">
+            <span className="block max-w-[140px] truncate text-sm font-bold leading-tight text-gray-900 sm:max-w-[220px] sm:whitespace-normal sm:line-clamp-2">
               {siteName ?? tHeader("siteName")}
             </span>
           </Link>
