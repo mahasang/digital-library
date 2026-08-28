@@ -51,3 +51,5 @@ homepage-initial.png
 
 # Capacitor Android (generated — do not commit)
 /android/
+file_prompt/
+*.swp
