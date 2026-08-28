@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { revalidatePublicOrganizations } from "@/lib/cache/public-home";
 import type { ActionResult } from "@/lib/actions/types";
 
 /** จัดลำดับหน่วยงานทั้งหมด — เรียกจาก client component ตอนลากวางเสร็จโดยตรง */
@@ -44,5 +45,7 @@ export async function reorderOrganizationsAction(
   revalidatePath("/superadmin/organizations");
   revalidatePath("/dashboard/organizations");
   revalidatePath("/submit-research");
+  revalidatePath("/", "layout");
+  revalidatePublicOrganizations();
   return { status: "success", message: "จัดลำดับหน่วยงานเรียบร้อยแล้ว" };
 }

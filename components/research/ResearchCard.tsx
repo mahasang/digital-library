@@ -63,12 +63,15 @@ export default function ResearchCard({
   item,
   rank,
   footerMode = "default",
+  priority = false,
 }: {
   item: ResearchCardItem;
   /** อันดับที่แสดงเป็นตราเลขมุมขวาบนของปก (ใช้กับส่วน "งานวิจัยยอดนิยม" เท่านั้น) */
   rank?: number;
   /** "recency" แสดงวันที่เผยแพร่แทนปีในแถวข้อมูลด้านล่าง (ใช้กับส่วน "งานวิจัยล่าสุด") */
   footerMode?: "default" | "recency";
+  /** ส่งเป็น true เฉพาะการ์ดใบแรกของกริดที่อยู่เหนือ fold ตอนโหลดหน้าครั้งแรก */
+  priority?: boolean;
 }) {
   const category = getCategoryById(item.categoryId);
   const showRealCover = hasRealCoverImage(item.coverImage);
@@ -85,6 +88,7 @@ export default function ResearchCard({
             src={item.coverImage}
             alt={`ปกงานวิจัย: ${item.titleTh}`}
             fill
+            priority={priority}
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />

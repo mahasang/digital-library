@@ -31,6 +31,7 @@ export default function ResearchGrid({
           item={item}
           rank={typeof rankStart === "number" ? rankStart + index : undefined}
           footerMode={footerMode}
+          priority={index === 0}
         />
       ))}
     </div>

@@ -1,7 +1,14 @@
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { organizations as mockOrganizations } from "@/data/organizations";
+import {
+  PUBLIC_ORGANIZATIONS_TAG,
+  PUBLIC_HOME_TAG,
+  PUBLIC_HOME_REVALIDATE_SECONDS,
+} from "@/lib/cache/public-home";
 import type { Organization } from "@/types/research";
 
 export interface AdminOrganizationRow {
@@ -73,13 +80,17 @@ function sortOrganizationsHierarchically(rows: RawAdminOrgRow[]): RawAdminOrgRow
   return result;
 }
 
-/** หน่วยงานที่เปิดใช้งาน — สำหรับตัวเลือกในฟอร์มส่งงานวิจัย (มี Mock Data เป็น fallback) */
-export async function getOrganizations(): Promise<Organization[]> {
-  if (!isSupabaseConfigured()) {
-    return mockOrganizations;
-  }
-
-  const supabase = await createClient();
+/**
+ * ดึงหน่วยงานที่เปิดใช้งานจริงจาก Supabase — แยกออกมาเพื่อห่อด้วย
+ * unstable_cache ได้ (เหมือน fetchCategoriesFromDb ใน categories.server.ts)
+ * ใช้ createPublicClient() (ไม่ผูกกับ cookies) เพราะ RLS ของตาราง organizations
+ * เปิดให้ role "anon" อ่านได้ทั้งหมดอยู่แล้วโดยไม่มีเงื่อนไขเรื่องสิทธิ์ผู้ใช้เลย
+ * (`organizations_select_all` using (true)) — ดู
+ * supabase/migrations/20260731100200_rls_policies.sql — ผลลัพธ์จึงเหมือนกัน
+ * ทุกประการไม่ว่าใครจะเรียก ปลอดภัยต่อการ cache ข้ามผู้ใช้
+ */
+async function fetchOrganizationsFromDb(): Promise<Organization[] | null> {
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("organizations")
     .select("id, slug, name_th, name_en")
@@ -97,8 +108,13 @@ export async function getOrganizations(): Promise<Organization[]> {
     // ไม่เคย throw แบบนี้อยู่แล้ว — เปลี่ยนให้เหมือนกัน: log แล้ว fallback เป็น
     // mockOrganizations แทน หน้าแรกจึงยัง render ต่อได้เสมอแม้ query นี้จะล้มเหลว
     // ชั่วคราว ไม่ใช่การซ่อนข้อผิดพลาดจริงที่ต้องแก้ไข (ยัง log ไว้ให้เห็นเสมอ)
-    console.error("getOrganizations failed, falling back to mock data:", error.message);
-    return mockOrganizations;
+    //
+    // คืน null แทนการคืน mockOrganizations ตรงนี้ (ต่างจากเดิม) เพราะฟังก์ชันนี้
+    // อยู่ภายใน unstable_cache — ถ้า cache ผลลัพธ์ mock ไว้ตอน query ล้มเหลวชั่วคราว
+    // ผู้เข้าชมจะเห็นข้อมูลปลอมค้างอยู่นานถึง revalidate รอบถัดไป จึงส่ง null ให้
+    // getOrganizations() ด้านล่าง (นอก cache) เป็นผู้ตัดสินใจ fallback แทน
+    console.error("fetchOrganizationsFromDb failed:", error.message);
+    return null;
   }
 
   return (data ?? []).map((row) => ({
@@ -107,6 +123,23 @@ export async function getOrganizations(): Promise<Organization[]> {
     nameTh: row.name_th,
     nameEn: row.name_en ?? "",
   }));
+}
+
+const getCachedOrganizations = unstable_cache(fetchOrganizationsFromDb, ["public-organizations"], {
+  tags: [PUBLIC_ORGANIZATIONS_TAG, PUBLIC_HOME_TAG],
+  revalidate: PUBLIC_HOME_REVALIDATE_SECONDS,
+});
+
+/** หน่วยงานที่เปิดใช้งาน — สำหรับตัวเลือกในฟอร์มส่งงานวิจัยและหน้าแรก (มี Mock
+ * Data เป็น fallback) ข้อมูลนี้เป็นสาธารณะล้วน ไม่มีผลต่อการตัดสินใจเชิงสิทธิ์/
+ * ธุรกิจใดๆ จึงปลอดภัยที่จะ cache ข้าม request (ดู fetchOrganizationsFromDb ด้านบน) */
+export async function getOrganizations(): Promise<Organization[]> {
+  if (!isSupabaseConfigured()) {
+    return mockOrganizations;
+  }
+
+  const result = await getCachedOrganizations();
+  return result ?? mockOrganizations;
 }
 
 /** หน่วยงานทั้งหมดรวมที่ปิดใช้งาน/ถูกรวมแล้ว — สำหรับ /dashboard/organizations

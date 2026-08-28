@@ -21,6 +21,7 @@ export const PUBLIC_HOME_TAG = "public-home";
 export const PUBLIC_SETTINGS_TAG = "public-settings";
 export const PUBLIC_CATEGORIES_TAG = "public-categories";
 export const PUBLIC_RESEARCH_TAG = "public-research";
+export const PUBLIC_ORGANIZATIONS_TAG = "public-organizations";
 
 /**
  * เวลาหมดอายุสำรอง (วินาที) สำหรับทุก cache สาธารณะของหน้าแรก — เป็นเพียง
@@ -47,6 +48,13 @@ export function revalidatePublicSettings() {
  * app/dashboard/categories/actions.ts */
 export function revalidatePublicCategories() {
   revalidateTag(PUBLIC_CATEGORIES_TAG);
+  revalidateTag(PUBLIC_HOME_TAG);
+}
+
+/** เรียกหลังเพิ่ม/แก้ไข/เปิดปิด/ลบ/รวม หน่วยงานเสร็จสำเร็จ — ดู
+ * app/dashboard/organizations/actions.ts, app/superadmin/organizations/actions.ts */
+export function revalidatePublicOrganizations() {
+  revalidateTag(PUBLIC_ORGANIZATIONS_TAG);
   revalidateTag(PUBLIC_HOME_TAG);
 }
 

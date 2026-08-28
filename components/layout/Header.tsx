@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Menu, X, Search, BookOpen } from "lucide-react";
@@ -58,8 +59,14 @@ export default function Header({
         <div className="flex h-16 items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="" className="h-9 w-9 rounded-lg object-cover" />
+              <Image
+                src={logoUrl}
+                alt=""
+                width={36}
+                height={36}
+                priority
+                className="h-9 w-9 rounded-lg object-cover"
+              />
             ) : (
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
                 <BookOpen className="h-5 w-5" />

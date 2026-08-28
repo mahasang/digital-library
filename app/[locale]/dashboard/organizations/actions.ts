@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { revalidatePublicOrganizations } from "@/lib/cache/public-home";
 import type { ActionResult } from "@/lib/actions/types";
 
 function slugify(text: string): string {
@@ -74,6 +75,8 @@ export async function createOrganizationAction(
   });
 
   revalidatePath("/dashboard/organizations");
+  revalidatePath("/", "layout");
+  revalidatePublicOrganizations();
   return { status: "success", message: "เพิ่มหน่วยงานเรียบร้อยแล้ว" };
 }
 
@@ -132,6 +135,8 @@ export async function updateOrganizationAction(
   });
 
   revalidatePath("/dashboard/organizations");
+  revalidatePath("/", "layout");
+  revalidatePublicOrganizations();
   return { status: "success", message: "บันทึกการแก้ไขเรียบร้อยแล้ว" };
 }
 
@@ -170,6 +175,8 @@ export async function toggleOrganizationActiveAction(
   });
 
   revalidatePath("/dashboard/organizations");
+  revalidatePath("/", "layout");
+  revalidatePublicOrganizations();
   return { status: "success", message: nextActive ? "เปิดใช้งานแล้ว" : "ปิดใช้งานแล้ว" };
 }
 
@@ -215,6 +222,8 @@ export async function deleteOrganizationAction(
   });
 
   revalidatePath("/dashboard/organizations");
+  revalidatePath("/", "layout");
+  revalidatePublicOrganizations();
   return { status: "success", message: "ลบหน่วยงานเรียบร้อยแล้ว" };
 }
 
@@ -264,5 +273,7 @@ export async function mergeOrganizationsAction(
   }
 
   revalidatePath("/dashboard/organizations");
+  revalidatePath("/", "layout");
+  revalidatePublicOrganizations();
   return { status: "success", message: "รวมข้อมูลหน่วยงานเรียบร้อยแล้ว" };
 }
