@@ -70,19 +70,29 @@ export default async function ResearchDetailPage({
     notFound();
   }
 
-  const category = await getCategoryById(item.categoryId);
-  const related = await getRelatedResearch(item);
-
-  const user = await getSessionUser();
-  const initialFavorited = user ? await isResearchFavorited(user.id, item.id) : false;
+  // category/related ขึ้นกับ item เท่านั้น ส่วน user (session) ไม่ขึ้นกับ item
+  // เลย — ทั้งสามไม่พึ่งผลของกันและกัน จึงยิงพร้อมกันได้ (Phase 3 — parallel
+  // data fetching)
+  const [category, related, user] = await Promise.all([
+    getCategoryById(item.categoryId),
+    getRelatedResearch(item),
+    getSessionUser(),
+  ]);
 
   // grants = สิทธิ์เสริมจากระบบขอสิทธิ์เข้าถึงเอกสาร (ช่วงที่ 18) — OR เข้ากับ
   // canReadOnline/canDownload(access_level) เดิมเสมอ ไม่เคยแทนที่ค่าเดิม เอกสาร
   // public ที่ทุกคนอ่าน/ดาวน์โหลดได้อยู่แล้วจึงไม่มีวันแสดงปุ่มขอสิทธิ์เพิ่ม
-  const grants =
+  //
+  // initialFavorited และ grants ต่างก็ขึ้นกับ user + item.id เท่านั้น ไม่ขึ้นกับ
+  // กันเอง จึงยิงพร้อมกันได้เช่นกัน (เงื่อนไข guard ของแต่ละตัวยังคงเดิมทุก
+  // ประการ — initialFavorited เช็คแค่ user, grants เช็ค isSupabaseConfigured()
+  // && user เหมือนโค้ดเดิม)
+  const [initialFavorited, grants] = await Promise.all([
+    user ? isResearchFavorited(user.id, item.id) : Promise.resolve(false),
     isSupabaseConfigured() && user
-      ? await getMyActiveGrantsBySlug(item.id)
-      : { read: false, download: false };
+      ? getMyActiveGrantsBySlug(item.id)
+      : Promise.resolve({ read: false, download: false }),
+  ]);
   const readable = canReadOnline(item.accessLevel) || grants.read;
   const downloadable = canDownload(item.accessLevel) || grants.download;
 

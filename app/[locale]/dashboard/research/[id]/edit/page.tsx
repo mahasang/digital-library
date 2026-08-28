@@ -34,10 +34,12 @@ export default async function DashboardEditResearchPage({
   const user = await getSessionUser();
   if (!user) return redirect({ href: `/login?redirect=/dashboard/research/${id}/edit`, locale });
 
-  const rank = await getCurrentUserRoleRank();
+  // rank ไม่ขึ้นกับ item (และในทางกลับกัน) — ยิงพร้อมกันได้ (Phase 3 — parallel
+  // data fetching) แม้ user อาจไม่มีสิทธิ์พอ ก็เป็นแค่ query ที่ทำงานเกินความ
+  // จำเป็นเล็กน้อยในกรณีนั้น ไม่ใช่ปัญหาความปลอดภัย เพราะยังตรวจ rank ก่อน
+  // redirect เหมือนเดิมทุกประการก่อนใช้ข้อมูลของ item ต่อ
+  const [rank, item] = await Promise.all([getCurrentUserRoleRank(), getSubmissionById(id)]);
   if (rank < 30) return redirect({ href: "/403", locale });
-
-  const item = await getSubmissionById(id);
   if (!item) notFound();
 
   const [organizations, categories, settings, extraction] = await Promise.all([
