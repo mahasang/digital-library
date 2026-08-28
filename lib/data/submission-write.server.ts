@@ -68,24 +68,40 @@ export async function replaceResearchRelations(
     );
   }
 
-  for (const keyword of data.keywords) {
-    const { data: kw, error: kwError } = await supabase
-      .from("keywords")
-      .upsert({ keyword }, { onConflict: "keyword" })
-      .select("id")
-      .single();
+  if (data.keywords.length > 0) {
+    // ตัดคำซ้ำก่อนเสมอ — batch upsert เดียวที่มีแถวซ้ำกันเองบน column ที่มี
+    // unique constraint (keyword) จะพัง Postgres error "ON CONFLICT DO UPDATE
+    // command cannot affect row a second time" ต่างจาก upsert ทีละคำแบบเดิม
+    // ที่แต่ละคำสั่งแยกกันจึงไม่เจอปัญหานี้ — ผลลัพธ์ชุดคำสำคัญที่ผูกกับงานวิจัย
+    // เหมือนเดิมทุกประการ (คำซ้ำก็ควรผูกกับ keyword_id เดียวกันอยู่แล้ว)
+    const uniqueKeywords = [...new Set(data.keywords)];
 
-    if (kwError || !kw) {
+    const { data: upsertedKeywords, error: kwError } = await supabase
+      .from("keywords")
+      .upsert(
+        uniqueKeywords.map((keyword) => ({ keyword })),
+        { onConflict: "keyword" }
+      )
+      .select("id, keyword");
+
+    if (kwError || !upsertedKeywords) {
       throw new Error(
         toSafeErrorMessage(kwError, "ไม่สามารถบันทึกคำสำคัญได้", "replaceResearchRelations: keyword insert failed")
       );
     }
 
-    const { error: kwLinkError } = await supabase.from("research_keywords").insert({
-      research_id: researchId,
-      keyword_id: kw.id,
+    // จับคู่กลับด้วยข้อความ keyword เอง (มี unique constraint) ไม่ใช่ตำแหน่ง
+    // แถวที่ upsert คืนมา — ปลอดภัยไม่ว่า batch upsert จะคืนแถวมาลำดับใดก็ตาม
+    const idByKeyword = new Map(upsertedKeywords.map((row) => [row.keyword, row.id]));
+    const links = uniqueKeywords.map((keyword) => {
+      const keywordId = idByKeyword.get(keyword);
+      if (!keywordId) {
+        throw new Error("ไม่สามารถบันทึกคำสำคัญได้ (ไม่พบ id หลัง upsert)");
+      }
+      return { research_id: researchId, keyword_id: keywordId };
     });
 
+    const { error: kwLinkError } = await supabase.from("research_keywords").insert(links);
     if (kwLinkError) {
       throw new Error(
         toSafeErrorMessage(kwLinkError, "ไม่สามารถเชื่อมโยงคำสำคัญได้", "replaceResearchRelations: keyword link failed")

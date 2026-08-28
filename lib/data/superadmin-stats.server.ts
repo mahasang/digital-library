@@ -77,19 +77,33 @@ export async function getResearchByStatus(): Promise<
 
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.from("research_items").select("status");
-    if (error) throw error;
+    // เดิม select("status") ดึงทุกแถวของ research_items มาทั้งตารางเพื่อนับด้วย
+    // JS ฝั่งแอป (ยิ่งงานวิจัยเยอะยิ่งโอนข้อมูลเยอะโดยไม่จำเป็น) เปลี่ยนเป็น
+    // count(exact, head: true) แยกตามสถานะแทน (เหมือน pattern ที่ใช้อยู่แล้วใน
+    // lib/data/admin-stats.server.ts) — head:true ไม่โอนข้อมูลแถวจริงเลย ได้แค่
+    // ตัวเลขนับจาก response header เท่านั้น ยิงพร้อมกันทั้งหมดด้วย Promise.all
+    // จึงไม่ช้ากว่าเดิมทั้งที่โอนข้อมูลน้อยกว่ามาก — total ยังคงนับทุกแถวไม่ว่า
+    // สถานะใด (รวมสถานะที่ไม่อยู่ใน ALL_STATUSES เช่น "merged") เหมือนโค้ดเดิม
+    // ทุกประการ ส่วน byStatus นับเฉพาะ 7 สถานะใน ALL_STATUSES เหมือนเดิม
+    const [totalRes, ...statusResults] = await Promise.all([
+      supabase.from("research_items").select("id", { count: "exact", head: true }),
+      ...ALL_STATUSES.map((status) =>
+        supabase.from("research_items").select("id", { count: "exact", head: true }).eq("status", status)
+      ),
+    ]);
+    if (totalRes.error) throw totalRes.error;
 
     const byStatus = Object.fromEntries(ALL_STATUSES.map((s) => [s, 0])) as Record<
       DocumentStatus,
       number
     >;
-    for (const row of data ?? []) {
-      const status = row.status as DocumentStatus;
-      if (status in byStatus) byStatus[status] += 1;
+    for (let i = 0; i < ALL_STATUSES.length; i++) {
+      const { count, error } = statusResults[i];
+      if (error) throw error;
+      byStatus[ALL_STATUSES[i]] = count ?? 0;
     }
 
-    return { available: true, data: { total: (data ?? []).length, byStatus } };
+    return { available: true, data: { total: totalRes.count ?? 0, byStatus } };
   } catch (error) {
     console.error("getResearchByStatus failed:", error);
     return { available: false };
