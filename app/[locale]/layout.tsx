@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
@@ -46,6 +47,39 @@ type Props = {
  * file_prompt/i18n-phase-0a-prompt.md) — skip-link, title ฯลฯ ยังเป็นภาษาไทย
  * hardcode เหมือนเดิมทุกประการ
  */
+/**
+ * <title> ต้องตาม locale จริง — ก่อนหน้านี้ root layout (app/layout.tsx) ใส่
+ * metadata แบบ static เป็นภาษาไทย hardcode ทำให้ /en/ และ /lo/ ก็ยังขึ้น
+ * browser tab title ภาษาไทยเหมือนกันหมด generateMetadata ที่นี่จึง override
+ * เฉพาะ title: locale 'th' ใช้ siteName จาก DB เหมือนเดิม (ตรงกับที่ admin
+ * ตั้งค่าไว้ผ่าน settings), ส่วน locale อื่นใช้ header.siteName จาก i18n
+ * message file แทน เพราะ DB เก็บชื่อไซต์เป็นภาษาไทยภาษาเดียว
+ *
+ * ไม่แตะ siteName ที่ส่งเข้า <Header> ด้านล่าง — ยังคงมาจาก DB ทุก locale
+ * เหมือนเดิมทุกประการ (คนละจุดกับ <title> ของ browser tab)
+ */
+export async function generateMetadata({
+  params,
+}: Pick<Props, "params">): Promise<Metadata> {
+  const { locale } = await params;
+  const { siteName: dbSiteName } = await getPublicHomeSettings();
+
+  let siteName: string;
+  if (locale === "th") {
+    siteName = dbSiteName || "ห้องสมุดดิจิทัลเพื่อเผยแพร่งานวิจัยขององค์กร";
+  } else {
+    const t = await getTranslations({ locale, namespace: "header" });
+    siteName = t("siteName");
+  }
+
+  return {
+    title: {
+      default: siteName,
+      template: `%s | ${siteName}`,
+    },
+  };
+}
+
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
 
