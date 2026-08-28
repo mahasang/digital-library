@@ -1265,5 +1265,18 @@
     "orcidVerified": "Đã xác minh",
     "organization": "Tổ chức",
     "viewProfile": "Xem hồ sơ"
+  },
+  "upload": {
+    "uploading": "Đang tải lên...",
+    "uploadingPercent": "Đang tải lên... {percent}%",
+    "uploadComplete": "Tải lên thành công",
+    "uploadError": "Tải lên thất bại, vui lòng thử lại",
+    "uploadPdf": "Đang tải lên PDF...",
+    "uploadCover": "Đang tải lên ảnh bìa...",
+    "uploadAttachment": "Đang tải lên tệp đính kèm..."
+  },
+  "download": {
+    "preparing": "Đang chuẩn bị tệp...",
+    "downloadComplete": "Tải xuống thành công"
   }
 }

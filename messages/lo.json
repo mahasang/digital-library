@@ -1330,5 +1330,18 @@
     "orcidVerified": "ຢືນຢັນແລ້ວ",
     "organization": "ຫນ່ວຍງານ",
     "viewProfile": "ເບິ່ງໂປຣໄຟລ໌"
+  },
+  "upload": {
+    "uploading": "กำลังอัปโหลด...",
+    "uploadingPercent": "กำลังอัปโหลด... {percent}%",
+    "uploadComplete": "อัปโหลดสำเร็จ",
+    "uploadError": "อัปโหลดไม่สำเร็จ กรุณาลองใหม่",
+    "uploadPdf": "กำลังอัปโหลด PDF...",
+    "uploadCover": "กำลังอัปโหลดรูปปก...",
+    "uploadAttachment": "กำลังอัปโหลดไฟล์แนบ..."
+  },
+  "download": {
+    "preparing": "กำลังเตรียมไฟล์...",
+    "downloadComplete": "ดาวน์โหลดสำเร็จ"
   }
 }

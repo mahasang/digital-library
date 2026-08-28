@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle2, Download, Lock } from "lucide-react";
 import { canDownload } from "@/lib/labels";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { requestDownloadUrlAction } from "@/app/[locale]/research/[id]/actions";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import type { AccessLevel } from "@/types/research";
 
 export default function DownloadButton({
@@ -20,6 +22,7 @@ export default function DownloadButton({
   researchSlug: string;
   hasDownloadGrant?: boolean;
 }) {
+  const t = useTranslations("download");
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
   const allowed = canDownload(accessLevel) || hasDownloadGrant;
@@ -86,6 +89,13 @@ export default function DownloadButton({
             ? "ดาวน์โหลดแล้ว"
             : "ดาวน์โหลดไฟล์"}
       </button>
+      {/* status === "loading" คือช่วงรอ signed URL จาก Server Action เท่านั้น —
+          หลังจากนั้น browser เป็นผู้โหลดไฟล์เองผ่าน native download (ไม่ใช่
+          fetch/blob ฝั่งแอป) จึงไม่มีทางรู้ % ความคืบหน้าการดาวน์โหลดไฟล์จริง
+          ได้เลย แสดงได้แค่แถบ indeterminate ระหว่างรอ signed URL เท่านั้น */}
+      {status === "loading" && (
+        <ProgressBar value={0} indeterminate label={t("preparing")} className="w-full sm:w-64" />
+      )}
       {error && (
         <p className="flex items-center gap-1 text-xs text-red-600">
           <AlertCircle className="h-3.5 w-3.5" />

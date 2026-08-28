@@ -29,6 +29,7 @@ import {
 import { createDraftKey } from "@/lib/storage/paths";
 import { uploadResearchFile } from "@/lib/storage/upload.client";
 import TurnstileWidget from "@/components/auth/TurnstileWidget";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import type { ActionResult } from "@/lib/actions/types";
 import type {
   AccessLevel,
@@ -39,6 +40,24 @@ import type {
 } from "@/types/research";
 
 const currentBuddhistYear = new Date().getFullYear() + 543;
+
+/**
+ * จำลองความคืบหน้า (0→90%) ระหว่างรอ upload จริง แล้ว caller เป็นผู้ตั้งเป็น
+ * 100% เองตอนเสร็จ — @supabase/storage-js เวอร์ชันที่ใช้อยู่ (v2.111) ไม่มี
+ * onUploadProgress หรือ callback ความคืบหน้าจริงใดๆ ใน .upload() เลย (ใช้
+ * fetch() ภายใน ไม่ใช่ XHR ซึ่งเป็นข้อจำกัดของ Fetch API เองที่ไม่รองรับ upload
+ * progress event) จึงทำได้แค่แสดงว่า "กำลังทำงานอยู่" แบบประมาณเวลา ไม่ใช่ %
+ * ไบต์จริงที่โอนไปแล้ว
+ */
+function startFakeUploadProgress(onProgress: (percent: number) => void): () => void {
+  let percent = 0;
+  onProgress(0);
+  const interval = setInterval(() => {
+    percent = Math.min(percent + 8, 90);
+    onProgress(percent);
+  }, 200);
+  return () => clearInterval(interval);
+}
 
 interface ResearcherRow {
   name: string;
@@ -94,6 +113,7 @@ export default function SubmitResearchForm({
   const [captchaToken, setCaptchaToken] = useState("");
 
   const tAccessLevels = useTranslations("accessLevels");
+  const tUpload = useTranslations("upload");
   const [titleTh, setTitleTh] = useState(initialData?.titleTh ?? "");
   const [titleEn, setTitleEn] = useState(initialData?.titleEn ?? "");
   const [abstract, setAbstract] = useState(initialData?.abstract ?? "");
@@ -128,6 +148,8 @@ export default function SubmitResearchForm({
   }>({});
 
   const [status, setStatus] = useState<"idle" | "uploading" | "submitting">("idle");
+  const [uploadingKind, setUploadingKind] = useState<"pdf" | "cover" | "attachment" | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
@@ -222,42 +244,58 @@ export default function SubmitResearchForm({
 
     let pdfPath = initialData?.pdfFile ?? "";
     if (pdfFile) {
+      setUploadingKind("pdf");
+      const stopProgress = startFakeUploadProgress(setUploadProgress);
       const result = await uploadResearchFile("research-documents", userId, draftKey, pdfFile);
+      stopProgress();
       if (result.error || !result.path) {
         setError(result.error ?? "อัปโหลดไฟล์ PDF ไม่สำเร็จ");
         setStatus("idle");
+        setUploadingKind(null);
         return;
       }
+      setUploadProgress(100);
       pdfPath = result.path;
     }
 
     let coverPath = "";
     if (coverFile) {
+      setUploadingKind("cover");
+      const stopProgress = startFakeUploadProgress(setUploadProgress);
       const result = await uploadResearchFile("research-covers", userId, draftKey, coverFile);
+      stopProgress();
       if (result.error || !result.path) {
         setError(result.error ?? "อัปโหลดภาพปกไม่สำเร็จ");
         setStatus("idle");
+        setUploadingKind(null);
         return;
       }
+      setUploadProgress(100);
       coverPath = result.path;
     }
 
     let attachmentPath = "";
     if (attachmentFile) {
+      setUploadingKind("attachment");
+      const stopProgress = startFakeUploadProgress(setUploadProgress);
       const result = await uploadResearchFile(
         "submission-attachments",
         userId,
         draftKey,
         attachmentFile
       );
+      stopProgress();
       if (result.error || !result.path) {
         setError(result.error ?? "อัปโหลดไฟล์แนบไม่สำเร็จ");
         setStatus("idle");
+        setUploadingKind(null);
         return;
       }
+      setUploadProgress(100);
       attachmentPath = result.path;
     }
 
+    setUploadingKind(null);
     setStatus("submitting");
 
     const formData = new FormData();
@@ -590,6 +628,19 @@ export default function SubmitResearchForm({
             <p className="mt-2 text-xs text-red-600">{fieldErrors.turnstileToken[0]}</p>
           )}
         </section>
+      )}
+
+      {status === "uploading" && uploadingKind && (
+        <ProgressBar
+          value={uploadProgress}
+          label={
+            uploadingKind === "pdf"
+              ? tUpload("uploadPdf")
+              : uploadingKind === "cover"
+                ? tUpload("uploadCover")
+                : tUpload("uploadAttachment")
+          }
+        />
       )}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">

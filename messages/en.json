@@ -1265,5 +1265,18 @@
     "orcidVerified": "Verified",
     "organization": "Organization",
     "viewProfile": "View Profile"
+  },
+  "upload": {
+    "uploading": "Uploading...",
+    "uploadingPercent": "Uploading... {percent}%",
+    "uploadComplete": "Upload complete",
+    "uploadError": "Upload failed, please try again",
+    "uploadPdf": "Uploading PDF...",
+    "uploadCover": "Uploading cover image...",
+    "uploadAttachment": "Uploading attachment..."
+  },
+  "download": {
+    "preparing": "Preparing file...",
+    "downloadComplete": "Download complete"
   }
 }
