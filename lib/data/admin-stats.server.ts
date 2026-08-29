@@ -32,7 +32,17 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   const supabase = await createClient();
 
-  const [memberCountRes, totalResearchRes, pendingReviewRes, allResearchRes] =
+  // เดิม select("id, slug, title_th, views, downloads") ดึงทุกแถวของ
+  // research_items มาเพื่อ reduce() หา SUM และ sort()+slice() หา top-5 ใน JS
+  // ฝั่งแอป (ยิ่งงานวิจัยเยอะยิ่งโอนข้อมูลเยอะโดยไม่จำเป็น) เปลี่ยนเป็น 2
+  // queries ที่ให้ Postgres คำนวณให้แทน: SUM(views)/SUM(downloads) ผ่าน
+  // PostgREST aggregate select (เปิดใช้งานแล้วที่ระดับ role `authenticator`
+  // ผ่าน `ALTER ROLE authenticator SET pgrst.db_aggregates_enabled = 'true'`
+  // — ยืนยันแล้วว่าใช้งานได้จริงกับ production DB) และ ORDER BY views DESC
+  // LIMIT 5 สำหรับ top-5 — ใส่ alias `views_sum`/`downloads_sum` เอง
+  // (ไม่พึ่งชื่อ key เริ่มต้นที่ PostgREST เลือกให้ เพราะถ้า select สอง
+  // aggregate พร้อมกันโดยไม่ตั้งชื่อ อาจชนกันหรือได้ชื่อที่คาดเดาไม่ได้)
+  const [memberCountRes, totalResearchRes, pendingReviewRes, aggregateRes, top5Res] =
     await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }),
       supabase
@@ -42,21 +52,32 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         .from("research_items")
         .select("id", { count: "exact", head: true })
         .eq("status", "pending_review"),
-      supabase.from("research_items").select("id, slug, title_th, views, downloads"),
+      supabase
+        .from("research_items")
+        .select("views_sum:views.sum(), downloads_sum:downloads.sum()")
+        .single(),
+      supabase
+        .from("research_items")
+        .select("id, slug, title_th, views, downloads")
+        .order("views", { ascending: false })
+        .limit(5),
     ]);
 
-  const allResearch = allResearchRes.data ?? [];
-  const totalViews = allResearch.reduce((sum, r) => sum + (r.views ?? 0), 0);
-  const totalDownloads = allResearch.reduce((sum, r) => sum + (r.downloads ?? 0), 0);
-  const popularResearch = [...allResearch]
-    .sort((a, b) => (b.views ?? 0) - (a.views ?? 0))
-    .slice(0, 5)
-    .map((r) => ({
-      id: r.slug,
-      titleTh: r.title_th,
-      views: r.views ?? 0,
-      downloads: r.downloads ?? 0,
-    }));
+  const aggData = aggregateRes.data as
+    | { views_sum: number | null; downloads_sum: number | null }
+    | null;
+  const totalViews = aggregateRes.error ? 0 : (aggData?.views_sum ?? 0);
+  const totalDownloads = aggregateRes.error ? 0 : (aggData?.downloads_sum ?? 0);
+  if (aggregateRes.error) {
+    console.error("getDashboardStats: aggregate query failed:", aggregateRes.error.message);
+  }
+
+  const popularResearch = (top5Res.data ?? []).map((r) => ({
+    id: r.slug,
+    titleTh: r.title_th,
+    views: r.views ?? 0,
+    downloads: r.downloads ?? 0,
+  }));
 
   return {
     memberCount: memberCountRes.count ?? 0,
