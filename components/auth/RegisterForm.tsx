@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, UserPlus } from "lucide-react";
 import { registerAction } from "@/app/[locale]/register/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import TurnstileWidget from "@/components/auth/TurnstileWidget";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function RegisterForm({
   captchaSiteKey,
@@ -143,6 +144,16 @@ export default function RegisterForm({
         <UserPlus className="h-4 w-4" />
         {isPending ? t("registerSubmitting") : t("registerSubmit")}
       </button>
+
+      <div className="relative my-2">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200" />
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="bg-white px-2 text-gray-400">{t("orContinueWith")}</span>
+        </div>
+      </div>
+      <GoogleSignInButton />
     </form>
   );
 }

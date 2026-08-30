@@ -218,7 +218,9 @@
     "organizationPlaceholder": "ເຊັ່ນ: ຄະນະວິສະວະກຳສາດ",
     "authErrorGeneric": "ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
     "loginSubmit": "ເຂົ້າສູ່ລະບົບ",
-    "loginSubmitting": "ກຳລັງເຂົ້າສູ່ລະບົບ..."
+    "loginSubmitting": "ກຳລັງເຂົ້າສູ່ລະບົບ...",
+    "signInWithGoogle": "ເຂົ້າສູ່ລະບົບດ້ວຍ Google",
+    "orContinueWith": "ຫຼືເຂົ້າສູ່ລະບົບດ້ວຍ"
   },
   "login": {
     "pageTitle": "ເຂົ້າສູ່ລະບົບ",

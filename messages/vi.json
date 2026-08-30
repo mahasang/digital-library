@@ -188,7 +188,9 @@
     "organizationPlaceholder": "Ví dụ: Khoa Kỹ thuật",
     "authErrorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "loginSubmit": "Đăng nhập",
-    "loginSubmitting": "Đang đăng nhập..."
+    "loginSubmitting": "Đang đăng nhập...",
+    "signInWithGoogle": "Đăng nhập bằng Google",
+    "orContinueWith": "hoặc tiếp tục với"
   },
   "login": {
     "pageTitle": "Đăng nhập",

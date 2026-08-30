@@ -188,7 +188,9 @@
     "organizationPlaceholder": "e.g. Faculty of Engineering",
     "authErrorGeneric": "An error occurred. Please try again.",
     "loginSubmit": "Sign In",
-    "loginSubmitting": "Signing in..."
+    "loginSubmitting": "Signing in...",
+    "signInWithGoogle": "Sign in with Google",
+    "orContinueWith": "or continue with"
   },
   "login": {
     "pageTitle": "Sign In",

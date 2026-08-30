@@ -188,7 +188,9 @@
     "organizationPlaceholder": "เช่น คณะวิศวกรรมศาสตร์",
     "authErrorGeneric": "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
     "loginSubmit": "เข้าสู่ระบบ",
-    "loginSubmitting": "กำลังเข้าสู่ระบบ..."
+    "loginSubmitting": "กำลังเข้าสู่ระบบ...",
+    "signInWithGoogle": "เข้าสู่ระบบด้วย Google",
+    "orContinueWith": "หรือเข้าสู่ระบบด้วย"
   },
   "login": {
     "pageTitle": "เข้าสู่ระบบ",

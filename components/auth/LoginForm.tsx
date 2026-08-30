@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { AlertCircle, Eye, EyeOff, LogIn } from "lucide-react";
 import { loginAction } from "@/app/[locale]/login/actions";
 import { idleActionResult } from "@/lib/actions/types";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 export default function LoginForm({ redirectTo }: { redirectTo: string }) {
   const t = useTranslations("auth");
@@ -93,6 +94,16 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
         <LogIn className="h-4 w-4" />
         {isPending ? t("loginSubmitting") : t("loginSubmit")}
       </button>
+
+      <div className="relative my-2">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200" />
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="bg-white px-2 text-gray-400">{t("orContinueWith")}</span>
+        </div>
+      </div>
+      <GoogleSignInButton />
     </form>
   );
 }
