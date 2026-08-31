@@ -22,10 +22,11 @@ export default function GoogleSignInButton() {
   function handleClick() {
     startTransition(async () => {
       const supabase = createClient();
+      const locale = window.location.pathname.split('/')[1] || 'lo';
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/`,
+          redirectTo: `${window.location.origin}/${locale}/auth/callback?next=/`,
         },
       });
     });
