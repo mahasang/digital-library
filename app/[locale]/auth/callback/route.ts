@@ -19,7 +19,8 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${safeNext}`);
     }
-  }
-
-  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
-}
+    // debug — redirect พร้อม error message
+    return NextResponse.redirect(
+      `${origin}/lo/login?error=auth_callback_failed&debug=${encodeURIComponent(error.message)}`
+    );
+  }}
