@@ -27,8 +27,10 @@ export default function GoogleSignInButton() {
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/${locale}/auth/callback?next=/`,
+          queryParams: {
+            prompt: "select_account",
         },
-      });
+      }});
     });
   }
 
