@@ -190,7 +190,9 @@
     "loginSubmit": "Đăng nhập",
     "loginSubmitting": "Đang đăng nhập...",
     "signInWithGoogle": "Đăng nhập bằng Google",
-    "orContinueWith": "hoặc tiếp tục với"
+    "orContinueWith": "hoặc tiếp tục với",
+    "phone": "Số điện thoại",
+    "phonePlaceholder": "0812345678"
   },
   "login": {
     "pageTitle": "Đăng nhập",
@@ -637,7 +639,22 @@
       "profile": "Hồ sơ của tôi",
       "notifications": "Thông báo"
     },
-    "navLabel": "Menu tài khoản của tôi"
+    "navLabel": "Menu tài khoản của tôi",
+    "fullName": "Họ và tên",
+    "fullNameHelp": "Tên này sẽ hiển thị là người gửi khi bạn nộp nghiên cứu hoặc yêu cầu truy cập",
+    "organization": "Tổ chức/Đơn vị",
+    "organizationHelp": "Không bắt buộc — giúp nhân viên xác định bạn dễ dàng hơn",
+    "organizationPlaceholder": "VD: Khoa Kỹ thuật",
+    "phone": "Số điện thoại",
+    "phonePlaceholder": "0812345678",
+    "dateOfBirth": "Ngày sinh",
+    "address": "Địa chỉ",
+    "addressPlaceholder": "Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành",
+    "saveProfile": "Lưu thay đổi",
+    "savingProfile": "Đang lưu...",
+    "changeAvatar": "Đổi ảnh đại diện",
+    "uploadingAvatar": "Đang tải lên...",
+    "saveAvatar": "Lưu ảnh đại diện"
   },
   "superadmin": {
     "pageTitle": "Tổng quan hệ thống — Super Admin",

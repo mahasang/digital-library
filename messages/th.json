@@ -190,7 +190,9 @@
     "loginSubmit": "เข้าสู่ระบบ",
     "loginSubmitting": "กำลังเข้าสู่ระบบ...",
     "signInWithGoogle": "เข้าสู่ระบบด้วย Google",
-    "orContinueWith": "หรือเข้าสู่ระบบด้วย"
+    "orContinueWith": "หรือเข้าสู่ระบบด้วย",
+    "phone": "เบอร์โทรศัพท์",
+    "phonePlaceholder": "0812345678"
   },
   "login": {
     "pageTitle": "เข้าสู่ระบบ",
@@ -520,7 +522,22 @@
       "profile": "โปรไฟล์ของฉัน",
       "notifications": "การแจ้งเตือน"
     },
-    "navLabel": "เมนูบัญชีของฉัน"
+    "navLabel": "เมนูบัญชีของฉัน",
+    "fullName": "ชื่อ-นามสกุล",
+    "fullNameHelp": "ชื่อนี้จะแสดงเป็นชื่อผู้ส่งเมื่อคุณส่งงานวิจัยหรือคำขอเข้าถึงเอกสาร",
+    "organization": "หน่วยงาน/สังกัด",
+    "organizationHelp": "ไม่บังคับกรอก — ช่วยให้เจ้าหน้าที่ระบุตัวตนของคุณได้ง่ายขึ้น",
+    "organizationPlaceholder": "เช่น คณะวิศวกรรมศาสตร์",
+    "phone": "เบอร์โทรศัพท์",
+    "phonePlaceholder": "0812345678",
+    "dateOfBirth": "วันเกิด",
+    "address": "ที่อยู่",
+    "addressPlaceholder": "บ้านเลขที่ ถนน แขวง เขต จังหวัด",
+    "saveProfile": "บันทึกการเปลี่ยนแปลง",
+    "savingProfile": "กำลังบันทึก...",
+    "changeAvatar": "เปลี่ยนรูปโปรไฟล์",
+    "uploadingAvatar": "กำลังอัปโหลด...",
+    "saveAvatar": "บันทึกรูปโปรไฟล์"
   },
   "roles": {
     "guest": "ผู้เยี่ยมชม",

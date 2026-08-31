@@ -190,7 +190,9 @@
     "loginSubmit": "Sign In",
     "loginSubmitting": "Signing in...",
     "signInWithGoogle": "Sign in with Google",
-    "orContinueWith": "or continue with"
+    "orContinueWith": "or continue with",
+    "phone": "Phone Number",
+    "phonePlaceholder": "0812345678"
   },
   "login": {
     "pageTitle": "Sign In",
@@ -520,7 +522,22 @@
       "profile": "My Profile",
       "notifications": "Notifications"
     },
-    "navLabel": "My account menu"
+    "navLabel": "My account menu",
+    "fullName": "Full Name",
+    "fullNameHelp": "This name will be shown as the submitter when you submit research or access requests",
+    "organization": "Organization",
+    "organizationHelp": "Optional — helps staff identify you more easily",
+    "organizationPlaceholder": "e.g. Faculty of Engineering",
+    "phone": "Phone Number",
+    "phonePlaceholder": "0812345678",
+    "dateOfBirth": "Date of Birth",
+    "address": "Address",
+    "addressPlaceholder": "House no., street, subdistrict, district, province",
+    "saveProfile": "Save Changes",
+    "savingProfile": "Saving...",
+    "changeAvatar": "Change Avatar",
+    "uploadingAvatar": "Uploading...",
+    "saveAvatar": "Save Avatar"
   },
   "roles": {
     "guest": "Guest",

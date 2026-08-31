@@ -101,6 +101,9 @@ export interface Database {
           organization_name: string | null;
           organization_id: string | null;
           avatar_url: string | null;
+          phone: string | null;
+          date_of_birth: string | null;
+          address: string | null;
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -112,6 +115,9 @@ export interface Database {
           organization_name?: string | null;
           organization_id?: string | null;
           avatar_url?: string | null;
+          phone?: string | null;
+          date_of_birth?: string | null;
+          address?: string | null;
           is_active?: boolean;
         };
         Update: {
@@ -119,6 +125,9 @@ export interface Database {
           organization_name?: string | null;
           organization_id?: string | null;
           avatar_url?: string | null;
+          phone?: string | null;
+          date_of_birth?: string | null;
+          address?: string | null;
           is_active?: boolean;
         };
         Relationships: [];

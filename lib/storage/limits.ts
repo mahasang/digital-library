@@ -38,6 +38,10 @@ export const ATTACHMENT_ALLOWED_TYPES = [
 ];
 export const ATTACHMENT_ALLOWED_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx"];
 
+export const DEFAULT_AVATAR_MAX_SIZE_MB = 5;
+export const AVATAR_ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+export const AVATAR_ALLOWED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
+
 export const SITE_ASSET_ALLOWED_TYPES = [
   "image/png",
   "image/jpeg",

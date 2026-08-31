@@ -56,6 +56,7 @@ export async function registerAction(
   const parsed = registerSchema.safeParse({
     fullName: formData.get("fullName"),
     organization: formData.get("organization") || undefined,
+    phone: formData.get("phone") || undefined,
     email: formData.get("email"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
@@ -79,6 +80,7 @@ export async function registerAction(
       data: {
         full_name: parsed.data.fullName,
         organization: parsed.data.organization ?? null,
+        phone: parsed.data.phone || null,
       },
       emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(
         "/login?confirmed=1"

@@ -58,6 +58,22 @@ export default function RegisterForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
+        <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+          {t("phone")}
+        </label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          placeholder={t("phonePlaceholder")}
+          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+        />
+        {state.status === "error" && state.fieldErrors?.phone && (
+          <p className="text-xs text-red-600">{state.fieldErrors.phone[0]}</p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-1.5">
         <label htmlFor="org" className="text-sm font-medium text-gray-700">
           {t("organization")}
         </label>

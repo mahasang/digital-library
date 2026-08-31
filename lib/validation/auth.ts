@@ -14,6 +14,11 @@ export const registerSchema = z
       .min(2, "กรุณากรอกชื่อ-นามสกุลอย่างน้อย 2 ตัวอักษร")
       .max(120, "ชื่อ-นามสกุลยาวเกินไป"),
     organization: z.string().max(200, "ชื่อหน่วยงานยาวเกินไป").optional(),
+    phone: z
+      .string()
+      .regex(/^[0-9+\-\s()]{6,20}$/, "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง")
+      .optional()
+      .or(z.literal("")),
     email: z.string().min(1, "กรุณากรอกอีเมล").email("รูปแบบอีเมลไม่ถูกต้อง"),
     password: z
       .string()

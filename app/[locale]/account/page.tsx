@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/navigation";
-import { Bell, FileQuestion, Mail, ShieldCheck, UserCircle } from "lucide-react";
+import { Bell, FileQuestion, Mail, ShieldCheck } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import AccountShell from "@/components/account/AccountShell";
 import ProfileForm from "@/components/auth/ProfileForm";
+import AvatarUpload from "@/components/auth/AvatarUpload";
 import LogoutButton from "@/components/auth/LogoutButton";
 import MfaSettings from "@/components/account/MfaSettings";
 import OrcidConnect from "@/components/account/OrcidConnect";
@@ -46,7 +47,7 @@ export default async function AccountPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, organization_name, email")
+    .select("full_name, organization_name, email, phone, date_of_birth, address, avatar_url")
     .eq("id", user.id)
     .single();
 
@@ -67,9 +68,7 @@ export default async function AccountPage({
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1.4fr]">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-surface p-6 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-soft text-accent-ink">
-              <UserCircle className="h-9 w-9" />
-            </span>
+            <AvatarUpload currentAvatarUrl={profile?.avatar_url ?? null} />
             <div>
               <p className="text-sm font-semibold text-gray-900">
                 {profile?.full_name || t("noName")}
@@ -119,6 +118,9 @@ export default async function AccountPage({
               <ProfileForm
                 defaultFullName={profile?.full_name ?? ""}
                 defaultOrganization={profile?.organization_name ?? ""}
+                defaultPhone={profile?.phone ?? ""}
+                defaultDateOfBirth={profile?.date_of_birth ?? ""}
+                defaultAddress={profile?.address ?? ""}
               />
             </div>
           </div>
