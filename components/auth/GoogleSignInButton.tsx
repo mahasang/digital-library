@@ -1,8 +1,9 @@
 "use client";
 
-import { useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { signInWithGoogleAction } from "@/app/[locale]/login/google-action";
+import { useTransition } from "react";
+import { createClient } from "@/lib/supabase/client";
+
 
 /**
  * ใช้ปุ่มธรรมดา + useTransition แทน <form action={signInWithGoogleAction}>
@@ -20,7 +21,13 @@ export default function GoogleSignInButton() {
 
   function handleClick() {
     startTransition(async () => {
-      await signInWithGoogleAction();
+      const supabase = createClient();
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=/`,
+        },
+      });
     });
   }
 
