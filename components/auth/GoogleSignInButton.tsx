@@ -1,17 +1,59 @@
 "use client";
 
+import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { signInWithGoogleAction } from "@/app/[locale]/login/google-action";
 
+/**
+ * ใช้ปุ่มธรรมดา + useTransition แทน <form action={signInWithGoogleAction}>
+ * เพราะ component นี้ถูกวางไว้ "ข้างใน" <form> ของ LoginForm/RegisterForm
+ * เสมอ (ดู scope ข้อห้ามของ file_prompt/fix-google-button.md — ห้ามย้ายออก
+ * จาก form เดิม) การมี <form> ซ้อนกันเป็น HTML ที่ไม่ถูกต้อง (forms นับซ้อนกัน
+ * ไม่ได้) เบราว์เซอร์จะปรับโครงสร้าง DOM ให้เองแบบเงียบๆ จนไม่ตรงกับที่ React
+ * คิดว่า render ไว้ ทำให้ React 19 form action tracking สับสนแล้วโยน error
+ * "A React form was unexpectedly submitted" ตอน production build — ไม่ใช้
+ * <form> เลยจึงตัดปัญหาการซ้อน form ทิ้งไปตั้งแต่ต้น
+ */
 export default function GoogleSignInButton() {
   const t = useTranslations("auth");
+  const [isPending, startTransition] = useTransition();
+
+  function handleClick() {
+    startTransition(async () => {
+      await signInWithGoogleAction();
+    });
+  }
 
   return (
-    <form action={signInWithGoogleAction}>
-      <button
-        type="submit"
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-      >
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={isPending}
+      className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {isPending ? (
+        <svg
+          className="h-4 w-4 animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8H4z"
+          />
+        </svg>
+      ) : (
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
           <path
             fill="#4285F4"
@@ -30,8 +72,8 @@ export default function GoogleSignInButton() {
             d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
           />
         </svg>
-        {t("signInWithGoogle")}
-      </button>
-    </form>
+      )}
+      {isPending ? t("loginSubmitting") : t("signInWithGoogle")}
+    </button>
   );
 }
