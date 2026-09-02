@@ -555,7 +555,13 @@
     "savingProfile": "Saving...",
     "changeAvatar": "Change Avatar",
     "uploadingAvatar": "Uploading...",
-    "saveAvatar": "Save Avatar"
+    "saveAvatar": "Save Avatar",
+    "readingHistoryCount": "{count} items",
+    "clearAll": "Clear All",
+    "clearingAll": "Clearing...",
+    "clearAllConfirm": "Clear your entire reading history?",
+    "emptyHistoryTitle": "No reading history yet",
+    "emptyHistoryDescription": "Research you open will be saved here"
   },
   "roles": {
     "guest": "Guest",

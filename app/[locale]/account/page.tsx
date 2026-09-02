@@ -9,11 +9,13 @@ import AvatarUpload from "@/components/auth/AvatarUpload";
 import LogoutButton from "@/components/auth/LogoutButton";
 import MfaSettings from "@/components/account/MfaSettings";
 import OrcidConnect from "@/components/account/OrcidConnect";
+import ReadingHistorySection from "@/components/account/ReadingHistorySection";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRole } from "@/lib/supabase/roles";
 import { getMyOrcidStatus } from "@/lib/data/orcid-profile.server";
 import { isOrcidOAuthConfigured } from "@/lib/orcid/orcid-oauth.server";
+import { getReadingHistoryAction } from "./actions";
 
 export async function generateMetadata({
   params,
@@ -55,6 +57,7 @@ export default async function AccountPage({
   const params = await searchParams;
   const orcidStatus = await getMyOrcidStatus();
   const orcidConfigured = isOrcidOAuthConfigured();
+  const readingHistory = await getReadingHistoryAction();
   const t = await getTranslations("account");
   const tRoles = await getTranslations("roles");
 
@@ -151,6 +154,15 @@ export default async function AccountPage({
                 redirectStatus={params.orcid}
                 redirectReason={params.reason}
               />
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-gray-200 bg-surface p-6">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {t("nav.readingHistory")}
+            </h2>
+            <div className="mt-4">
+              <ReadingHistorySection initialHistory={readingHistory} />
             </div>
           </div>
         </div>

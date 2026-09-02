@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { profileSchema } from "@/lib/validation/profile";
 import {
   AVATAR_ALLOWED_TYPES,
@@ -11,7 +12,9 @@ import {
   isExtensionAllowed,
   mbToBytes,
 } from "@/lib/storage/limits";
+import { getReadingHistory } from "@/lib/data/favorites.server";
 import type { ActionResult } from "@/lib/actions/types";
+import type { ResearchItem } from "@/types/research";
 
 export async function updateProfileAction(
   _prevState: ActionResult,
@@ -139,4 +142,71 @@ export async function updateAvatarAction(
 
   revalidatePath("/account");
   return { status: "success", message: "อัปเดตรูปโปรไฟล์เรียบร้อยแล้ว" };
+}
+
+export interface ReadingHistoryEntry {
+  id: string;
+  readAt: string;
+  research: ResearchItem;
+}
+
+/** ประวัติการอ่านแบบ dedupe เอาแค่ครั้งล่าสุดต่อชิ้น — ใช้ getReadingHistory()
+ * เดิมจาก lib/data/favorites.server.ts (มี fetchPublishedResearchRowsByIds
+ * กรองเฉพาะงานวิจัยที่ยัง published อยู่ให้แล้ว และ mapRowToResearchItem
+ * ให้ field ตรงกับที่ใช้ทั่วแอปอยู่แล้ว) แทนการ query ตรงๆ ซ้ำอีกที — ฟังก์ชัน
+ * เดิมไม่ dedupe (คืนทุกครั้งที่อ่าน อาจซ้ำชิ้นเดียวกันหลายแถว) เพราะหน้า
+ * /reading-history เดิมต้องการแบบนั้น จึง dedupe ที่ชั้นนี้แทนที่จะแก้ฟังก์ชัน
+ * ที่ใช้ร่วมกัน — ผลลัพธ์เรียง read_at ล่าสุดก่อนอยู่แล้ว จึง dedupe แบบเก็บ
+ * รายการแรกที่เจอต่อ id ได้เลย (คือครั้งล่าสุดเสมอ) */
+export async function getReadingHistoryAction(): Promise<ReadingHistoryEntry[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const history = await getReadingHistory(user.id);
+
+  const seen = new Set<string>();
+  const deduped: ReadingHistoryEntry[] = [];
+  for (const { item, readAt } of history) {
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
+    deduped.push({ id: item.id, readAt, research: item });
+  }
+  return deduped;
+}
+
+/** ลบประวัติการอ่านทั้งหมดของผู้ใช้ปัจจุบัน — ต้องมี reading_history_delete_own
+ * policy (migration 20260901100000) เพราะเดิม reading_history มีแค่
+ * select/insert policy ไม่มี delete policy เลยแม้จะมี GRANT delete ระดับ
+ * ตารางให้ authenticated อยู่แล้วก็ตาม (RLS ปฏิเสธทุกแถวโดยปริยายถ้าไม่มี
+ * policy ตรงกับ operation) */
+export async function clearReadingHistoryAction(): Promise<{ error: string | null }> {
+  if (!isSupabaseConfigured()) {
+    return { error: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  }
+
+  const { error } = await supabase.from("reading_history").delete().eq("user_id", user.id);
+
+  if (error) {
+    console.error("clearReadingHistoryAction failed:", error.message);
+    return { error: "ไม่สามารถลบประวัติการอ่านได้ กรุณาลองใหม่อีกครั้ง" };
+  }
+
+  revalidatePath("/account");
+  // /reading-history เป็นหน้าแยกที่ใช้ getReadingHistory() ตัวเดียวกัน — revalidate
+  // ด้วยเพื่อไม่ให้แสดงประวัติเก่าที่ถูกลบไปแล้วค้างอยู่จาก cache เดิม
+  revalidatePath("/reading-history");
+  return { error: null };
 }

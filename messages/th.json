@@ -555,7 +555,13 @@
     "savingProfile": "กำลังบันทึก...",
     "changeAvatar": "เปลี่ยนรูปโปรไฟล์",
     "uploadingAvatar": "กำลังอัปโหลด...",
-    "saveAvatar": "บันทึกรูปโปรไฟล์"
+    "saveAvatar": "บันทึกรูปโปรไฟล์",
+    "readingHistoryCount": "{count} รายการ",
+    "clearAll": "ลบทั้งหมด",
+    "clearingAll": "กำลังลบ...",
+    "clearAllConfirm": "ต้องการลบประวัติการอ่านทั้งหมดหรือไม่?",
+    "emptyHistoryTitle": "ยังไม่มีประวัติการอ่าน",
+    "emptyHistoryDescription": "งานวิจัยที่คุณเปิดอ่านจะถูกบันทึกไว้ที่นี่"
   },
   "roles": {
     "guest": "ผู้เยี่ยมชม",

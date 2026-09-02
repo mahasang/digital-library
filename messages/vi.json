@@ -672,7 +672,13 @@
     "savingProfile": "Đang lưu...",
     "changeAvatar": "Đổi ảnh đại diện",
     "uploadingAvatar": "Đang tải lên...",
-    "saveAvatar": "Lưu ảnh đại diện"
+    "saveAvatar": "Lưu ảnh đại diện",
+    "readingHistoryCount": "{count} mục",
+    "clearAll": "Xóa tất cả",
+    "clearingAll": "Đang xóa...",
+    "clearAllConfirm": "Xóa toàn bộ lịch sử đọc?",
+    "emptyHistoryTitle": "Chưa có lịch sử đọc",
+    "emptyHistoryDescription": "Nghiên cứu bạn đã mở sẽ được lưu ở đây"
   },
   "superadmin": {
     "pageTitle": "Tổng quan hệ thống — Super Admin",
