@@ -35,9 +35,9 @@ const contactItems = [
   },
   {
     icon: MessageCircle,
-    title: "LINE",
-    detail: "@digitallibrary",
-    href: "https://line.me",
+    title: "WhatsApp",
+  detail: "+856 20 XXXX XXXX",
+  href: "https://wa.me/85620XXXXXXXX",
   },
 ];
 
