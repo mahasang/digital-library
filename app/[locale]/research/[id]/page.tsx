@@ -36,6 +36,13 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getMyActiveGrantsBySlug } from "@/lib/data/access-grants.server";
 import { getMyLatestRequestForItem } from "@/lib/data/access-requests.server";
 import AccessRequestButton from "@/components/research/AccessRequestButton";
+import RatingSection from "@/components/research/RatingSection";
+import CommentSection from "@/components/research/CommentSection";
+import {
+  getRatingStatsAction,
+  getMyRatingAction,
+  getCommentsAction,
+} from "./actions";
 
 export async function generateMetadata({
   params,
@@ -72,11 +79,16 @@ export default async function ResearchDetailPage({
 
   // category/related ขึ้นกับ item เท่านั้น ส่วน user (session) ไม่ขึ้นกับ item
   // เลย — ทั้งสามไม่พึ่งผลของกันและกัน จึงยิงพร้อมกันได้ (Phase 3 — parallel
-  // data fetching)
-  const [category, related, user] = await Promise.all([
+  // data fetching) ratingStats/myRating/comments ก็เช่นกัน ขึ้นกับ item.id
+  // เท่านั้น (getMyRatingAction ดึง user เองภายในฟังก์ชัน ไม่ต้องรอ user
+  // ตัวแปรนี้ก่อน) จึงยิงรวมชุดเดียวกันได้เลย
+  const [category, related, user, ratingStats, myRating, comments] = await Promise.all([
     getCategoryById(item.categoryId),
     getRelatedResearch(item),
     getSessionUser(),
+    getRatingStatsAction(item.id),
+    getMyRatingAction(item.id),
+    getCommentsAction(item.id),
   ]);
 
   // grants = สิทธิ์เสริมจากระบบขอสิทธิ์เข้าถึงเอกสาร (ช่วงที่ 18) — OR เข้ากับ
@@ -309,6 +321,21 @@ export default async function ResearchDetailPage({
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="mt-10 flex flex-col gap-6">
+          <RatingSection
+            researchId={item.id}
+            avgScore={ratingStats.avgScore}
+            ratingCount={ratingStats.ratingCount}
+            myRating={myRating}
+            isLoggedIn={!!user}
+          />
+          <CommentSection
+            researchId={item.id}
+            initialComments={comments}
+            isLoggedIn={!!user}
+          />
         </div>
 
         {related.length > 0 && (

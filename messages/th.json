@@ -129,7 +129,25 @@
       "abstractTitle": "บทคัดย่อ",
       "keywordsTitle": "คำสำคัญ",
       "accessTitle": "สิทธิ์การเข้าถึงเอกสารนี้",
-      "relatedTitle": "งานวิจัยที่เกี่ยวข้อง"
+      "relatedTitle": "งานวิจัยที่เกี่ยวข้อง",
+      "rating": {
+        "title": "คะแนน",
+        "label": "ให้คะแนน:",
+        "loginPrompt": "เข้าสู่ระบบเพื่อให้คะแนน",
+        "count": "คะแนน",
+        "noRatings": "—"
+      },
+      "comments": {
+        "title": "ความคิดเห็น ({count})",
+        "placeholder": "เขียนความคิดเห็น...",
+        "loginPlaceholder": "เข้าสู่ระบบเพื่อแสดงความคิดเห็น",
+        "empty": "ยังไม่มีความคิดเห็น",
+        "today": "วันนี้",
+        "daysAgoUnit": "วัน",
+        "monthsAgoUnit": "เดือน",
+        "yearsAgoUnit": "ปี",
+        "defaultAuthorName": "ผู้ใช้งาน"
+      }
     },
     "searchModeAll": "ค้นหาทั้งหมด",
     "searchModeBibliographic": "ข้อมูลบรรณานุกรม",

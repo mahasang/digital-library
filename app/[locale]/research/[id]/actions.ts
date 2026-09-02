@@ -116,3 +116,201 @@ export async function toggleFavoriteAction(slug: string): Promise<ToggleFavorite
 
   return { favorited: true, error: null };
 }
+
+/** แปลง slug (ค่าที่ ResearchItem.id ใช้จริงทั้งแอป — ดู mapRowToResearchItem
+ * ใน lib/data/mappers.ts: `id: row.slug`) เป็น uuid จริงของแถวใน research_items
+ * — ต้องทำก่อนใช้เป็น research_id ของ ratings/comments เสมอ เพราะ column นั้น
+ * เป็น uuid FK จริง ไม่ใช่ text (เหมือน pattern เดียวกับ isResearchFavorited/
+ * toggleFavoriteAction ในไฟล์นี้/lib/data/favorites.server.ts) */
+async function resolveResearchDbId(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  slug: string
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("research_items")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle();
+  return data?.id ?? null;
+}
+
+export interface RatingStats {
+  avgScore: number;
+  ratingCount: number;
+}
+
+/** สถิติคะแนนของงานวิจัย — สาธารณะ (guest เห็นได้เหมือนเนื้อหาอื่นของ research_items) */
+export async function getRatingStatsAction(researchSlug: string): Promise<RatingStats> {
+  if (!isSupabaseConfigured()) {
+    return { avgScore: 0, ratingCount: 0 };
+  }
+
+  const supabase = await createClient();
+  const researchId = await resolveResearchDbId(supabase, researchSlug);
+  if (!researchId) return { avgScore: 0, ratingCount: 0 };
+
+  const { data, error } = await supabase
+    .rpc("get_rating_stats", { p_research_id: researchId })
+    .single();
+
+  if (error || !data) {
+    if (error) console.error("getRatingStatsAction failed:", error.message);
+    return { avgScore: 0, ratingCount: 0 };
+  }
+
+  return { avgScore: data.avg_score ?? 0, ratingCount: data.rating_count ?? 0 };
+}
+
+/** คะแนนที่ผู้ใช้ปัจจุบันเคยให้ไว้ — null เมื่อยังไม่ login หรือยังไม่เคยให้คะแนน */
+export async function getMyRatingAction(researchSlug: string): Promise<number | null> {
+  if (!isSupabaseConfigured()) return null;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const researchId = await resolveResearchDbId(supabase, researchSlug);
+  if (!researchId) return null;
+
+  const { data } = await supabase
+    .from("ratings")
+    .select("score")
+    .eq("research_id", researchId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  return data?.score ?? null;
+}
+
+export interface RateResult {
+  error: string | null;
+}
+
+/** ให้/แก้ไขคะแนน — upsert เพราะ 1 คนให้คะแนนได้ 1 ครั้งต่อชิ้น (unique
+ * (research_id, user_id) ใน ratings ตาม migration 20260901090000) */
+export async function upsertRatingAction(
+  researchSlug: string,
+  score: number
+): Promise<RateResult> {
+  if (!isSupabaseConfigured()) {
+    return { error: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+  }
+  if (!Number.isInteger(score) || score < 1 || score > 5) {
+    return { error: "คะแนนไม่ถูกต้อง" };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "กรุณาเข้าสู่ระบบก่อนให้คะแนน" };
+  }
+
+  const researchId = await resolveResearchDbId(supabase, researchSlug);
+  if (!researchId) {
+    return { error: "ไม่พบงานวิจัยนี้" };
+  }
+
+  const { error } = await supabase
+    .from("ratings")
+    .upsert(
+      { user_id: user.id, research_id: researchId, score },
+      { onConflict: "research_id,user_id" }
+    );
+
+  if (error) {
+    console.error("upsertRatingAction failed:", error.message);
+    return { error: "ไม่สามารถบันทึกคะแนนได้ กรุณาลองใหม่อีกครั้ง" };
+  }
+
+  return { error: null };
+}
+
+export interface CommentRow {
+  id: string;
+  content: string;
+  createdAt: string;
+  userId: string;
+  authorName: string | null;
+  authorAvatarUrl: string | null;
+}
+
+/** รายการความคิดเห็นล่าสุด (สูงสุด 20 รายการ) — สาธารณะเหมือนเนื้อหาอื่นของ
+ * research_items — ใช้ RPC get_comments (security definer) เพราะต้อง join
+ * profiles ของคนอื่นซึ่ง RLS ปกติไม่ยอมให้เห็น (ดู migration 20260901090000) */
+export async function getCommentsAction(researchSlug: string): Promise<CommentRow[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const supabase = await createClient();
+  const researchId = await resolveResearchDbId(supabase, researchSlug);
+  if (!researchId) return [];
+
+  const { data, error } = await supabase.rpc("get_comments", {
+    p_research_id: researchId,
+    p_limit: 20,
+  });
+
+  if (error || !data) {
+    if (error) console.error("getCommentsAction failed:", error.message);
+    return [];
+  }
+
+  return data.map((row) => ({
+    id: row.id,
+    content: row.content,
+    createdAt: row.created_at,
+    userId: row.user_id,
+    authorName: row.author_name,
+    authorAvatarUrl: row.author_avatar_url,
+  }));
+}
+
+export interface AddCommentResult {
+  error: string | null;
+}
+
+export async function addCommentAction(
+  researchSlug: string,
+  content: string
+): Promise<AddCommentResult> {
+  if (!isSupabaseConfigured()) {
+    return { error: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+  }
+
+  const trimmed = content.trim();
+  if (!trimmed) {
+    return { error: "กรุณากรอกข้อความ" };
+  }
+  if (trimmed.length > 500) {
+    return { error: "ข้อความยาวเกินไป (สูงสุด 500 ตัวอักษร)" };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น" };
+  }
+
+  const researchId = await resolveResearchDbId(supabase, researchSlug);
+  if (!researchId) {
+    return { error: "ไม่พบงานวิจัยนี้" };
+  }
+
+  const { error } = await supabase.from("comments").insert({
+    user_id: user.id,
+    research_id: researchId,
+    content: trimmed,
+  });
+
+  if (error) {
+    console.error("addCommentAction failed:", error.message);
+    return { error: "ไม่สามารถบันทึกความคิดเห็นได้ กรุณาลองใหม่อีกครั้ง" };
+  }
+
+  return { error: null };
+}

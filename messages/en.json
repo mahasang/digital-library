@@ -129,7 +129,25 @@
       "abstractTitle": "Abstract",
       "keywordsTitle": "Keywords",
       "accessTitle": "Access to this document",
-      "relatedTitle": "Related Research"
+      "relatedTitle": "Related Research",
+      "rating": {
+        "title": "Rating",
+        "label": "Rate this:",
+        "loginPrompt": "Sign in to rate",
+        "count": "ratings",
+        "noRatings": "—"
+      },
+      "comments": {
+        "title": "Comments ({count})",
+        "placeholder": "Write a comment...",
+        "loginPlaceholder": "Sign in to comment",
+        "empty": "No comments yet",
+        "today": "Today",
+        "daysAgoUnit": "d",
+        "monthsAgoUnit": "mo",
+        "yearsAgoUnit": "y",
+        "defaultAuthorName": "User"
+      }
     },
     "searchModeAll": "Search All",
     "searchModeBibliographic": "Bibliographic Data",

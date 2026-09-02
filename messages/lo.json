@@ -159,7 +159,25 @@
       "abstractTitle": "ບົດຄັດຫຍໍ້",
       "keywordsTitle": "ຄຳສຳຄັນ",
       "accessTitle": "ສິດການເຂົ້າເຖິງເອກະສານນີ້",
-      "relatedTitle": "ງານວິໄຈທີ່ກ່ຽວຂ້ອງ"
+      "relatedTitle": "ງານວິໄຈທີ່ກ່ຽວຂ້ອງ",
+      "rating": {
+        "title": "ຄະແນນ",
+        "label": "ໃຫ້ຄະແນນ:",
+        "loginPrompt": "ເຂົ້າສູ່ລະບົບເພື່ອໃຫ້ຄະແນນ",
+        "count": "ຄະແນນ",
+        "noRatings": "—"
+      },
+      "comments": {
+        "title": "ຄຳເຫັນ ({count})",
+        "placeholder": "ຂຽນຄຳເຫັນ...",
+        "loginPlaceholder": "ເຂົ້າສູ່ລະບົບເພື່ອຄຳເຫັນ",
+        "empty": "ຍັງບໍ່ມີຄຳເຫັນ",
+        "today": "ມື້ນີ້",
+        "daysAgoUnit": "ວັນ",
+        "monthsAgoUnit": "ເດືອນ",
+        "yearsAgoUnit": "ປີ",
+        "defaultAuthorName": "ຜູ້ໃຊ້ງານ"
+      }
     },
     "searchModeAll": "ຄົ້ນຫາທັງຫມົດ",
     "searchModeBibliographic": "ຂໍ້ມູນບັນນານຸກົມ",

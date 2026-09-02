@@ -129,7 +129,25 @@
       "abstractTitle": "Tóm tắt",
       "keywordsTitle": "Từ khóa",
       "accessTitle": "Quyền truy cập tài liệu này",
-      "relatedTitle": "Nghiên cứu liên quan"
+      "relatedTitle": "Nghiên cứu liên quan",
+      "rating": {
+        "title": "Đánh giá",
+        "label": "Đánh giá:",
+        "loginPrompt": "Đăng nhập để đánh giá",
+        "count": "đánh giá",
+        "noRatings": "—"
+      },
+      "comments": {
+        "title": "Bình luận ({count})",
+        "placeholder": "Viết bình luận...",
+        "loginPlaceholder": "Đăng nhập để bình luận",
+        "empty": "Chưa có bình luận",
+        "today": "Hôm nay",
+        "daysAgoUnit": "ngày",
+        "monthsAgoUnit": "tháng",
+        "yearsAgoUnit": "năm",
+        "defaultAuthorName": "Người dùng"
+      }
     },
     "searchModeAll": "Tìm tất cả",
     "searchModeBibliographic": "Dữ liệu thư mục",

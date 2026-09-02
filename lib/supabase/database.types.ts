@@ -444,6 +444,41 @@ export interface Database {
         Update: never;
         Relationships: [];
       };
+      ratings: {
+        Row: {
+          id: string;
+          research_id: string;
+          user_id: string;
+          score: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          research_id: string;
+          user_id: string;
+          score: number;
+        };
+        Update: {
+          score?: number;
+        };
+        Relationships: [];
+      };
+      comments: {
+        Row: {
+          id: string;
+          research_id: string;
+          user_id: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          research_id: string;
+          user_id: string;
+          content: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
       reading_history: {
         Row: {
           id: string;
@@ -1207,6 +1242,21 @@ export interface Database {
       log_reading_history: {
         Args: { p_slug: string };
         Returns: void;
+      };
+      get_rating_stats: {
+        Args: { p_research_id: string };
+        Returns: { avg_score: number; rating_count: number }[];
+      };
+      get_comments: {
+        Args: { p_research_id: string; p_limit?: number };
+        Returns: {
+          id: string;
+          content: string;
+          created_at: string;
+          user_id: string;
+          author_name: string;
+          author_avatar_url: string | null;
+        }[];
       };
       superadmin_storage_usage: {
         Args: Record<string, never>;
