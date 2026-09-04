@@ -176,7 +176,10 @@
         "daysAgoUnit": "ວັນ",
         "monthsAgoUnit": "ເດືອນ",
         "yearsAgoUnit": "ປີ",
-        "defaultAuthorName": "ຜູ້ໃຊ້ງານ"
+        "defaultAuthorName": "ຜູ້ໃຊ້ງານ",
+        "edit": "ແກ້ໄຂຄຳເຫັນ",
+        "delete": "ລຶບຄຳເຫັນ",
+        "deleteConfirm": "ທ່ານຕ້ອງການລຶບຄຳເຫັນນີ້ບໍ?"
       }
     },
     "searchModeAll": "ຄົ້ນຫາທັງຫມົດ",

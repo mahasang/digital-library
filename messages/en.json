@@ -146,7 +146,10 @@
         "daysAgoUnit": "d",
         "monthsAgoUnit": "mo",
         "yearsAgoUnit": "y",
-        "defaultAuthorName": "User"
+        "defaultAuthorName": "User",
+        "edit": "Edit comment",
+        "delete": "Delete comment",
+        "deleteConfirm": "Delete this comment?"
       }
     },
     "searchModeAll": "Search All",

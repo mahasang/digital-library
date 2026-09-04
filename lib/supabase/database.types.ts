@@ -476,7 +476,9 @@ export interface Database {
           user_id: string;
           content: string;
         };
-        Update: never;
+        Update: {
+          content?: string;
+        };
         Relationships: [];
       };
       reading_history: {

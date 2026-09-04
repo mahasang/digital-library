@@ -314,3 +314,80 @@ export async function addCommentAction(
 
   return { error: null };
 }
+
+export interface DeleteCommentResult {
+  error: string | null;
+}
+
+/** ลบความคิดเห็นของตัวเอง — .eq("user_id", user.id) ในคำสั่งเองด้วย (นอกเหนือ
+ * จาก RLS) เพื่อให้ error ชัดเจนขึ้นถ้าพยายามลบของคนอื่น แทนที่จะได้ error ทั่วไป
+ * จาก RLS อย่างเดียว — comments.id เป็น uuid จริงอยู่แล้ว (ไม่ใช่ slug) จึงไม่
+ * ต้อง resolveResearchDbId เหมือน action อื่นๆ ในไฟล์นี้ที่รับ researchSlug */
+export async function deleteCommentAction(commentId: string): Promise<DeleteCommentResult> {
+  if (!isSupabaseConfigured()) {
+    return { error: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  }
+
+  const { error } = await supabase
+    .from("comments")
+    .delete()
+    .eq("id", commentId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("deleteCommentAction failed:", error.message);
+    return { error: "ไม่สามารถลบความคิดเห็นได้ กรุณาลองใหม่อีกครั้ง" };
+  }
+
+  return { error: null };
+}
+
+export interface UpdateCommentResult {
+  error: string | null;
+}
+
+export async function updateCommentAction(
+  commentId: string,
+  content: string
+): Promise<UpdateCommentResult> {
+  if (!isSupabaseConfigured()) {
+    return { error: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+  }
+
+  const trimmed = content.trim();
+  if (!trimmed) {
+    return { error: "กรุณากรอกข้อความ" };
+  }
+  if (trimmed.length > 500) {
+    return { error: "ข้อความยาวเกินไป (สูงสุด 500 ตัวอักษร)" };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  }
+
+  const { error } = await supabase
+    .from("comments")
+    .update({ content: trimmed })
+    .eq("id", commentId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("updateCommentAction failed:", error.message);
+    return { error: "ไม่สามารถบันทึกการแก้ไขได้ กรุณาลองใหม่อีกครั้ง" };
+  }
+
+  return { error: null };
+}
