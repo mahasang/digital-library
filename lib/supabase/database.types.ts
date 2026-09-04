@@ -1161,6 +1161,10 @@ export interface Database {
         Args: { p_research_id: string };
         Returns: void;
       };
+      delete_own_account: {
+        Args: Record<string, never>;
+        Returns: void;
+      };
       create_duplicate_detection_rule_version: {
         Args: {
           p_weight_title: number;

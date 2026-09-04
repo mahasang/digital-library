@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/navigation";
-import { Bell, FileQuestion, Mail, ShieldCheck } from "lucide-react";
+import { Bell, FileQuestion, Mail, ShieldCheck, Trash2 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import AccountShell from "@/components/account/AccountShell";
 import ProfileForm from "@/components/auth/ProfileForm";
@@ -10,6 +10,7 @@ import LogoutButton from "@/components/auth/LogoutButton";
 import MfaSettings from "@/components/account/MfaSettings";
 import OrcidConnect from "@/components/account/OrcidConnect";
 import ReadingHistorySection from "@/components/account/ReadingHistorySection";
+import DeleteAccountButton from "@/components/account/DeleteAccountButton";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRole } from "@/lib/supabase/roles";
@@ -164,6 +165,19 @@ export default async function AccountPage({
             <div className="mt-4">
               <ReadingHistorySection initialHistory={readingHistory} />
             </div>
+          </div>
+
+          <div className="rounded-xl border border-red-200 bg-surface p-6">
+            <section className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <Trash2 className="h-5 w-5 text-red-500" />
+                <h2 className="text-base font-semibold text-red-600">ລຶບບັນຊີ</h2>
+              </div>
+              <p className="text-sm text-gray-500">
+                ການລຶບບັນຊີຈະລຶບຂໍ້ມູນສ່ວນຕົວທັງໝົດຂອງທ່ານ ແຕ່ comments ແລະ ratings ຈະຖືກເກັບໄວ້ແບບ anonymous
+              </p>
+              <DeleteAccountButton />
+            </section>
           </div>
         </div>
       </div>

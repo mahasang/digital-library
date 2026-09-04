@@ -210,3 +210,29 @@ export async function clearReadingHistoryAction(): Promise<{ error: string | nul
   revalidatePath("/reading-history");
   return { error: null };
 }
+
+/** ลบบัญชีถาวรผ่าน RPC delete_own_account() (migration 20260904140000) —
+ * security definer เพราะการลบ auth.users ต้องใช้สิทธิ์ที่ authenticated role
+ * ธรรมดาไม่มี ฟังก์ชันใช้ auth.uid() ของผู้เรียกเองเท่านั้น ไม่รับ parameter
+ * ใดๆ จึงลบได้เฉพาะบัญชีตัวเอง — comments/ratings ที่เคยสร้างไว้จะไม่ถูกลบ
+ * ตาม แค่ set user_id เป็น null (anonymize) ตาม FK ที่แก้ไว้ในระดับ column
+ * ส่วนข้อมูลส่วนตัวอื่น (favorites/reading_history/notification_preferences
+ * ฯลฯ) cascade ลบไปพร้อม profiles ตามปกติ — ยืนยันพฤติกรรมนี้แล้วด้วยการ
+ * ทดสอบจริงกับ user ทดสอบก่อน implement ฝั่ง UI */
+export async function deleteAccountAction(): Promise<{ error: string | null }> {
+  if (!isSupabaseConfigured()) {
+    return { error: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "กรุณาเข้าสู่ระบบ" };
+
+  const { error } = await supabase.rpc("delete_own_account");
+  if (error) return { error: error.message };
+
+  await supabase.auth.signOut();
+  return { error: null };
+}
