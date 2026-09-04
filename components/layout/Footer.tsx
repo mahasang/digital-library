@@ -65,6 +65,16 @@ export default function Footer({
               </Link>
             </li>
             <li>
+              <Link href="/privacy" className="text-sm text-gray-500 hover:text-brand-700">
+                {t("privacy")}
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" className="text-sm text-gray-500 hover:text-brand-700">
+                {t("terms")}
+              </Link>
+            </li>
+            <li>
               <Link href="/register" className="text-sm text-gray-500 hover:text-brand-700">
                 {t("register")}
               </Link>
