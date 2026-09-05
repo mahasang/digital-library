@@ -44,6 +44,8 @@ function makeItem(overrides: Partial<ResearchItem> & { id: string }): ResearchIt
     status: "published",
     views: 0,
     downloads: 0,
+    avgScore: 0,
+    ratingCount: 0,
     publishedAt: "2026-01-01T00:00:00.000Z",
     scanStatus: "clean",
     ...overrides,

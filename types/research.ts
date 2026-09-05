@@ -46,6 +46,8 @@ export interface ResearchItem {
   status: DocumentStatus;
   views: number;
   downloads: number;
+  avgScore: number;
+  ratingCount: number;
   publishedAt: string;
   scanStatus: ScanStatus;
 }

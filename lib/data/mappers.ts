@@ -6,6 +6,12 @@ import type {
   RawHomepageResearchRow,
 } from "@/lib/data/types";
 
+function calcRating(ratings: { score: number }[]): { avgScore: number; ratingCount: number } {
+  if (!ratings || ratings.length === 0) return { avgScore: 0, ratingCount: 0 };
+  const sum = ratings.reduce((acc, r) => acc + r.score, 0);
+  return { avgScore: Math.round((sum / ratings.length) * 10) / 10, ratingCount: ratings.length };
+}
+
 export function mapRowToResearchItem(row: RawResearchRow): ResearchItem {
   return {
     id: row.slug,
@@ -33,6 +39,7 @@ export function mapRowToResearchItem(row: RawResearchRow): ResearchItem {
     status: row.status,
     views: row.views,
     downloads: row.downloads,
+    ...calcRating(row.ratings),
     publishedAt: row.published_at ?? "",
     scanStatus: row.scan_status,
   };
@@ -72,6 +79,7 @@ export function mapHomepageRowToResearchItem(row: RawHomepageResearchRow): Resea
     status: "published",
     views: row.views,
     downloads: row.downloads,
+    ...calcRating(row.ratings),
     publishedAt: row.published_at ?? "",
     scanStatus: "clean",
   };

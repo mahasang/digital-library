@@ -161,7 +161,7 @@
     "filterByAccessAriaLabel": "Lọc theo cấp độ truy cập",
     "sortResultsAriaLabel": "Sắp xếp kết quả",
     "sortByPrefix": "Sắp xếp theo:",
-    "yearPrefix": "Năm",
+    "yearPrefix": "",
     "prevPage": "Trước",
     "nextPage": "Tiếp theo",
     "pageOf": "Trang {page} / {totalPages}",

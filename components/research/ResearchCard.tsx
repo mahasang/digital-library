@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, Download, Calendar, FileSearch, CalendarClock } from "lucide-react";
+import { Eye, Download, Calendar, FileSearch, CalendarClock, Star } from "lucide-react";
 import AccessBadge from "@/components/research/AccessBadge";
 import CategoryCover from "@/components/research/CategoryCover";
 import { hasRealCoverImage } from "@/lib/categoryCover";
 import { getCategoryById } from "@/data/categories";
 import type { ResearchItem } from "@/types/research";
+
 
 export interface ResearchCardItem extends ResearchItem {
   snippet?: string | null;
@@ -147,6 +148,12 @@ export default function ResearchCard({
             </span>
           )}
           <span className="flex items-center gap-3">
+            {item.ratingCount > 0 && (
+              <span className="flex items-center gap-0.5">
+                <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                <span>{item.avgScore.toFixed(1)}</span>
+              </span>
+            )}
             <span className="flex items-center gap-1">
               <Eye className="h-3.5 w-3.5" />
               {item.views.toLocaleString("th-TH")}

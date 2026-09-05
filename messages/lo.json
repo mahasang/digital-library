@@ -191,7 +191,7 @@
     "filterByAccessAriaLabel": "ກັ່ນຕອງຕາມລະດັບສິດ",
     "sortResultsAriaLabel": "ຈັດລຳດັບຜົນລັບ",
     "sortByPrefix": "ຈັດລຳດັບຕາມ:",
-    "yearPrefix": "ພ.ສ.",
+    "yearPrefix": "",
     "prevPage": "ກ່ອນຫນ້າ",
     "nextPage": "ຖັດໄປ",
     "pageOf": "ຫນ້າ {page} / {totalPages}",

@@ -119,7 +119,7 @@ export default function FilterBar({
           <option value="all">{t("allYears")}</option>
           {years.map((y) => (
             <option key={y} value={y}>
-              {t("yearPrefix")} {y}
+              {y}
             </option>
           ))}
         </select>

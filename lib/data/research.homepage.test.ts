@@ -46,6 +46,7 @@ function makeRawHomepageRow(
       { author_order: 1, authors: { name: "ผู้วิจัยคนที่หนึ่ง" } },
       { author_order: 0, authors: { name: "ผู้วิจัยคนที่ศูนย์" } },
     ],
+    ratings: [],
     ...overrides,
   };
 }

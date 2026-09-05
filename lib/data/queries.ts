@@ -25,7 +25,8 @@ const RESEARCH_SELECT = `
   organizations ( name_th ),
   research_authors ( author_order, authors (id, name, organization_name, organizations ( name_th ) ) ),
   research_categories ( categories ( slug ) ),
-  research_keywords ( keywords ( keyword ) )
+  research_keywords ( keywords ( keyword ) ),
+  ratings ( score )
 `;
 
 /**
@@ -70,7 +71,8 @@ export async function fetchPublishedResearchRows(
 const HOMEPAGE_RESEARCH_SELECT = `
   id, slug, title_th, cover_image, access_level, year, published_at, views, downloads,
   research_categories ( categories ( slug ) ),
-  research_authors ( author_order, authors ( name ) )
+  research_authors ( author_order, authors ( name ) ),
+  ratings ( score )
 `;
 
 /**

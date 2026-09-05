@@ -51,6 +51,7 @@ export interface RawResearchRow {
   research_authors: RawAuthorRef[];
   research_categories: RawCategoryRef[];
   research_keywords: RawKeywordRef[];
+  ratings: { score: number }[];
 }
 
 /**
@@ -77,6 +78,7 @@ export interface RawHomepageResearchRow {
   downloads: number;
   research_categories: RawCategoryRef[];
   research_authors: RawHomepageAuthorRef[];
+  ratings: { score: number }[];
 }
 
 /** แถวย่อที่สุด — ใช้เฉพาะนับจำนวนงานวิจัยที่เผยแพร่แล้วต่อหมวดหมู่ (สถิติหน้าแรก) */

@@ -26,6 +26,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 512,
     publishedAt: "2567-02-15",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
   {
     id: "it-2024-002",
@@ -50,6 +52,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 980,
     publishedAt: "2568-01-10",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
   {
     id: "biz-2024-003",
@@ -75,6 +79,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 430,
     publishedAt: "2566-11-02",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
   {
     id: "health-2024-004",
@@ -99,6 +105,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 145,
     publishedAt: "2567-05-20",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
   {
     id: "edu-2024-005",
@@ -124,6 +132,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 0,
     publishedAt: "2565-08-30",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
   {
     id: "social-2024-006",
@@ -148,6 +158,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 720,
     publishedAt: "2568-03-05",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
   {
     id: "agri-2024-007",
@@ -173,6 +185,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 310,
     publishedAt: "2566-06-18",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
   {
     id: "sci-2024-008",
@@ -197,6 +211,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 605,
     publishedAt: "2567-09-12",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
   {
     id: "eng-2024-009",
@@ -221,6 +237,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 690,
     publishedAt: "2568-02-01",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
   {
     id: "it-2024-010",
@@ -246,6 +264,8 @@ export const researchItems: ResearchItem[] = [
     downloads: 275,
     publishedAt: "2566-12-22",
     scanStatus: "clean",
+    avgScore: 0,
+    ratingCount: 0,
   },
 ];
 

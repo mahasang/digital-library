@@ -161,7 +161,7 @@
     "filterByAccessAriaLabel": "กรองตามระดับสิทธิ์",
     "sortResultsAriaLabel": "เรียงลำดับผลลัพธ์",
     "sortByPrefix": "เรียงตาม:",
-    "yearPrefix": "พ.ศ.",
+    "yearPrefix": "",
     "prevPage": "ก่อนหน้า",
     "nextPage": "ถัดไป",
     "pageOf": "หน้า {page} / {totalPages}",

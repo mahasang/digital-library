@@ -161,7 +161,7 @@
     "filterByAccessAriaLabel": "Filter by access level",
     "sortResultsAriaLabel": "Sort results",
     "sortByPrefix": "Sort by:",
-    "yearPrefix": "B.E.",
+    "yearPrefix": "",
     "prevPage": "Previous",
     "nextPage": "Next",
     "pageOf": "Page {page} of {totalPages}",
