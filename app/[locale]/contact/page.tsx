@@ -1,157 +1,91 @@
 import type { Metadata } from "next";
-import { Mail, MapPin, Phone, Clock, Globe, Facebook, MessageCircle } from "lucide-react";
 import Container from "@/components/ui/Container";
-import ContactForm from "@/components/contact/ContactForm";
+import { Mail, Phone, Clock, MapPin, Facebook } from "lucide-react";
+import ContactForm from "./ContactForm";
 
 export const metadata: Metadata = {
-  title: "ຕິດຕໍ່ເຮົາ",
-  description: "ຊ່ອງທາງຕິດຕໍ່ທີມງານຫ້ອງສະໝຸດດິຈິຕອນ",
+  title: "ຕິດຕໍ່ຫາເຮົາ",
+  description: "ມີຄຳຖາມຫຼືຕ້ອງການຊ່ວຍເຫຼືອ? ສົ່ງຂໍ້ຄວາມຫາທີມງານຂອງເຮົາໄດ້ເລີຍ",
 };
-
-const contactItems = [
-  {
-    icon: Mail,
-    title: "ອີເມວ",
-    detail: "info@digitallibrary.la",
-    href: "mailto:info@digitallibrary.la",
-  },
-  {
-    icon: Phone,
-    title: "ໂທລະສັບ",
-    detail: "+856 20 XXXX XXXX",
-    href: "tel:+85620XXXXXXXX",
-  },
-  {
-    icon: Globe,
-    title: "ເວັບໄຊ",
-    detail: "digital-library-sls.vercel.app",
-    href: "https://digital-library-sls.vercel.app",
-  },
-  {
-    icon: Facebook,
-    title: "Facebook",
-    detail: "Digital Library Lao",
-    href: "https://facebook.com",
-  },
-  {
-    icon: MessageCircle,
-    title: "WhatsApp",
-  detail: "+856 20 XXXX XXXX",
-  href: "https://wa.me/85620XXXXXXXX",
-  },
-];
-
-const hours = [
-  { day: "ຈັນ – ສຸກ", time: "08:00 – 17:00" },
-  { day: "ເສົາ",       time: "08:00 – 12:00" },
-  { day: "ອາທິດ",     time: "ປິດ" },
-];
 
 export default function ContactPage() {
   return (
     <div className="py-12 sm:py-16">
       <Container>
-        {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-            ຕິດຕໍ່ເຮົາ
-          </h1>
-          <p className="mt-3 text-sm text-gray-500">
-            ມີຄຳຖາມ ຫຼື ຕ້ອງການຊ່ວຍເຫຼືອ? ຕິດຕໍ່ທີມງານຫ້ອງສະໝຸດດິຈິຕອນໄດ້ທາງຊ່ອງທາງດ້ານລຸ່ມ
-          </p>
+        {/* ── Hero + Form ── */}
+        <div className="mx-auto max-w-2xl rounded-2xl bg-gray-50 p-8 sm:p-12">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+              ຕິດຕໍ່ຫາເຮົາ
+            </h1>
+            <p className="mt-3 text-sm text-gray-500">
+              ມີຄຳຖາມຫຼືຕ້ອງການຊ່ວຍເຫຼືອ? ສົ່ງຂໍ້ຄວາມຫາເຮົາໄດ້ເລີຍ
+            </p>
+          </div>
+          <ContactForm />
         </div>
 
-        <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[1fr_1.3fr]">
-
-          {/* ── ฝั่งซ้าย: ข้อมูลติดต่อ ── */}
-          <div className="flex flex-col gap-6">
-
-            {/* ช่องทางติดต่อ */}
-            <div>
-              <h2 className="mb-3 text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                ຊ່ອງທາງຕິດຕໍ່
-              </h2>
-              <div className="flex flex-col gap-2">
-                {contactItems.map(({ icon: Icon, title, detail, href }) => (
-                  <a
-                    key={title}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-xl border border-gray-200 bg-surface p-4 transition-colors hover:border-blue-200 hover:bg-blue-50"
-                  >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent-ink">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{title}</p>
-                      <p className="mt-0.5 text-sm text-gray-500">{detail}</p>
-                    </div>
-                  </a>
-                ))}
-              </div>
+        {/* ── 3 Cards ── */}
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50">
+              <Mail className="h-5 w-5 text-brand-600" />
             </div>
-
-            {/* เวลาทำการ */}
-            <div>
-              <h2 className="mb-3 text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                ເວລາເຮັດວຽກ
-              </h2>
-              <div className="rounded-xl border border-gray-200 bg-surface overflow-hidden">
-                {hours.map(({ day, time }, i) => (
-                  <div
-                    key={day}
-                    className={`flex items-center gap-3 p-4 ${i < hours.length - 1 ? "border-b border-gray-100" : ""}`}
-                  >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent-ink">
-                      <Clock className="h-5 w-5" />
-                    </span>
-                    <p className="flex-1 text-sm font-semibold text-gray-900">{day}</p>
-                    <p className={`text-sm ${time === "ປິດ" ? "text-red-500 font-medium" : "text-gray-500"}`}>
-                      {time}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ที่ตั้ง / Map */}
-            <div>
-              <h2 className="mb-3 text-sm font-semibold text-gray-500 uppercase tracking-wide">
-                ທີ່ຕັ້ງ
-              </h2>
-              <a
-                href="https://maps.google.com/?q=Vientiane,Laos"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block rounded-xl border border-gray-200 bg-surface overflow-hidden transition-colors hover:border-blue-200"
-              >
-                {/* Map placeholder */}
-                <div className="flex h-32 items-center justify-center bg-blue-50">
-                  <MapPin className="h-12 w-12 text-blue-400" />
-                </div>
-                <div className="flex items-center gap-3 p-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent-ink">
-                    <MapPin className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">ວຽງຈັນ, ສປປ ລາວ</p>
-                    <p className="mt-0.5 text-sm text-blue-600">ເປີດໃນແຜນທີ່ →</p>
-                  </div>
-                </div>
-              </a>
-            </div>
-
+            <h3 className="font-semibold text-gray-900">ອີເມວ</h3>
+            <p className="mt-1 text-sm text-gray-500">ສົ່ງອີເມວຫາທີມງານຂອງເຮົາ</p>
+            <a href="mailto:info@digitallibrary.la" className="mt-4 inline-flex items-center rounded-full border border-gray-300 px-4 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              info@digitallibrary.la
+            </a>
           </div>
 
-          {/* ── ฝั่งขวา: Contact Form ── */}
-          <div className="rounded-xl border border-gray-200 bg-surface p-6">
-            <h2 className="mb-4 text-sm font-semibold text-gray-900">
-              ສົ່ງຂໍ້ຄວາມຫາເຮົາ
-            </h2>
-            <ContactForm />
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50">
+              <Phone className="h-5 w-5 text-brand-600" />
+            </div>
+            <h3 className="font-semibold text-gray-900">ໂທລະສັບ</h3>
+            <p className="mt-1 text-sm text-gray-500">ໂທຫາທີມງານຂອງເຮົາ</p>
+            <a href="tel:+85620XXXXXXXX" className="mt-4 inline-flex items-center rounded-full border border-gray-300 px-4 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              +856 20 XXXX XXXX
+            </a>
           </div>
 
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50">
+              <Facebook className="h-5 w-5 text-brand-600" />
+            </div>
+            <h3 className="font-semibold text-gray-900">Facebook</h3>
+            <p className="mt-1 text-sm text-gray-500">ຕິດຕາມຫາເຮົາໃນ Facebook</p>
+            <a href="https://facebook.com/digitallibrary.la" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center rounded-full border border-gray-300 px-4 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              @digitallibrary.la
+            </a>
+          </div>
+        </div>
+
+        {/* ── Info section ── */}
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="rounded-2xl bg-brand-600 p-8 text-white">
+            <MapPin className="h-8 w-8 mb-4 opacity-80" />
+            <h3 className="text-lg font-bold mb-2">ທີ່ຕັ້ງ</h3>
+            <p className="text-sm opacity-85">ວຽງຈັນ, ສປປ ລາວ</p>
+          </div>
+          <div className="rounded-2xl bg-gray-50 border border-gray-200 p-8">
+            <Clock className="h-8 w-8 mb-4 text-brand-600" />
+            <h3 className="text-lg font-bold text-gray-900 mb-3">ເວລາເຮັດວຽກ</h3>
+            <div className="flex flex-col gap-2 text-sm text-gray-600">
+              <div className="flex justify-between">
+                <span>ຈັນ – ສຸກ</span>
+                <span className="font-medium">08:00 – 17:00</span>
+              </div>
+              <div className="flex justify-between">
+                <span>ເສົາ</span>
+                <span className="font-medium">08:00 – 12:00</span>
+              </div>
+              <div className="flex justify-between">
+                <span>ອາທິດ</span>
+                <span className="text-red-500 font-medium">ປິດ</span>
+              </div>
+            </div>
+          </div>
         </div>
       </Container>
     </div>
