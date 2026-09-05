@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_Thai, Noto_Serif_Lao } from "next/font/google";
 import { getLocale } from "next-intl/server";
+import { Analytics } from "@vercel/analytics/next";
 import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import "./globals.css";
 
@@ -79,6 +80,7 @@ export default async function RootLayout({
       >
         {children}
         <ServiceWorkerRegister />
+        <Analytics />
       </body>
     </html>
   );
