@@ -16,6 +16,7 @@ import {
   Contact,
   ShieldCheck,
   Copy,
+  MessageSquare,
 } from "lucide-react";
 
 interface NavItem {
@@ -41,6 +42,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: Copy,
     minRank: 30,
   },
+  { href: "/dashboard/contact-messages", labelKey: "nav.contactMessages", icon: MessageSquare, minRank: 30 },
   { href: "/dashboard/authors", labelKey: "nav.authors", icon: Contact, minRank: 30 },
   { href: "/dashboard/organizations", labelKey: "nav.organizations", icon: Building2, minRank: 30 },
   { href: "/dashboard/data-quality", labelKey: "nav.dataQuality", icon: ShieldCheck, minRank: 30 },

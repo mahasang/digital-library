@@ -35,8 +35,8 @@ export async function submitContactAction(
   // ── Insert Supabase ──
   const supabase = await createClient();
   const { error: dbError } = await supabase
-  .from("contact_messages" as string)
-  .insert([{ first_name: firstName, last_name: lastName, email, phone: phone || null, message }] as never);
+  .from("contact_messages")
+  .insert({ first_name: firstName, last_name: lastName, email, phone: phone || null, message });
 
   if (dbError) {
     console.error("[contact] db error:", dbError.message);

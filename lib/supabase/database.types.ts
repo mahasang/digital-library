@@ -481,6 +481,30 @@ export interface Database {
         };
         Relationships: [];
       };
+      contact_messages: {
+        Row: {
+          id: string;
+          first_name: string;
+          last_name: string;
+          email: string;
+          phone: string | null;
+          message: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          first_name: string;
+          last_name: string;
+          email: string;
+          phone?: string | null;
+          message: string;
+          status?: string;
+        };
+        Update: {
+          status?: string;
+        };
+        Relationships: [];
+      };
       reading_history: {
         Row: {
           id: string;
