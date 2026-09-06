@@ -8,6 +8,7 @@ import {
   getMembersReport,
   getPopularReport,
   getViewsReport,
+  getViewsOverview,
 } from "@/lib/data/reports.server";
 import { getCategories } from "@/lib/data/categories.server";
 import type { UserRole } from "@/types/research";
@@ -22,7 +23,7 @@ export async function generateMetadata({
   return { title: t("reports.pageTitle") };
 }
 
-type ReportTab = "views" | "downloads" | "popular" | "members";
+type ReportTab = "analytics" | "views" | "downloads" | "popular" | "members";
 
 const ASSIGNABLE_ROLES: UserRole[] = ["member", "staff", "librarian", "admin"];
 
@@ -39,17 +40,18 @@ export default async function DashboardReportsPage({
 }) {
   const t = await getTranslations("dashboard");
   const tRoles = await getTranslations("roles");
-  const TABS: { value: ReportTab; label: string }[] = [
-    { value: "views", label: t("reports.tabViews") },
-    { value: "downloads", label: t("reports.tabDownloads") },
-    { value: "popular", label: t("reports.tabPopular") },
-    { value: "members", label: t("reports.tabMembers") },
-  ];
+const TABS: { value: ReportTab; label: string }[] = [
+  { value: "analytics", label: t("reports.tabAnalytics") },
+  { value: "views", label: t("reports.tabViews") },
+  { value: "downloads", label: t("reports.tabDownloads") },
+  { value: "popular", label: t("reports.tabPopular") },
+  { value: "members", label: t("reports.tabMembers") },
+];
   const params = await searchParams;
   const tab: ReportTab = (
-    ["views", "downloads", "popular", "members"].includes(params.tab ?? "")
+    ["analytics", "views", "downloads", "popular", "members"].includes(params.tab ?? "")
       ? params.tab
-      : "views"
+      : "analytics"
   ) as ReportTab;
 
   const categories = await getCategories();
@@ -173,6 +175,7 @@ export default async function DashboardReportsPage({
         </a>
       </form>
 
+      {tab === "analytics" && <AnalyticsPanel />}
       {tab === "views" && <EventReportTable rows={await getViewsReport(filters)} label={t("reports.countViews")} />}
       {tab === "downloads" && (
         <EventReportTable rows={await getDownloadsReport(filters)} label={t("reports.countDownloads")} />
@@ -183,6 +186,85 @@ export default async function DashboardReportsPage({
           filters={{ from: params.from, to: params.to, role: params.role as UserRole | undefined }}
         />
       )}
+    </div>
+  );
+}
+
+async function AnalyticsPanel() {
+  const t = await getTranslations("dashboard");
+  const stats = await getViewsOverview();
+
+  const maxCount = Math.max(...stats.daily.map((d) => d.count), 1);
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* ── Stats cards ── */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: t("reports.analyticsToday"), value: stats.today },
+          { label: t("reports.analyticsWeek"),  value: stats.thisWeek },
+          { label: t("reports.analyticsMonth"), value: stats.thisMonth },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-xl border border-gray-200 bg-surface p-5 text-center">
+            <p className="text-3xl font-bold text-brand-600">{value.toLocaleString("th-TH")}</p>
+            <p className="mt-1 text-xs text-gray-500">{label}</p>
+            <p className="text-xs text-gray-400">{t("reports.analyticsViews")}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Bar chart 30 วัน ── */}
+      <div className="rounded-xl border border-gray-200 bg-surface p-5">
+        <h3 className="mb-4 text-sm font-semibold text-gray-900">
+          {t("reports.analyticsDailyChart")}
+        </h3>
+        {stats.daily.every((d) => d.count === 0) ? (
+          <p className="py-8 text-center text-sm text-gray-400">{t("reports.noResults")}</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-end gap-0.5 h-40">
+              {stats.daily.map((d) => {
+                const heightPct = Math.round((d.count / maxCount) * 100);
+                const isToday = d.date === new Date().toISOString().slice(0, 10);
+                return (
+                  <div
+                    key={d.date}
+                    className="group relative flex flex-1 flex-col items-center justify-end"
+                    title={`${d.date}: ${d.count}`}
+                  >
+                    <div
+                      className={`w-full rounded-t-sm transition-all ${
+                        isToday ? "bg-brand-600" : "bg-brand-200 group-hover:bg-brand-400"
+                      }`}
+                      style={{ height: `${Math.max(heightPct, d.count > 0 ? 4 : 0)}%` }}
+                    />
+                    {/* tooltip */}
+                    <div className="absolute bottom-full mb-1 hidden rounded bg-gray-800 px-1.5 py-0.5 text-xs text-white group-hover:block whitespace-nowrap">
+                      {d.count}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {/* x-axis labels — แสดงเฉพาะวันที่ 1, 8, 15, 22, 29 */}
+            <div className="flex items-end gap-0.5">
+              {stats.daily.map((d, i) => {
+                const day = Number(d.date.slice(8, 10));
+                const show = [1, 8, 15, 22, 29].includes(day) || i === stats.daily.length - 1;
+                return (
+                  <div key={d.date} className="flex-1 text-center">
+                    {show && (
+                      <span className="text-[10px] text-gray-400">
+                        {d.date.slice(5).replace("-", "/")}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
