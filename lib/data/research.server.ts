@@ -82,21 +82,21 @@ export async function getResearchById(id: string): Promise<ResearchItem | undefi
   if (!isSupabaseConfigured()) {
     return mockData.getResearchById(id);
   }
-
   const supabase = await createClient();
   const row = await fetchResearchRowBySlug(supabase, id);
   if (!row) return undefined;
-
+  // ดึง user id สำหรับบันทึก view log (guest = null)
+  const { data: { user } } = await supabase.auth.getUser();
   // เพิ่มยอดเข้าชมผ่าน SECURITY DEFINER function — await ให้เสร็จก่อนตอบกลับ
   // request (สภาพแวดล้อม serverless อาจตัด promise ที่ค้างอยู่หลัง response
   // ถูกส่งแล้ว) แต่ไม่ให้ข้อผิดพลาดของการนับสถิตินี้ทำให้หน้าเว็บพังไปด้วย
   const { error: viewError } = await supabase.rpc("increment_research_views", {
     p_research_id: row.id,
+    p_user_id: user?.id ?? null,
   });
   if (viewError) {
     console.error("increment_research_views failed:", viewError.message);
   }
-
   return mapRowToResearchItem(row);
 }
 

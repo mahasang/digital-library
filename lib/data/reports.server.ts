@@ -200,3 +200,109 @@ export async function getMembersReport(
     }))
     .filter((m) => !filters.role || m.role === filters.role);
 }
+
+
+/** สถิติ views รายวัน/สัปดาห์/เดือน จาก research_view_logs */
+export interface ViewStatRow {
+  date: string;
+  count: number;
+}
+
+export interface ViewsOverviewStats {
+  today: number;
+  thisWeek: number;
+  thisMonth: number;
+  daily: ViewStatRow[];
+}
+
+export async function getViewsOverview(): Promise<ViewsOverviewStats> {
+  if (!isSupabaseConfigured()) return { today: 0, thisWeek: 0, thisMonth: 0, daily: [] };
+  const supabase = await createClient();
+
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6).toISOString();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  // ดึง logs 30 วันย้อนหลัง
+  const { data, error } = await supabase
+    .from("research_view_logs")
+    .select("viewed_at")
+    .gte("viewed_at", monthStart);
+
+  if (error) {
+    console.error("[getViewsOverview] error:", error.message);
+    return { today: 0, thisWeek: 0, thisMonth: 0, daily: [] };
+  }
+
+  const logs = data ?? [];
+
+  // นับ today / week / month
+  const today = logs.filter((l) => l.viewed_at >= todayStart).length;
+  const thisWeek = logs.filter((l) => l.viewed_at >= weekStart).length;
+  const thisMonth = logs.length;
+
+  // group by date สำหรับกราฟ
+  const countByDate = new Map<string, number>();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    countByDate.set(key, 0);
+  }
+  for (const log of logs) {
+    const key = log.viewed_at.slice(0, 10);
+    if (countByDate.has(key)) {
+      countByDate.set(key, (countByDate.get(key) ?? 0) + 1);
+    }
+  }
+
+  const daily = Array.from(countByDate.entries()).map(([date, count]) => ({ date, count }));
+
+  return { today, thisWeek, thisMonth, daily };
+}
+
+/** top viewed รายงานจาก view logs (แทน reading_history) */
+export async function getViewLogsReport(filters: ReportFilters): Promise<ResearchCountRow[]> {
+  if (!isSupabaseConfigured()) return [];
+  const supabase = await createClient();
+
+  let researchIds: string[] | undefined;
+  if (filters.categoryId) {
+    researchIds = await resolveCategoryResearchIds(supabase, filters.categoryId);
+    if (researchIds.length === 0) return [];
+  }
+
+  let query = supabase
+    .from("research_view_logs")
+    .select("research_id, viewed_at");
+
+  if (filters.from) query = query.gte("viewed_at", filters.from);
+  if (filters.to)   query = query.lt("viewed_at", filters.to);
+  if (researchIds)  query = query.in("research_id", researchIds);
+
+  const { data: rawLogs, error } = await query;
+  if (error) {
+    console.error("[getViewLogsReport] error:", error.message);
+    return [];
+  }
+
+  const countByResearch = new Map<string, number>();
+  for (const log of rawLogs ?? []) {
+    countByResearch.set(log.research_id, (countByResearch.get(log.research_id) ?? 0) + 1);
+  }
+  if (countByResearch.size === 0) return [];
+
+  const { data: items } = await supabase
+    .from("research_items")
+    .select("id, slug, title_th")
+    .in("id", [...countByResearch.keys()]);
+
+  return (items ?? [])
+    .map((item) => ({
+      researchId: item.id,
+      slug: item.slug,
+      titleTh: item.title_th,
+      count: countByResearch.get(item.id) ?? 0,
+    }))
+    .sort((a, b) => b.count - a.count);
+}

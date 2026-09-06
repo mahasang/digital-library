@@ -289,6 +289,27 @@ export interface Database {
         }>;
         Relationships: [];
       };
+      research_view_logs: {
+        Row: {
+          id: string;
+          research_id: string;
+          user_id: string | null;
+          viewed_at: string;
+        };
+        Insert: {
+          id?: string;
+          research_id: string;
+          user_id?: string | null;
+          viewed_at?: string;
+        };
+        Update: {
+          id?: string;
+          research_id?: string;
+          user_id?: string | null;
+          viewed_at?: string;
+        };
+        Relationships: [];
+      };
       research_items: {
         Row: {
           id: string;
