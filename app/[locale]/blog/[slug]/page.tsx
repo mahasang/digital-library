@@ -73,7 +73,7 @@ export default async function BlogPostPage({
           </p>
         )}
 
-        <div className="prose prose-gray mt-8 max-w-none">
+        <div className="prose prose-gray prose-headings:font-bold prose-a:text-brand-600 prose-a:no-underline hover:prose-a:underline mt-8 max-w-none">
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       </Container>
