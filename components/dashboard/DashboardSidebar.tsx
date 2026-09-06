@@ -3,20 +3,9 @@
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
-  LayoutDashboard,
-  FileText,
-  FileQuestion,
-  FolderTree,
-  Users,
-  Building2,
-  BarChart3,
-  ScrollText,
-  Settings,
-  ClipboardCheck,
-  Contact,
-  ShieldCheck,
-  Copy,
-  MessageSquare,
+  LayoutDashboard, FileText, FileQuestion, FolderTree, Users,
+  Building2, BarChart3, ScrollText, Settings, ClipboardCheck,
+  Contact, ShieldCheck, Copy, MessageSquare, BookOpen,
 } from "lucide-react";
 
 interface NavItem {
@@ -43,6 +32,7 @@ const NAV_ITEMS: NavItem[] = [
     minRank: 30,
   },
   { href: "/dashboard/contact-messages", labelKey: "nav.contactMessages", icon: MessageSquare, minRank: 30 },
+  { href: "/dashboard/blog", labelKey: "nav.blog", icon: BookOpen, minRank: 40 },
   { href: "/dashboard/authors", labelKey: "nav.authors", icon: Contact, minRank: 30 },
   { href: "/dashboard/organizations", labelKey: "nav.organizations", icon: Building2, minRank: 30 },
   { href: "/dashboard/data-quality", labelKey: "nav.dataQuality", icon: ShieldCheck, minRank: 30 },

@@ -465,6 +465,75 @@ export interface Database {
         Update: never;
         Relationships: [];
       };
+      blog_posts: {
+        Row: {
+          id: string;
+          slug: string;
+          title_lo: string;
+          title_th: string;
+          title_en: string;
+          title_vi: string;
+          content_lo: string;
+          content_th: string;
+          content_en: string;
+          content_vi: string;
+          excerpt_lo: string;
+          excerpt_th: string;
+          excerpt_en: string;
+          excerpt_vi: string;
+          cover_image: string | null;
+          status: "draft" | "published";
+          author_id: string | null;
+          published_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title_lo?: string;
+          title_th?: string;
+          title_en?: string;
+          title_vi?: string;
+          content_lo?: string;
+          content_th?: string;
+          content_en?: string;
+          content_vi?: string;
+          excerpt_lo?: string;
+          excerpt_th?: string;
+          excerpt_en?: string;
+          excerpt_vi?: string;
+          cover_image?: string | null;
+          status?: "draft" | "published";
+          author_id?: string | null;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          title_lo?: string;
+          title_th?: string;
+          title_en?: string;
+          title_vi?: string;
+          content_lo?: string;
+          content_th?: string;
+          content_en?: string;
+          content_vi?: string;
+          excerpt_lo?: string;
+          excerpt_th?: string;
+          excerpt_en?: string;
+          excerpt_vi?: string;
+          cover_image?: string | null;
+          status?: "draft" | "published";
+          author_id?: string | null;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       ratings: {
         Row: {
           id: string;
