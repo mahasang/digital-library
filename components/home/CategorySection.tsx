@@ -5,14 +5,6 @@ import Container from "@/components/ui/Container";
 import { getCategoryIcon } from "@/lib/icons";
 import type { Category } from "@/types/research";
 
-/**
- * Hallmark — homepage data-flow optimization: เดิมดึง getPublishedResearch()
- * (ทุกคอลัมน์/ทุกความสัมพันธ์) และ getCategories() เองแยกจาก app/page.tsx
- * แล้วนับจำนวนต่อหมวดหมู่ด้วย items.filter(...).length ในคอมโพเนนต์นี้ —
- * ตอนนี้รับทั้งรายการหมวดหมู่และจำนวนที่นับไว้แล้วเป็น props แทน (คำนวณรวมที่
- * app/page.tsx จาก getPublishedResearchStats() ครั้งเดียว) ไม่มีการดึงข้อมูล
- * ในคอมโพเนนต์นี้อีกต่อไป หน้าตา/ข้อความที่แสดงเหมือนเดิมทุกประการ
- */
 export default async function CategorySection({
   categories,
   countByCategoryId,
@@ -23,26 +15,31 @@ export default async function CategorySection({
   const t = await getTranslations("home");
 
   return (
-    <section className="py-14 sm:py-16">
+    <section className="py-14 sm:py-16 bg-gray-50 border-y border-gray-200">
       <Container>
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <h2 className="text-h2 font-semibold text-gray-900">
+        {/* ── Header ── */}
+        <div className="mb-10 flex items-end justify-between">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="h-4 w-0.5 bg-brand-600 rounded-full" />
+              <span className="text-xs font-semibold uppercase tracking-widest text-brand-600">
+                {t("categorySubtitle")}
+              </span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl tracking-tight">
               {t("categoryHeading")}
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              {t("categorySubtitle")}
-            </p>
           </div>
           <Link
             href="/research"
-            className="hidden items-center gap-1 text-sm font-medium text-accent hover:text-accent-strong sm:flex"
+            className="hidden items-center gap-1.5 rounded-sm border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600 hover:border-brand-600 hover:text-brand-600 transition-colors sm:flex"
           >
-            {t("viewAllResearch")} <ArrowRight className="h-4 w-4" />
+            {t("viewAllResearch")} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {/* ── Grid ── */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {categories.map((category) => {
             const Icon = getCategoryIcon(category.icon);
             const count = countByCategoryId[category.id] ?? 0;
@@ -50,17 +47,17 @@ export default async function CategorySection({
               <Link
                 key={category.id}
                 href={`/research?category=${category.id}`}
-                className="group flex flex-col gap-3 rounded-xl border border-gray-200 bg-surface p-4 transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md sm:p-5"
+                className="group flex items-start gap-3 rounded-sm border border-gray-200 bg-white p-4 transition-all hover:border-brand-300 hover:shadow-sm"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-accent-soft text-accent-ink group-hover:bg-brand-600 group-hover:text-white">
-                  <Icon className="h-6 w-6" />
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-gray-200 bg-gray-50 text-gray-500 group-hover:border-brand-200 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                  <Icon className="h-4.5 w-4.5 h-[18px] w-[18px]" />
                 </span>
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900">
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-900 leading-snug group-hover:text-brand-700 transition-colors">
                     {category.nameTh}
                   </h3>
-                  <p className="mt-0.5 text-xs text-gray-500">
-                    {t("categoryCount", { count })}
+                  <p className="mt-0.5 text-xs text-gray-400 tabular-nums">
+                    {count} {t("categoryCount", { count }).replace(String(count), "").trim()}
                   </p>
                 </div>
               </Link>
