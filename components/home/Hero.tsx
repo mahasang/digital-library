@@ -3,14 +3,6 @@ import { getTranslations } from "next-intl/server";
 import Container from "@/components/ui/Container";
 import HomeSearchBox from "@/components/home/HomeSearchBox";
 
-/**
- * Hallmark — homepage data-flow optimization: เดิม Hero ดึงข้อมูลของตัวเอง
- * (getPublishedResearch/getCategories/getOrganizations/getSettings) แยกจาก
- * app/page.tsx โดยสิ้นเชิง ทำให้ query ซ้ำซ้อนกับที่หน้าแรกดึงไปแล้ว ตอนนี้
- * รับค่าที่คำนวณแล้วเป็น props แทน — ไม่มีการดึงข้อมูลในคอมโพเนนต์นี้อีกต่อไป
- * (จึงไม่ต้องเป็น async component แล้วด้วย) หน้าตา/ข้อความที่แสดงเหมือนเดิม
- * ทุกประการ
- */
 export default async function Hero({
   siteName,
   publishedCount,
@@ -23,49 +15,77 @@ export default async function Hero({
   organizationCount: number;
 }) {
   const t = await getTranslations("home");
-
   const stats = [
-    { icon: FileText, label: t("statPublished"), value: `${publishedCount}+` },
-    { icon: BookMarked, label: t("statCategories"), value: `${categoryCount}` },
-    { icon: Users2, label: t("statOrganizations"), value: `${organizationCount}` },
+    { icon: FileText,    label: t("statPublished"),     value: `${publishedCount}+` },
+    { icon: BookMarked,  label: t("statCategories"),    value: `${categoryCount}` },
+    { icon: Users2,      label: t("statOrganizations"), value: `${organizationCount}` },
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-900">
+    <section className="relative overflow-hidden bg-[#0f1f3d]">
+      {/* ── decorative grid lines ── */}
       <div
         aria-hidden
-        className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(circle_at_15%_15%,white,transparent_35%),radial-gradient(circle_at_85%_0%,white,transparent_30%)]"
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+          `,
+          backgroundSize: "48px 48px",
+        }}
       />
-      <Container className="relative flex flex-col items-center gap-7 py-16 text-center sm:py-20">
-        <span className="rounded-full bg-white/10 px-4 py-1.5 text-xs font-medium text-brand-100 ring-1 ring-inset ring-white/15">
-          {siteName}
-        </span>
-        <h1 className="max-w-3xl text-h1 font-semibold leading-tight text-white sm:text-display">
-          {t("heroHeadingLine1")}
-          <br className="hidden sm:block" />
-          {t("heroHeadingLine2")}
-        </h1>
-        <p className="max-w-2xl text-sm text-brand-100/80 sm:text-base">{t("heroSubtitle")}</p>
+      {/* ── accent line top ── */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-brand-400 to-transparent" />
 
+      <Container className="relative flex flex-col items-center gap-8 py-16 text-center sm:py-24">
+        {/* ── institution badge ── */}
+        <div className="flex items-center gap-2 rounded-sm border border-brand-400/30 bg-brand-400/10 px-4 py-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
+          <span className="text-xs font-medium tracking-widest text-brand-200 uppercase">
+            {siteName}
+          </span>
+        </div>
+
+        {/* ── heading ── */}
+        <div className="flex flex-col gap-3">
+          <h1 className="max-w-3xl text-3xl font-bold leading-tight text-white sm:text-5xl tracking-tight">
+            {t("heroHeadingLine1")}
+            <span className="block text-brand-300 mt-1">{t("heroHeadingLine2")}</span>
+          </h1>
+          <p className="max-w-xl text-sm text-slate-400 sm:text-base leading-relaxed">
+            {t("heroSubtitle")}
+          </p>
+        </div>
+
+        {/* ── search ── */}
         <div className="w-full max-w-2xl">
           <HomeSearchBox />
         </div>
 
-        <dl className="grid w-full max-w-2xl grid-cols-3 gap-4 pt-2">
+        {/* ── stats ── */}
+        <dl className="flex w-full max-w-2xl flex-col divide-y divide-white/10 rounded-sm border border-white/10 bg-white/[0.03] sm:flex-row sm:divide-x sm:divide-y-0">
           {stats.map(({ icon: Icon, label, value }) => (
             <div
               key={label}
-              className="flex flex-col items-center gap-1 rounded-lg bg-white/[0.06] px-3 py-4 ring-1 ring-inset ring-white/10"
+              className="flex flex-1 items-center gap-4 px-6 py-4 sm:flex-col sm:items-center sm:gap-2 sm:py-5"
             >
-              <dd className="text-lg font-bold text-white sm:text-xl">{value}</dd>
-              <dt className="flex items-center gap-1 text-[11px] text-brand-100/70 sm:text-xs">
-                <Icon className="h-3.5 w-3.5 text-brand-200" aria-hidden="true" />
-                {label}
-              </dt>
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-brand-400/30 bg-brand-400/10">
+                <Icon className="h-4 w-4 text-brand-300" aria-hidden="true" />
+              </div>
+              <div className="flex flex-col sm:items-center">
+                <dd className="text-2xl font-bold text-white sm:text-3xl">{value}</dd>
+                <dt className="text-[11px] text-slate-400 uppercase tracking-wider sm:text-xs">
+                  {label}
+                </dt>
+              </div>
             </div>
           ))}
         </dl>
       </Container>
+
+      {/* ── bottom fade ── */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 }
