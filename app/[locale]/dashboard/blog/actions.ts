@@ -16,7 +16,7 @@ export async function upsertBlogPostAction(
   formData: FormData
 ): Promise<BlogFormState> {
   const rank = await getCurrentUserRoleRank();
-  if (rank < 40) return { status: "error", message: "ບໍ່ມີສິດໃຊ້ງານ" };
+  if (rank < 30) return { status: "error", message: "ບໍ່ມີສິດໃຊ້ງານ" };
 
   const user = await getSessionUser();
   if (!user) return { status: "error", message: "ກະລຸນາເຂົ້າສູ່ລະບົບ" };
@@ -103,7 +103,7 @@ export async function upsertBlogPostAction(
 
 export async function deleteBlogPostAction(id: string): Promise<{ error?: string }> {
   const rank = await getCurrentUserRoleRank();
-  if (rank < 40) return { error: "ບໍ່ມີສິດໃຊ້ງານ" };
+  if (rank < 30) return { error: "ບໍ່ມີສິດໃຊ້ງານ" };
 
   const supabase = await createClient();
   const { error } = await supabase.from("blog_posts").delete().eq("id", id);
