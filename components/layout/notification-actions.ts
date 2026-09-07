@@ -17,7 +17,8 @@ export async function markNotificationReadAction(notificationId: string): Promis
   const { error } = await supabase
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
-    .eq("id", notificationId);
+    .eq("id", notificationId)
+    .eq("user_id", user.id);
 
   if (error) {
     console.error("markNotificationReadAction failed:", error.message);
@@ -39,7 +40,8 @@ export async function markAllNotificationsReadAction(): Promise<void> {
   const { error } = await supabase
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
-    .is("read_at", null);
+    .is("read_at", null)
+    .eq("user_id", user.id);
 
   if (error) {
     console.error("markAllNotificationsReadAction failed:", error.message);
