@@ -15,9 +15,9 @@ export default function AuthFormShell({
   footer?: ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden bg-surface py-12">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-gray-50 py-12">
 
-      {/* ── Concentric circles background ── */}
+      {/* ── Concentric circles background ──
       <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
         {[600, 500, 400, 300, 200].map((size) => (
           <span
@@ -26,7 +26,7 @@ export default function AuthFormShell({
             style={{ width: size, height: size }}
           />
         ))}
-      </div>
+      </div> */}
 
       <Container className="relative flex max-w-md flex-col items-center">
 
