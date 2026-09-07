@@ -25,5 +25,15 @@ export const profileSchema = z.object({
   ),
   address: z.preprocess(emptyToUndefined, z.string().max(500, "ที่อยู่ยาวเกินไป").optional()),
 });
+export const changePasswordSchema = z
+  .object({
+    newPassword: z.string().min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "รหัสผ่านไม่ตรงกัน",
+    path: ["confirmPassword"],
+  });
 
 export type ProfileInput = z.infer<typeof profileSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

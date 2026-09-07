@@ -11,6 +11,8 @@ import MfaSettings from "@/components/account/MfaSettings";
 import OrcidConnect from "@/components/account/OrcidConnect";
 import ReadingHistorySection from "@/components/account/ReadingHistorySection";
 import DeleteAccountButton from "@/components/account/DeleteAccountButton";
+import ChangePasswordForm from "@/components/account/ChangePasswordForm";
+import SignOutAllDevicesButton from "@/components/account/SignOutAllDevicesButton";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRole } from "@/lib/supabase/roles";
@@ -165,6 +167,16 @@ export default async function AccountPage({
             <div className="mt-4">
               <ReadingHistorySection initialHistory={readingHistory} />
             </div>
+          </div>
+
+          <div className="rounded-xl border border-gray-200 bg-surface p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">ความปลอดภัย</h2>
+
+            <ChangePasswordForm />
+
+            <hr className="my-6 border-gray-200" />
+
+            <SignOutAllDevicesButton />
           </div>
 
           <div className="rounded-xl border border-red-200 bg-surface p-6">

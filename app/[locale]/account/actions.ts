@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { profileSchema } from "@/lib/validation/profile";
+import { profileSchema, changePasswordSchema } from "@/lib/validation/profile";
 import {
   AVATAR_ALLOWED_TYPES,
   AVATAR_ALLOWED_EXTENSIONS,
@@ -234,5 +234,44 @@ export async function deleteAccountAction(): Promise<{ error: string | null }> {
   if (error) return { error: error.message };
 
   await supabase.auth.signOut();
+  return { error: null };
+}
+
+// useActionState style — form with field errors
+export async function changePasswordAction(
+  _prevState: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อน" };
+
+  const parsed = changePasswordSchema.safeParse({
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "ข้อมูลไม่ถูกต้อง",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.newPassword,
+  });
+  if (error) return { status: "error", message: "ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่" };
+  return { status: "success", message: "เปลี่ยนรหัสผ่านสำเร็จ" };
+}
+
+// imperative style — standalone button like deleteAccountAction
+export async function signOutAllDevicesAction(): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "กรุณาเข้าสู่ระบบก่อน" };
+
+  const { error } = await supabase.auth.signOut({ scope: "global" });
+  if (error) return { error: "ไม่สามารถออกจากระบบได้ กรุณาลองใหม่" };
   return { error: null };
 }
