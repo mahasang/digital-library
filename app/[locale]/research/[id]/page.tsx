@@ -121,7 +121,7 @@ export default async function ResearchDetailPage({
   const dateLocale = locale === "en" ? "en-US" : "th-TH";
 
   return (
-    <section className="py-8 sm:py-12 bg-gray-50 min-h-screen">
+    <section className="py-8 sm:py-12 bg-surface-muted min-h-screen">
       <Container>
         {/* ── Breadcrumb ── */}
         <nav aria-label={t("breadcrumbLabel")} className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-gray-400">
@@ -206,7 +206,7 @@ export default async function ResearchDetailPage({
                 { icon: Files,    label: t("statPages"),     value: `${item.pageCount} ${t("pagesUnit")}` },
                 { icon: Calendar, label: t("statYear"),      value: item.year },
               ].map(({ icon: Icon, label, value }) => (
-                <div key={label} className="flex flex-col gap-1 bg-white p-3">
+                <div key={label} className="flex flex-col gap-1 bg-surface p-3">
                   <dt className="flex items-center gap-1 text-gray-400">
                     <Icon className="h-3.5 w-3.5" /> {label}
                   </dt>
@@ -222,7 +222,7 @@ export default async function ResearchDetailPage({
             <div className="border-b border-gray-200 pb-6">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 {category && (
-                  <span className="rounded-sm bg-[#0f1f3d] px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-white">
+                  <span className="rounded-sm bg-brand-900 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-white">
                     {category.nameTh}
                   </span>
                 )}
@@ -232,7 +232,7 @@ export default async function ResearchDetailPage({
                   {t("yearLabel", { year: item.year })}
                 </span>
               </div>
-              <h1 className="text-2xl font-bold leading-snug text-gray-900 sm:text-3xl tracking-tight">
+              <h1 className="text-2xl font-bold leading-snug text-ink sm:text-3xl tracking-tight">
                 {item.titleTh}
               </h1>
               {item.titleEn && (

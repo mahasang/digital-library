@@ -67,7 +67,7 @@ export default function ResearchCard({
   return (
     <Link
       href={`/research/${item.id}`}
-      className="group flex flex-col overflow-hidden rounded-sm border border-gray-200 bg-white transition-all hover:border-brand-300 hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-sm border border-gray-200 bg-surface transition-all hover:border-brand-300 hover:shadow-md"
     >
       {/* ── Cover ── */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
@@ -85,7 +85,7 @@ export default function ResearchCard({
         )}
         {/* category badge */}
         {category && (
-          <span className="absolute left-0 top-3 bg-[#0f1f3d] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
+          <span className="absolute left-0 top-3 bg-brand-900 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
             {category.nameTh}
           </span>
         )}
@@ -100,12 +100,12 @@ export default function ResearchCard({
       {/* ── Body ── */}
       <div className="flex flex-1 flex-col p-3 gap-1.5">
         {/* title */}
-        <h2 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 group-hover:text-brand-700 transition-colors">
+        <h2 className="line-clamp-2 text-sm font-semibold leading-snug text-ink group-hover:text-brand-700 transition-colors">
           {item.titleTh}
         </h2>
 
         {/* authors */}
-        <p className="line-clamp-1 text-xs text-gray-500 italic">
+        <p className="line-clamp-1 text-xs text-ink-soft italic">
           {item.researchers.map((r) => r.name).join(", ")}
         </p>
 
@@ -135,7 +135,7 @@ export default function ResearchCard({
         </div>
 
         {/* ── Footer metadata ── */}
-        <div className="flex items-center justify-between border-t border-gray-100 pt-2 text-[11px] text-gray-400">
+        <div className="flex items-center justify-between border-t border-gray-100 pt-2 text-[11px] text-ink-faint">
           {/* year / date */}
           {publishedLabel ? (
             <span className="flex items-center gap-1">

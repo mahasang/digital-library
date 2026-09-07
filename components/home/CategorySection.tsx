@@ -15,7 +15,7 @@ export default async function CategorySection({
   const t = await getTranslations("home");
 
   return (
-    <section className="py-14 sm:py-16 bg-gray-50 border-y border-gray-200">
+    <section className="py-14 sm:py-16 bg-surface-muted border-y border-gray-200">
       <Container>
         {/* ── Header ── */}
         <div className="mb-10 flex items-end justify-between">
@@ -47,7 +47,7 @@ export default async function CategorySection({
               <Link
                 key={category.id}
                 href={`/research?category=${category.id}`}
-                className="group flex items-start gap-3 rounded-sm border border-gray-200 bg-white p-4 transition-all hover:border-brand-300 hover:shadow-sm"
+                className="group flex items-start gap-3 rounded-sm border border-gray-200 bg-surface p-4 transition-all hover:border-brand-300 hover:shadow-sm"
               >
                 <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-gray-200 bg-gray-50 text-gray-500 group-hover:border-brand-200 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
                   <Icon className="h-4.5 w-4.5 h-[18px] w-[18px]" />

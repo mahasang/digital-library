@@ -35,9 +35,9 @@ export default function Header({
   useEffect(() => { setOpen(false); }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white shadow-sm">
+    <header className="sticky top-0 z-40 border-b border-gray-200 bg-surface shadow-sm">
       {/* ── top accent bar ── */}
-      <div className="h-0.5 bg-[#0f1f3d]" />
+      <div className="h-0.5 bg-brand-900" />
 
       <Container>
         <div className="flex h-14 items-center justify-between gap-4">
@@ -54,11 +54,11 @@ export default function Header({
                 className="h-8 w-8 rounded-sm object-cover"
               />
             ) : (
-              <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-[#0f1f3d] text-white">
+              <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-900 text-white">
                 <BookOpen className="h-4.5 w-4.5 h-[18px] w-[18px]" />
               </span>
             )}
-            <span className="hidden text-sm font-bold tracking-tight text-[#0f1f3d] sm:block max-w-[200px] line-clamp-1">
+            <span className="hidden text-sm font-bold tracking-tight text-gray-900 sm:block max-w-[200px] line-clamp-1">
               {siteName ?? tHeader("siteName")}
             </span>
           </Link>
@@ -117,7 +117,7 @@ export default function Header({
 
       {/* ── Mobile menu ── */}
       {open && (
-        <div className="border-t border-gray-200 bg-white md:hidden">
+        <div className="border-t border-gray-200 bg-surface md:hidden">
           <Container className="flex flex-col py-2">
             <div className="px-3 py-2">
               <SettingsDropdown />
