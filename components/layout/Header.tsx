@@ -8,6 +8,24 @@ import { Menu, X, Search, BookOpen } from "lucide-react";
 import Container from "@/components/ui/Container";
 import { SettingsDropdown } from "@/components/layout/SettingsDropdown";
 
+/**
+ * Hallmark — header rendering refactor. Header เป็น "เปลือก" ของแถบเมนูบนสุด
+ * ล้วนๆ ตอนนี้: โลโก้/ชื่อเว็บ, เมนูนำทางสาธารณะ (navLinks), ปุ่มสลับธีม, ปุ่ม
+ * ค้นหา, และปุ่มเปิด/ปิดเมนูมือถือ — ไม่มีการดึงข้อมูลผู้ใช้/การแจ้งเตือน/สิทธิ์
+ * ใดๆ ในไฟล์นี้เองอีกต่อไป (ย้ายไปที่ components/layout/HeaderAccountArea.tsx
+ * ซึ่งเป็น Server Component แยกต่างหาก) ส่วนที่ขึ้นกับผู้ใช้ (เมนูผู้ใช้/กระดิ่ง
+ * แจ้งเตือน/ลิงก์ตามสิทธิ์ หรือปุ่มเข้าสู่ระบบ/สมัครสมาชิกสำหรับ guest) รับเข้ามา
+ * เป็น React node สำเร็จรูปผ่าน props `desktopAccountArea`/`mobileAccountArea`
+ * (app/layout.tsx เป็นผู้ห่อแต่ละอันด้วย <Suspense> ก่อนส่งเข้ามา) — Header เอง
+ * ไม่รู้และไม่สนใจว่าผู้ใช้เป็นใคร/มีสิทธิ์อะไร แค่วางตำแหน่งให้ถูกเท่านั้น
+ *
+ * ปิดเมนูมือถืออัตโนมัติเมื่อ pathname เปลี่ยน (นำทางสำเร็จ) แทนการผูก
+ * onClick={() => setOpen(false)} ไว้กับลิงก์แต่ละอันแบบเดิม — จำเป็นเพราะลิงก์
+ * ในส่วนบัญชีผู้ใช้ (workspaceLinks/โปรไฟล์/ออกจากระบบ/เข้าสู่ระบบ) อยู่ใน
+ * mobileAccountArea ซึ่งเป็น Server Component ที่ไม่มีทางเรียก setOpen (state
+ * ของ Client Component นี้) ได้โดยตรงเลย วิธีนี้ยังทำให้ลิงก์นำทางสาธารณะ
+ * (navLinks) ปิดเมนูด้วยกลไกเดียวกัน สม่ำเสมอทั้งหมด
+ */
 export default function Header({
   desktopAccountArea,
   mobileAccountArea,
@@ -25,46 +43,42 @@ export default function Header({
   const pathname = usePathname();
 
   const navLinks = [
-    { href: "/" as const,        label: t("home") },
+    { href: "/" as const, label: t("home") },
     { href: "/research" as const, label: t("research") },
-    { href: "/blog" as const,    label: t("blog") },
-    { href: "/about" as const,   label: t("about") },
+    { href: "/blog" as const, label: t("blog") },
+    { href: "/about" as const, label: t("about") },
     { href: "/contact" as const, label: t("contact") },
   ];
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-surface shadow-sm">
-      {/* ── top accent bar ── */}
-      <div className="h-0.5 bg-brand-900" />
-
+    <header className="sticky top-0 z-40 border-b border-gray-200 bg-[var(--color-surface-translucent)] backdrop-blur">
       <Container>
-        <div className="flex h-14 items-center justify-between gap-4">
-
-          {/* ── Logo ── */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+        <div className="flex h-16 items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2 shrink-0">
             {logoUrl ? (
               <Image
                 src={logoUrl}
                 alt=""
-                width={32}
-                height={32}
+                width={36}
+                height={36}
                 priority
-                className="h-8 w-8 rounded-sm object-cover"
+                className="h-9 w-9 rounded-lg object-cover"
               />
             ) : (
-              <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-brand-900 text-white">
-                <BookOpen className="h-4.5 w-4.5 h-[18px] w-[18px]" />
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
+                <BookOpen className="h-5 w-5" />
               </span>
             )}
-            <span className="hidden text-sm font-bold tracking-tight text-gray-900 sm:block max-w-[200px] line-clamp-1">
+            <span className="block max-w-[140px] truncate text-sm font-bold leading-tight text-gray-900 sm:max-w-[220px] sm:whitespace-normal sm:line-clamp-2">
               {siteName ?? tHeader("siteName")}
             </span>
           </Link>
 
-          {/* ── Desktop nav ── */}
-          <nav aria-label={tHeader("mainMenu")} className="hidden items-center md:flex">
+          <nav aria-label={tHeader("mainMenu")} className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => {
               const active =
                 link.href === "/"
@@ -74,73 +88,57 @@ export default function Header({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-3 py-4 text-sm font-medium transition-colors ${
+                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                     active
-                      ? "text-brand-600"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-accent-soft text-accent-ink"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   }`}
                 >
                   {link.label}
-                  {active && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-600" />
-                  )}
                 </Link>
               );
             })}
           </nav>
 
-          {/* ── Desktop right ── */}
           <div className="hidden items-center gap-2 md:flex">
             <SettingsDropdown />
             <Link
               href="/research"
               aria-label={tHeader("searchResearch")}
-              className="rounded-sm p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+              className="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
             >
-              <Search className="h-4.5 w-4.5 h-[18px] w-[18px]" />
+              <Search className="h-5 w-5" />
             </Link>
             {desktopAccountArea}
           </div>
 
-          {/* ── Mobile hamburger ── */}
           <button
             type="button"
-            className="rounded-sm p-2 text-gray-600 hover:bg-gray-100 md:hidden transition-colors"
+            className="rounded-md p-2 text-gray-600 hover:bg-gray-100 md:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? tHeader("closeMenu") : tHeader("openMenu")}
             aria-expanded={open}
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </Container>
 
-      {/* ── Mobile menu ── */}
       {open && (
         <div className="border-t border-gray-200 bg-surface md:hidden">
-          <Container className="flex flex-col py-2">
-            <div className="px-3 py-2">
+          <Container className="flex flex-col gap-1 py-3">
+            <div className="mb-1 px-3 py-1.5">
               <SettingsDropdown />
             </div>
-            {navLinks.map((link) => {
-              const active =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center px-3 py-2.5 text-sm font-medium transition-colors border-l-2 ${
-                    active
-                      ? "border-brand-600 text-brand-600 bg-brand-50"
-                      : "border-transparent text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
+              >
+                {link.label}
+              </Link>
+            ))}
             {mobileAccountArea}
           </Container>
         </div>

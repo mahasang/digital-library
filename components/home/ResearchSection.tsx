@@ -18,52 +18,41 @@ export default async function ResearchSection({
   icon: LucideIcon;
   items: ResearchItem[];
   tone?: "light" | "muted";
+  /** "latest" แสดงวันที่เผยแพร่แทนปี, "popular" แสดงตราอันดับ — เพื่อให้สอง
+   * ส่วนนี้อ่านออกได้ทันทีว่าต่างกันจริง (คนละเกณฑ์การเรียงลำดับ) ไม่ใช่กริด
+   * ซ้ำหน้ากัน */
   variant?: "default" | "latest" | "popular";
 }) {
   const t = await getTranslations("home");
 
   return (
-    <section className={`py-14 sm:py-16 ${tone === "muted" ? "bg-gray-50 border-y border-gray-200" : "bg-white"}`}>
+    <section className={`py-14 sm:py-16 ${tone === "muted" ? "bg-gray-50" : ""}`}>
       <Container>
-        {/* ── Header ── */}
         <div className="mb-8 flex items-end justify-between">
-          <div className="flex flex-col gap-1">
-            {/* accent bar + label */}
-            <div className="flex items-center gap-2 mb-1">
-              <div className="h-4 w-0.5 bg-brand-600 rounded-full" />
-              <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-brand-600">
-                <Icon className="h-3.5 w-3.5" />
-                {description}
-              </span>
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-soft text-accent-ink">
+              <Icon className="h-5 w-5" />
+            </span>
+            <div>
+              <h2 className="text-h2 font-semibold text-gray-900">
+                {title}
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">{description}</p>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl tracking-tight">
-              {title}
-            </h2>
           </div>
           <Link
             href="/research"
-            className="hidden items-center gap-1.5 rounded-sm border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600 hover:border-brand-600 hover:text-brand-600 transition-colors sm:flex"
+            className="hidden items-center gap-1 text-sm font-medium text-accent hover:text-accent-strong sm:flex"
           >
-            {t("viewAllResearch")} <ArrowRight className="h-3.5 w-3.5" />
+            {t("viewAllResearch")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        {/* ── Grid ── */}
         <ResearchGrid
           items={items}
           rankStart={variant === "popular" ? 1 : undefined}
           footerMode={variant === "latest" ? "recency" : "default"}
         />
-
-        {/* ── Mobile see all ── */}
-        <div className="mt-6 flex justify-center sm:hidden">
-          <Link
-            href="/research"
-            className="inline-flex items-center gap-1.5 rounded-sm border border-gray-300 px-5 py-2 text-xs font-semibold text-gray-600 hover:border-brand-600 hover:text-brand-600 transition-colors"
-          >
-            {t("viewAllResearch")} <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
       </Container>
     </section>
   );
