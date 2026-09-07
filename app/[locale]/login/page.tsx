@@ -6,6 +6,8 @@ import AuthFormShell from "@/components/auth/AuthFormShell";
 import LoginForm from "@/components/auth/LoginForm";
 import SupabaseNotConfiguredNotice from "@/components/auth/SupabaseNotConfiguredNotice";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { isCaptchaConfigured } from "@/lib/captcha.server";
+import { getSettings } from "@/lib/data/settings.server";
 
 export async function generateMetadata({
   params,
@@ -36,6 +38,11 @@ export default async function LoginPage({
     typeof params.redirect === "string" && params.redirect.startsWith("/")
       ? params.redirect
       : "/";
+  const settings = isSupabaseConfigured() ? await getSettings() : null;
+  const captchaSiteKey =
+    settings?.captchaEnabled && isCaptchaConfigured()
+      ? process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+      : undefined;
 
   return (
     <AuthFormShell
@@ -72,7 +79,7 @@ export default async function LoginPage({
               <p>{t("passwordResetSuccess")}</p>
             </div>
           )}
-          <LoginForm redirectTo={redirectTo} />
+          <LoginForm redirectTo={redirectTo} captchaSiteKey={captchaSiteKey} />
         </>
       )}
     </AuthFormShell>

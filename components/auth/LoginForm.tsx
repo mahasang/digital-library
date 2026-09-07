@@ -7,14 +7,22 @@ import { AlertCircle, Eye, EyeOff, LogIn } from "lucide-react";
 import { loginAction } from "@/app/[locale]/login/actions";
 import { idleActionResult } from "@/lib/actions/types";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import TurnstileWidget from "@/components/auth/TurnstileWidget";
 
-export default function LoginForm({ redirectTo }: { redirectTo: string }) {
+export default function LoginForm({
+  redirectTo,
+  captchaSiteKey,
+}: {
+  redirectTo: string;
+  captchaSiteKey?: string;
+}) {
   const t = useTranslations("auth");
   const [showPassword, setShowPassword] = useState(false);
   const [state, formAction, isPending] = useActionState(
     loginAction,
     idleActionResult
   );
+  const [captchaToken, setCaptchaToken] = useState("");
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -86,9 +94,13 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
         </Link>
       </div>
 
+      {captchaSiteKey && (
+        <TurnstileWidget siteKey={captchaSiteKey} onToken={setCaptchaToken} />
+      )}
+
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || (Boolean(captchaSiteKey) && !captchaToken)}
         className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <LogIn className="h-4 w-4" />
