@@ -69,9 +69,8 @@ export async function upsertBlogPostAction(
     cover_image: coverImage,
     status: publish ? "published" as const : "draft" as const,
     author_id: user.id,
-    published_at: publishedAt,
     tags: tags as string[],
-    ...(publish ? { published_at: new Date().toISOString() } : {}),
+    ...(publish ? { published_at: scheduledAt || new Date().toISOString() } : {}),
   };
 
   let resultId: string;
