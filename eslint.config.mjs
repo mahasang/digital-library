@@ -22,6 +22,11 @@ const eslintConfig = [
       "supabase/.branches/**",
       "public/**",
       "scripts/**",
+      "android/**",
+      "ios/**",
+      ".agents/**",
+      ".claude/**",
+      ".cursor/**",
     ],
   },
 ];
