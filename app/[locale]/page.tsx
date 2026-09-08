@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { Clock, TrendingUp } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import Hero from "@/components/home/Hero";

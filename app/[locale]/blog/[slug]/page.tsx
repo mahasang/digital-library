@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -5,7 +6,10 @@ import Image from "next/image";
 import Container from "@/components/ui/Container";
 import { Link } from "@/i18n/navigation";
 import ReactMarkdown from "react-markdown";
-import { getPublishedBlogPostBySlug } from "@/lib/data/blog.server";
+import {
+  getPublishedBlogPostBySlug,
+  getRelatedBlogPosts,
+} from "@/lib/data/blog.server";
 import type { BlogPost } from "@/lib/data/blog.server";
 
 export async function generateMetadata({
@@ -30,10 +34,7 @@ function getLocalizedField(post: BlogPost, field: "title" | "excerpt" | "content
     content: { lo: post.contentLo, th: post.contentTh, en: post.contentEn, vi: post.contentVi },
   };
   const values = map[field];
-  return (
-    values[locale as keyof typeof values] ||
-    values.lo || values.th || values.en || values.vi || ""
-  );
+  return values[locale as keyof typeof values] || values.lo || values.th || values.en || values.vi || "";
 }
 
 export default async function BlogPostPage({
@@ -48,6 +49,8 @@ export default async function BlogPostPage({
 
   const title   = getLocalizedField(post, "title", locale);
   const content = getLocalizedField(post, "content", locale);
+
+  const related = await getRelatedBlogPosts(slug, post.tags ?? [], 3);
 
   return (
     <div className="py-12 sm:py-16">
@@ -73,9 +76,59 @@ export default async function BlogPostPage({
           </p>
         )}
 
+        {/* ── Tags ── */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/blog?tag=${encodeURIComponent(tag)}`}
+                className="rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-600 hover:bg-brand-100 transition-colors"
+              >
+                #{tag}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* ── Content ── */}
         <div className="prose prose-gray prose-headings:font-bold prose-a:text-brand-600 prose-a:no-underline hover:prose-a:underline mt-8 max-w-none">
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
+
+        {/* ── Related posts ── */}
+        {related.length > 0 && (
+          <div className="mt-12 border-t border-gray-200 pt-8">
+            <h2 className="mb-4 text-lg font-bold text-gray-900">{t("relatedPosts")}</h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {related.map((rel) => (
+                <Link
+                  key={rel.id}
+                  href={`/blog/${rel.slug}`}
+                  className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-surface transition-all hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  {rel.coverImage ? (
+                    <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
+                      <Image
+                        src={rel.coverImage}
+                        alt={getLocalizedField(rel, "title", locale)}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-video w-full bg-gradient-to-br from-brand-50 to-brand-100" />
+                  )}
+                  <div className="p-3">
+                    <p className="line-clamp-2 text-sm font-semibold text-gray-900 group-hover:text-brand-700">
+                      {getLocalizedField(rel, "title", locale)}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </Container>
     </div>
   );

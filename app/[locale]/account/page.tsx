@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/navigation";

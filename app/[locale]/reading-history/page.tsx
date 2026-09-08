@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { BookOpen } from "lucide-react";

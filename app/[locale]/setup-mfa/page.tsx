@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import AuthFormShell from "@/components/auth/AuthFormShell";
 import SetupMfaForm from "@/components/auth/SetupMfaForm";

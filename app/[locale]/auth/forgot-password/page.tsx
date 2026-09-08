@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import AuthFormShell from "@/components/auth/AuthFormShell";

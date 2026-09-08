@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import { Mail, Phone, Clock, MapPin, Facebook } from "lucide-react";

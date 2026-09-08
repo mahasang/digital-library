@@ -37,6 +37,8 @@ export async function upsertBlogPostAction(
   const coverImage = (formData.get("cover_image") as string).trim() || null;
   const publish    = formData.get("publish") === "true";
   const scheduledAt = (formData.get("scheduled_at") as string).trim() || null;
+  const tagsRaw = (formData.get("tags") as string).trim();
+  const tags = tagsRaw ? JSON.parse(tagsRaw) : [];
 
   if (!slug) return { status: "error", message: "ກະລຸນາໃສ່ Slug" };
   if (!titleLo && !titleTh && !titleEn)
@@ -68,6 +70,8 @@ export async function upsertBlogPostAction(
     status: publish ? "published" as const : "draft" as const,
     author_id: user.id,
     published_at: publishedAt,
+    tags: tags as string[],
+    ...(publish ? { published_at: new Date().toISOString() } : {}),
   };
 
   let resultId: string;
