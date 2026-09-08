@@ -83,7 +83,7 @@ export default async function DashboardBlogPage() {
                         <Pencil className="h-3.5 w-3.5" />
                         ແກ້ໄຂ
                       </Link>
-                      <form action={async () => { await deleteBlogPostAction(post.id); }}>
+                      <form action={deleteBlogPostAction.bind(null, post.id)}>
                         <button
                           type="submit"
                           className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50"

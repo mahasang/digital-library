@@ -101,15 +101,12 @@ export async function upsertBlogPostAction(
   return { status: "success", id: resultId };
 }
 
-export async function deleteBlogPostAction(id: string): Promise<{ error?: string }> {
-  const rank = await getCurrentUserRoleRank();
-  if (rank < 30) return { error: "ບໍ່ມີສິດໃຊ້ງານ" };
-
-  const supabase = await createClient();
-  const { error } = await supabase.from("blog_posts").delete().eq("id", id);
-  if (error) return { error: error.message };
-
-  revalidatePath("/dashboard/blog");
-  revalidatePath("/blog");
-  return {};
-}
+export async function deleteBlogPostAction(id: string): Promise<void> {
+    const rank = await getCurrentUserRoleRank();
+    if (rank < 30) return;
+  
+    const supabase = await createClient();
+    await supabase.from("blog_posts").delete().eq("id", id);
+    revalidatePath("/dashboard/blog");
+    revalidatePath("/blog");
+  }
