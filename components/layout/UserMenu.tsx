@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Crown,
   Settings,
+  BookOpen,
 } from "lucide-react";
 import LogoutButton from "@/components/auth/LogoutButton";
 import type { SessionUser } from "@/lib/supabase/session";
@@ -24,6 +25,7 @@ export const WORKSPACE_ICONS = {
   mySubmissions: FileText,
   dashboard: LayoutDashboard,
   superAdmin: Crown,
+  blogAdmin: BookOpen,
 } as const;
 
 export type WorkspaceIconKey = keyof typeof WORKSPACE_ICONS;
