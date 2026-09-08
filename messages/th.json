@@ -30,7 +30,6 @@
     "loggingOut": "กำลังออกจากระบบ...",
     "myAccount": "บัญชีของฉัน",
     "dashboard": "แดชบอร์ด",
-    "blogAdmin": "จัดการบทความ",
     "admin": "ผู้ดูแลระบบ",
     "skipToContent": "ข้ามไปยังเนื้อหาหลัก",
     "openMenu": "เปิดเมนู",
@@ -66,6 +65,7 @@
     "submitResearch": "ส่งงานวิจัย",
     "mySubmissions": "งานของฉัน",
     "dashboard": "แดชบอร์ด",
+    "blogAdmin": "จัดการบทความ",
     "superAdmin": "Super Admin",
     "myProfile": "โปรไฟล์ของฉัน"
   },

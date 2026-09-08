@@ -30,7 +30,6 @@
     "loggingOut": "Đang đăng xuất...",
     "myAccount": "Tài khoản của tôi",
     "dashboard": "Bảng điều khiển",
-    "blogAdmin": "Quản lý bài viết",
     "admin": "Quản trị viên",
     "skipToContent": "Chuyển đến nội dung chính",
     "openMenu": "Mở menu",
@@ -66,6 +65,7 @@
     "submitResearch": "Gửi nghiên cứu",
     "mySubmissions": "Nghiên cứu của tôi",
     "dashboard": "Bảng điều khiển",
+    "blogAdmin": "Quản lý bài viết",
     "superAdmin": "Super Admin",
     "myProfile": "Hồ sơ của tôi"
   },

@@ -34,7 +34,6 @@
     "loggingOut": "ກຳລັງອອກຈາກລະບົບ...",
     "myAccount": "ບັນຊີຂອງຂ້ອຍ",
     "dashboard": "ແດຊບອທ",
-    "blogAdmin": "ຈັດການບົດຄວາມ",
     "admin": "ຜູ້ດູແລລະບົບ",
     "skipToContent": "ຂ້າມໄປຍັງເນື້ອຫາຫລັກ",
     "openMenu": "ເປີດເມນູ",
@@ -81,6 +80,7 @@
     "submitResearch": "ສົ່ງງານວິໄຈ",
     "mySubmissions": "ງານຂອງຂ້ອຍ",
     "dashboard": "ແດຊບອຣ໌ດ",
+    "blogAdmin": "ຈັດການບົດຄວາມ",
     "superAdmin": "Super Admin",
     "myProfile": "ໂປຣໄຟລ໌ຂອງຂ້ອຍ"
   },
