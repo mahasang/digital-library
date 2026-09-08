@@ -65,7 +65,9 @@ export function buildWorkspaceLinks(user: SessionUser | null): WorkspaceLinkKey[
         ]
       : []),
     ...(isLibrarianOrAbove
-      ? [{ href: "/dashboard", labelKey: "workspace.dashboard", iconKey: "dashboard" as const }]
+      ? [{ href: "/dashboard", labelKey: "workspace.dashboard", iconKey: "dashboard" as const },
+        { href: "/blog-admin", labelKey: "workspace.blogAdmin", iconKey: "dashboard" as const }
+      ]
       : []),
     ...(isSuperAdmin
       ? [
