@@ -6,10 +6,13 @@ import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
+import { useRef, useCallback } from "react";
+import { uploadCoverImageAction } from "@/app/[locale]/blog-admin/actions";
 import {
   Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3,
-  List, ListOrdered, Quote, Minus, Link2, ImageIcon, Undo, Redo,
+  List, ListOrdered, Quote, Minus, Link2, ImageIcon, Undo, Redo, Loader2,
 } from "lucide-react";
+import { useState } from "react";
 
 export default function TipTapEditor({
   content,
@@ -20,10 +23,25 @@ export default function TipTapEditor({
   onChange: (html: string) => void;
   placeholder?: string;
 }) {
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadImage = useCallback(async (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const result = await uploadCoverImageAction(fd);
+    setUploading(false);
+    if (result.url && editor) {
+      editor.chain().focus().setImage({ src: result.url }).run();
+    }
+  }, []);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image,
+      Image.configure({ allowBase64: false }),
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder }),
       CharacterCount,
@@ -33,6 +51,30 @@ export default function TipTapEditor({
     editorProps: {
       attributes: {
         class: "prose prose-sm max-w-none min-h-[300px] px-4 py-3 focus:outline-none",
+      },
+      handleDrop: (view, event) => {
+        const files = event.dataTransfer?.files;
+        if (!files?.length) return false;
+        const file = files[0];
+        if (!file.type.startsWith("image/")) return false;
+        event.preventDefault();
+        uploadImage(file);
+        return true;
+      },
+      handlePaste: (view, event) => {
+        const items = event.clipboardData?.items;
+        if (!items) return false;
+        for (const item of Array.from(items)) {
+          if (item.type.startsWith("image/")) {
+            const file = item.getAsFile();
+            if (file) {
+              event.preventDefault();
+              uploadImage(file);
+              return true;
+            }
+          }
+        }
+        return false;
       },
     },
   });
@@ -46,9 +88,14 @@ export default function TipTapEditor({
         : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
     }`;
 
-  function addImage() {
-    const url = window.prompt("URL ຮູບພາບ:");
-    if (url) editor.chain().focus().setImage({ src: url }).run();
+  function handleImageClick() {
+    fileInputRef.current?.click();
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) await uploadImage(file);
+    e.target.value = "";
   }
 
   function addLink() {
@@ -58,6 +105,15 @@ export default function TipTapEditor({
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 border-b border-gray-200 bg-gray-50 px-2 py-1.5">
         <button type="button" onClick={() => editor.chain().focus().undo().run()} className={btnCls()} title="Undo"><Undo className="h-4 w-4" /></button>
@@ -78,10 +134,27 @@ export default function TipTapEditor({
         <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()} className={btnCls()} title="Divider"><Minus className="h-4 w-4" /></button>
         <div className="mx-1 h-5 w-px bg-gray-300" />
         <button type="button" onClick={addLink} className={btnCls(editor.isActive("link"))} title="Link"><Link2 className="h-4 w-4" /></button>
-        <button type="button" onClick={addImage} className={btnCls()} title="Image"><ImageIcon className="h-4 w-4" /></button>
+        <button
+          type="button"
+          onClick={handleImageClick}
+          disabled={uploading}
+          className={btnCls()}
+          title="ອັບໂຫຼດຮູບ"
+        >
+          {uploading
+            ? <Loader2 className="h-4 w-4 animate-spin" />
+            : <ImageIcon className="h-4 w-4" />
+          }
+        </button>
         <div className="ml-auto text-xs text-gray-400">
+          {uploading && <span className="mr-2 text-brand-500">ກຳລັງອັບໂຫຼດ...</span>}
           {editor.storage.characterCount.characters()} ຕົວ
         </div>
+      </div>
+
+      {/* Drop zone hint */}
+      <div className="border-b border-dashed border-gray-100 bg-gray-50 px-4 py-1 text-center text-xs text-gray-400">
+        ລາກຮູບມາວາງໃນຊ່ອງຂຽນ ຫຼື Ctrl+V ເພື່ອວາງຮູບໄດ້ເລີຍ
       </div>
 
       {/* Editor */}
