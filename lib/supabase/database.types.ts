@@ -625,7 +625,22 @@ export interface Database {
           blog_post_id?: string | null;
           content?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "comments_blog_post_id_fkey";
+            columns: ["blog_post_id"];
+            isOneToOne: false;
+            referencedRelation: "blog_posts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       contact_messages: {
         Row: {
