@@ -24,6 +24,7 @@ export interface BlogPost {
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  tags?: string[];
 }
 
 function mapRow(row: {
@@ -47,6 +48,7 @@ function mapRow(row: {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  tags: string[] | null;
 }): BlogPost {
   return {
     id: row.id,
@@ -69,6 +71,7 @@ function mapRow(row: {
     publishedAt: row.published_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    tags: row.tags ?? [],
   };
 }
 
@@ -77,7 +80,7 @@ const BLOG_SELECT = `
   excerpt_lo, excerpt_th, excerpt_en, excerpt_vi,
   content_lo, content_th, content_en, content_vi,
   cover_image, status, author_id, published_at,
-  created_at, updated_at
+  created_at, updated_at, tags
 `;
 
 /** ดึง published posts สำหรับหน้าสาธารณะ */
@@ -142,4 +145,77 @@ export async function getBlogPostById(id: string): Promise<BlogPost | null> {
     return null;
   }
   return data ? mapRow(data) : null;
+}
+
+const PAGE_SIZE = 9;
+
+/** ดึง published posts พร้อม filter + search + pagination */
+export async function getPublishedBlogPostsPaginated({
+  page = 1,
+  tag,
+  search,
+}: {
+  page?: number;
+  tag?: string;
+  search?: string;
+}): Promise<{ posts: BlogPost[]; total: number; totalPages: number }> {
+  if (!isSupabaseConfigured()) return { posts: [], total: 0, totalPages: 0 };
+  const supabase = createPublicClient();
+
+  let query = supabase
+    .from("blog_posts")
+    .select(BLOG_SELECT, { count: "exact" })
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+
+  if (tag) query = query.contains("tags", [tag]);
+  if (search) query = query.or(
+    `title_lo.ilike.%${search}%,title_th.ilike.%${search}%,title_en.ilike.%${search}%`
+  );
+
+  const { data, error, count } = await query;
+  if (error) {
+    console.error("[blog] getPublishedBlogPostsPaginated error:", error.message);
+    return { posts: [], total: 0, totalPages: 0 };
+  }
+
+  const total = count ?? 0;
+  return {
+    posts: (data ?? []).map(mapRow),
+    total,
+    totalPages: Math.ceil(total / PAGE_SIZE),
+  };
+}
+
+/** ดึง related posts ตาม tags */
+export async function getRelatedBlogPosts(slug: string, tags: string[], limit = 3): Promise<BlogPost[]> {
+  if (!isSupabaseConfigured() || !tags.length) return [];
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select(BLOG_SELECT)
+    .eq("status", "published")
+    .neq("slug", slug)
+    .overlaps("tags", tags)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    console.error("[blog] getRelatedBlogPosts error:", error.message);
+    return [];
+  }
+  return (data ?? []).map(mapRow);
+}
+
+/** ดึง tags ทั้งหมดที่มีใน published posts */
+export async function getAllBlogTags(): Promise<string[]> {
+  if (!isSupabaseConfigured()) return [];
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("tags")
+    .eq("status", "published");
+  if (error) return [];
+  const allTags = (data ?? []).flatMap((p) => p.tags ?? []);
+  return [...new Set(allTags)].sort();
 }

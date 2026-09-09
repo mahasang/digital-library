@@ -5,7 +5,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import {
   LayoutDashboard, FileText, FileQuestion, FolderTree, Users,
   Building2, BarChart3, ScrollText, Settings, ClipboardCheck,
-  Contact, ShieldCheck, Copy, MessageSquare, BookOpen,
+  Contact, ShieldCheck, Copy, MessageSquare,
 } from "lucide-react";
 
 interface NavItem {

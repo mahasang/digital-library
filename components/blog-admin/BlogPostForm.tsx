@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, X, Globe } from "lucide-react";
 import { upsertBlogPostAction, uploadCoverImageAction, type BlogFormState } from "@/app/[locale]/blog-admin/actions";
@@ -18,6 +18,41 @@ type Lang = typeof LANGS[number]["key"];
 
 const initialState: BlogFormState = { status: "idle" };
 
+function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
+  const [input, setInput] = useState("");
+
+  function addTag(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const tag = input.trim().toLowerCase().replace(/\s+/g, "-");
+      if (tag && !tags.includes(tag)) onChange([...tags, tag]);
+      setInput("");
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap gap-1.5">
+        {tags.map((tag) => (
+          <span key={tag} className="flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-600">
+            #{tag}
+            <button type="button" onClick={() => onChange(tags.filter((t) => t !== tag))} className="text-brand-400 hover:text-brand-700">×</button>
+          </span>
+        ))}
+      </div>
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={addTag}
+        placeholder="ພິມ tag ແລ້ວກົດ Enter..."
+        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:outline-none"
+      />
+      <p className="text-xs text-gray-400">กด Enter หรือ , เพื่อเพิ่ม tag</p>
+    </div>
+  );
+}
+
 export default function BlogPostForm({ post }: { post?: BlogPost }) {
   const router = useRouter();
   const action = upsertBlogPostAction.bind(null, post?.id ?? null);
@@ -26,6 +61,7 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
   const [publishValue, setPublishValue] = useState(post?.status === "published" ? "true" : "false");
   const [coverImage, setCoverImage] = useState(post?.coverImage ?? "");
   const [uploading, setUploading] = useState(false);
+  const [tags, setTags] = useState<string[]>(post?.tags ?? []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // TipTap content per lang
@@ -183,7 +219,7 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
 
           {/* Cover image */}
           <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="mb-2 text-sm font-semibold text-gray-900">🖼 ຮູບປົກ</p>
+            <p className="mb-2 text-sm font-semibold text-gray-900">🖼 ຮູບໜ້າປົກ</p>
             {coverImage ? (
               <div className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -205,7 +241,7 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
                   className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 py-4 text-sm text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-colors disabled:opacity-50"
                 >
                   <Upload className="h-4 w-4" />
-                  {uploading ? "ກຳລັງອັपโหລດ..." : "ອັپໂຫຼດຮູບ"}
+                  {uploading ? "ກຳລັງອັບໂຫລດ..." : "ອັບໂຫລດຮູບ"}
                 </button>
                 <input
                   ref={fileInputRef}
@@ -228,6 +264,15 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
                 />
               </div>
             )}
+          </div>
+          {/* Tags */}
+          <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <p className="mb-2 text-sm font-semibold text-gray-900">🏷 Tags</p>
+            <TagInput
+              tags={tags}
+              onChange={setTags}
+            />
+            <input type="hidden" name="tags" value={JSON.stringify(tags)} />
           </div>
         </div>
       </div>
