@@ -1,11 +1,11 @@
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import Link from "next/link";
-import { Plus, FileText, Eye, Edit, Trash2 } from "lucide-react";
+import { Plus, FileText, Eye, Edit } from "lucide-react";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getAllBlogPosts } from "@/lib/data/blog.server";
-import { deleteBlogPostAction } from "./actions";
+import DeletePostButton from "@/components/blog-admin/DeletePostButton";
 
 export const dynamic = "force-dynamic";
 
@@ -120,15 +120,10 @@ export default async function BlogAdminPage() {
                     >
                       <Edit className="h-4 w-4" />
                     </Link>
-                    <form action={deleteBlogPostAction.bind(null, post.id)}>
-                      <button
-                        type="submit"
-                        className="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
-                        title="ລົບ"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </form>
+                    <DeletePostButton
+                      postId={post.id}
+                      postTitle={post.titleLo || post.titleTh || post.slug}
+                    />
                   </div>
                 </td>
               </tr>
