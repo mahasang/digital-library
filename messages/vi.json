@@ -1328,6 +1328,9 @@
     "comment_cancel": "Hủy",
     "comment_save": "Lưu",
     "comment_list_label": "Danh sách bình luận",
+    "like": "Thích",
+    "liked": "Đã thích",
+    "like_count": "lượt thích",
     "dashboard": {
       "pageTitle": "Quản lý bài viết",
       "heading": "Quản lý bài viết",

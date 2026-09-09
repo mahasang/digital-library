@@ -12,7 +12,9 @@ import {
 } from "@/lib/data/blog.server";
 import type { BlogPost } from "@/lib/data/blog.server";
 import { BlogCommentSection } from "@/components/blog/BlogCommentSection";
+import { BlogLikeButton } from "@/components/blog/BlogLikeButton";
 import { createClient } from "@/lib/supabase/server";
+import { isBlogFavorited } from "@/lib/data/favorites.server";
 
 export async function generateMetadata({
   params,
@@ -64,6 +66,14 @@ export default async function BlogPostPage({
     data: { user },
   } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
+
+  const { data: likeCountData } = await supabase.rpc("get_blog_favorites_count", {
+    p_blog_post_id: post.id,
+  });
+  const likeCount = Number(likeCountData ?? 0);
+  const blogFavorited = currentUserId
+    ? await isBlogFavorited(currentUserId, post.id)
+    : false;
 
   type BlogCommentRow = {
     id: string;
@@ -153,6 +163,16 @@ export default async function BlogPostPage({
             </div>
           </div>
         )}
+
+        {/* Like button */}
+        <div className="mt-8 flex items-center gap-4 border-t border-gray-200 dark:border-gray-800 pt-6">
+          <BlogLikeButton
+            blogPostId={post.id}
+            initialFavorited={blogFavorited}
+            initialCount={likeCount}
+            isLoggedIn={Boolean(currentUserId)}
+          />
+        </div>
 
         <BlogCommentSection
           blogPostId={post.id}

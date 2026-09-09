@@ -1328,6 +1328,9 @@
     "comment_cancel": "ยกเลิก",
     "comment_save": "บันทึก",
     "comment_list_label": "รายการความคิดเห็น",
+    "like": "ถูกใจ",
+    "liked": "ถูกใจแล้ว",
+    "like_count": "คนถูกใจ",
     "dashboard": {
       "pageTitle": "จัดการบทความ",
       "heading": "จัดการบทความ",

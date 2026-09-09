@@ -1388,6 +1388,9 @@
     "comment_cancel": "ຍົກເລີກ",
     "comment_save": "ບັນທຶກ",
     "comment_list_label": "ລາຍການຄຳເຫັນ",
+    "like": "ຖືກໃຈ",
+    "liked": "ຖືກໃຈແລ້ວ",
+    "like_count": "ຄົນຖືກໃຈ",
     "dashboard": {
       "pageTitle": "ຈັດການບົດຄວາມ",
       "heading": "ຈັດການບົດຄວາມ",

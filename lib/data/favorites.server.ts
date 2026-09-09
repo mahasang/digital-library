@@ -20,7 +20,9 @@ export async function getFavoriteResearch(userId: string): Promise<ResearchItem[
     throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงรายการโปรดได้", "getFavoriteResearch failed"));
   }
 
-  const ids = (favorites ?? []).map((f) => f.research_id);
+  const ids = (favorites ?? [])
+  .map((f) => f.research_id)
+  .filter((id): id is string => id !== null);
   const rows = await fetchPublishedResearchRowsByIds(supabase, ids);
   const items = rows.map(mapRowToResearchItem);
 
@@ -88,4 +90,21 @@ export async function getReadingHistory(userId: string): Promise<
       return item ? { item, readAt: h.read_at } : null;
     })
     .filter((entry): entry is { item: ResearchItem; readAt: string } => entry !== null);
+}
+
+export async function isBlogFavorited(
+  userId: string,
+  blogPostId: string
+): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+
+  const supabase = await createClient();
+  const { data: favorite } = await supabase
+    .from("favorites")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("blog_post_id", blogPostId)
+    .maybeSingle();
+
+  return Boolean(favorite);
 }

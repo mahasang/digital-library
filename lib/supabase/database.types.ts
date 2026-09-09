@@ -455,12 +455,14 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          research_id: string;
+          research_id: string | null;
+          blog_post_id: string | null;
           created_at: string;
         };
         Insert: {
           user_id: string;
-          research_id: string;
+          research_id?: string | null;
+          blog_post_id?: string | null;
         };
         Update: never;
         Relationships: [];
@@ -1396,6 +1398,10 @@ export interface Database {
           author_name: string;
           author_avatar_url: string | null;
         }[];
+      };
+      get_blog_favorites_count: {
+        Args: { p_blog_post_id: string };
+        Returns: number;
       };
       superadmin_storage_usage: {
         Args: Record<string, never>;

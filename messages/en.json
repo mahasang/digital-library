@@ -1328,6 +1328,9 @@
     "comment_cancel": "Cancel",
     "comment_save": "Save",
     "comment_list_label": "Comments list",
+    "like": "Like",
+    "liked": "Liked",
+    "like_count": "likes",
     "dashboard": {
       "pageTitle": "Manage Blog",
       "heading": "Manage Blog",
