@@ -3,6 +3,7 @@ import { redirect } from "@/i18n/navigation";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import BlogPostForm from "@/components/blog-admin/BlogPostForm";
+import { getStaffProfiles } from "@/lib/data/blog-admin.server";
 
 export const dynamic = "force-dynamic";
 
@@ -13,13 +14,15 @@ export default async function BlogAdminNewPage() {
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) return redirect({ href: "/403", locale });
 
+  const staffProfiles = await getStaffProfiles();
+
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">ສ້າງບົດຄວາມໃໝ່</h1>
         <p className="mt-1 text-sm text-gray-500">ຂຽນ ແລະເຜີຍແຜ່ບົດຄວາມ</p>
       </div>
-      <BlogPostForm />
+      <BlogPostForm staffProfiles={staffProfiles} initialAuthorIds={[]} />
     </div>
   );
 }

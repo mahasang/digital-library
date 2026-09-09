@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getBlogPostById } from "@/lib/data/blog.server";
 import BlogPostForm from "@/components/blog-admin/BlogPostForm";
+import { getStaffProfiles, getBlogPostAuthors } from "@/lib/data/blog-admin.server";
 
 export const dynamic = "force-dynamic";
 
@@ -23,13 +24,23 @@ export default async function BlogAdminEditPage({
   const post = await getBlogPostById(id);
   if (!post) notFound();
 
+  const [staffProfiles, currentAuthors] = await Promise.all([
+    getStaffProfiles(),
+    getBlogPostAuthors(post.id),
+  ]);
+  const initialAuthorIds = currentAuthors.map((a) => a.id);
+
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">ແກ້ໄຂບົດຄວາມ</h1>
         <p className="mt-1 text-sm text-gray-500 font-mono">/{post.slug}</p>
       </div>
-      <BlogPostForm post={post} />
+      <BlogPostForm
+        post={post}
+        staffProfiles={staffProfiles}
+        initialAuthorIds={initialAuthorIds}
+      />
     </div>
   );
 }

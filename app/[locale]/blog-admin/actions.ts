@@ -109,6 +109,31 @@ export async function upsertBlogPostAction(
     resultId = data.id;
   }
 
+  const authorIds: string[] = (() => {
+    try {
+      const raw = (formData.get("author_ids") as string) || "[]";
+      return JSON.parse(raw) as string[];
+    } catch {
+      return [];
+    }
+  })();
+
+  // Sync blog_post_authors — delete ทั้งหมดแล้ว insert ใหม่
+  await supabase
+    .from("blog_post_authors")
+    .delete()
+    .eq("blog_post_id", resultId);
+
+  if (authorIds.length > 0) {
+    await supabase.from("blog_post_authors").insert(
+      authorIds.map((profileId, index) => ({
+        blog_post_id: resultId,
+        profile_id: profileId,
+        display_order: index,
+      }))
+    );
+  }
+
   revalidatePath("/blog-admin");
   revalidatePath("/blog");
   return { status: "success", id: resultId };

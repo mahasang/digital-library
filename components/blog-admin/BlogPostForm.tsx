@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Upload, X, Globe } from "lucide-react";
 import { upsertBlogPostAction, uploadCoverImageAction, type BlogFormState } from "@/app/[locale]/blog-admin/actions";
 import type { BlogPost } from "@/lib/data/blog.server";
+import type { StaffProfile } from "@/lib/data/blog-admin.server";
 import TipTapEditor from "./TipTapEditor";
 
 const LANGS = [
@@ -53,7 +54,15 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
   );
 }
 
-export default function BlogPostForm({ post }: { post?: BlogPost }) {
+export default function BlogPostForm({
+  post,
+  staffProfiles = [],
+  initialAuthorIds = [],
+}: {
+  post?: BlogPost;
+  staffProfiles?: StaffProfile[];
+  initialAuthorIds?: string[];
+}) {
   const router = useRouter();
   const action = upsertBlogPostAction.bind(null, post?.id ?? null);
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -65,6 +74,7 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
   const [seoTitle, setSeoTitle] = useState(post?.seoTitle ?? "");
   const [seoDescription, setSeoDescription] = useState(post?.seoDescription ?? "");
   const [ogImage, setOgImage] = useState(post?.ogImage ?? "");
+  const [selectedAuthorIds, setSelectedAuthorIds] = useState<string[]>(initialAuthorIds);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // TipTap content per lang
@@ -102,6 +112,7 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
       <input type="hidden" name="seo_title" value={seoTitle} />
       <input type="hidden" name="seo_description" value={seoDescription} />
       <input type="hidden" name="og_image" value={ogImage} />
+      <input type="hidden" name="author_ids" value={JSON.stringify(selectedAuthorIds)} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
         {/* ── Main ── */}
@@ -396,6 +407,58 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
               )}
             </div>
           </div>
+
+          {/* Authors */}
+          {staffProfiles.length > 0 && (
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <p className="mb-3 text-sm font-semibold text-gray-900">✍️ ຜູ້ຂຽນ</p>
+              <div className="flex flex-col gap-1.5">
+                {staffProfiles.map((profile) => {
+                  const selected = selectedAuthorIds.includes(profile.id);
+                  return (
+                    <button
+                      key={profile.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedAuthorIds((prev) =>
+                          selected
+                            ? prev.filter((id) => id !== profile.id)
+                            : [...prev, profile.id]
+                        )
+                      }
+                      className={`flex items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-xs transition-colors ${
+                        selected
+                          ? "border-brand-300 bg-brand-50 text-brand-700"
+                          : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      {/* Avatar */}
+                      <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-brand-100 flex items-center justify-center text-xs font-bold text-brand-600">
+                        {profile.avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={profile.avatarUrl} alt="" className="h-7 w-7 object-cover" />
+                        ) : (
+                          (profile.fullName || profile.email).slice(0, 2).toUpperCase()
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{profile.fullName || profile.email}</p>
+                        {profile.email && (
+                          <p className="text-gray-400 truncate">{profile.email}</p>
+                        )}
+                      </div>
+                      {selected && (
+                        <span className="text-brand-600 shrink-0">✓</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {selectedAuthorIds.length === 0 && (
+                <p className="mt-2 text-xs text-gray-400">ຍັງບໍ່ໄດ້ເລືອກຜູ້ຂຽນ</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </form>

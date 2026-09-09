@@ -551,6 +551,41 @@ export interface Database {
         };
         Relationships: [];
       };
+      blog_post_authors: {
+        Row: {
+          id: string;
+          blog_post_id: string;
+          profile_id: string;
+          display_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          blog_post_id: string;
+          profile_id: string;
+          display_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          display_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_authors_blog_post_id_fkey";
+            columns: ["blog_post_id"];
+            isOneToOne: false;
+            referencedRelation: "blog_posts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "blog_post_authors_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       ratings: {
         Row: {
           id: string;

@@ -131,6 +131,27 @@ export default async function BlogPostPage({
           </p>
         )}
 
+        {/* Authors */}
+        {post.authors.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3 mt-2">
+            {post.authors.map((author) => (
+              <div key={author.id} className="flex items-center gap-2">
+                <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-brand-100 flex items-center justify-center text-xs font-bold text-brand-600">
+                  {author.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={author.avatarUrl} alt={author.fullName ?? ""} className="h-7 w-7 object-cover" />
+                  ) : (
+                    (author.fullName || author.email || "?").slice(0, 2).toUpperCase()
+                  )}
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {author.fullName || author.email}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* ── Tags ── */}
         {post.tags && post.tags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">

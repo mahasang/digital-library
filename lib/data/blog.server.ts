@@ -3,6 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
+export interface BlogAuthor {
+  id: string;
+  fullName: string | null;
+  email: string | null;
+  avatarUrl: string | null;
+  displayOrder: number;
+}
+
 export interface BlogPost {
   id: string;
   slug: string;
@@ -29,6 +37,7 @@ export interface BlogPost {
   seoTitle: string | null;
   seoDescription: string | null;
   ogImage: string | null;
+  authors: BlogAuthor[];
 }
 
 function mapRow(row: {
@@ -57,6 +66,15 @@ function mapRow(row: {
   seo_title: string | null;
   seo_description: string | null;
   og_image: string | null;
+  blog_post_authors?: {
+    display_order: number;
+    profiles: {
+      id: string;
+      full_name: string | null;
+      email: string | null;
+      avatar_url: string | null;
+    } | null;
+  }[] | null;
 }): BlogPost {
   return {
     id: row.id,
@@ -84,6 +102,16 @@ function mapRow(row: {
     seoTitle: row.seo_title ?? null,
     seoDescription: row.seo_description ?? null,
     ogImage: row.og_image ?? null,
+    authors: (row.blog_post_authors ?? [])
+      .filter((a) => a.profiles !== null)
+      .sort((a, b) => a.display_order - b.display_order)
+      .map((a) => ({
+        id: a.profiles!.id,
+        fullName: a.profiles!.full_name,
+        email: a.profiles!.email,
+        avatarUrl: a.profiles!.avatar_url,
+        displayOrder: a.display_order,
+      })),
   };
 }
 
@@ -93,7 +121,11 @@ const BLOG_SELECT = `
   content_lo, content_th, content_en, content_vi,
   cover_image, status, author_id, published_at, scheduled_at,
   created_at, updated_at, tags,
-  seo_title, seo_description, og_image
+  seo_title, seo_description, og_image,
+  blog_post_authors (
+    display_order,
+    profiles ( id, full_name, email, avatar_url )
+  )
 `;
 
 /** ดึง published posts สำหรับหน้าสาธารณะ */
