@@ -1314,6 +1314,20 @@
     "by": "By",
     "noPosts": "No posts yet",
     "noPostsHint": "Check back later",
+    "comment_section_label": "Comments section",
+    "comment_title": "Comments",
+    "comment_placeholder": "Write a comment...",
+    "comment_submit": "Post",
+    "comment_empty": "No comments yet. Be the first!",
+    "comment_login_prompt": "Please",
+    "comment_login_link": "sign in to comment",
+    "comment_delete_confirm": "Delete this comment?",
+    "comment_edit": "Edit",
+    "comment_delete": "Delete",
+    "comment_edit_label": "Edit comment",
+    "comment_cancel": "Cancel",
+    "comment_save": "Save",
+    "comment_list_label": "Comments list",
     "dashboard": {
       "pageTitle": "Manage Blog",
       "heading": "Manage Blog",
@@ -1348,7 +1362,13 @@
       "savedSuccess": "Saved successfully",
       "publishedSuccess": "Published successfully",
       "deletedSuccess": "Deleted successfully",
-      "errorSlugTaken": "This slug is already taken"
+      "errorSlugTaken": "This slug is already taken",
+    "searchPlaceholder": "Search posts...",
+    "search": "Search",
+    "allPosts": "All posts",
+    "foundPosts": "{count} posts found",
+    "prevPage": "Previous",
+    "nextPage": "Next"
     }
   },
   "footer": {

@@ -11,6 +11,8 @@ import {
   getRelatedBlogPosts,
 } from "@/lib/data/blog.server";
 import type { BlogPost } from "@/lib/data/blog.server";
+import { BlogCommentSection } from "@/components/blog/BlogCommentSection";
+import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({
   params,
@@ -51,6 +53,28 @@ export default async function BlogPostPage({
   const content = getLocalizedField(post, "content", locale);
 
   const related = await getRelatedBlogPosts(slug, post.tags ?? [], 3);
+
+  const supabase = await createClient();
+  const { data: commentsData } = await supabase.rpc("get_blog_comments", {
+    p_blog_post_id: post.id,
+    p_limit: 100,
+  });
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
+
+  type BlogCommentRow = {
+    id: string;
+    content: string;
+    created_at: string;
+    updated_at?: string | null;
+    user_id: string;
+    author_name: string;
+    author_avatar_url: string | null;
+  };
+  const initialComments = (commentsData ?? []) as BlogCommentRow[];
 
   return (
     <div className="py-12 sm:py-16">
@@ -129,6 +153,12 @@ export default async function BlogPostPage({
             </div>
           </div>
         )}
+
+        <BlogCommentSection
+          blogPostId={post.id}
+          initialComments={initialComments}
+          currentUserId={currentUserId}
+        />
       </Container>
     </div>
   );

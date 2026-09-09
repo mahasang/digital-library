@@ -1314,6 +1314,20 @@
     "by": "โดย",
     "noPosts": "ยังไม่มีบทความ",
     "noPostsHint": "กลับมาตรวจสอบภายหลัง",
+    "comment_section_label": "ส่วนความคิดเห็น",
+    "comment_title": "ความคิดเห็น",
+    "comment_placeholder": "เขียนความคิดเห็น...",
+    "comment_submit": "ส่ง",
+    "comment_empty": "ยังไม่มีความคิดเห็น เป็นคนแรกที่แสดงความเห็น!",
+    "comment_login_prompt": "กรุณา",
+    "comment_login_link": "เข้าสู่ระบบ เพื่อแสดงความเห็น",
+    "comment_delete_confirm": "ต้องการลบความคิดเห็นนี้ใช่ไหม?",
+    "comment_edit": "แก้ไข",
+    "comment_delete": "ลบ",
+    "comment_edit_label": "แก้ไขความคิดเห็น",
+    "comment_cancel": "ยกเลิก",
+    "comment_save": "บันทึก",
+    "comment_list_label": "รายการความคิดเห็น",
     "dashboard": {
       "pageTitle": "จัดการบทความ",
       "heading": "จัดการบทความ",
@@ -1348,7 +1362,13 @@
       "savedSuccess": "บันทึกสำเร็จ",
       "publishedSuccess": "เผยแพร่สำเร็จ",
       "deletedSuccess": "ลบสำเร็จ",
-      "errorSlugTaken": "Slug นี้ถูกใช้งานแล้ว"
+      "errorSlugTaken": "Slug นี้ถูกใช้งานแล้ว",
+    "searchPlaceholder": "ค้นหาบทความ...",
+    "search": "ค้นหา",
+    "allPosts": "ทั้งหมด",
+    "foundPosts": "พบ {count} บทความ",
+    "prevPage": "ก่อนหน้า",
+    "nextPage": "ถัดไป"
     }
   },
   "footer": {

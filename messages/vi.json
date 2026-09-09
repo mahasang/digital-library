@@ -1314,6 +1314,20 @@
     "by": "Bởi",
     "noPosts": "Chưa có bài viết",
     "noPostsHint": "Hãy kiểm tra lại sau",
+    "comment_section_label": "Phần bình luận",
+    "comment_title": "Bình luận",
+    "comment_placeholder": "Viết bình luận...",
+    "comment_submit": "Gửi",
+    "comment_empty": "Chưa có bình luận. Hãy là người đầu tiên!",
+    "comment_login_prompt": "Vui lòng",
+    "comment_login_link": "đăng nhập để bình luận",
+    "comment_delete_confirm": "Xóa bình luận này?",
+    "comment_edit": "Chỉnh sửa",
+    "comment_delete": "Xóa",
+    "comment_edit_label": "Chỉnh sửa bình luận",
+    "comment_cancel": "Hủy",
+    "comment_save": "Lưu",
+    "comment_list_label": "Danh sách bình luận",
     "dashboard": {
       "pageTitle": "Quản lý bài viết",
       "heading": "Quản lý bài viết",
@@ -1348,7 +1362,13 @@
       "savedSuccess": "Lưu thành công",
       "publishedSuccess": "Xuất bản thành công",
       "deletedSuccess": "Xóa thành công",
-      "errorSlugTaken": "Slug này đã được sử dụng"
+      "errorSlugTaken": "Slug này đã được sử dụng",
+    "searchPlaceholder": "Tìm kiếm bài viết...",
+    "search": "Tìm kiếm",
+    "allPosts": "Tất cả",
+    "foundPosts": "Tìm thấy {count} bài viết",
+    "prevPage": "Trước",
+    "nextPage": "Tiếp theo"
     }
   },
   "footer": {

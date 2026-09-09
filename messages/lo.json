@@ -255,7 +255,7 @@
     "noAccount": "ຍັງບໍ່ມີບັນຊີຜູ້ໃຊ້?",
     "registerLink": "ສະຫມັກສະມາຊິກ",
     "confirmedEmail": "ຢືນຢັນອີເມວສຳເລັດ ກະລຸນາເຂົ້າສູ່ລະບົບ",
-    "sessionTimeout": "ລະບົບອອກຈາກລະບົບໃຫ້ອັດຕະໂນມັດເນື່ອງຈາກບໍ່ມີການໃຊ້ງານເກີນ 10 ນາທີ ກະລຸນາເຂົ້າສູ່ລະບົບໃຫມ່",
+    "sessionTimeout": "ລະບົບອອກຈາກລະບົບໃຫ້ອັດຕະໂນມັດເນື່ອງຈາກບໍ່ມີການໃຊ້ງານເກີນ 30 ນາທີ ກະລຸນາເຂົ້າສູ່ລະບົບໃຫມ່",
     "passwordResetSuccess": "ຕັ້ງລະຫັດຜ່ານໃຫມ່ສຳເລັດ ກະລຸນາເຂົ້າສູ່ລະບົບດ້ວຍລະຫັດຜ່ານໃຫມ່"
   },
   "register": {
@@ -1374,6 +1374,20 @@
     "by": "ໂດຍ",
     "noPosts": "ຍັງບໍ່ມີບົດຄວາມ",
     "noPostsHint": "ກວດສອບໃຫມ່ໃນພາຍຫລັງ",
+    "comment_section_label": "ສ່ວນຄຳເຫັນ",
+    "comment_title": "ຄຳເຫັນ",
+    "comment_placeholder": "ຂຽນຄຳເຫັນ...",
+    "comment_submit": "ສົ່ງ",
+    "comment_empty": "ຍັງບໍ່ມີຄຳເຫັນ. ເປັນຄົນທຳອິດທີ່ຄຳເຫັນ!",
+    "comment_login_prompt": "ກະລຸນາ",
+    "comment_login_link": "ເຂົ້າສູ່ລະບົບ ເພື່ອຄຳເຫັນ",
+    "comment_delete_confirm": "ທ່ານຕ້ອງການລຶບຄຳເຫັນນີ້ບໍ?",
+    "comment_edit": "ແກ້ໄຂ",
+    "comment_delete": "ລຶບ",
+    "comment_edit_label": "ແກ້ໄຂຄຳເຫັນ",
+    "comment_cancel": "ຍົກເລີກ",
+    "comment_save": "ບັນທຶກ",
+    "comment_list_label": "ລາຍການຄຳເຫັນ",
     "dashboard": {
       "pageTitle": "ຈັດການບົດຄວາມ",
       "heading": "ຈັດການບົດຄວາມ",
@@ -1402,13 +1416,19 @@
       "fieldContentEn": "ເນື້ອຫາ (ອັງກິດ)",
       "fieldContentVi": "ເນື້ອຫາ (ຫວຽດນາມ)",
       "fieldStatus": "ສະຖານະ",
-      "fieldCoverImage": "URL ຮູບປົກ",
+      "fieldCoverImage": "URL ຮູບໜ້າປົກ",
       "saveDraft": "ບັນທຶກຮ່າງ",
       "publish": "ເຜີຍແຜ່",
       "savedSuccess": "ບັນທຶກສຳເລັດ",
       "publishedSuccess": "ເຜີຍແຜ່ສຳເລັດ",
       "deletedSuccess": "ລົບສຳເລັດ",
-      "errorSlugTaken": "Slug ນີ້ຖືກໃຊ້ງານແລ້ວ"
+      "errorSlugTaken": "Slug ນີ້ຖືກໃຊ້ງານແລ້ວ",
+    "searchPlaceholder": "ຄົ້ນຫາບົດຄວາມ...",
+    "search": "ຄົ້ນຫາ",
+    "allPosts": "ທັງໝົດ",
+    "foundPosts": "ພົບ {count} ບົດຄວາມ",
+    "prevPage": "ກ່ອນໜ້າ",
+    "nextPage": "ຖັດໄປ"
     }
   },
   "footer": {

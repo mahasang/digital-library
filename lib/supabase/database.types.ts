@@ -487,6 +487,7 @@ export interface Database {
           published_at: string | null;
           created_at: string;
           updated_at: string;
+          tags: string[];
         };
         Insert: {
           id?: string;
@@ -509,6 +510,7 @@ export interface Database {
           published_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          tags: string[];
         };
         Update: {
           id?: string;
@@ -531,6 +533,7 @@ export interface Database {
           published_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          tags: string[];
         };
         Relationships: [];
       };
@@ -556,17 +559,21 @@ export interface Database {
       comments: {
         Row: {
           id: string;
-          research_id: string;
+          research_id: string | null;
+          blog_post_id: string | null;
           user_id: string;
           content: string;
           created_at: string;
         };
         Insert: {
-          research_id: string;
+          research_id?: string | null;
+          blog_post_id?: string | null;
           user_id: string;
           content: string;
         };
         Update: {
+          research_id?: string | null;
+          blog_post_id?: string | null;
           content?: string;
         };
         Relationships: [];
@@ -1373,6 +1380,18 @@ export interface Database {
           id: string;
           content: string;
           created_at: string;
+          user_id: string;
+          author_name: string;
+          author_avatar_url: string | null;
+        }[];
+      };
+      get_blog_comments: {
+        Args: { p_blog_post_id: string; p_limit?: number };
+        Returns: {
+          id: string;
+          content: string;
+          created_at: string;
+          updated_at: string;
           user_id: string;
           author_name: string;
           author_avatar_url: string | null;
