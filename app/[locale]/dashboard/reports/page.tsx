@@ -12,6 +12,7 @@ import {
   getViewsOverview,
 } from "@/lib/data/reports.server";
 import { getCategories } from "@/lib/data/categories.server";
+import { getBlogAnalytics } from "@/lib/data/blog-analytics.server";
 import type { UserRole } from "@/types/research";
 
 export async function generateMetadata({
@@ -24,7 +25,7 @@ export async function generateMetadata({
   return { title: t("reports.pageTitle") };
 }
 
-type ReportTab = "analytics" | "views" | "downloads" | "popular" | "members";
+type ReportTab = "analytics" | "views" | "downloads" | "popular" | "members" | "blog";
 
 const ASSIGNABLE_ROLES: UserRole[] = ["member", "staff", "librarian", "admin"];
 
@@ -47,10 +48,11 @@ const TABS: { value: ReportTab; label: string }[] = [
   { value: "downloads", label: t("reports.tabDownloads") },
   { value: "popular", label: t("reports.tabPopular") },
   { value: "members", label: t("reports.tabMembers") },
+  { value: "blog", label: t("reports.tabBlog") },
 ];
   const params = await searchParams;
   const tab: ReportTab = (
-    ["analytics", "views", "downloads", "popular", "members"].includes(params.tab ?? "")
+    ["analytics", "views", "downloads", "popular", "members", "blog"].includes(params.tab ?? "")
       ? params.tab
       : "analytics"
   ) as ReportTab;
@@ -187,6 +189,7 @@ const TABS: { value: ReportTab; label: string }[] = [
           filters={{ from: params.from, to: params.to, role: params.role as UserRole | undefined }}
         />
       )}
+      {tab === "blog" && <BlogAnalyticsPanel />}
     </div>
   );
 }
@@ -382,6 +385,173 @@ async function EventReportTable({
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+async function BlogAnalyticsPanel() {
+  const t = await getTranslations("dashboard");
+  const analytics = await getBlogAnalytics();
+
+  const maxLikes    = Math.max(...analytics.posts.map((p) => p.likeCount), 1);
+  const maxComments = Math.max(...analytics.posts.map((p) => p.commentCount), 1);
+
+  const topByLikes    = [...analytics.posts].sort((a, b) => b.likeCount    - a.likeCount).slice(0, 10);
+  const topByComments = [...analytics.posts].sort((a, b) => b.commentCount - a.commentCount).slice(0, 10);
+
+  const STATUS_COLOR: Record<string, string> = {
+    published: "bg-green-100 text-green-700",
+    scheduled: "bg-amber-100 text-amber-700",
+    draft:     "bg-gray-100 text-gray-600",
+    archived:  "bg-red-100 text-red-600",
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: t("reports.blogTotalPosts"),    value: analytics.totalPosts },
+          { label: t("reports.blogTotalLikes"),    value: analytics.totalLikes },
+          { label: t("reports.blogTotalComments"), value: analytics.totalComments },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-xl border border-gray-200 bg-surface p-5 text-center">
+            <p className="text-3xl font-bold text-brand-600">{value.toLocaleString("lo-LA")}</p>
+            <p className="mt-1 text-xs text-gray-500">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Top by likes */}
+      {topByLikes.length > 0 && (
+        <div className="rounded-xl border border-gray-200 bg-surface p-5">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900">
+            {t("reports.blogTopByLikes")}
+          </h3>
+          <div className="flex flex-col gap-2">
+            {topByLikes.map((post) => (
+              <div key={post.id} className="flex items-center gap-3">
+                <div className="w-40 shrink-0 truncate text-xs text-gray-700">
+                  <a
+                    href={`/lo/blog/${post.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-brand-600 hover:underline"
+                  >
+                    {post.titleLo}
+                  </a>
+                </div>
+                <div className="flex flex-1 items-center gap-2">
+                  <div className="h-5 flex-1 overflow-hidden rounded-full bg-gray-100">
+                    <div
+                      className="h-full rounded-full bg-red-400 transition-all"
+                      style={{ width: `${Math.round((post.likeCount / maxLikes) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="w-8 text-right text-xs font-semibold text-gray-700">
+                    {post.likeCount}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top by comments */}
+      {topByComments.length > 0 && (
+        <div className="rounded-xl border border-gray-200 bg-surface p-5">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900">
+            {t("reports.blogTopByComments")}
+          </h3>
+          <div className="flex flex-col gap-2">
+            {topByComments.map((post) => (
+              <div key={post.id} className="flex items-center gap-3">
+                <div className="w-40 shrink-0 truncate text-xs text-gray-700">
+                  <a
+                    href={`/lo/blog/${post.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-brand-600 hover:underline"
+                  >
+                    {post.titleLo}
+                  </a>
+                </div>
+                <div className="flex flex-1 items-center gap-2">
+                  <div className="h-5 flex-1 overflow-hidden rounded-full bg-gray-100">
+                    <div
+                      className="h-full rounded-full bg-brand-400 transition-all"
+                      style={{ width: `${Math.round((post.commentCount / maxComments) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="w-8 text-right text-xs font-semibold text-gray-700">
+                    {post.commentCount}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* All posts table */}
+      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-surface">
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500">
+            <tr>
+              <th className="px-4 py-3 font-medium">{t("reports.blogColTitle")}</th>
+              <th className="px-4 py-3 font-medium">{t("reports.blogColStatus")}</th>
+              <th className="px-4 py-3 font-medium">{t("reports.blogColPublished")}</th>
+              <th className="px-4 py-3 font-medium text-right">{t("reports.blogColLikes")}</th>
+              <th className="px-4 py-3 font-medium text-right">{t("reports.blogColComments")}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {analytics.posts.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-400">
+                  {t("reports.noResults")}
+                </td>
+              </tr>
+            ) : (
+              analytics.posts.map((post) => (
+                <tr key={post.id} className="hover:bg-gray-50">
+                  <td className="max-w-xs truncate px-4 py-2.5">
+                    <a
+                      href={`/lo/blog/${post.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent hover:underline"
+                    >
+                      {post.titleLo}
+                    </a>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[post.status] ?? "bg-gray-100 text-gray-600"}`}>
+                      {post.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2.5 text-xs text-gray-500">
+                    {post.publishedAt
+                      ? new Date(post.publishedAt).toLocaleDateString("lo-LA", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })
+                      : "—"}
+                  </td>
+                  <td className="px-4 py-2.5 text-right font-semibold text-red-500">
+                    {post.likeCount > 0 ? `❤️ ${post.likeCount}` : "—"}
+                  </td>
+                  <td className="px-4 py-2.5 text-right font-semibold text-brand-600">
+                    {post.commentCount > 0 ? `💬 ${post.commentCount}` : "—"}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
