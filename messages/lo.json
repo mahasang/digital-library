@@ -1374,6 +1374,7 @@
     "by": "ໂດຍ",
     "noPosts": "ຍັງບໍ່ມີບົດຄວາມ",
     "noPostsHint": "ກວດສອບໃຫມ່ໃນພາຍຫລັງ",
+    "relatedPosts": "ບົດຄວາມທີ່ກ່ຽວຂ້ອງ",
     "comment_section_label": "ສ່ວນຄຳເຫັນ",
     "comment_title": "ຄຳເຫັນ",
     "comment_placeholder": "ຂຽນຄຳເຫັນ...",
