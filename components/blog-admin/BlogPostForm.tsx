@@ -189,6 +189,26 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
           {/* Publish actions */}
           <div className="rounded-xl border border-gray-200 bg-white p-4">
             <p className="mb-3 text-sm font-semibold text-gray-900">ການເຜີຍແຜ່</p>
+            {post && (
+              <div className="mb-3 flex items-center gap-2">
+                <span className="text-xs text-gray-500">ສະຖານະ:</span>
+                {post.status === "published" && (
+                  <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
+                    ✅ ເຜີຍແຜ່ແລ້ວ
+                  </span>
+                )}
+                {post.status === "scheduled" && (
+                  <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                    ⏰ ກຳນົດເວລາໄວ້
+                  </span>
+                )}
+                {post.status === "draft" && (
+                  <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                    📝 ຮ່າງ
+                  </span>
+                )}
+              </div>
+            )}
             {state.status === "error" && (
               <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">{state.message}</p>
             )}
@@ -218,9 +238,16 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
             <input
               type="datetime-local"
               name="scheduled_at"
+              defaultValue={
+                post?.scheduledAt
+                  ? new Date(post.scheduledAt).toISOString().slice(0, 16)
+                  : ""
+              }
               className={`${inputCls} text-xs`}
             />
-            <p className="mt-1 text-xs text-gray-400">ຖ້າວ່າງ ຈະເຜີຍແຜ່ທັນທີ</p>
+            <p className="mt-1 text-xs text-gray-400">
+              ຖ້າກຳນົດເວລາໃນອະນາຄົດ ຈະຕັ້ງສະຖານະເປັນ &ldquo;ກຳນົດເວລາໄວ້&rdquo; ອັດຕະໂນມັດ
+            </p>
           </div>
 
           {/* Cover image */}

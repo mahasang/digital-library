@@ -19,9 +19,10 @@ export interface BlogPost {
   contentEn: string;
   contentVi: string;
   coverImage: string | null;
-  status: "draft" | "published";
+  status: "draft" | "scheduled" | "published" | "archived";
   authorId: string | null;
   publishedAt: string | null;
+  scheduledAt: string | null;
   createdAt: string;
   updatedAt: string;
   tags?: string[];
@@ -46,9 +47,10 @@ function mapRow(row: {
   content_en: string;
   content_vi: string;
   cover_image: string | null;
-  status: "draft" | "published";
+  status: "draft" | "scheduled" | "published" | "archived";
   author_id: string | null;
   published_at: string | null;
+  scheduled_at: string | null;
   created_at: string;
   updated_at: string;
   tags: string[] | null;
@@ -75,6 +77,7 @@ function mapRow(row: {
     status: row.status,
     authorId: row.author_id,
     publishedAt: row.published_at,
+    scheduledAt: row.scheduled_at ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     tags: row.tags ?? [],
@@ -88,7 +91,7 @@ const BLOG_SELECT = `
   id, slug, title_lo, title_th, title_en, title_vi,
   excerpt_lo, excerpt_th, excerpt_en, excerpt_vi,
   content_lo, content_th, content_en, content_vi,
-  cover_image, status, author_id, published_at,
+  cover_image, status, author_id, published_at, scheduled_at,
   created_at, updated_at, tags,
   seo_title, seo_description, og_image
 `;
@@ -101,6 +104,7 @@ export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
     .from("blog_posts")
     .select(BLOG_SELECT)
     .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false });
   if (error) {
     console.error("[blog] getPublishedBlogPosts error:", error.message);
@@ -118,6 +122,7 @@ export async function getPublishedBlogPostBySlug(slug: string): Promise<BlogPost
     .select(BLOG_SELECT)
     .eq("slug", slug)
     .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
     .maybeSingle();
   if (error) {
     console.error("[blog] getPublishedBlogPostBySlug error:", error.message);
@@ -176,6 +181,7 @@ export async function getPublishedBlogPostsPaginated({
     .from("blog_posts")
     .select(BLOG_SELECT, { count: "exact" })
     .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
@@ -206,6 +212,7 @@ export async function getRelatedBlogPosts(slug: string, tags: string[], limit = 
     .from("blog_posts")
     .select(BLOG_SELECT)
     .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
     .neq("slug", slug)
     .overlaps("tags", tags)
     .order("published_at", { ascending: false })

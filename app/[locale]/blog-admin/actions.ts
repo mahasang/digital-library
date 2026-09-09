@@ -60,9 +60,29 @@ export async function upsertBlogPostAction(
   if (existing && existing.id !== id)
     return { status: "error", message: "Slug ນີ້ຖືກໃຊ້ງານແລ້ວ" };
 
-  const publishedAt = publish
-    ? scheduledAt || new Date().toISOString()
-    : null;
+  const statusFields: {
+    status: "draft" | "scheduled" | "published";
+    published_at: string | null;
+    scheduled_at: string | null;
+  } = (() => {
+    if (!publish) {
+      return { status: "draft", published_at: null, scheduled_at: null };
+    }
+    const now = new Date();
+    const isScheduled = scheduledAt && new Date(scheduledAt) > now;
+    if (isScheduled) {
+      return {
+        status: "scheduled",
+        published_at: scheduledAt,
+        scheduled_at: scheduledAt,
+      };
+    }
+    return {
+      status: "published",
+      published_at: scheduledAt || now.toISOString(),
+      scheduled_at: null,
+    };
+  })();
 
   const payload = {
     slug,
@@ -70,13 +90,12 @@ export async function upsertBlogPostAction(
     excerpt_lo: excerptLo, excerpt_th: excerptTh, excerpt_en: excerptEn, excerpt_vi: excerptVi,
     content_lo: contentLo, content_th: contentTh, content_en: contentEn, content_vi: contentVi,
     cover_image: coverImage,
-    status: publish ? "published" as const : "draft" as const,
     author_id: user.id,
     tags: tags as string[],
     seo_title: seoTitle,
     seo_description: seoDescription,
     og_image: ogImage,
-    ...(publish ? { published_at: scheduledAt || new Date().toISOString() } : {}),
+    ...statusFields,
   };
 
   let resultId: string;
