@@ -62,6 +62,9 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
   const [coverImage, setCoverImage] = useState(post?.coverImage ?? "");
   const [uploading, setUploading] = useState(false);
   const [tags, setTags] = useState<string[]>(post?.tags ?? []);
+  const [seoTitle, setSeoTitle] = useState(post?.seoTitle ?? "");
+  const [seoDescription, setSeoDescription] = useState(post?.seoDescription ?? "");
+  const [ogImage, setOgImage] = useState(post?.ogImage ?? "");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // TipTap content per lang
@@ -96,6 +99,9 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
       {LANGS.map(({ key }) => (
         <input key={key} type="hidden" name={`content_${key}`} value={contents[key]} />
       ))}
+      <input type="hidden" name="seo_title" value={seoTitle} />
+      <input type="hidden" name="seo_description" value={seoDescription} />
+      <input type="hidden" name="og_image" value={ogImage} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
         {/* ── Main ── */}
@@ -273,6 +279,95 @@ export default function BlogPostForm({ post }: { post?: BlogPost }) {
               onChange={setTags}
             />
             <input type="hidden" name="tags" value={JSON.stringify(tags)} />
+          </div>
+
+          {/* SEO */}
+          <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <p className="mb-3 text-sm font-semibold text-gray-900">🔍 SEO</p>
+            <div className="flex flex-col gap-3">
+
+              {/* SEO Title */}
+              <div>
+                <div className="mb-1 flex items-center justify-between">
+                  <label className="text-xs font-medium text-gray-600">
+                    Meta Title
+                  </label>
+                  <span className={`text-xs ${seoTitle.length > 60 ? "text-red-500" : "text-gray-400"}`}>
+                    {seoTitle.length}/60
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={seoTitle}
+                  onChange={(e) => setSeoTitle(e.target.value)}
+                  maxLength={60}
+                  placeholder="ຫົວຂໍ້ສຳລັບ Google (ຖ້າວ່າງໃຊ້ຫົວຂໍ້ບົດຄວາມ)"
+                  className={inputCls}
+                />
+              </div>
+
+              {/* SEO Description */}
+              <div>
+                <div className="mb-1 flex items-center justify-between">
+                  <label className="text-xs font-medium text-gray-600">
+                    Meta Description
+                  </label>
+                  <span className={`text-xs ${seoDescription.length > 160 ? "text-red-500" : "text-gray-400"}`}>
+                    {seoDescription.length}/160
+                  </span>
+                </div>
+                <textarea
+                  value={seoDescription}
+                  onChange={(e) => setSeoDescription(e.target.value)}
+                  maxLength={160}
+                  rows={3}
+                  placeholder="ຄຳອະທິບາຍສຳລັບ Google (ຖ້າວ່າງໃຊ້ excerpt)"
+                  className={`${inputCls} resize-none`}
+                />
+              </div>
+
+              {/* OG Image */}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-600">
+                  OG Image URL
+                  <span className="ml-1 text-gray-400">(ຖ້າວ່າງໃຊ້ຮູບໜ້າປົກ)</span>
+                </label>
+                <input
+                  type="text"
+                  value={ogImage}
+                  onChange={(e) => setOgImage(e.target.value)}
+                  placeholder="https://..."
+                  className={`${inputCls} text-xs`}
+                />
+                {ogImage && (
+                  <div className="mt-2 overflow-hidden rounded-lg border border-gray-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={ogImage}
+                      alt="OG preview"
+                      className="w-full object-cover aspect-video"
+                      onError={(e) => (e.currentTarget.style.display = "none")}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Preview card */}
+              {(seoTitle || seoDescription) && (
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                  <p className="text-xs font-medium text-gray-400 mb-1.5">ຕົວຢ່າງໃນ Google</p>
+                  <p className="text-sm font-medium text-blue-700 truncate">
+                    {seoTitle || "(ຫົວຂໍ້ບົດຄວາມ)"}
+                  </p>
+                  <p className="text-xs text-green-700 truncate">
+                    digital-library-sls.vercel.app/lo/blog/...
+                  </p>
+                  <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">
+                    {seoDescription || "(excerpt)"}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

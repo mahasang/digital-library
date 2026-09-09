@@ -25,6 +25,9 @@ export interface BlogPost {
   createdAt: string;
   updatedAt: string;
   tags?: string[];
+  seoTitle: string | null;
+  seoDescription: string | null;
+  ogImage: string | null;
 }
 
 function mapRow(row: {
@@ -49,6 +52,9 @@ function mapRow(row: {
   created_at: string;
   updated_at: string;
   tags: string[] | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  og_image: string | null;
 }): BlogPost {
   return {
     id: row.id,
@@ -72,6 +78,9 @@ function mapRow(row: {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     tags: row.tags ?? [],
+    seoTitle: row.seo_title ?? null,
+    seoDescription: row.seo_description ?? null,
+    ogImage: row.og_image ?? null,
   };
 }
 
@@ -80,7 +89,8 @@ const BLOG_SELECT = `
   excerpt_lo, excerpt_th, excerpt_en, excerpt_vi,
   content_lo, content_th, content_en, content_vi,
   cover_image, status, author_id, published_at,
-  created_at, updated_at, tags
+  created_at, updated_at, tags,
+  seo_title, seo_description, og_image
 `;
 
 /** ดึง published posts สำหรับหน้าสาธารณะ */

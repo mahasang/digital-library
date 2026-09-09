@@ -19,16 +19,37 @@ import { isBlogFavorited } from "@/lib/data/favorites.server";
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string; locale: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug, locale } = await params;
+  const { locale, slug } = await params;
   const post = await getPublishedBlogPostBySlug(slug);
-  if (!post) return {};
-  const title =
-    locale === "lo" ? post.titleLo :
-    locale === "th" ? post.titleTh :
-    locale === "vi" ? post.titleVi : post.titleEn;
-  return { title: title || post.titleLo };
+  if (!post) return { title: "ບໍ່ພົບບົດຄວາມ" };
+
+  const title   = getLocalizedField(post, "title",   locale);
+  const excerpt = getLocalizedField(post, "excerpt",  locale);
+
+  // SEO fields — ถ้าไม่มีใช้ title/excerpt/cover_image เป็น fallback
+  const metaTitle       = post.seoTitle       || title;
+  const metaDescription = post.seoDescription || excerpt;
+  const ogImageUrl      = post.ogImage        || post.coverImage || undefined;
+
+  return {
+    title:       metaTitle,
+    description: metaDescription,
+    openGraph: {
+      title:       metaTitle,
+      description: metaDescription,
+      type:        "article",
+      publishedTime: post.publishedAt ?? undefined,
+      ...(ogImageUrl ? { images: [{ url: ogImageUrl, width: 1200, height: 630 }] } : {}),
+    },
+    twitter: {
+      card:        "summary_large_image",
+      title:       metaTitle,
+      description: metaDescription,
+      ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
+    },
+  };
 }
 
 function getLocalizedField(post: BlogPost, field: "title" | "excerpt" | "content", locale: string): string {

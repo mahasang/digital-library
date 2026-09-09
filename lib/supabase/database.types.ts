@@ -490,6 +490,9 @@ export interface Database {
           created_at: string;
           updated_at: string;
           tags: string[];
+          seo_title: string | null;
+          seo_description: string | null;
+          og_image: string | null;
         };
         Insert: {
           id?: string;
@@ -513,6 +516,9 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           tags: string[];
+          seo_title?: string | null;
+          seo_description?: string | null;
+          og_image?: string | null;
         };
         Update: {
           id?: string;
@@ -536,6 +542,9 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           tags: string[];
+          seo_title?: string | null;
+          seo_description?: string | null;
+          og_image?: string | null;
         };
         Relationships: [];
       };
