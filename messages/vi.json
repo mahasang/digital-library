@@ -683,6 +683,15 @@
       "notifications": "Thông báo"
     },
     "navLabel": "Menu tài khoản của tôi",
+    "favorites": {
+      "title": "Yêu thích",
+      "description": "Nghiên cứu và bài viết bạn đã lưu",
+      "empty": "Chưa có mục yêu thích",
+      "emptyHint": "Nhấn ❤️ từ trang chi tiết để lưu",
+      "browseResearch": "Tìm kiếm nghiên cứu",
+      "sectionResearch": "Nghiên cứu",
+      "sectionBlog": "Bài viết"
+    },
     "fullName": "Họ và tên",
     "fullNameHelp": "Tên này sẽ hiển thị là người gửi khi bạn nộp nghiên cứu hoặc yêu cầu truy cập",
     "organization": "Tổ chức/Đơn vị",

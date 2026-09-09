@@ -566,6 +566,15 @@
       "notifications": "Notifications"
     },
     "navLabel": "My account menu",
+    "favorites": {
+      "title": "Favorites",
+      "description": "Research and blog posts you've saved",
+      "empty": "No favorites yet",
+      "emptyHint": "Press ❤️ on any research or blog post to save it",
+      "browseResearch": "Browse Research",
+      "sectionResearch": "Research",
+      "sectionBlog": "Blog Posts"
+    },
     "fullName": "Full Name",
     "fullNameHelp": "This name will be shown as the submitter when you submit research or access requests",
     "organization": "Organization",

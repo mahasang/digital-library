@@ -108,3 +108,66 @@ export async function isBlogFavorited(
 
   return Boolean(favorite);
 }
+
+export interface FavoriteBlogPost {
+  id: string;
+  slug: string;
+  titleLo: string;
+  titleTh: string;
+  titleEn: string;
+  titleVi: string;
+  coverImage: string | null;
+  publishedAt: string | null;
+  favoritedAt: string;
+}
+
+export async function getFavoriteBlogPosts(
+  userId: string
+): Promise<FavoriteBlogPost[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const supabase = await createClient();
+  const { data: favs, error } = await supabase
+    .from("favorites")
+    .select("blog_post_id, created_at")
+    .eq("user_id", userId)
+    .not("blog_post_id", "is", null)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[favorites] getFavoriteBlogPosts error:", error.message);
+    return [];
+  }
+
+  const blogPostIds = (favs ?? [])
+    .map((f) => f.blog_post_id)
+    .filter((id): id is string => id !== null);
+
+  if (blogPostIds.length === 0) return [];
+
+  const { data: posts } = await supabase
+    .from("blog_posts")
+    .select("id, slug, title_lo, title_th, title_en, title_vi, cover_image, published_at")
+    .in("id", blogPostIds);
+
+  const favOrder = new Map(
+    (favs ?? []).map((f) => [f.blog_post_id, f.created_at])
+  );
+
+  return (posts ?? [])
+    .map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      titleLo: p.title_lo,
+      titleTh: p.title_th,
+      titleEn: p.title_en,
+      titleVi: p.title_vi,
+      coverImage: p.cover_image,
+      publishedAt: p.published_at,
+      favoritedAt: favOrder.get(p.id) ?? "",
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.favoritedAt).getTime() - new Date(a.favoritedAt).getTime()
+    );
+}
