@@ -347,7 +347,7 @@ export default function FlipbookViewer({
 
       <div
         ref={containerRef}
-        className="relative flex min-h-[65vh] items-center justify-center overflow-auto bg-[var(--reader-bg)] py-6 sm:min-h-[75vh]"
+        className="relative flex min-h-[65vh] items-center justify-center overflow-hidden bg-[var(--reader-bg)] py-6 sm:min-h-[75vh]"
       >
         {failed ? (
           <div className="flex flex-col items-center justify-center gap-3 px-6 text-center">
