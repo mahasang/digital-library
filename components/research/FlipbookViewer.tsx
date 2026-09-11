@@ -1,9 +1,9 @@
 "use client";
 
-import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
-import { Document, Page, pdfjs } from "react-pdf";
-import HTMLFlipBook from "react-pageflip";
+import { Document, Page } from "react-pdf";
+import { pdfjs } from "react-pdf";
 import {
   AlertTriangle,
   ChevronLeft,
@@ -24,75 +24,14 @@ import {
 // แทนการพึ่ง CDN ภายนอกสำหรับฟีเจอร์หลักของเว็บ
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
-/** จำนวนหน้าก่อน/หลังหน้าปัจจุบันที่ยอม render เนื้อหาจริง — หน้านอกช่วงนี้
- * แสดงกรอบเปล่าขนาดเท่ากันไปก่อน เพื่อไม่ให้ต้อง render ทุกหน้าพร้อมกันตอน
- * เปิดเอกสารยาวๆ (หลายสิบ/หลายร้อยหน้า) ซึ่งจะทำให้หน้าเว็บหน่วง */
-const RENDER_WINDOW = 2;
-const DEFAULT_ASPECT_RATIO = 1.4142; // A4 แนวตั้งโดยประมาณ ใช้จนกว่าจะรู้ขนาดจริงจากหน้าแรก
-
 const MIN_ZOOM = 0.75;
-const MAX_ZOOM = 1.5;
+const MAX_ZOOM = 2.0;
 const ZOOM_STEP = 0.125;
+const MIN_CONTAINER_WIDTH = 220;
+const MAX_CONTAINER_WIDTH = 900;
 
 const TOOLBAR_BUTTON =
   "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-[var(--reader-ink-soft)] transition-colors hover:bg-[var(--reader-control-hover)] hover:text-[var(--reader-ink)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent";
-
-interface PdfPageProps {
-  pageNumber: number;
-  width: number;
-  shouldRender: boolean;
-  onFirstPageLoad?: (aspectRatio: number) => void;
-}
-
-const PdfPage = forwardRef<HTMLDivElement, PdfPageProps>(
-  ({ pageNumber, width, shouldRender, onFirstPageLoad }, ref) => {
-    return (
-      <div
-        ref={ref}
-        // พื้นหลังของหน้าเอกสารจริงคงเป็นสีขาวเสมอไม่ว่าจะสลับโหมดสีของ
-        // "เปลือก" reader เป็นแบบไหน — หน้ากระดาษต้องดูเป็นหน้าเอกสารจริง
-        // ไม่ใช่ส่วนหนึ่งของ UI ที่เปลี่ยนสีไปมา
-        className="page-flip-page relative flex h-full w-full items-center justify-center overflow-hidden bg-surface"
-      >
-        {shouldRender ? (
-          <Page
-            pageNumber={pageNumber}
-            width={width}
-            renderAnnotationLayer={false}
-            renderTextLayer={false}
-            onLoadSuccess={
-              onFirstPageLoad
-                ? (page) => {
-                    const viewport = page.getViewport({ scale: 1 });
-                    if (viewport.width > 0) {
-                      onFirstPageLoad(viewport.height / viewport.width);
-                    }
-                  }
-                : undefined
-            }
-            loading={
-              <div className="flex h-full w-full items-center justify-center bg-[var(--reader-page-slot-bg)]">
-                <Loader2 className="h-5 w-5 animate-spin text-[var(--reader-ink-faint)]" />
-              </div>
-            }
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[var(--reader-page-slot-bg)] text-xs text-[var(--reader-ink-faint)]">
-            หน้า {pageNumber}
-          </div>
-        )}
-      </div>
-    );
-  }
-);
-PdfPage.displayName = "PdfPage";
-
-interface PageFlipApi {
-  flipNext: () => void;
-  flipPrev: () => void;
-  turnToPage: (page: number) => void;
-  getCurrentPageIndex: () => number;
-}
 
 export default function FlipbookViewer({
   fileUrl,
@@ -106,13 +45,12 @@ export default function FlipbookViewer({
   downloadDisabled?: boolean;
 }) {
   const [numPages, setNumPages] = useState<number | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pageInput, setPageInput] = useState("1");
+  const [visible, setVisible] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState(DEFAULT_ASPECT_RATIO);
-  const [baseWidth, setBaseWidth] = useState(360);
+  const [baseWidth, setBaseWidth] = useState(480);
   const [zoom, setZoom] = useState(1);
-  const [isFlipping, setIsFlipping] = useState(false);
   // ค่าเริ่มต้น "dark" ตรงกับรูปลักษณ์เดิมของ reader ก่อนไฮเดรต (เซิร์ฟเวอร์ไม่รู้
   // ธีมของผู้ใช้) — หลัง mount จะซิงก์ตามธีมของทั้งเว็บครั้งเดียวโดยอัตโนมัติ
   // (ดู readerThemeSynced ด้านล่าง) จากนั้นเป็นอิสระจากธีมเว็บทันทีที่ผู้อ่านกด
@@ -125,9 +63,18 @@ export default function FlipbookViewer({
 
   const shellRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  // react-pageflip ไม่ export type ของ ref ที่แม่นยำ — ใช้ any เท่าที่จำเป็นเฉพาะจุดนี้
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const bookRef = useRef<any>(null);
+
+  // refs ที่สะท้อนค่า state ล่าสุดเสมอ — ให้ goPrev/goNext/changePage อ่านค่า
+  // ปัจจุบันได้โดยไม่ต้องใส่ currentPage/numPages ไว้ใน dependency array ของ
+  // keydown effect (ซึ่งจะทำให้ effect ผูก/ถอด listener ใหม่ทุกครั้งที่พลิกหน้า)
+  const currentPageRef = useRef(1);
+  const numPagesRef = useRef<number | null>(null);
+  useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
+  useEffect(() => {
+    numPagesRef.current = numPages;
+  }, [numPages]);
 
   useEffect(() => {
     if (readerThemeSynced.current || !resolvedTheme) return;
@@ -144,12 +91,31 @@ export default function FlipbookViewer({
     function updateWidth() {
       if (!containerRef.current) return;
       const available = containerRef.current.clientWidth;
-      setBaseWidth(Math.max(200, Math.min(available > 700 ? available / 2 : available, 480)));
+      setBaseWidth(Math.max(MIN_CONTAINER_WIDTH, Math.min(available, MAX_CONTAINER_WIDTH)));
     }
     updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
+
+  function changePage(target: number) {
+    const total = numPagesRef.current;
+    if (!total) return;
+    const clamped = Math.min(Math.max(target, 1), total);
+    if (clamped === currentPageRef.current) return;
+    setVisible(false);
+    setTimeout(() => {
+      setCurrentPage(clamped);
+      setPageInput(String(clamped));
+      setVisible(true);
+    }, 150);
+  }
+  function goPrev() {
+    changePage(currentPageRef.current - 1);
+  }
+  function goNext() {
+    changePage(currentPageRef.current + 1);
+  }
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -157,18 +123,16 @@ export default function FlipbookViewer({
         toggleFullscreen();
         return;
       }
-      const api: PageFlipApi | undefined = bookRef.current?.pageFlip?.();
-      if (!api) return;
-      if (e.key === "ArrowLeft") api.flipPrev();
-      if (e.key === "ArrowRight") api.flipNext();
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") goNext();
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [toggleFullscreen]);
+  }, [toggleFullscreen, goPrev, goNext]);
 
-  // Ctrl/Cmd+scroll ซูมหน้า — ใช้ setZoom แบบ clamp เดียวกับ zoomIn/zoomOut
-  // เดิม (ไม่เรียกฟังก์ชันเหล่านั้นตรงๆ เพื่อเลี่ยงต้องใส่ไว้ใน dependency
-  // array ซึ่งจะทำให้ effect นี้ผูก/ถอด listener ใหม่ทุก render)
+  // Ctrl/Cmd+scroll ซูมหน้า — ใช้ setZoom แบบ clamp โดยตรง (ไม่เรียก zoomIn/
+  // zoomOut ตรงๆ เพื่อเลี่ยงต้องใส่ไว้ใน dependency array ซึ่งจะทำให้ effect นี้
+  // ผูก/ถอด listener ใหม่ทุก render)
   useEffect(() => {
     function handleWheel(e: WheelEvent) {
       if (!e.ctrlKey && !e.metaKey) return;
@@ -186,7 +150,7 @@ export default function FlipbookViewer({
   const isEditingRef = useRef(false);
   useEffect(() => {
     if (!isEditingRef.current) {
-      setPageInput(String(currentPage + 1));
+      setPageInput(String(currentPage));
     }
   }, [currentPage]);
 
@@ -217,31 +181,13 @@ export default function FlipbookViewer({
     }
   }
 
-  const handleFirstPageLoad = useCallback((ratio: number) => setAspectRatio(ratio), []);
-
-  function goPrev() {
-    bookRef.current?.pageFlip?.()?.flipPrev();
-  }
-  function goNext() {
-    bookRef.current?.pageFlip?.()?.flipNext();
-  }
-  function handleFlip(event: { data: number }) {
-    setIsFlipping(true);
-    setCurrentPage(event.data);
-    setTimeout(() => setIsFlipping(false), 550); // slightly longer than flippingTime={500}
-  }
   function goToPage(target: number) {
-    if (!numPages) return;
-    const clamped = Math.min(Math.max(target, 1), numPages);
-    const api: PageFlipApi | undefined = bookRef.current?.pageFlip?.();
-    api?.turnToPage(clamped - 1);
-    setCurrentPage(clamped - 1);
-    setPageInput(String(clamped));
+    changePage(target);
   }
   function commitPageInput() {
     const parsed = Number.parseInt(pageInput, 10);
     if (Number.isNaN(parsed)) {
-      setPageInput(String(currentPage + 1));
+      setPageInput(String(currentPage));
       return;
     }
     goToPage(parsed);
@@ -257,13 +203,12 @@ export default function FlipbookViewer({
   }
 
   const pageWidth = Math.round(baseWidth * zoom);
-  const bookHeight = Math.round(pageWidth * aspectRatio);
 
   return (
     <div
       ref={shellRef}
       data-reader-theme={readerTheme}
-      className={`reader-shell flex flex-col rounded-xl border border-[var(--reader-border)] bg-[var(--reader-surface)] shadow-elevated-md ${isFlipping || zoom <= 1 ? "overflow-hidden" : "overflow-auto"}`}
+      className={`reader-shell flex flex-col rounded-xl border border-[var(--reader-border)] bg-[var(--reader-surface)] shadow-elevated-md ${zoom > 1 ? "overflow-auto" : "overflow-hidden"}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--reader-border)] px-3 py-2.5 sm:px-4">
         <p className="line-clamp-1 text-xs text-[var(--reader-ink-soft)]">{titleTh}</p>
@@ -350,7 +295,7 @@ export default function FlipbookViewer({
 
       <div
         ref={containerRef}
-        className={`relative flex min-h-[65vh] items-center justify-center bg-[var(--reader-bg)] py-6 sm:min-h-[75vh] ${isFlipping || zoom <= 1 ? "overflow-hidden" : "overflow-auto"}`}
+        className={`relative flex min-h-[65vh] items-center justify-center bg-[var(--reader-bg)] py-6 sm:min-h-[75vh] ${zoom > 1 ? "overflow-auto" : "overflow-hidden"}`}
       >
         {failed ? (
           <div className="flex flex-col items-center justify-center gap-3 px-6 text-center">
@@ -385,43 +330,25 @@ export default function FlipbookViewer({
             }
           >
             {numPages && (
-              <HTMLFlipBook
-                ref={bookRef}
-                width={pageWidth}
-                height={bookHeight}
-                size="fixed"
-                minWidth={150}
-                maxWidth={720}
-                minHeight={210}
-                maxHeight={1350}
-                startPage={0}
-                drawShadow
-                flippingTime={500}
-                usePortrait
-                startZIndex={0}
-                autoSize={false}
-                maxShadowOpacity={0.5}
-                showCover
-                mobileScrollSupport={false}
-                clickEventForward
-                useMouseEvents
-                swipeDistance={30}
-                showPageCorners
-                disableFlipByClick={false}
-                onFlip={handleFlip}
-                className="mx-auto shadow-2xl"
-                style={{}}
+              <div
+                className="bg-surface shadow-2xl"
+                style={{ opacity: visible ? 1 : 0, transition: "opacity 0.15s ease" }}
               >
-                {Array.from({ length: numPages }, (_, i) => i + 1).map((pageNumber) => (
-                  <PdfPage
-                    key={pageNumber}
-                    pageNumber={pageNumber}
-                    width={pageWidth}
-                    shouldRender={Math.abs(pageNumber - 1 - currentPage) <= RENDER_WINDOW}
-                    onFirstPageLoad={pageNumber === 1 ? handleFirstPageLoad : undefined}
-                  />
-                ))}
-              </HTMLFlipBook>
+                <Page
+                  pageNumber={currentPage}
+                  width={pageWidth}
+                  renderAnnotationLayer={false}
+                  renderTextLayer={false}
+                  loading={
+                    <div
+                      style={{ width: pageWidth, height: Math.round(pageWidth * 1.4142) }}
+                      className="flex items-center justify-center bg-[var(--reader-page-slot-bg)]"
+                    >
+                      <Loader2 className="h-5 w-5 animate-spin text-[var(--reader-ink-faint)]" />
+                    </div>
+                  }
+                />
+              </div>
             )}
           </Document>
         )}
@@ -432,7 +359,7 @@ export default function FlipbookViewer({
           <button
             type="button"
             onClick={goPrev}
-            disabled={currentPage <= 0}
+            disabled={currentPage <= 1}
             title="หน้าก่อนหน้า (คีย์ลูกศรซ้าย)"
             aria-label="ไปหน้าก่อนหน้า"
             className={TOOLBAR_BUTTON}
@@ -469,7 +396,7 @@ export default function FlipbookViewer({
           <button
             type="button"
             onClick={goNext}
-            disabled={currentPage >= numPages - 1}
+            disabled={currentPage >= numPages}
             title="หน้าถัดไป (คีย์ลูกศรขวา)"
             aria-label="ไปหน้าถัดไป"
             className={TOOLBAR_BUTTON}
