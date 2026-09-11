@@ -107,6 +107,7 @@ export default function FlipbookViewer({
 }) {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [pageInput, setPageInput] = useState("1");
   const [failed, setFailed] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(DEFAULT_ASPECT_RATIO);
   const [baseWidth, setBaseWidth] = useState(360);
@@ -151,6 +152,10 @@ export default function FlipbookViewer({
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "f" || e.key === "F") {
+        toggleFullscreen();
+        return;
+      }
       const api: PageFlipApi | undefined = bookRef.current?.pageFlip?.();
       if (!api) return;
       if (e.key === "ArrowLeft") api.flipPrev();
@@ -158,7 +163,28 @@ export default function FlipbookViewer({
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleFullscreen]);
+
+  // Ctrl/Cmd+scroll ซูมหน้า — ใช้ setZoom แบบ clamp เดียวกับ zoomIn/zoomOut
+  // เดิม (ไม่เรียกฟังก์ชันเหล่านั้นตรงๆ เพื่อเลี่ยงต้องใส่ไว้ใน dependency
+  // array ซึ่งจะทำให้ effect นี้ผูก/ถอด listener ใหม่ทุก render)
+  useEffect(() => {
+    function handleWheel(e: WheelEvent) {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        setZoom((z) => Math.min(MAX_ZOOM, Math.round((z + ZOOM_STEP) * 1000) / 1000));
+      } else if (e.deltaY > 0) {
+        setZoom((z) => Math.max(MIN_ZOOM, Math.round((z - ZOOM_STEP) * 1000) / 1000));
+      }
+    }
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => window.removeEventListener("wheel", handleWheel);
   }, []);
+
+  useEffect(() => {
+    setPageInput(String(currentPage + 1));
+  }, [currentPage]);
 
   // Fullscreen API ไม่รองรับในทุกเบราว์เซอร์ (เช่น iOS Safari) — ตรวจสอบก่อน
   // แสดงปุ่ม แทนที่จะแสดงปุ่มที่กดแล้วไม่ทำงาน; component นี้ไม่ถูก
@@ -197,6 +223,22 @@ export default function FlipbookViewer({
   }
   function handleFlip(event: { data: number }) {
     setCurrentPage(event.data);
+  }
+  function goToPage(target: number) {
+    if (!numPages) return;
+    const clamped = Math.min(Math.max(target, 1), numPages);
+    const api: PageFlipApi | undefined = bookRef.current?.pageFlip?.();
+    api?.turnToPage(clamped - 1);
+    setCurrentPage(clamped - 1);
+    setPageInput(String(clamped));
+  }
+  function commitPageInput() {
+    const parsed = Number.parseInt(pageInput, 10);
+    if (Number.isNaN(parsed)) {
+      setPageInput(String(currentPage + 1));
+      return;
+    }
+    goToPage(parsed);
   }
   function zoomOut() {
     setZoom((z) => Math.max(MIN_ZOOM, Math.round((z - ZOOM_STEP) * 1000) / 1000));
@@ -392,8 +434,25 @@ export default function FlipbookViewer({
             <ChevronLeft className="h-4 w-4" />
             ก่อนหน้า
           </button>
-          <span className="text-xs tabular-nums text-[var(--reader-ink-faint)]">
-            หน้า {Math.min(currentPage + 1, numPages)} / {numPages}
+          <span className="flex items-center gap-1.5 text-xs tabular-nums text-[var(--reader-ink-faint)]">
+            หน้า
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={numPages}
+              value={pageInput}
+              onChange={(e) => setPageInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.currentTarget.blur();
+                }
+              }}
+              onBlur={commitPageInput}
+              aria-label="ไปยังหน้าที่ต้องการ"
+              className="w-12 rounded-md border border-[var(--reader-border)] bg-transparent px-1.5 py-0.5 text-center tabular-nums text-[var(--reader-ink)] focus:border-brand-500 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+            / {numPages}
           </span>
           <button
             type="button"
