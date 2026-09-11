@@ -182,8 +182,11 @@ export default function FlipbookViewer({
     return () => window.removeEventListener("wheel", handleWheel);
   }, []);
 
+  const isEditingRef = useRef(false);
   useEffect(() => {
-    setPageInput(String(currentPage + 1));
+    if (!isEditingRef.current) {
+      setPageInput(String(currentPage + 1));
+    }
   }, [currentPage]);
 
   // Fullscreen API ไม่รองรับในทุกเบราว์เซอร์ (เช่น iOS Safari) — ตรวจสอบก่อน
@@ -257,7 +260,7 @@ export default function FlipbookViewer({
     <div
       ref={shellRef}
       data-reader-theme={readerTheme}
-      className="reader-shell flex flex-col overflow-hidden rounded-xl border border-[var(--reader-border)] bg-[var(--reader-surface)] shadow-elevated-md"
+      className="reader-shell flex flex-col overflow-hidden overflow-x-hidden rounded-xl border border-[var(--reader-border)] bg-[var(--reader-surface)] shadow-elevated-md"
     >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--reader-border)] px-3 py-2.5 sm:px-4">
         <p className="line-clamp-1 text-xs text-[var(--reader-ink-soft)]">{titleTh}</p>
@@ -448,7 +451,13 @@ export default function FlipbookViewer({
                   e.currentTarget.blur();
                 }
               }}
-              onBlur={commitPageInput}
+              onFocus={() => {
+                isEditingRef.current = true;
+              }}
+              onBlur={() => {
+                isEditingRef.current = false;
+                commitPageInput();
+              }}
               aria-label="ไปยังหน้าที่ต้องการ"
               className="w-12 rounded-md border border-[var(--reader-border)] bg-transparent px-1.5 py-0.5 text-center tabular-nums text-[var(--reader-ink)] focus:border-brand-500 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
