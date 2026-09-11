@@ -263,7 +263,7 @@ export default function FlipbookViewer({
     <div
       ref={shellRef}
       data-reader-theme={readerTheme}
-      className="reader-shell flex flex-col overflow-hidden overflow-x-hidden rounded-xl border border-[var(--reader-border)] bg-[var(--reader-surface)] shadow-elevated-md"
+      className={`reader-shell flex flex-col rounded-xl border border-[var(--reader-border)] bg-[var(--reader-surface)] shadow-elevated-md ${isFlipping || zoom <= 1 ? "overflow-hidden" : "overflow-auto"}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--reader-border)] px-3 py-2.5 sm:px-4">
         <p className="line-clamp-1 text-xs text-[var(--reader-ink-soft)]">{titleTh}</p>
