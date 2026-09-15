@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import {
   BookOpen, Plus, LayoutDashboard, Menu, X, ArrowLeft,
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/lo/blog-admin",      label: "ພາບລວມ",           icon: LayoutDashboard },
-  { href: "/lo/blog-admin/new",  label: "ສ້າງບົດຄວາມໃໝ່",   icon: Plus },
+  { href: "/blog-admin",      label: "ພາບລວມ",           icon: LayoutDashboard },
+  { href: "/blog-admin/new",  label: "ສ້າງບົດຄວາມໃໝ່",   icon: Plus },
 ];
 
 export default function BlogAdminNav() {
@@ -42,7 +41,7 @@ export default function BlogAdminNav() {
         {/* Nav */}
         <nav className="flex flex-col gap-1 p-3">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href || (href !== "/lo/blog-admin" && pathname.startsWith(href));
+            const active = pathname === href || (href !== "/blog-admin" && pathname.startsWith(href));
             return (
               <Link
                 key={href}
@@ -64,14 +63,14 @@ export default function BlogAdminNav() {
         {/* Back to site */}
         <div className="mt-auto border-t border-gray-200 p-3">
           <Link
-            href="/lo/dashboard"
+            href="/dashboard"
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             ກັບໄປ Dashboard
           </Link>
           <Link
-            href="/lo/blog"
+            href="/blog"
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
           >
             <BookOpen className="h-4 w-4" />

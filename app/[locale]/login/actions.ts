@@ -1,7 +1,8 @@
 "use server";
 
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mapAuthErrorMessage } from "@/lib/supabase/error-messages";
@@ -76,5 +77,6 @@ export async function loginAction(
       ? redirectTarget
       : "/";
 
-  redirect(safeRedirect);
+  const locale = await getLocale();
+  return redirect({ href: safeRedirect, locale });
 }
