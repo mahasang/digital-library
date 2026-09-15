@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getSessionUser } from "@/lib/supabase/session";
@@ -15,11 +16,14 @@ export async function upsertBlogPostAction(
   _prev: BlogFormState,
   formData: FormData
 ): Promise<BlogFormState> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "actionMessages" });
+
   const rank = await getCurrentUserRoleRank();
-  if (rank < 30) return { status: "error", message: "ບໍ່ມີສິດໃຊ້ງານ" };
+  if (rank < 30) return { status: "error", message: t("blogAdmin.noPermission") };
 
   const user = await getSessionUser();
-  if (!user) return { status: "error", message: "ກະລຸນາເຂົ້າສູ່ລະບົບ" };
+  if (!user) return { status: "error", message: t("blogAdmin.mustLogIn") };
 
   const slug       = (formData.get("slug")        as string).trim().toLowerCase();
   const titleLo    = (formData.get("title_lo")    as string).trim();
@@ -43,11 +47,11 @@ export async function upsertBlogPostAction(
   const seoDescription = (formData.get("seo_description") as string)?.trim() || null;
   const ogImage        = (formData.get("og_image") as string)?.trim() || null;
 
-  if (!slug) return { status: "error", message: "ກະລຸນາໃສ່ Slug" };
+  if (!slug) return { status: "error", message: t("blogAdmin.slugRequired") };
   if (!titleLo && !titleTh && !titleEn)
-    return { status: "error", message: "ກະລຸນາໃສ່ຫົວຂໍ້ຢ່າງໜ້ອຍ 1 ພາສາ" };
+    return { status: "error", message: t("blogAdmin.titleRequired") };
   if (!/^[a-z0-9-]+$/.test(slug))
-    return { status: "error", message: "Slug ໃຊ້ໄດ້ສະເພາະ a-z, 0-9, -" };
+    return { status: "error", message: t("blogAdmin.slugInvalidFormat") };
 
   const supabase = await createClient();
 
@@ -58,7 +62,7 @@ export async function upsertBlogPostAction(
     .maybeSingle();
 
   if (existing && existing.id !== id)
-    return { status: "error", message: "Slug ນີ້ຖືກໃຊ້ງານແລ້ວ" };
+    return { status: "error", message: t("blogAdmin.slugAlreadyUsed") };
 
   const statusFields: {
     status: "draft" | "scheduled" | "published";
@@ -149,11 +153,14 @@ export async function deleteBlogPostAction(id: string): Promise<void> {
 }
 
 export async function uploadCoverImageAction(formData: FormData): Promise<{ url?: string; error?: string }> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "actionMessages" });
+
   const rank = await getCurrentUserRoleRank();
-  if (rank < 30) return { error: "ບໍ່ມີສິດໃຊ້ງານ" };
+  if (rank < 30) return { error: t("blogAdmin.noPermission") };
 
   const file = formData.get("file") as File | null;
-  if (!file) return { error: "ບໍ່ພົບໄຟລ໌" };
+  if (!file) return { error: t("blogAdmin.fileNotFound") };
 
   const ext = file.name.split(".").pop();
   const path = `blog-covers/${Date.now()}.${ext}`;

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
@@ -15,15 +16,18 @@ export async function updateNotificationSettingsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "actionMessages" });
+
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("common.supabaseNotConfigured") };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("common.mustLogIn") };
 
   const preferences = {
     user_id: user.id,
@@ -42,7 +46,7 @@ export async function updateNotificationSettingsAction(
       status: "error",
       message: toSafeErrorMessage(
         prefError,
-        "ไม่สามารถบันทึกการตั้งค่าการแจ้งเตือนได้ กรุณาลองใหม่อีกครั้ง",
+        t("notificationSettings.preferencesSaveFailed"),
         "updateNotificationSettingsAction preferences failed"
       ),
     };
@@ -59,7 +63,7 @@ export async function updateNotificationSettingsAction(
       status: "error",
       message: toSafeErrorMessage(
         deleteError,
-        "ไม่สามารถบันทึกการติดตามหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง",
+        t("notificationSettings.subscriptionsSaveFailed"),
         "updateNotificationSettingsAction delete subscriptions failed"
       ),
     };
@@ -74,7 +78,7 @@ export async function updateNotificationSettingsAction(
         status: "error",
         message: toSafeErrorMessage(
           insertError,
-          "ไม่สามารถบันทึกการติดตามหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง",
+          t("notificationSettings.subscriptionsSaveFailed"),
           "updateNotificationSettingsAction insert subscriptions failed"
         ),
       };
@@ -82,5 +86,5 @@ export async function updateNotificationSettingsAction(
   }
 
   revalidatePath("/profile/notification-settings");
-  return { status: "success", message: "บันทึกการตั้งค่าเรียบร้อยแล้ว" };
+  return { status: "success", message: t("common.settingsSavedSuccess") };
 }

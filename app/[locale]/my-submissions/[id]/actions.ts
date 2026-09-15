@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -23,16 +23,19 @@ export async function updateSubmissionAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "actionMessages" });
+
   if (!isSupabaseConfigured()) {
     return {
       status: "error",
-      message: "ระบบยังไม่ได้เชื่อมต่อ Supabase จึงยังไม่สามารถบันทึกได้",
+      message: t("mySubmissions.supabaseNotConfigured"),
     };
   }
 
   const researchId = String(formData.get("researchId") || "");
   if (!researchId) {
-    return { status: "error", message: "ไม่พบรหัสงานวิจัยที่จะแก้ไข" };
+    return { status: "error", message: t("research.editIdRequired") };
   }
 
   const supabase = await createClient();
@@ -41,7 +44,7 @@ export async function updateSubmissionAction(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+    return { status: "error", message: t("common.mustLogIn") };
   }
 
   const { data: existing, error: fetchError } = await supabase
@@ -51,15 +54,15 @@ export async function updateSubmissionAction(
     .maybeSingle();
 
   if (fetchError || !existing) {
-    return { status: "error", message: "ไม่พบงานวิจัยนี้" };
+    return { status: "error", message: t("research.notFound") };
   }
   if (existing.submitted_by !== user.id) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์แก้ไขงานวิจัยนี้" };
+    return { status: "error", message: t("mySubmissions.notOwner") };
   }
   if (!["draft", "revision_requested"].includes(existing.status)) {
     return {
       status: "error",
-      message: "ไม่สามารถแก้ไขงานวิจัยที่อยู่ระหว่างตรวจสอบหรือเผยแพร่แล้วได้",
+      message: t("mySubmissions.notEditableStatus"),
     };
   }
 
@@ -69,7 +72,7 @@ export async function updateSubmissionAction(
     researchers = JSON.parse(String(formData.get("researchers") || "[]"));
     keywords = JSON.parse(String(formData.get("keywords") || "[]"));
   } catch {
-    return { status: "error", message: "ข้อมูลผู้วิจัยหรือคำสำคัญไม่ถูกต้อง" };
+    return { status: "error", message: t("research.researchersOrKeywordsInvalid") };
   }
 
   const parsed = submissionSchema.safeParse({
@@ -92,7 +95,7 @@ export async function updateSubmissionAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("common.invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -164,7 +167,7 @@ export async function updateSubmissionAction(
       status: "error",
       message: toSafeErrorMessage(
         updateError,
-        "ไม่สามารถบันทึกการแก้ไขได้ กรุณาลองใหม่อีกครั้ง",
+        t("common.editSaveFailed"),
         "updateSubmissionAction update failed"
       ),
     };
@@ -177,7 +180,7 @@ export async function updateSubmissionAction(
       status: "error",
       message: toSafeErrorMessage(
         relationError,
-        "เกิดข้อผิดพลาดในการบันทึกข้อมูลที่เกี่ยวข้อง กรุณาลองใหม่อีกครั้ง",
+        t("research.relationsSaveFailed"),
         "updateSubmissionAction replaceResearchRelations failed"
       ),
     };
@@ -200,6 +203,5 @@ export async function updateSubmissionAction(
     await detectDuplicatesForResearchItem(supabase, researchId);
   }
 
-  const locale = await getLocale();
   return redirect({ href: `/my-submissions/${researchId}`, locale });
 }

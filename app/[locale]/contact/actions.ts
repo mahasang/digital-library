@@ -1,5 +1,6 @@
 "use server";
 
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { Resend } from "resend";
 
@@ -14,6 +15,9 @@ export async function submitContactAction(
   _prev: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "actionMessages" });
+
   const firstName = (formData.get("first_name") as string | null)?.trim() ?? "";
   const lastName  = (formData.get("last_name")  as string | null)?.trim() ?? "";
   const email     = (formData.get("email")       as string | null)?.trim() ?? "";
@@ -22,14 +26,14 @@ export async function submitContactAction(
 
   // ── Validate ──
   if (!firstName || !lastName || !email || !message) {
-    return { status: "error", message: "ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບຖ້ວນ" };
+    return { status: "error", message: t("contact.fillAllFields") };
   }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return { status: "error", message: "ຮູບແບບອີເມວບໍ່ຖືກຕ້ອງ" };
+    return { status: "error", message: t("contact.invalidEmailFormat") };
   }
   if (message.length < 10) {
-    return { status: "error", message: "ຂໍ້ຄວາມຕ້ອງມີຢ່າງໜ້ອຍ 10 ຕົວອັກສອນ" };
+    return { status: "error", message: t("contact.messageTooShort") };
   }
 
   // ── Insert Supabase ──
@@ -40,7 +44,7 @@ export async function submitContactAction(
 
   if (dbError) {
     console.error("[contact] db error:", dbError.message);
-    return { status: "error", message: "ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່ພາຍຫຼັງ" };
+    return { status: "error", message: t("contact.genericError") };
   }
 
   // ── Send email via Resend ──

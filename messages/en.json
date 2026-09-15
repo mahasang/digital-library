@@ -1747,6 +1747,36 @@
       "systemSettings": {
         "bucketSyncWarning": "(default values saved, but the actual Storage bucket limits could not be updated)"
       }
+    },
+    "blogAdmin": {
+      "noPermission": "No permission to use this feature",
+      "mustLogIn": "Please log in",
+      "slugRequired": "Please enter a Slug",
+      "titleRequired": "Please enter a title in at least 1 language",
+      "slugInvalidFormat": "Slug may only contain a-z, 0-9, -",
+      "slugAlreadyUsed": "This slug is already in use",
+      "fileNotFound": "File not found"
+    },
+    "contact": {
+      "fillAllFields": "Please fill in all fields",
+      "invalidEmailFormat": "Invalid email format",
+      "messageTooShort": "Message must be at least 10 characters",
+      "genericError": "An error occurred. Please try again later."
+    },
+    "mySubmissions": {
+      "supabaseNotConfigured": "Supabase is not connected yet, so this cannot be saved.",
+      "notOwner": "You do not have permission to edit this research",
+      "notEditableStatus": "Cannot edit research that is under review or already published"
+    },
+    "notificationSettings": {
+      "preferencesSaveFailed": "Could not save notification preferences. Please try again.",
+      "subscriptionsSaveFailed": "Could not save category subscriptions. Please try again."
+    },
+    "submitResearch": {
+      "supabaseNotConfigured": "Supabase is not connected yet, so this research cannot be submitted.",
+      "submissionDisabled": "New research submissions are temporarily closed. Please contact the administrator.",
+      "noPermission": "You do not have permission to submit research. You must be organization staff or higher.",
+      "rateLimited": "Too many submissions in a short time. Please try again later."
     }
   }
 }

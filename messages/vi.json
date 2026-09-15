@@ -1747,6 +1747,36 @@
       "systemSettings": {
         "bucketSyncWarning": "(บันทึกค่าตั้งต้นสำเร็จ แต่ไม่สามารถอัปเดตขีดจำกัดจริงของ Storage bucket ได้)"
       }
+    },
+    "blogAdmin": {
+      "noPermission": "ไม่มีสิทธิ์ใช้งาน",
+      "mustLogIn": "กรุณาเข้าสู่ระบบ",
+      "slugRequired": "กรุณากรอก Slug",
+      "titleRequired": "กรุณากรอกหัวข้ออย่างน้อย 1 ภาษา",
+      "slugInvalidFormat": "Slug ใช้ได้เฉพาะ a-z, 0-9, -",
+      "slugAlreadyUsed": "Slug นี้ถูกใช้งานแล้ว",
+      "fileNotFound": "ไม่พบไฟล์"
+    },
+    "contact": {
+      "fillAllFields": "กรุณากรอกข้อมูลให้ครบถ้วน",
+      "invalidEmailFormat": "รูปแบบอีเมลไม่ถูกต้อง",
+      "messageTooShort": "ข้อความต้องมีอย่างน้อย 10 ตัวอักษร",
+      "genericError": "เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง"
+    },
+    "mySubmissions": {
+      "supabaseNotConfigured": "ระบบยังไม่ได้เชื่อมต่อ Supabase จึงยังไม่สามารถบันทึกได้",
+      "notOwner": "คุณไม่มีสิทธิ์แก้ไขงานวิจัยนี้",
+      "notEditableStatus": "ไม่สามารถแก้ไขงานวิจัยที่อยู่ระหว่างตรวจสอบหรือเผยแพร่แล้วได้"
+    },
+    "notificationSettings": {
+      "preferencesSaveFailed": "ไม่สามารถบันทึกการตั้งค่าการแจ้งเตือนได้ กรุณาลองใหม่อีกครั้ง",
+      "subscriptionsSaveFailed": "ไม่สามารถบันทึกการติดตามหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง"
+    },
+    "submitResearch": {
+      "supabaseNotConfigured": "ระบบยังไม่ได้เชื่อมต่อ Supabase จึงยังไม่สามารถส่งงานวิจัยได้",
+      "submissionDisabled": "ระบบปิดรับการส่งงานวิจัยใหม่ชั่วคราว กรุณาติดต่อผู้ดูแลระบบ",
+      "noPermission": "คุณไม่มีสิทธิ์ส่งงานวิจัย ต้องเป็นบุคลากรขององค์กรขึ้นไป",
+      "rateLimited": "มีการส่งงานวิจัยบ่อยเกินไป กรุณาลองใหม่อีกครั้งภายหลัง"
     }
   }
 }

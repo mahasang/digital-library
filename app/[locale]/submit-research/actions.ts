@@ -1,7 +1,8 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { headers } from "next/headers";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
@@ -30,10 +31,13 @@ export async function submitResearchAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "actionMessages" });
+
   if (!isSupabaseConfigured()) {
     return {
       status: "error",
-      message: "ระบบยังไม่ได้เชื่อมต่อ Supabase จึงยังไม่สามารถส่งงานวิจัยได้",
+      message: t("submitResearch.supabaseNotConfigured"),
     };
   }
 
@@ -41,7 +45,7 @@ export async function submitResearchAction(
   if (!settings.submissionEnabled) {
     return {
       status: "error",
-      message: "ระบบปิดรับการส่งงานวิจัยใหม่ชั่วคราว กรุณาติดต่อผู้ดูแลระบบ",
+      message: t("submitResearch.submissionDisabled"),
     };
   }
 
@@ -51,14 +55,14 @@ export async function submitResearchAction(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+    return { status: "error", message: t("common.mustLogIn") };
   }
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 20) {
     return {
       status: "error",
-      message: "คุณไม่มีสิทธิ์ส่งงานวิจัย ต้องเป็นบุคลากรขององค์กรขึ้นไป",
+      message: t("submitResearch.noPermission"),
     };
   }
 
@@ -72,7 +76,7 @@ export async function submitResearchAction(
   if (!allowed) {
     return {
       status: "error",
-      message: "มีการส่งงานวิจัยบ่อยเกินไป กรุณาลองใหม่อีกครั้งภายหลัง",
+      message: t("submitResearch.rateLimited"),
     };
   }
 
@@ -90,7 +94,7 @@ export async function submitResearchAction(
     researchers = JSON.parse(String(formData.get("researchers") || "[]"));
     keywords = JSON.parse(String(formData.get("keywords") || "[]"));
   } catch {
-    return { status: "error", message: "ข้อมูลผู้วิจัยหรือคำสำคัญไม่ถูกต้อง" };
+    return { status: "error", message: t("research.researchersOrKeywordsInvalid") };
   }
 
   const parsed = submissionSchema.safeParse({
@@ -113,7 +117,7 @@ export async function submitResearchAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("common.invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -185,7 +189,7 @@ export async function submitResearchAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถบันทึกงานวิจัยได้ กรุณาลองใหม่อีกครั้ง",
+        t("research.createSaveFailed"),
         "submitResearchAction insert failed"
       ),
     };
@@ -198,7 +202,7 @@ export async function submitResearchAction(
       status: "error",
       message: toSafeErrorMessage(
         relationError,
-        "เกิดข้อผิดพลาดในการบันทึกข้อมูลที่เกี่ยวข้อง กรุณาลองใหม่อีกครั้ง",
+        t("research.relationsSaveFailed"),
         "submitResearchAction replaceResearchRelations failed"
       ),
     };
@@ -218,5 +222,5 @@ export async function submitResearchAction(
   // เจ้าหน้าที่ตรวจสอบที่ /dashboard/duplicate-reviews (ไม่ throw เองเช่นกัน)
   await detectDuplicatesForResearchItem(supabase, inserted.id);
 
-  redirect(`/my-submissions/${inserted.id}`);
+  return redirect({ href: `/my-submissions/${inserted.id}`, locale });
 }
