@@ -1,6 +1,5 @@
 import { getLocale } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
-import Link from "next/link";
+import { Link, redirect } from "@/i18n/navigation";
 import { Plus, FileText, Eye, Edit } from "lucide-react";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
@@ -43,7 +42,7 @@ export default async function BlogAdminPage() {
           <p className="mt-1 text-sm text-gray-500">ຈັດການບົດຄວາມຂອງທ່ານ</p>
         </div>
         <Link
-          href={`/${locale}/blog-admin/new`}
+          href="/blog-admin/new"
           className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 transition-colors"
         >
           <Plus className="h-4 w-4" />
@@ -106,7 +105,7 @@ export default async function BlogAdminPage() {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1.5">
                     <Link
-                      href={`/${locale}/blog/${post.slug}`}
+                      href={`/blog/${post.slug}`}
                       target="_blank"
                       className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                       title="ເບິ່ງ"
@@ -114,7 +113,7 @@ export default async function BlogAdminPage() {
                       <Eye className="h-4 w-4" />
                     </Link>
                     <Link
-                      href={`/${locale}/blog-admin/${post.id}/edit`}
+                      href={`/blog-admin/${post.id}/edit`}
                       className="p-1.5 rounded-lg text-gray-400 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                       title="ແກ້ໄຂ"
                     >

@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { ArrowLeft, Calendar, Users } from "lucide-react";

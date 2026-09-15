@@ -1,8 +1,7 @@
 export const dynamic = "force-dynamic";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Bell } from "lucide-react";
 import AccountShell from "@/components/account/AccountShell";
 import AccountEmptyState from "@/components/account/AccountEmptyState";
