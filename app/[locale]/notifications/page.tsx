@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bell } from "lucide-react";
@@ -31,8 +32,9 @@ export default async function NotificationsPage() {
     );
   }
 
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/notifications");
+  if (!user) return redirect({ href: "/login?redirect=/notifications", locale });
 
   const notifications = await getMyNotifications(FULL_LIST_LIMIT);
   const unreadCount = notifications.filter((n) => !n.readAt).length;

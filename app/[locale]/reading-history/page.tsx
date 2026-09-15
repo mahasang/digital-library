@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { BookOpen } from "lucide-react";
 import { LinkButton } from "@/components/ui/Button";
@@ -28,8 +29,9 @@ export default async function ReadingHistoryPage() {
     );
   }
 
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/reading-history");
+  if (!user) return redirect({ href: "/login?redirect=/reading-history", locale });
 
   const history = await getReadingHistory(user.id);
 

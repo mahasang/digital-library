@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { Calendar, FileText, Plus } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -28,8 +29,9 @@ export default async function MySubmissionsPage() {
     );
   }
 
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/my-submissions");
+  if (!user) return redirect({ href: "/login?redirect=/my-submissions", locale });
 
   const submissions = await getOwnSubmissions(user.id);
 

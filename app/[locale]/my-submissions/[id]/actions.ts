@@ -1,6 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { submissionSchema } from "@/lib/validation/submission";
@@ -199,5 +200,6 @@ export async function updateSubmissionAction(
     await detectDuplicatesForResearchItem(supabase, researchId);
   }
 
-  redirect(`/my-submissions/${researchId}`);
+  const locale = await getLocale();
+  return redirect({ href: `/my-submissions/${researchId}`, locale });
 }

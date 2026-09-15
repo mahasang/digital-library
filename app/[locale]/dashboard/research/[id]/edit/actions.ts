@@ -1,6 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -257,7 +258,8 @@ export async function adminUpdateResearchAction(
   // แบบไม่มีเงื่อนไขไว้ก่อนเสมอ (ดู lib/cache/public-home.ts)
   revalidatePublicResearch();
 
-  redirect(`/dashboard/research/${researchId}/edit`);
+  const locale = await getLocale();
+  return redirect({ href: `/dashboard/research/${researchId}/edit`, locale });
 }
 
 /**

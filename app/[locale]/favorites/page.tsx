@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Heart } from "lucide-react";
 import { LinkButton } from "@/components/ui/Button";
@@ -41,7 +41,7 @@ export default async function FavoritesPage() {
   const locale = await getLocale();
   const t = await getTranslations("account");
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/favorites");
+  if (!user) return redirect({ href: "/login?redirect=/favorites", locale });
 
   const [researchItems, blogPosts] = await Promise.all([
     getFavoriteResearch(user.id),

@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { ArrowLeft, Calendar, Users } from "lucide-react";
 import Badge from "@/components/ui/Badge";
@@ -21,11 +23,12 @@ export default async function DuplicateReviewDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect(`/login?redirect=/dashboard/duplicate-reviews/${id}`);
+  if (!user) return redirect({ href: `/login?redirect=/dashboard/duplicate-reviews/${id}`, locale });
 
   const rank = await getCurrentUserRoleRank();
-  if (rank < 30) redirect("/403");
+  if (rank < 30) return redirect({ href: "/403", locale });
 
   const review = await getDuplicateReviewDetail(id);
   if (!review) notFound();

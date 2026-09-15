@@ -1,7 +1,8 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mapAuthErrorMessage } from "@/lib/supabase/error-messages";
@@ -94,7 +95,8 @@ export async function registerAction(
 
   if (data.session) {
     // โปรเจกต์ปิดการยืนยันอีเมล (Confirm email = off) จึงเข้าสู่ระบบได้ทันที
-    redirect("/");
+    const locale = await getLocale();
+    return redirect({ href: "/", locale });
   }
 
   return {

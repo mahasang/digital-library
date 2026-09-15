@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { AlertTriangle, ArrowLeft, FileSearch, ImageOff } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -33,7 +35,10 @@ export default async function ReadResearchPage({
   const item = await getResearchById(id);
   if (!item || item.status !== "published") {
     const redirectSlug = await getMergedRedirectSlug(id);
-    if (redirectSlug) redirect(`/research/${redirectSlug}/read`);
+    if (redirectSlug) {
+      const locale = await getLocale();
+      return redirect({ href: `/research/${redirectSlug}/read`, locale });
+    }
     notFound();
   }
 

@@ -1,6 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
@@ -193,5 +194,6 @@ export async function adminCreateResearchAction(
   // notifyResearchPublished() (lib/publishing/publish-event.server.ts) กลับมา
   // ที่นี่ด้วย — ดู docs/document-access-requests.md
 
-  redirect(`/dashboard/research/${inserted.id}/edit`);
+  const locale = await getLocale();
+  return redirect({ href: `/dashboard/research/${inserted.id}/edit`, locale });
 }

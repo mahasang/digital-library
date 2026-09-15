@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
@@ -29,8 +30,9 @@ export default async function NotificationSettingsPage() {
     );
   }
 
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect("/login?redirect=/profile/notification-settings");
+  if (!user) return redirect({ href: "/login?redirect=/profile/notification-settings", locale });
 
   const [preferences, subscribedCategoryIds, categories] = await Promise.all([
     getMyNotificationPreferences(),

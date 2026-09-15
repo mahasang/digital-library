@@ -1,6 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mapAuthErrorMessage } from "@/lib/supabase/error-messages";
@@ -54,5 +55,6 @@ export async function resetPasswordAction(
     return { status: "error", message: await mapAuthErrorMessage(error.message) };
   }
 
-  redirect("/login?reset=success");
+  const locale = await getLocale();
+  return redirect({ href: "/login?reset=success", locale });
 }

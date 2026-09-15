@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { ArrowLeft, FileText, Mail } from "lucide-react";
 import Badge from "@/components/ui/Badge";
@@ -28,11 +30,12 @@ const AUTHOR_ROLE_LABELS: Record<string, string> = {
 
 export default async function AuthorDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const locale = await getLocale();
   const user = await getSessionUser();
-  if (!user) redirect(`/login?redirect=/dashboard/authors/${id}`);
+  if (!user) return redirect({ href: `/login?redirect=/dashboard/authors/${id}`, locale });
 
   const rank = await getCurrentUserRoleRank();
-  if (rank < 30) redirect("/403");
+  if (rank < 30) return redirect({ href: "/403", locale });
 
   const [author, organizations, mergeCandidates] = await Promise.all([
     getAuthorDetailForAdmin(id),
