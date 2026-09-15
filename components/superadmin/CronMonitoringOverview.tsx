@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { CheckCircle2, AlertTriangle, HelpCircle } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
 import type { CronMonitoringRow, RecentCronAlert } from "@/lib/data/cron-monitoring.server";

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
@@ -30,26 +31,28 @@ export async function createAuthorAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAuthors = await getTranslations("actionMessages.authors");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const parsed = parseAuthorForm(formData);
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -72,11 +75,11 @@ export async function createAuthorAction(
 
   if (error || !inserted) {
     if (error?.code === "23505") {
-      return { status: "error", message: "ORCID นี้ถูกใช้กับผู้วิจัยคนอื่นในระบบแล้ว" };
+      return { status: "error", message: tAuthors("orcidAlreadyUsed") };
     }
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถเพิ่มผู้วิจัยได้ กรุณาลองใหม่อีกครั้ง", "createAuthorAction failed"),
+      message: toSafeErrorMessage(error, tAuthors("createFailed"), "createAuthorAction failed"),
     };
   }
 
@@ -89,36 +92,38 @@ export async function createAuthorAction(
   });
 
   revalidatePath("/dashboard/authors");
-  return { status: "success", message: "เพิ่มผู้วิจัยเรียบร้อยแล้ว" };
+  return { status: "success", message: tAuthors("createSuccess") };
 }
 
 export async function updateAuthorAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAuthors = await getTranslations("actionMessages.authors");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const authorId = String(formData.get("authorId") || "");
-  if (!authorId) return { status: "error", message: "ไม่พบผู้วิจัยนี้" };
+  if (!authorId) return { status: "error", message: tAuthors("notFound") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const parsed = parseAuthorForm(formData);
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -144,11 +149,11 @@ export async function updateAuthorAction(
 
   if (error) {
     if (error.code === "23505") {
-      return { status: "error", message: "ORCID นี้ถูกใช้กับผู้วิจัยคนอื่นในระบบแล้ว" };
+      return { status: "error", message: tAuthors("orcidAlreadyUsed") };
     }
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถแก้ไขผู้วิจัยได้ กรุณาลองใหม่อีกครั้ง", "updateAuthorAction failed"),
+      message: toSafeErrorMessage(error, tAuthors("updateFailed"), "updateAuthorAction failed"),
     };
   }
 
@@ -162,36 +167,38 @@ export async function updateAuthorAction(
 
   revalidatePath(`/dashboard/authors/${authorId}`);
   revalidatePath("/dashboard/authors");
-  return { status: "success", message: "บันทึกการแก้ไขเรียบร้อยแล้ว" };
+  return { status: "success", message: t("editSavedSuccess") };
 }
 
 export async function toggleAuthorActiveAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAuthors = await getTranslations("actionMessages.authors");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const authorId = String(formData.get("authorId") || "");
   const nextActive = formData.get("nextActive") === "true";
-  if (!authorId) return { status: "error", message: "ไม่พบผู้วิจัยนี้" };
+  if (!authorId) return { status: "error", message: tAuthors("notFound") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { error } = await supabase.from("authors").update({ is_active: nextActive }).eq("id", authorId);
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง", "toggleAuthorActiveAction failed"),
+      message: toSafeErrorMessage(error, tAuthors("toggleFailed"), "toggleAuthorActiveAction failed"),
     };
   }
 
@@ -205,7 +212,7 @@ export async function toggleAuthorActiveAction(
 
   revalidatePath(`/dashboard/authors/${authorId}`);
   revalidatePath("/dashboard/authors");
-  return { status: "success", message: nextActive ? "เปิดใช้งานผู้วิจัยแล้ว" : "ปิดใช้งานผู้วิจัยแล้ว" };
+  return { status: "success", message: nextActive ? tAuthors("enabledSuccess") : tAuthors("disabledSuccess") };
 }
 
 /** เจ้าหน้าที่ยืนยันว่าตรวจสอบ ORCID นี้ด้วยตนเองแล้ว — ไม่ใช่การยืนยันจาก
@@ -214,26 +221,28 @@ export async function verifyOrcidAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAuthors = await getTranslations("actionMessages.authors");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const authorId = String(formData.get("authorId") || "");
-  if (!authorId) return { status: "error", message: "ไม่พบผู้วิจัยนี้" };
+  if (!authorId) return { status: "error", message: tAuthors("notFound") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { data: author } = await supabase.from("authors").select("orcid").eq("id", authorId).maybeSingle();
   if (!author?.orcid) {
-    return { status: "error", message: "ผู้วิจัยนี้ยังไม่มี ORCID ให้ยืนยัน" };
+    return { status: "error", message: tAuthors("noOrcidToVerify") };
   }
 
   const { error } = await supabase
@@ -244,7 +253,7 @@ export async function verifyOrcidAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถบันทึกการยืนยันได้ กรุณาลองใหม่อีกครั้ง", "verifyOrcidAction failed"),
+      message: toSafeErrorMessage(error, tAuthors("verifyFailed"), "verifyOrcidAction failed"),
     };
   }
 
@@ -257,7 +266,7 @@ export async function verifyOrcidAction(
   });
 
   revalidatePath(`/dashboard/authors/${authorId}`);
-  return { status: "success", message: "ยืนยัน ORCID เรียบร้อยแล้ว" };
+  return { status: "success", message: tAuthors("verifySuccess") };
 }
 
 /**
@@ -273,22 +282,24 @@ export async function checkOrcidPublicApiAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAuthors = await getTranslations("actionMessages.authors");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const authorId = String(formData.get("authorId") || "");
   const forceRefresh = formData.get("forceRefresh") === "true";
-  if (!authorId) return { status: "error", message: "ไม่พบผู้วิจัยนี้" };
+  if (!authorId) return { status: "error", message: tAuthors("notFound") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { data: author } = await supabase
@@ -297,25 +308,25 @@ export async function checkOrcidPublicApiAction(
     .eq("id", authorId)
     .maybeSingle();
   if (!author?.orcid) {
-    return { status: "error", message: "ผู้วิจัยนี้ยังไม่มี ORCID ให้ตรวจสอบ" };
+    return { status: "error", message: tAuthors("noOrcidToCheck") };
   }
 
   if (!forceRefresh && author.orcid_api_checked_at) {
     const checkedAtMs = new Date(author.orcid_api_checked_at).getTime();
     if (Date.now() - checkedAtMs < ORCID_API_CACHE_MS) {
-      return { status: "success", message: "ใช้ผลตรวจสอบล่าสุด (ตรวจไปเมื่อไม่เกิน 24 ชั่วโมงที่แล้ว)" };
+      return { status: "success", message: tAuthors("checkCacheHit") };
     }
   }
 
   const { allowed } = await checkRateLimit(rateLimitKeyForUser("orcid_lookup", user.id), 30, 3600);
   if (!allowed) {
-    return { status: "error", message: "เรียกตรวจสอบ ORCID บ่อยเกินไป กรุณาลองใหม่ภายหลัง" };
+    return { status: "error", message: tAuthors("checkRateLimited") };
   }
 
   const result = await lookupOrcidPublicRecord(author.orcid);
 
   if (result.status === "not_configured") {
-    return { status: "error", message: "ยังไม่ได้ตั้งค่า ORCID Public API" };
+    return { status: "error", message: tAuthors("orcidApiNotConfigured") };
   }
 
   const publicName =
@@ -334,7 +345,7 @@ export async function checkOrcidPublicApiAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถบันทึกผลตรวจสอบได้ กรุณาลองใหม่อีกครั้ง", "checkOrcidPublicApiAction failed"),
+      message: toSafeErrorMessage(error, tAuthors("checkSaveFailed"), "checkOrcidPublicApiAction failed"),
     };
   }
 
@@ -349,15 +360,15 @@ export async function checkOrcidPublicApiAction(
   revalidatePath(`/dashboard/authors/${authorId}`);
 
   const messageByStatus: Record<string, string> = {
-    found: "ตรวจสอบ ORCID สำเร็จ พบชื่อสาธารณะ — โปรดเปรียบเทียบกับข้อมูลในระบบก่อนยืนยัน",
-    not_found: "ไม่พบ ORCID iD นี้ในระบบ ORCID",
-    no_public_data: "ORCID iD นี้มีอยู่จริง แต่ไม่ได้เปิดเผยชื่อต่อสาธารณะ",
-    rate_limited: "ORCID จำกัดอัตราการเรียกชั่วคราว กรุณาลองใหม่ภายหลัง",
-    error: "ระบบ ORCID ไม่ตอบสนอง กรุณาลองใหม่ภายหลัง",
-    invalid_format: "รูปแบบ ORCID ในระบบไม่ถูกต้อง กรุณาแก้ไขก่อน",
+    found: tAuthors("checkResultFound"),
+    not_found: tAuthors("checkResultNotFound"),
+    no_public_data: tAuthors("checkResultNoPublicData"),
+    rate_limited: tAuthors("checkResultRateLimited"),
+    error: tAuthors("checkResultError"),
+    invalid_format: tAuthors("checkResultInvalidFormat"),
   };
 
-  return { status: "success", message: messageByStatus[result.status] ?? "ตรวจสอบเสร็จสิ้น" };
+  return { status: "success", message: messageByStatus[result.status] ?? tAuthors("checkResultDefault") };
 }
 
 /**
@@ -370,24 +381,26 @@ export async function linkAuthorProfileAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAuthors = await getTranslations("actionMessages.authors");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const authorId = String(formData.get("authorId") || "");
   const email = String(formData.get("email") || "").trim().toLowerCase();
-  if (!authorId) return { status: "error", message: "ไม่พบผู้วิจัยนี้" };
-  if (!email) return { status: "error", message: "กรุณากรอกอีเมลบัญชีผู้ใช้ที่ต้องการเชื่อม" };
+  if (!authorId) return { status: "error", message: tAuthors("notFound") };
+  if (!email) return { status: "error", message: tAuthors("linkEmailRequired") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { data: targetProfile } = await supabase
@@ -397,7 +410,7 @@ export async function linkAuthorProfileAction(
     .maybeSingle();
 
   if (!targetProfile) {
-    return { status: "error", message: "ไม่พบบัญชีผู้ใช้ที่ใช้อีเมลนี้ในระบบ" };
+    return { status: "error", message: tAuthors("linkProfileNotFound") };
   }
 
   const { error } = await supabase
@@ -407,11 +420,11 @@ export async function linkAuthorProfileAction(
 
   if (error) {
     if (error.code === "23505") {
-      return { status: "error", message: "บัญชีนี้ถูกเชื่อมกับผู้วิจัยคนอื่นอยู่แล้ว" };
+      return { status: "error", message: tAuthors("linkAlreadyLinked") };
     }
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถเชื่อมบัญชีได้ กรุณาลองใหม่อีกครั้ง", "linkAuthorProfileAction failed"),
+      message: toSafeErrorMessage(error, tAuthors("linkFailed"), "linkAuthorProfileAction failed"),
     };
   }
 
@@ -424,36 +437,41 @@ export async function linkAuthorProfileAction(
   });
 
   revalidatePath(`/dashboard/authors/${authorId}`);
-  return { status: "success", message: `เชื่อมบัญชีของ ${targetProfile.full_name || targetProfile.email} เรียบร้อยแล้ว` };
+  return {
+    status: "success",
+    message: tAuthors("linkSuccess", { name: targetProfile.full_name || targetProfile.email || "" }),
+  };
 }
 
 export async function unlinkAuthorProfileAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAuthors = await getTranslations("actionMessages.authors");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const authorId = String(formData.get("authorId") || "");
-  if (!authorId) return { status: "error", message: "ไม่พบผู้วิจัยนี้" };
+  if (!authorId) return { status: "error", message: tAuthors("notFound") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { error } = await supabase.from("authors").update({ profile_id: null }).eq("id", authorId);
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถยกเลิกการเชื่อมได้ กรุณาลองใหม่อีกครั้ง", "unlinkAuthorProfileAction failed"),
+      message: toSafeErrorMessage(error, tAuthors("unlinkFailed"), "unlinkAuthorProfileAction failed"),
     };
   }
 
@@ -466,7 +484,7 @@ export async function unlinkAuthorProfileAction(
   });
 
   revalidatePath(`/dashboard/authors/${authorId}`);
-  return { status: "success", message: "ยกเลิกการเชื่อมบัญชีเรียบร้อยแล้ว" };
+  return { status: "success", message: tAuthors("unlinkSuccess") };
 }
 
 /** รวมผู้วิจัย — เรียก merge_authors() RPC (ตรวจสิทธิ์ rank >= 30 ซ้ำในตัว
@@ -475,24 +493,26 @@ export async function mergeAuthorsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAuthors = await getTranslations("actionMessages.authors");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const sourceId = String(formData.get("sourceId") || "");
   const targetId = String(formData.get("targetId") || "");
   const reason = String(formData.get("reason") || "").trim();
   const confirmText = String(formData.get("confirmText") || "").trim();
-  if (!sourceId || !targetId) return { status: "error", message: "กรุณาเลือกผู้วิจัยหลักที่จะรวมเข้าด้วย" };
+  if (!sourceId || !targetId) return { status: "error", message: tAuthors("mergeSelectRequired") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { data: sourceAuthor } = await supabase
@@ -501,7 +521,7 @@ export async function mergeAuthorsAction(
     .eq("id", sourceId)
     .maybeSingle();
   if (!sourceAuthor || confirmText !== sourceAuthor.name.trim()) {
-    return { status: "error", message: "กรุณาพิมพ์ชื่อผู้วิจัยให้ตรงกันเพื่อยืนยันการรวมข้อมูล" };
+    return { status: "error", message: tAuthors("mergeConfirmTextMismatch") };
   }
 
   const { error } = await supabase.rpc("merge_authors", {
@@ -513,12 +533,12 @@ export async function mergeAuthorsAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถรวมผู้วิจัยได้ กรุณาลองใหม่อีกครั้ง", "mergeAuthorsAction failed"),
+      message: toSafeErrorMessage(error, tAuthors("mergeFailed"), "mergeAuthorsAction failed"),
     };
   }
 
   revalidatePath("/dashboard/authors");
   revalidatePath(`/dashboard/authors/${sourceId}`);
   revalidatePath(`/dashboard/authors/${targetId}`);
-  return { status: "success", message: "รวมข้อมูลผู้วิจัยเรียบร้อยแล้ว" };
+  return { status: "success", message: tAuthors("mergeSuccess") };
 }

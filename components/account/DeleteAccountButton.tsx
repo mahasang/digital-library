@@ -1,6 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import { deleteAccountAction } from "@/app/[locale]/account/actions";
 

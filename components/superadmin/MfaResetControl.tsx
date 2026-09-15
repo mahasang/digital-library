@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { CheckCircle2, Clock, KeyRound, ShieldOff } from "lucide-react";
 import MfaResetConfirmDialog from "@/components/superadmin/MfaResetConfirmDialog";
 import type { MfaFactorSummary } from "@/types/research";

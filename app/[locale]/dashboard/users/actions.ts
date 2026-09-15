@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
@@ -17,6 +18,8 @@ export async function changeUserRoleAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tUsers = await getTranslations("actionMessages.users");
   const auth = await requireMinRank(40);
   if (!auth.ok) return auth.result;
 
@@ -24,7 +27,7 @@ export async function changeUserRoleAction(
   const roleNameRaw = String(formData.get("role") || "");
 
   if (!userId || !ASSIGNABLE_ROLES.includes(roleNameRaw as RoleName)) {
-    return { status: "error", message: "ข้อมูลไม่ถูกต้อง" };
+    return { status: "error", message: t("invalidData") };
   }
   const roleName = roleNameRaw as RoleName;
 
@@ -32,10 +35,7 @@ export async function changeUserRoleAction(
 
   const { data: targetRank } = await supabase.rpc("user_max_role_rank", { uid: userId });
   if ((targetRank ?? 0) >= 50) {
-    return {
-      status: "error",
-      message: "ไม่สามารถเปลี่ยนบทบาทของ Super Admin ได้ที่หน้านี้ — จัดการได้ที่ /superadmin เท่านั้น",
-    };
+    return { status: "error", message: tUsers("cannotChangeSuperAdminHere") };
   }
 
   const { data: role } = await supabase
@@ -45,7 +45,7 @@ export async function changeUserRoleAction(
     .maybeSingle();
 
   if (!role) {
-    return { status: "error", message: "ไม่พบบทบาทที่เลือก" };
+    return { status: "error", message: tUsers("roleNotFound") };
   }
 
   const { error: deleteError } = await supabase
@@ -55,7 +55,7 @@ export async function changeUserRoleAction(
   if (deleteError) {
     return {
       status: "error",
-      message: toSafeErrorMessage(deleteError, "ไม่สามารถเปลี่ยนบทบาทได้ กรุณาลองใหม่อีกครั้ง", "changeUserRoleAction delete failed"),
+      message: toSafeErrorMessage(deleteError, tUsers("roleChangeFailed"), "changeUserRoleAction delete failed"),
     };
   }
 
@@ -65,7 +65,7 @@ export async function changeUserRoleAction(
   if (insertError) {
     return {
       status: "error",
-      message: toSafeErrorMessage(insertError, "ไม่สามารถเปลี่ยนบทบาทได้ กรุณาลองใหม่อีกครั้ง", "changeUserRoleAction insert failed"),
+      message: toSafeErrorMessage(insertError, tUsers("roleChangeFailed"), "changeUserRoleAction insert failed"),
     };
   }
 
@@ -78,7 +78,7 @@ export async function changeUserRoleAction(
   });
 
   revalidatePath("/dashboard/users");
-  return { status: "success", message: "เปลี่ยนบทบาทเรียบร้อยแล้ว" };
+  return { status: "success", message: tUsers("roleChangeSuccess") };
 }
 
 /**
@@ -89,6 +89,8 @@ export async function toggleUserActiveAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tUsers = await getTranslations("actionMessages.users");
   const auth = await requireMinRank(40);
   if (!auth.ok) return auth.result;
 
@@ -96,17 +98,13 @@ export async function toggleUserActiveAction(
   const nextActive = formData.get("nextActive") === "true";
 
   if (!userId) {
-    return { status: "error", message: "ข้อมูลไม่ถูกต้อง" };
+    return { status: "error", message: t("invalidData") };
   }
   if (userId === auth.userId && !nextActive) {
-    return { status: "error", message: "ไม่สามารถระงับบัญชีของตัวเองได้" };
+    return { status: "error", message: tUsers("cannotSuspendSelf") };
   }
   if (!isServiceRoleConfigured()) {
-    return {
-      status: "error",
-      message:
-        "ยังไม่ได้ตั้งค่า SUPABASE_SERVICE_ROLE_KEY จึงไม่สามารถระงับ/เปิดใช้งานบัญชีได้",
-    };
+    return { status: "error", message: tUsers("serviceRoleNotConfigured") };
   }
 
   const supabase = await createClient();
@@ -118,7 +116,7 @@ export async function toggleUserActiveAction(
   if (banError) {
     return {
       status: "error",
-      message: toSafeErrorMessage(banError, "ไม่สามารถเปลี่ยนสถานะบัญชีได้ กรุณาลองใหม่อีกครั้ง", "toggleUserActiveAction ban failed"),
+      message: toSafeErrorMessage(banError, tUsers("statusChangeFailed"), "toggleUserActiveAction ban failed"),
     };
   }
 
@@ -129,7 +127,7 @@ export async function toggleUserActiveAction(
   if (profileError) {
     return {
       status: "error",
-      message: toSafeErrorMessage(profileError, "ไม่สามารถเปลี่ยนสถานะบัญชีได้ กรุณาลองใหม่อีกครั้ง", "toggleUserActiveAction profile update failed"),
+      message: toSafeErrorMessage(profileError, tUsers("statusChangeFailed"), "toggleUserActiveAction profile update failed"),
     };
   }
 
@@ -141,5 +139,5 @@ export async function toggleUserActiveAction(
   });
 
   revalidatePath("/dashboard/users");
-  return { status: "success", message: nextActive ? "เปิดใช้งานบัญชีแล้ว" : "ระงับบัญชีแล้ว" };
+  return { status: "success", message: nextActive ? tUsers("enabledSuccess") : tUsers("suspendedSuccess") };
 }

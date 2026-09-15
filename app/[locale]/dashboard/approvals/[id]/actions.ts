@@ -18,11 +18,15 @@ async function changeStatus(
   newStatus: DocumentStatus,
   note?: string
 ): Promise<ActionResult> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "actionMessages.common" });
+  const tApprovals = await getTranslations({ locale, namespace: "actionMessages.approvals" });
+  const tResearch = await getTranslations({ locale, namespace: "actionMessages.research" });
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   if (!researchId) {
-    return { status: "error", message: "ไม่พบรหัสงานวิจัย" };
+    return { status: "error", message: tResearch("researchIdRequired") };
   }
 
   const supabase = await createClient();
@@ -31,12 +35,12 @@ async function changeStatus(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+    return { status: "error", message: t("mustLogIn") };
   }
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { data: updated, error } = await supabase
@@ -55,7 +59,7 @@ async function changeStatus(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถเปลี่ยนสถานะได้ กรุณาลองใหม่อีกครั้ง",
+        tApprovals("statusChangeFailed"),
         "changeStatus failed"
       ),
     };
@@ -74,7 +78,6 @@ async function changeStatus(
           .eq("id", updated.submitted_by)
           .maybeSingle();
         if (submitterProfile?.email) {
-          const locale = await getLocale();
           const tStatuses = await getTranslations({ locale, namespace: "statuses" });
           await sendNotificationEmail({
             to: submitterProfile.email,
@@ -108,7 +111,7 @@ async function changeStatus(
   // (ถูกกว่าการลืมล้างมาก ดู lib/cache/public-home.ts)
   revalidatePublicResearch();
 
-  return { status: "success", message: "เปลี่ยนสถานะเรียบร้อยแล้ว" };
+  return { status: "success", message: tApprovals("statusChangeSuccess") };
 }
 
 export async function approveAction(
@@ -124,7 +127,8 @@ export async function rejectAction(
 ): Promise<ActionResult> {
   const note = String(formData.get("note") || "").trim();
   if (!note) {
-    return { status: "error", message: "กรุณาระบุเหตุผลที่ปฏิเสธงานวิจัยนี้" };
+    const tApprovals = await getTranslations("actionMessages.approvals");
+    return { status: "error", message: tApprovals("rejectReasonRequired") };
   }
   return changeStatus(String(formData.get("researchId") || ""), "rejected", note);
 }
@@ -135,7 +139,8 @@ export async function requestRevisionAction(
 ): Promise<ActionResult> {
   const note = String(formData.get("note") || "").trim();
   if (!note) {
-    return { status: "error", message: "กรุณาระบุรายละเอียดที่ต้องการให้แก้ไข" };
+    const tApprovals = await getTranslations("actionMessages.approvals");
+    return { status: "error", message: tApprovals("revisionDetailRequired") };
   }
   return changeStatus(
     String(formData.get("researchId") || ""),

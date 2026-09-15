@@ -1,7 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -16,20 +16,15 @@ export async function registerAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAuth = await getTranslations("actionMessages.auth");
   if (!isSupabaseConfigured()) {
-    return {
-      status: "error",
-      message:
-        "ระบบยังไม่ได้เชื่อมต่อ Supabase กรุณาตั้งค่า NEXT_PUBLIC_SUPABASE_URL และ NEXT_PUBLIC_SUPABASE_ANON_KEY ในไฟล์ .env.local ก่อนใช้งานฟังก์ชันนี้",
-    };
+    return { status: "error", message: t("supabaseNotConfiguredDetailed") };
   }
 
   const settings = await getSettings();
   if (!settings.registrationEnabled) {
-    return {
-      status: "error",
-      message: "ระบบปิดรับสมัครสมาชิกใหม่ชั่วคราว กรุณาติดต่อผู้ดูแลระบบ",
-    };
+    return { status: "error", message: tAuth("registrationDisabled") };
   }
 
   const headersList = await headers();
@@ -40,10 +35,7 @@ export async function registerAction(
     settings.rateLimitRegisterWindowSec
   );
   if (!allowed) {
-    return {
-      status: "error",
-      message: "มีการสมัครสมาชิกจากที่อยู่นี้บ่อยเกินไป กรุณาลองใหม่อีกครั้งภายหลัง",
-    };
+    return { status: "error", message: tAuth("rateLimitedRegister") };
   }
 
   const captchaResult = await verifyCaptchaIfEnabled(
@@ -66,7 +58,7 @@ export async function registerAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -99,9 +91,5 @@ export async function registerAction(
     return redirect({ href: "/", locale });
   }
 
-  return {
-    status: "success",
-    message:
-      "สมัครสมาชิกสำเร็จ กรุณาตรวจสอบอีเมลของคุณเพื่อยืนยันการสมัครสมาชิกก่อนเข้าสู่ระบบครั้งแรก",
-  };
+  return { status: "success", message: tAuth("registerSuccessPendingConfirm") };
 }

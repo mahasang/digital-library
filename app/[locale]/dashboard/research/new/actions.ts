@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -28,8 +28,10 @@ export async function adminCreateResearchAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tResearch = await getTranslations("actionMessages.research");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const supabase = await createClient();
@@ -38,12 +40,12 @@ export async function adminCreateResearchAction(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+    return { status: "error", message: t("mustLogIn") };
   }
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์เพิ่มงานวิจัย ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: tResearch("noPermissionToCreate") };
   }
 
   let researchers: unknown;
@@ -52,7 +54,7 @@ export async function adminCreateResearchAction(
     researchers = JSON.parse(String(formData.get("researchers") || "[]"));
     keywords = JSON.parse(String(formData.get("keywords") || "[]"));
   } catch {
-    return { status: "error", message: "ข้อมูลผู้วิจัยหรือคำสำคัญไม่ถูกต้อง" };
+    return { status: "error", message: tResearch("researchersOrKeywordsInvalid") };
   }
 
   const parsed = submissionSchema.safeParse({
@@ -75,7 +77,7 @@ export async function adminCreateResearchAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -151,7 +153,7 @@ export async function adminCreateResearchAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถบันทึกงานวิจัยได้ กรุณาลองใหม่อีกครั้ง",
+        tResearch("createSaveFailed"),
         "adminCreateResearchAction insert failed"
       ),
     };
@@ -164,7 +166,7 @@ export async function adminCreateResearchAction(
       status: "error",
       message: toSafeErrorMessage(
         relationError,
-        "เกิดข้อผิดพลาดในการบันทึกข้อมูลที่เกี่ยวข้อง กรุณาลองใหม่อีกครั้ง",
+        tResearch("relationsSaveFailed"),
         "adminCreateResearchAction replaceResearchRelations failed"
       ),
     };

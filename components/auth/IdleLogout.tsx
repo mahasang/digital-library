@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 
 const IDLE_LIMIT_MS = 30 * 60 * 1000;
 const CHECK_INTERVAL_MS = 15 * 1000;

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -24,6 +25,7 @@ export async function createCategoryAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const tCategories = await getTranslations("actionMessages.categories");
   const auth = await requireMinRank(30);
   if (!auth.ok) return auth.result;
 
@@ -34,7 +36,7 @@ export async function createCategoryAction(
   const parentId = String(formData.get("parentId") || "") || null;
 
   if (!nameTh || !nameEn) {
-    return { status: "error", message: "กรุณากรอกชื่อหมวดหมู่ทั้งภาษาไทยและอังกฤษ" };
+    return { status: "error", message: tCategories("namesRequired") };
   }
 
   const supabase = await createClient();
@@ -58,7 +60,7 @@ export async function createCategoryAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถเพิ่มหมวดหมู่ได้ ชื่ออาจซ้ำกับหมวดหมู่ที่มีอยู่",
+        tCategories("createFailed"),
         "createCategoryAction insert failed"
       ),
     };
@@ -75,13 +77,15 @@ export async function createCategoryAction(
   revalidatePath("/dashboard/categories");
   revalidatePath("/", "layout");  // revalidate หน้าแรกทุก locale
   revalidatePublicCategories();
-  return { status: "success", message: "เพิ่มหมวดหมู่เรียบร้อยแล้ว" };
+  return { status: "success", message: tCategories("createSuccess") };
 }
 
 export async function updateCategoryAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tCategories = await getTranslations("actionMessages.categories");
   const auth = await requireMinRank(30);
   if (!auth.ok) return auth.result;
 
@@ -93,10 +97,10 @@ export async function updateCategoryAction(
   const parentId = String(formData.get("parentId") || "") || null;
 
   if (!id || !nameTh || !nameEn) {
-    return { status: "error", message: "กรุณากรอกข้อมูลให้ครบถ้วน" };
+    return { status: "error", message: t("fillAllFields") };
   }
   if (parentId === id) {
-    return { status: "error", message: "หมวดหมู่ไม่สามารถเป็นหมวดหมู่หลักของตัวเองได้" };
+    return { status: "error", message: tCategories("selfParent") };
   }
 
   const supabase = await createClient();
@@ -116,7 +120,7 @@ export async function updateCategoryAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถบันทึกการแก้ไขได้ กรุณาลองใหม่อีกครั้ง",
+        t("editSaveFailed"),
         "updateCategoryAction update failed"
       ),
     };
@@ -133,13 +137,14 @@ export async function updateCategoryAction(
   revalidatePath("/dashboard/categories");
   revalidatePath("/", "layout");
   revalidatePublicCategories();
-  return { status: "success", message: "บันทึกการแก้ไขเรียบร้อยแล้ว" };
+  return { status: "success", message: t("editSavedSuccess") };
 }
 
 export async function toggleCategoryActiveAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(30);
   if (!auth.ok) return auth.result;
 
@@ -157,7 +162,7 @@ export async function toggleCategoryActiveAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถเปลี่ยนสถานะได้ กรุณาลองใหม่อีกครั้ง",
+        t("toggleStatusFailed"),
         "toggleCategoryActiveAction update failed"
       ),
     };
@@ -173,13 +178,15 @@ export async function toggleCategoryActiveAction(
   revalidatePath("/dashboard/categories");
   revalidatePath("/", "layout");
   revalidatePublicCategories();
-  return { status: "success", message: nextActive ? "เปิดใช้งานแล้ว" : "ปิดใช้งานแล้ว" };
+  return { status: "success", message: nextActive ? t("enabledSuccess") : t("disabledSuccess") };
 }
 
 export async function deleteCategoryAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tCategories = await getTranslations("actionMessages.categories");
   const auth = await requireMinRank(30);
   if (!auth.ok) return auth.result;
 
@@ -192,10 +199,7 @@ export async function deleteCategoryAction(
     .eq("category_id", id);
 
   if ((count ?? 0) > 0) {
-    return {
-      status: "error",
-      message: `ลบไม่ได้เนื่องจากมีงานวิจัยผูกอยู่ ${count} รายการ กรุณาปิดใช้งานแทน`,
-    };
+    return { status: "error", message: t("linkedResearchCount", { count: count ?? 0 }) };
   }
 
   const { count: childCount } = await supabase
@@ -204,10 +208,7 @@ export async function deleteCategoryAction(
     .eq("parent_id", id);
 
   if ((childCount ?? 0) > 0) {
-    return {
-      status: "error",
-      message: "ลบไม่ได้เนื่องจากมีหมวดหมู่ย่อยอยู่ภายใต้หมวดหมู่นี้ กรุณาย้ายหรือลบหมวดหมู่ย่อยก่อน",
-    };
+    return { status: "error", message: tCategories("deleteBlockedByChildren") };
   }
 
   const { error } = await supabase.from("categories").delete().eq("id", id);
@@ -216,7 +217,7 @@ export async function deleteCategoryAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถลบหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง",
+        tCategories("deleteFailed"),
         "deleteCategoryAction delete failed"
       ),
     };
@@ -232,5 +233,5 @@ export async function deleteCategoryAction(
   revalidatePath("/dashboard/categories");
   revalidatePath("/", "layout");
   revalidatePublicCategories();
-  return { status: "success", message: "ลบหมวดหมู่เรียบร้อยแล้ว" };
+  return { status: "success", message: tCategories("deleteSuccess") };
 }

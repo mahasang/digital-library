@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -35,13 +35,15 @@ export async function adminUpdateResearchAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tResearch = await getTranslations("actionMessages.research");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const researchId = String(formData.get("researchId") || "");
   if (!researchId) {
-    return { status: "error", message: "ไม่พบรหัสงานวิจัยที่จะแก้ไข" };
+    return { status: "error", message: tResearch("editIdRequired") };
   }
 
   const supabase = await createClient();
@@ -50,12 +52,12 @@ export async function adminUpdateResearchAction(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+    return { status: "error", message: t("mustLogIn") };
   }
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์แก้ไขงานวิจัย ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: tResearch("noPermissionToEdit") };
   }
 
   const { data: existing } = await supabase
@@ -65,7 +67,7 @@ export async function adminUpdateResearchAction(
     .maybeSingle();
 
   if (!existing) {
-    return { status: "error", message: "ไม่พบงานวิจัยนี้" };
+    return { status: "error", message: tResearch("notFound") };
   }
 
   let researchers: unknown;
@@ -74,7 +76,7 @@ export async function adminUpdateResearchAction(
     researchers = JSON.parse(String(formData.get("researchers") || "[]"));
     keywords = JSON.parse(String(formData.get("keywords") || "[]"));
   } catch {
-    return { status: "error", message: "ข้อมูลผู้วิจัยหรือคำสำคัญไม่ถูกต้อง" };
+    return { status: "error", message: tResearch("researchersOrKeywordsInvalid") };
   }
 
   const parsed = submissionSchema.safeParse({
@@ -97,7 +99,7 @@ export async function adminUpdateResearchAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -190,7 +192,7 @@ export async function adminUpdateResearchAction(
       status: "error",
       message: toSafeErrorMessage(
         updateError,
-        "ไม่สามารถบันทึกการแก้ไขได้ กรุณาลองใหม่อีกครั้ง",
+        t("editSaveFailed"),
         "adminUpdateResearchAction update failed"
       ),
     };
@@ -203,7 +205,7 @@ export async function adminUpdateResearchAction(
       status: "error",
       message: toSafeErrorMessage(
         relationError,
-        "เกิดข้อผิดพลาดในการบันทึกข้อมูลที่เกี่ยวข้อง กรุณาลองใหม่อีกครั้ง",
+        tResearch("relationsSaveFailed"),
         "adminUpdateResearchAction replaceResearchRelations failed"
       ),
     };
@@ -272,22 +274,24 @@ export async function reprocessResearchTextAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tResearch = await getTranslations("actionMessages.research");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const researchId = String(formData.get("researchId") || "");
-  if (!researchId) return { status: "error", message: "ไม่พบรหัสงานวิจัย" };
+  if (!researchId) return { status: "error", message: tResearch("researchIdRequired") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { data: existing } = await supabase
@@ -297,7 +301,7 @@ export async function reprocessResearchTextAction(
     .maybeSingle();
 
   if (!existing?.pdf_file) {
-    return { status: "error", message: "ไม่พบไฟล์ PDF ของงานวิจัยนี้" };
+    return { status: "error", message: tResearch("pdfFileNotFound") };
   }
 
   await logAudit(supabase, {
@@ -318,7 +322,7 @@ export async function reprocessResearchTextAction(
   });
 
   revalidatePath(`/dashboard/research/${researchId}/edit`);
-  return { status: "success", message: "เริ่มประมวลผลข้อความใหม่เรียบร้อยแล้ว (ทำงานเป็น background job อาจใช้เวลาสักครู่)" };
+  return { status: "success", message: tResearch("reprocessTextQueued") };
 }
 
 /**
@@ -333,22 +337,24 @@ export async function triggerOcrAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tResearch = await getTranslations("actionMessages.research");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const researchId = String(formData.get("researchId") || "");
-  if (!researchId) return { status: "error", message: "ไม่พบรหัสงานวิจัย" };
+  if (!researchId) return { status: "error", message: tResearch("researchIdRequired") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { data: existing } = await supabase
@@ -358,7 +364,7 @@ export async function triggerOcrAction(
     .maybeSingle();
 
   if (!existing?.pdf_file) {
-    return { status: "error", message: "ไม่พบไฟล์ PDF ของงานวิจัยนี้" };
+    return { status: "error", message: tResearch("pdfFileNotFound") };
   }
 
   const eligibility = await checkOcrEligibility({
@@ -399,5 +405,5 @@ export async function triggerOcrAction(
   });
 
   revalidatePath(`/dashboard/research/${researchId}/edit`);
-  return { status: "success", message: "เริ่ม OCR เรียบร้อยแล้ว (ทำงานเป็น background job อาจใช้เวลาหลายนาที)" };
+  return { status: "success", message: tResearch("ocrQueued") };
 }

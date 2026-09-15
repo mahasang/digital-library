@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { profileSchema, changePasswordSchema } from "@/lib/validation/profile";
@@ -20,6 +21,8 @@ export async function updateProfileAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccount = await getTranslations("actionMessages.account");
   const parsed = profileSchema.safeParse({
     fullName: formData.get("fullName"),
     organization: formData.get("organization") || undefined,
@@ -31,7 +34,7 @@ export async function updateProfileAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้อง",
+      message: t("invalidFormData"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -42,7 +45,7 @@ export async function updateProfileAction(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+    return { status: "error", message: t("mustLogIn") };
   }
 
   const { error } = await supabase
@@ -57,11 +60,11 @@ export async function updateProfileAction(
     .eq("id", user.id);
 
   if (error) {
-    return { status: "error", message: "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tAccount("profileSaveFailed") };
   }
 
   revalidatePath("/account");
-  return { status: "success", message: "บันทึกข้อมูลโปรไฟล์เรียบร้อยแล้ว" };
+  return { status: "success", message: tAccount("profileSavedSuccess") };
 }
 
 /**
@@ -78,42 +81,41 @@ export async function updateAvatarAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccount = await getTranslations("actionMessages.account");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+    return { status: "error", message: t("mustLogIn") };
   }
 
   const file = formData.get("avatar");
   if (!(file instanceof File) || file.size === 0) {
-    return { status: "error", message: "กรุณาเลือกไฟล์รูปภาพ" };
+    return { status: "error", message: tAccount("selectImageFile") };
   }
 
   if (!AVATAR_ALLOWED_TYPES.includes(file.type)) {
     return {
       status: "error",
-      message: `ชนิดไฟล์ไม่ถูกต้อง รองรับเฉพาะ ${AVATAR_ALLOWED_TYPES.join(", ")}`,
+      message: tAccount("avatarTypeInvalid", { types: AVATAR_ALLOWED_TYPES.join(", ") }),
     };
   }
   if (!isExtensionMatchingMimeType(file.name, file.type)) {
-    return {
-      status: "error",
-      message: "นามสกุลไฟล์ไม่ตรงกับชนิดไฟล์ที่ตรวจพบ กรุณาตรวจสอบไฟล์อีกครั้ง",
-    };
+    return { status: "error", message: tAccount("avatarExtensionMismatch") };
   }
   if (file.size > mbToBytes(DEFAULT_AVATAR_MAX_SIZE_MB)) {
     return {
       status: "error",
-      message: `ไฟล์มีขนาดใหญ่เกินไป (สูงสุด ${DEFAULT_AVATAR_MAX_SIZE_MB}MB)`,
+      message: tAccount("avatarTooLarge", { max: DEFAULT_AVATAR_MAX_SIZE_MB }),
     };
   }
 
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
   if (!isExtensionAllowed(`x.${ext}`, AVATAR_ALLOWED_EXTENSIONS)) {
-    return { status: "error", message: "นามสกุลไฟล์ไม่ถูกต้อง" };
+    return { status: "error", message: tAccount("avatarExtensionInvalid") };
   }
   const path = `${user.id}/avatar.${ext}`;
 
@@ -122,7 +124,7 @@ export async function updateAvatarAction(
     .upload(path, file, { upsert: true, contentType: file.type, cacheControl: "3600" });
 
   if (uploadError) {
-    return { status: "error", message: "อัปโหลดรูปโปรไฟล์ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tAccount("avatarUploadFailed") };
   }
 
   const {
@@ -137,11 +139,11 @@ export async function updateAvatarAction(
     .eq("id", user.id);
 
   if (error) {
-    return { status: "error", message: "ไม่สามารถบันทึกรูปโปรไฟล์ได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tAccount("avatarSaveFailed") };
   }
 
   revalidatePath("/account");
-  return { status: "success", message: "อัปเดตรูปโปรไฟล์เรียบร้อยแล้ว" };
+  return { status: "success", message: tAccount("avatarUpdatedSuccess") };
 }
 
 export interface ReadingHistoryEntry {
@@ -185,8 +187,9 @@ export async function getReadingHistoryAction(): Promise<ReadingHistoryEntry[]> 
  * ตารางให้ authenticated อยู่แล้วก็ตาม (RLS ปฏิเสธทุกแถวโดยปริยายถ้าไม่มี
  * policy ตรงกับ operation) */
 export async function clearReadingHistoryAction(): Promise<{ error: string | null }> {
+  const t = await getTranslations("actionMessages.common");
   if (!isSupabaseConfigured()) {
-    return { error: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { error: t("supabaseNotConfigured") };
   }
 
   const supabase = await createClient();
@@ -194,14 +197,15 @@ export async function clearReadingHistoryAction(): Promise<{ error: string | nul
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+    return { error: t("mustLogIn") };
   }
 
   const { error } = await supabase.from("reading_history").delete().eq("user_id", user.id);
 
   if (error) {
     console.error("clearReadingHistoryAction failed:", error.message);
-    return { error: "ไม่สามารถลบประวัติการอ่านได้ กรุณาลองใหม่อีกครั้ง" };
+    const tAccount = await getTranslations("actionMessages.account");
+    return { error: tAccount("readingHistoryDeleteFailed") };
   }
 
   revalidatePath("/account");
@@ -220,15 +224,16 @@ export async function clearReadingHistoryAction(): Promise<{ error: string | nul
  * ฯลฯ) cascade ลบไปพร้อม profiles ตามปกติ — ยืนยันพฤติกรรมนี้แล้วด้วยการ
  * ทดสอบจริงกับ user ทดสอบก่อน implement ฝั่ง UI */
 export async function deleteAccountAction(): Promise<{ error: string | null }> {
+  const t = await getTranslations("actionMessages.common");
   if (!isSupabaseConfigured()) {
-    return { error: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { error: t("supabaseNotConfigured") };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "กรุณาเข้าสู่ระบบ" };
+  if (!user) return { error: t("mustLogIn") };
 
   const { error } = await supabase.rpc("delete_own_account");
   if (error) return { error: error.message };
@@ -242,9 +247,11 @@ export async function changePasswordAction(
   _prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccount = await getTranslations("actionMessages.account");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อน" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const parsed = changePasswordSchema.safeParse({
     newPassword: formData.get("newPassword"),
@@ -253,7 +260,7 @@ export async function changePasswordAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "ข้อมูลไม่ถูกต้อง",
+      message: t("invalidData"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -261,17 +268,19 @@ export async function changePasswordAction(
   const { error } = await supabase.auth.updateUser({
     password: parsed.data.newPassword,
   });
-  if (error) return { status: "error", message: "ไม่สามารถเปลี่ยนรหัสผ่านได้ กรุณาลองใหม่" };
-  return { status: "success", message: "เปลี่ยนรหัสผ่านสำเร็จ" };
+  if (error) return { status: "error", message: tAccount("passwordChangeFailed") };
+  return { status: "success", message: tAccount("passwordChangedSuccess") };
 }
 
 // imperative style — standalone button like deleteAccountAction
 export async function signOutAllDevicesAction(): Promise<{ error: string | null }> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccount = await getTranslations("actionMessages.account");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "กรุณาเข้าสู่ระบบก่อน" };
+  if (!user) return { error: t("mustLogIn") };
 
   const { error } = await supabase.auth.signOut({ scope: "global" });
-  if (error) return { error: "ไม่สามารถออกจากระบบได้ กรุณาลองใหม่" };
+  if (error) return { error: tAccount("signOutAllFailed") };
   return { error: null };
 }

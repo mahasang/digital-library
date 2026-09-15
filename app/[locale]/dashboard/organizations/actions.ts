@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -24,6 +25,7 @@ export async function createOrganizationAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const tOrganizations = await getTranslations("actionMessages.organizations");
   const auth = await requireMinRank(30);
   if (!auth.ok) return auth.result;
 
@@ -35,7 +37,7 @@ export async function createOrganizationAction(
   const websiteUrl = String(formData.get("websiteUrl") || "").trim();
 
   if (!nameTh) {
-    return { status: "error", message: "กรุณากรอกชื่อหน่วยงานภาษาไทย" };
+    return { status: "error", message: tOrganizations("nameRequired") };
   }
 
   const supabase = await createClient();
@@ -60,7 +62,7 @@ export async function createOrganizationAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถเพิ่มหน่วยงานได้ ชื่ออาจซ้ำกับหน่วยงานที่มีอยู่",
+        tOrganizations("createFailed"),
         "createOrganizationAction insert failed"
       ),
     };
@@ -77,13 +79,15 @@ export async function createOrganizationAction(
   revalidatePath("/dashboard/organizations");
   revalidatePath("/", "layout");
   revalidatePublicOrganizations();
-  return { status: "success", message: "เพิ่มหน่วยงานเรียบร้อยแล้ว" };
+  return { status: "success", message: tOrganizations("createSuccess") };
 }
 
 export async function updateOrganizationAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tOrganizations = await getTranslations("actionMessages.organizations");
   const auth = await requireMinRank(30);
   if (!auth.ok) return auth.result;
 
@@ -96,10 +100,10 @@ export async function updateOrganizationAction(
   const websiteUrl = String(formData.get("websiteUrl") || "").trim();
 
   if (!id || !nameTh) {
-    return { status: "error", message: "กรุณากรอกข้อมูลให้ครบถ้วน" };
+    return { status: "error", message: t("fillAllFields") };
   }
   if (parentId === id) {
-    return { status: "error", message: "หน่วยงานไม่สามารถเป็นหน่วยงานหลักของตัวเองได้" };
+    return { status: "error", message: tOrganizations("selfParent") };
   }
 
   const supabase = await createClient();
@@ -120,7 +124,7 @@ export async function updateOrganizationAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถบันทึกการแก้ไขได้ กรุณาลองใหม่อีกครั้ง",
+        t("editSaveFailed"),
         "updateOrganizationAction update failed"
       ),
     };
@@ -137,13 +141,14 @@ export async function updateOrganizationAction(
   revalidatePath("/dashboard/organizations");
   revalidatePath("/", "layout");
   revalidatePublicOrganizations();
-  return { status: "success", message: "บันทึกการแก้ไขเรียบร้อยแล้ว" };
+  return { status: "success", message: t("editSavedSuccess") };
 }
 
 export async function toggleOrganizationActiveAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(30);
   if (!auth.ok) return auth.result;
 
@@ -161,7 +166,7 @@ export async function toggleOrganizationActiveAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถเปลี่ยนสถานะได้ กรุณาลองใหม่อีกครั้ง",
+        t("toggleStatusFailed"),
         "toggleOrganizationActiveAction update failed"
       ),
     };
@@ -177,13 +182,15 @@ export async function toggleOrganizationActiveAction(
   revalidatePath("/dashboard/organizations");
   revalidatePath("/", "layout");
   revalidatePublicOrganizations();
-  return { status: "success", message: nextActive ? "เปิดใช้งานแล้ว" : "ปิดใช้งานแล้ว" };
+  return { status: "success", message: nextActive ? t("enabledSuccess") : t("disabledSuccess") };
 }
 
 export async function deleteOrganizationAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tOrganizations = await getTranslations("actionMessages.organizations");
   const auth = await requireMinRank(30);
   if (!auth.ok) return auth.result;
 
@@ -196,10 +203,7 @@ export async function deleteOrganizationAction(
     .eq("organization_id", id);
 
   if ((count ?? 0) > 0) {
-    return {
-      status: "error",
-      message: `ลบไม่ได้เนื่องจากมีงานวิจัยผูกอยู่ ${count} รายการ กรุณาปิดใช้งานแทน`,
-    };
+    return { status: "error", message: t("linkedResearchCount", { count: count ?? 0 }) };
   }
 
   const { error } = await supabase.from("organizations").delete().eq("id", id);
@@ -208,7 +212,7 @@ export async function deleteOrganizationAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถลบหน่วยงานได้ กรุณาลองใหม่อีกครั้ง",
+        tOrganizations("deleteFailed"),
         "deleteOrganizationAction delete failed"
       ),
     };
@@ -224,7 +228,7 @@ export async function deleteOrganizationAction(
   revalidatePath("/dashboard/organizations");
   revalidatePath("/", "layout");
   revalidatePublicOrganizations();
-  return { status: "success", message: "ลบหน่วยงานเรียบร้อยแล้ว" };
+  return { status: "success", message: tOrganizations("deleteSuccess") };
 }
 
 /** รวมหน่วยงาน — เรียก merge_organizations() RPC (ตรวจสิทธิ์ rank >= 30 ซ้ำใน
@@ -233,6 +237,7 @@ export async function mergeOrganizationsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const tOrganizations = await getTranslations("actionMessages.organizations");
   const auth = await requireMinRank(30);
   if (!auth.ok) return auth.result;
 
@@ -241,7 +246,7 @@ export async function mergeOrganizationsAction(
   const reason = String(formData.get("reason") || "").trim();
   const confirmText = String(formData.get("confirmText") || "").trim();
   if (!sourceId || !targetId) {
-    return { status: "error", message: "กรุณาเลือกหน่วยงานหลักที่จะรวมเข้าด้วย" };
+    return { status: "error", message: tOrganizations("mergeSelectRequired") };
   }
 
   const supabase = await createClient();
@@ -252,7 +257,7 @@ export async function mergeOrganizationsAction(
     .eq("id", sourceId)
     .maybeSingle();
   if (!sourceOrg || confirmText !== sourceOrg.name_th.trim()) {
-    return { status: "error", message: "กรุณาพิมพ์ชื่อหน่วยงานให้ตรงกันเพื่อยืนยันการรวมข้อมูล" };
+    return { status: "error", message: tOrganizations("mergeConfirmTextMismatch") };
   }
 
   const { error } = await supabase.rpc("merge_organizations", {
@@ -266,7 +271,7 @@ export async function mergeOrganizationsAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถรวมหน่วยงานได้ กรุณาลองใหม่อีกครั้ง",
+        tOrganizations("mergeFailed"),
         "mergeOrganizationsAction failed"
       ),
     };
@@ -275,5 +280,5 @@ export async function mergeOrganizationsAction(
   revalidatePath("/dashboard/organizations");
   revalidatePath("/", "layout");
   revalidatePublicOrganizations();
-  return { status: "success", message: "รวมข้อมูลหน่วยงานเรียบร้อยแล้ว" };
+  return { status: "success", message: tOrganizations("mergeSuccess") };
 }

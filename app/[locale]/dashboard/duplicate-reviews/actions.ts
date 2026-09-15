@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
@@ -14,19 +15,21 @@ async function updateReviewStatus(
   status: "confirmed_duplicate" | "not_duplicate",
   note: string | null
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tDuplicateReviews = await getTranslations("actionMessages.duplicateReviews");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { error } = await supabase
@@ -37,7 +40,7 @@ async function updateReviewStatus(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถบันทึกผลการตรวจสอบได้ กรุณาลองใหม่อีกครั้ง", "updateReviewStatus failed"),
+      message: toSafeErrorMessage(error, tDuplicateReviews("reviewSaveFailed"), "updateReviewStatus failed"),
     };
   }
 
@@ -51,7 +54,7 @@ async function updateReviewStatus(
 
   revalidatePath("/dashboard/duplicate-reviews");
   revalidatePath(`/dashboard/duplicate-reviews/${reviewId}`);
-  return { status: "success", message: "บันทึกผลการตรวจสอบเรียบร้อยแล้ว" };
+  return { status: "success", message: tDuplicateReviews("reviewSaveSuccess") };
 }
 
 export async function confirmDuplicateAction(
@@ -60,7 +63,10 @@ export async function confirmDuplicateAction(
 ): Promise<ActionResult> {
   const reviewId = String(formData.get("reviewId") || "");
   const note = String(formData.get("note") || "").trim() || null;
-  if (!reviewId) return { status: "error", message: "ไม่พบรายการนี้" };
+  if (!reviewId) {
+    const tDuplicateReviews = await getTranslations("actionMessages.duplicateReviews");
+    return { status: "error", message: tDuplicateReviews("itemNotFound") };
+  }
   return updateReviewStatus(reviewId, "confirmed_duplicate", note);
 }
 
@@ -70,7 +76,10 @@ export async function dismissDuplicateAction(
 ): Promise<ActionResult> {
   const reviewId = String(formData.get("reviewId") || "");
   const note = String(formData.get("note") || "").trim() || null;
-  if (!reviewId) return { status: "error", message: "ไม่พบรายการนี้" };
+  if (!reviewId) {
+    const tDuplicateReviews = await getTranslations("actionMessages.duplicateReviews");
+    return { status: "error", message: tDuplicateReviews("itemNotFound") };
+  }
   return updateReviewStatus(reviewId, "not_duplicate", note);
 }
 
@@ -81,28 +90,30 @@ export async function mergeResearchItemsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tDuplicateReviews = await getTranslations("actionMessages.duplicateReviews");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const reviewId = String(formData.get("reviewId") || "");
   const sourceId = String(formData.get("sourceId") || "");
   const targetId = String(formData.get("targetId") || "");
   const reason = String(formData.get("reason") || "").trim();
   const confirmText = String(formData.get("confirmText") || "").trim();
-  if (!sourceId || !targetId) return { status: "error", message: "ข้อมูลไม่ครบถ้วน" };
+  if (!sourceId || !targetId) return { status: "error", message: tDuplicateReviews("mergeDataIncomplete") };
   if (confirmText !== "MERGE") {
-    return { status: "error", message: "กรุณาพิมพ์ MERGE ให้ถูกต้องเพื่อยืนยันการรวมงานวิจัย" };
+    return { status: "error", message: tDuplicateReviews("mergeConfirmTextMismatch") };
   }
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 40) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นผู้ดูแลระบบขึ้นไป" };
+    return { status: "error", message: tDuplicateReviews("requiresAdminRank") };
   }
 
   const { error } = await supabase.rpc("merge_research_items", {
@@ -114,7 +125,7 @@ export async function mergeResearchItemsAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(error, "ไม่สามารถรวมงานวิจัยได้ กรุณาลองใหม่อีกครั้ง", "mergeResearchItemsAction failed"),
+      message: toSafeErrorMessage(error, tDuplicateReviews("mergeFailed"), "mergeResearchItemsAction failed"),
     };
   }
 
@@ -130,5 +141,5 @@ export async function mergeResearchItemsAction(
   // การรวมงานวิจัยเปลี่ยนสถานะของรายการต้นทางเป็น "merged" (หายไปจากชุด
   // เผยแพร่แล้วถ้าเคยเผยแพร่อยู่) — อาจกระทบชุดข้อมูลสาธารณะของหน้าแรก
   revalidatePublicResearch();
-  return { status: "success", message: "รวมงานวิจัยเรียบร้อยแล้ว" };
+  return { status: "success", message: tDuplicateReviews("mergeSuccess") };
 }

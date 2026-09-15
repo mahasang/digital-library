@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -12,6 +13,8 @@ export async function updateSettingsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tSettings = await getTranslations("actionMessages.settings");
   const auth = await requireMinRank(40);
   if (!auth.ok) return auth.result;
 
@@ -25,13 +28,13 @@ export async function updateSettingsAction(
   const homepagePopularCount = Number(formData.get("homepagePopularCount")) || 8;
 
   if (!siteName) {
-    return { status: "error", message: "กรุณากรอกชื่อองค์กร" };
+    return { status: "error", message: tSettings("siteNameRequired") };
   }
   if (homepageLatestCount < 1 || homepageLatestCount > 24) {
-    return { status: "error", message: "จำนวนงานวิจัยล่าสุดต้องอยู่ระหว่าง 1-24" };
+    return { status: "error", message: tSettings("latestCountRange") };
   }
   if (homepagePopularCount < 1 || homepagePopularCount > 24) {
-    return { status: "error", message: "จำนวนงานวิจัยยอดนิยมต้องอยู่ระหว่าง 1-24" };
+    return { status: "error", message: tSettings("popularCountRange") };
   }
 
   const supabase = await createClient();
@@ -55,7 +58,7 @@ export async function updateSettingsAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองใหม่อีกครั้ง",
+        t("saveSettingsFailed"),
         "updateSettingsAction update failed"
       ),
     };
@@ -71,5 +74,5 @@ export async function updateSettingsAction(
 
   revalidatePath("/", "layout");
   revalidatePath("/dashboard/settings");
-  return { status: "success", message: "บันทึกการตั้งค่าเรียบร้อยแล้ว" };
+  return { status: "success", message: t("settingsSavedSuccess") };
 }

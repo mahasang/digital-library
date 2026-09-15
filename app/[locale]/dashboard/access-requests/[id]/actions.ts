@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
@@ -28,14 +29,16 @@ async function requireStaffAndLoadRequest(
   supabase: Awaited<ReturnType<typeof createClient>>,
   requestId: string
 ): Promise<{ userId: string; row: RequestRow } | ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccessRequests = await getTranslations("actionMessages.accessRequests");
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { data: row } = await supabase
@@ -44,7 +47,7 @@ async function requireStaffAndLoadRequest(
     .eq("id", requestId)
     .maybeSingle();
 
-  if (!row) return { status: "error", message: "ไม่พบคำขอนี้" };
+  if (!row) return { status: "error", message: tAccessRequests("notFound") };
 
   return { userId: user.id, row: row as unknown as RequestRow };
 }
@@ -56,11 +59,13 @@ export async function approveAccessRequestAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccessRequests = await getTranslations("actionMessages.accessRequests");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const requestId = String(formData.get("requestId") || "");
-  if (!requestId) return { status: "error", message: "ไม่พบคำขอนี้" };
+  if (!requestId) return { status: "error", message: tAccessRequests("notFound") };
 
   const supabase = await createClient();
   const guard = await requireStaffAndLoadRequest(supabase, requestId);
@@ -68,7 +73,7 @@ export async function approveAccessRequestAction(
   const { userId, row } = guard;
 
   if (!OPEN_STATUSES.includes(row.status)) {
-    return { status: "error", message: "คำขอนี้ถูกตรวจสอบไปแล้ว" };
+    return { status: "error", message: tAccessRequests("alreadyReviewed") };
   }
 
   const reviewerNote = String(formData.get("reviewerNote") || "").trim() || null;
@@ -99,7 +104,7 @@ export async function approveAccessRequestAction(
       status: "error",
       message: toSafeErrorMessage(
         grantError,
-        "ไม่สามารถออกสิทธิ์ได้ กรุณาลองใหม่อีกครั้ง",
+        tAccessRequests("grantFailed"),
         "approveAccessRequestAction grant insert failed"
       ),
     };
@@ -123,7 +128,7 @@ export async function approveAccessRequestAction(
       status: "error",
       message: toSafeErrorMessage(
         updateError,
-        "ไม่สามารถบันทึกผลการอนุมัติได้ กรุณาลองใหม่อีกครั้ง",
+        tAccessRequests("approveSaveFailed"),
         "approveAccessRequestAction update failed"
       ),
     };
@@ -152,7 +157,7 @@ export async function approveAccessRequestAction(
 
   revalidatePath(`/dashboard/access-requests/${requestId}`);
   revalidatePath("/dashboard/access-requests");
-  return { status: "success", message: "อนุมัติคำขอเรียบร้อยแล้ว" };
+  return { status: "success", message: tAccessRequests("approveSuccess") };
 }
 
 /** ปฏิเสธคำขอ — บังคับระบุเหตุผลเสมอ ไม่สร้าง grant ใดๆ */
@@ -160,13 +165,15 @@ export async function rejectAccessRequestAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccessRequests = await getTranslations("actionMessages.accessRequests");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const requestId = String(formData.get("requestId") || "");
   const reviewerNote = String(formData.get("reviewerNote") || "").trim();
-  if (!requestId) return { status: "error", message: "ไม่พบคำขอนี้" };
-  if (!reviewerNote) return { status: "error", message: "กรุณาระบุเหตุผลที่ปฏิเสธคำขอนี้" };
+  if (!requestId) return { status: "error", message: tAccessRequests("notFound") };
+  if (!reviewerNote) return { status: "error", message: tAccessRequests("rejectReasonRequired") };
 
   const supabase = await createClient();
   const guard = await requireStaffAndLoadRequest(supabase, requestId);
@@ -174,7 +181,7 @@ export async function rejectAccessRequestAction(
   const { userId, row } = guard;
 
   if (!OPEN_STATUSES.includes(row.status)) {
-    return { status: "error", message: "คำขอนี้ถูกตรวจสอบไปแล้ว" };
+    return { status: "error", message: tAccessRequests("alreadyReviewed") };
   }
 
   const { error } = await supabase
@@ -192,7 +199,7 @@ export async function rejectAccessRequestAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถบันทึกผลการปฏิเสธได้ กรุณาลองใหม่อีกครั้ง",
+        tAccessRequests("rejectSaveFailed"),
         "rejectAccessRequestAction failed"
       ),
     };
@@ -216,7 +223,7 @@ export async function rejectAccessRequestAction(
 
   revalidatePath(`/dashboard/access-requests/${requestId}`);
   revalidatePath("/dashboard/access-requests");
-  return { status: "success", message: "ปฏิเสธคำขอเรียบร้อยแล้ว" };
+  return { status: "success", message: tAccessRequests("rejectSuccess") };
 }
 
 /** ขอข้อมูลเพิ่มเติมจากผู้ขอ — บังคับระบุรายละเอียดที่ต้องการ */
@@ -224,13 +231,15 @@ export async function requestMoreInfoAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccessRequests = await getTranslations("actionMessages.accessRequests");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const requestId = String(formData.get("requestId") || "");
   const reviewerNote = String(formData.get("reviewerNote") || "").trim();
-  if (!requestId) return { status: "error", message: "ไม่พบคำขอนี้" };
-  if (!reviewerNote) return { status: "error", message: "กรุณาระบุรายละเอียดข้อมูลที่ต้องการเพิ่มเติม" };
+  if (!requestId) return { status: "error", message: tAccessRequests("notFound") };
+  if (!reviewerNote) return { status: "error", message: tAccessRequests("moreInfoDetailRequired") };
 
   const supabase = await createClient();
   const guard = await requireStaffAndLoadRequest(supabase, requestId);
@@ -238,7 +247,7 @@ export async function requestMoreInfoAction(
   const { userId, row } = guard;
 
   if (!OPEN_STATUSES.includes(row.status)) {
-    return { status: "error", message: "คำขอนี้ถูกตรวจสอบไปแล้ว" };
+    return { status: "error", message: tAccessRequests("alreadyReviewed") };
   }
 
   const { error } = await supabase
@@ -256,7 +265,7 @@ export async function requestMoreInfoAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถบันทึกได้ กรุณาลองใหม่อีกครั้ง",
+        tAccessRequests("moreInfoSaveFailed"),
         "requestMoreInfoAction failed"
       ),
     };
@@ -280,7 +289,7 @@ export async function requestMoreInfoAction(
 
   revalidatePath(`/dashboard/access-requests/${requestId}`);
   revalidatePath("/dashboard/access-requests");
-  return { status: "success", message: "ส่งคำขอข้อมูลเพิ่มเติมเรียบร้อยแล้ว" };
+  return { status: "success", message: tAccessRequests("moreInfoSuccess") };
 }
 
 /** เพิกถอนสิทธิ์ที่เคยอนุมัติ — บังคับระบุเหตุผลเสมอ ไม่แก้ไขสถานะของคำขอต้นทาง
@@ -290,24 +299,26 @@ export async function revokeAccessGrantAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccessRequests = await getTranslations("actionMessages.accessRequests");
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const grantId = String(formData.get("grantId") || "");
   const revokeReason = String(formData.get("revokeReason") || "").trim();
   const requestId = String(formData.get("requestId") || "");
-  if (!grantId) return { status: "error", message: "ไม่พบสิทธิ์นี้" };
-  if (!revokeReason) return { status: "error", message: "กรุณาระบุเหตุผลในการเพิกถอนสิทธิ์" };
+  if (!grantId) return { status: "error", message: tAccessRequests("grantNotFound") };
+  if (!revokeReason) return { status: "error", message: tAccessRequests("revokeReasonRequired") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) {
-    return { status: "error", message: "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป" };
+    return { status: "error", message: t("requiresLibrarianRank") };
   }
 
   const { data: updated, error } = await supabase
@@ -323,13 +334,13 @@ export async function revokeAccessGrantAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถเพิกถอนสิทธิ์ได้ กรุณาลองใหม่อีกครั้ง",
+        tAccessRequests("revokeFailed"),
         "revokeAccessGrantAction failed"
       ),
     };
   }
   if (!updated) {
-    return { status: "error", message: "ไม่พบสิทธิ์นี้ หรือถูกเพิกถอนไปแล้ว" };
+    return { status: "error", message: tAccessRequests("grantNotFoundOrRevoked") };
   }
 
   await logAudit(supabase, {
@@ -342,5 +353,5 @@ export async function revokeAccessGrantAction(
 
   if (requestId) revalidatePath(`/dashboard/access-requests/${requestId}`);
   revalidatePath("/dashboard/access-requests");
-  return { status: "success", message: "เพิกถอนสิทธิ์เรียบร้อยแล้ว" };
+  return { status: "success", message: tAccessRequests("revokeSuccess") };
 }

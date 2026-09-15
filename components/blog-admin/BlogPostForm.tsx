@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Upload, X, Globe } from "lucide-react";
 import { upsertBlogPostAction, uploadCoverImageAction, type BlogFormState } from "@/app/[locale]/blog-admin/actions";
 import type { BlogPost } from "@/lib/data/blog.server";
@@ -49,7 +49,7 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
         placeholder="ພິມ tag ແລ້ວກົດ Enter..."
         className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:outline-none"
       />
-      <p className="text-xs text-gray-400">กด Enter หรือ , เพื่อเพิ่ม tag</p>
+      <p className="text-xs text-gray-400">ກົດ Enter ຫຼື , ເພື່ອເພີ່ມ tag</p>
     </div>
   );
 }
@@ -86,7 +86,7 @@ export default function BlogPostForm({
   });
 
   useEffect(() => {
-    if (state.status === "success") router.push("/lo/blog-admin");
+    if (state.status === "success") router.push("/blog-admin");
   }, [state, router]);
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {

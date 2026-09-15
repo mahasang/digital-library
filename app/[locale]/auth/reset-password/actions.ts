@@ -1,6 +1,6 @@
 "use server";
 
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -12,12 +12,9 @@ export async function resetPasswordAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   if (!isSupabaseConfigured()) {
-    return {
-      status: "error",
-      message:
-        "ระบบยังไม่ได้เชื่อมต่อ Supabase กรุณาตั้งค่า NEXT_PUBLIC_SUPABASE_URL และ NEXT_PUBLIC_SUPABASE_ANON_KEY ในไฟล์ .env.local ก่อนใช้งานฟังก์ชันนี้",
-    };
+    return { status: "error", message: t("supabaseNotConfiguredDetailed") };
   }
 
   const parsed = resetPasswordSchema.safeParse({
@@ -28,7 +25,7 @@ export async function resetPasswordAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -40,11 +37,8 @@ export async function resetPasswordAction(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return {
-      status: "error",
-      message:
-        "ลิงก์สำหรับตั้งรหัสผ่านใหม่หมดอายุหรือไม่ถูกต้อง กรุณาขอลิงก์ใหม่อีกครั้ง",
-    };
+    const tAuth = await getTranslations("actionMessages.auth");
+    return { status: "error", message: tAuth("resetPasswordInvalidLink") };
   }
 
   const { error } = await supabase.auth.updateUser({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { AlertTriangle, Bell, CheckCircle2, Info } from "lucide-react";
 import { markNotificationReadAction } from "@/components/layout/notification-actions";
 import type { AppNotification } from "@/types/research";
