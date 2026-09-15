@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import { BookOpen } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import Container from "@/components/ui/Container";
 
-export default function AuthFormShell({
+export default async function AuthFormShell({
   title,
   description,
   children,
@@ -14,6 +15,7 @@ export default function AuthFormShell({
   children: ReactNode;
   footer?: ReactNode;
 }) {
+  const t = await getTranslations("authFormShell");
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-gray-50 py-12">
 
@@ -31,7 +33,7 @@ export default function AuthFormShell({
       <Container className="relative flex max-w-md flex-col items-center">
 
         {/* ── Logo icon ── */}
-        <Link href="/" aria-label="กລับສູ່ໜ້າທຳອິດ" className="mb-6 flex flex-col items-center gap-3">
+        <Link href="/" aria-label={t("backToHome")} className="mb-6 flex flex-col items-center gap-3">
           <span className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 ring-1 ring-brand-100 shadow-sm">
             <BookOpen className="h-7 w-7 text-brand-600" />
           </span>

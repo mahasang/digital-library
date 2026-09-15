@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { BookOpenText, Clock } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import AccessBadge from "@/components/research/AccessBadge";
 import CategoryCover from "@/components/research/CategoryCover";
 import { hasRealCoverImage } from "@/lib/categoryCover";
@@ -25,6 +28,8 @@ export default function AccountResearchRow({
   item: ResearchItem;
   readAt?: string;
 }) {
+  const t = useTranslations("accountResearchRow");
+  const locale = useLocale();
   const category = getCategoryById(item.categoryId);
   const showRealCover = hasRealCoverImage(item.coverImage);
   const readable = canReadOnline(item.accessLevel);
@@ -36,7 +41,7 @@ export default function AccountResearchRow({
         {showRealCover ? (
           <Image
             src={item.coverImage}
-            alt={`ปกงานวิจัย: ${item.titleTh}`}
+            alt={t("coverAlt", { title: item.titleTh })}
             fill
             sizes="80px"
             className="object-cover"
@@ -61,8 +66,8 @@ export default function AccountResearchRow({
           {readAt && (
             <span className="flex items-center gap-1 text-xs text-gray-500 sm:hidden">
               <Clock className="h-3.5 w-3.5" />
-              อ่านเมื่อ{" "}
-              {new Date(readAt).toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" })}
+              {t("readAt")}{" "}
+              {new Date(readAt).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })}
             </span>
           )}
         </div>
@@ -72,17 +77,17 @@ export default function AccountResearchRow({
         <div className="hidden shrink-0 flex-col items-end justify-between gap-2 sm:flex">
           <span className="flex items-center gap-1 whitespace-nowrap text-xs text-gray-500">
             <Clock className="h-3.5 w-3.5" />
-            อ่านเมื่อ{" "}
-            {new Date(readAt).toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" })}
+            {t("readAt")}{" "}
+            {new Date(readAt).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" })}
           </span>
           {readable && (
             <Link
               href={`/research/${item.id}/read`}
-              aria-label={`อ่านต่อ: ${item.titleTh}`}
+              aria-label={t("continueReadingAria", { title: item.titleTh })}
               className="relative z-10 inline-flex items-center gap-1.5 whitespace-nowrap rounded-md bg-accent-soft px-2.5 py-1.5 text-xs font-medium text-accent-ink transition-colors hover:bg-accent-soft-hover"
             >
               <BookOpenText className="h-3.5 w-3.5" />
-              อ่านต่อ
+              {t("continueReading")}
             </Link>
           )}
         </div>

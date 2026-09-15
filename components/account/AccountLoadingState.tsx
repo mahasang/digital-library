@@ -1,13 +1,15 @@
 import { Loader2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 /** สถานะกำลังโหลดที่ใช้ร่วมกันในหน้ากลุ่มบัญชี — แสดงระหว่างที่ Server
  * Component ของแต่ละหน้ากำลังดึงข้อมูล (Next.js loading.tsx convention) */
-export default function AccountLoadingState() {
+export default async function AccountLoadingState() {
+  const t = await getTranslations("accountState");
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Loader2 className="h-4 w-4 animate-spin" />
-        กำลังโหลดข้อมูล...
+        {t("loadingText")}
       </div>
       <div className="flex flex-col gap-3" aria-hidden="true">
         {[0, 1, 2].map((i) => (

@@ -1843,5 +1843,28 @@
       "noPermission": "คุณไม่มีสิทธิ์ส่งงานวิจัย ต้องเป็นบุคลากรขององค์กรขึ้นไป",
       "rateLimited": "มีการส่งงานวิจัยบ่อยเกินไป กรุณาลองใหม่อีกครั้งภายหลัง"
     }
+  },
+  "accountState": {
+    "errorTitle": "ไม่สามารถโหลดข้อมูลได้ในขณะนี้",
+    "errorDescription": "เกิดข้อผิดพลาดบางอย่างระหว่างโหลดข้อมูล กรุณาลองใหม่อีกครั้ง",
+    "errorRetry": "ลองใหม่อีกครั้ง",
+    "loadingText": "กำลังโหลดข้อมูล..."
+  },
+  "supabaseNotice": {
+    "title": "ยังไม่ได้เชื่อมต่อ Supabase",
+    "description": "กรุณาตั้งค่า <url>NEXT_PUBLIC_SUPABASE_URL</url> และ <key>NEXT_PUBLIC_SUPABASE_ANON_KEY</key> ในไฟล์ <env>.env.local</env> ก่อนใช้งานฟังก์ชันนี้ (ดูวิธีตั้งค่าได้ใน README.md)"
+  },
+  "accountResearchRow": {
+    "coverAlt": "ปกงานวิจัย: {title}",
+    "readAt": "อ่านเมื่อ",
+    "continueReading": "อ่านต่อ",
+    "continueReadingAria": "อ่านต่อ: {title}"
+  },
+  "authFormShell": {
+    "backToHome": "ກັບສູ່ໜ້າທຳອິດ"
+  },
+  "notifications": {
+    "markAllRead": "ทำเครื่องหมายว่าอ่านทั้งหมด",
+    "unreadBadge": "ยังไม่อ่าน"
   }
 }

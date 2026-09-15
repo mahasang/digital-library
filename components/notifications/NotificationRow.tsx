@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { AlertTriangle, Bell, CheckCircle2, Info } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { markNotificationReadAction } from "@/components/layout/notification-actions";
 import type { AppNotification } from "@/types/research";
 
@@ -14,6 +15,8 @@ const TYPE_CONFIG: Record<AppNotification["type"], { icon: typeof Info; classNam
 
 export default function NotificationRow({ notification }: { notification: AppNotification }) {
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("notifications");
+  const locale = useLocale();
   const isUnread = !notification.readAt;
   const { icon: TypeIcon, className: typeClassName } = TYPE_CONFIG[notification.type] ?? {
     icon: Bell,
@@ -39,13 +42,13 @@ export default function NotificationRow({ notification }: { notification: AppNot
           {isUnread && (
             <span className="mt-1 flex shrink-0 items-center gap-1 text-[11px] font-medium text-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-600" aria-hidden="true" />
-              <span className="sr-only sm:not-sr-only">ยังไม่อ่าน</span>
+              <span className="sr-only sm:not-sr-only">{t("unreadBadge")}</span>
             </span>
           )}
         </div>
         <p className="mt-0.5 text-sm text-gray-600">{notification.message}</p>
         <p className="mt-1.5 text-xs text-gray-600">
-          {new Date(notification.createdAt).toLocaleString("th-TH")}
+          {new Date(notification.createdAt).toLocaleString(locale)}
         </p>
       </div>
     </div>

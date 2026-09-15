@@ -1778,5 +1778,28 @@
       "noPermission": "You do not have permission to submit research. You must be organization staff or higher.",
       "rateLimited": "Too many submissions in a short time. Please try again later."
     }
+  },
+  "accountState": {
+    "errorTitle": "Could not load data right now",
+    "errorDescription": "Something went wrong while loading data. Please try again.",
+    "errorRetry": "Try again",
+    "loadingText": "Loading..."
+  },
+  "supabaseNotice": {
+    "title": "Supabase is not connected yet",
+    "description": "Please set <url>NEXT_PUBLIC_SUPABASE_URL</url> and <key>NEXT_PUBLIC_SUPABASE_ANON_KEY</key> in <env>.env.local</env> before using this feature (see README.md for setup instructions)"
+  },
+  "accountResearchRow": {
+    "coverAlt": "Cover: {title}",
+    "readAt": "Read at",
+    "continueReading": "Continue reading",
+    "continueReadingAria": "Continue reading: {title}"
+  },
+  "authFormShell": {
+    "backToHome": "Back to homepage"
+  },
+  "notifications": {
+    "markAllRead": "Mark all as read",
+    "unreadBadge": "Unread"
   }
 }
