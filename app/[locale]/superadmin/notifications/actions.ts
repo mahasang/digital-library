@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -13,6 +14,8 @@ export async function updateNotificationSettingsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tNotifications = await getTranslations("actionMessages.superadmin.notifications");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -31,7 +34,7 @@ export async function updateNotificationSettingsAction(
 
   if (error) {
     console.error("updateNotificationSettingsAction failed:", error.message);
-    return { status: "error", message: "ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("saveSettingsFailed") };
   }
 
   await logAudit(supabase, {
@@ -43,7 +46,7 @@ export async function updateNotificationSettingsAction(
   });
 
   revalidatePath("/superadmin/notifications");
-  return { status: "success", message: "บันทึกการตั้งค่าการแจ้งเตือนเรียบร้อยแล้ว" };
+  return { status: "success", message: tNotifications("settingsSavedSuccess") };
 }
 
 /**
@@ -56,12 +59,14 @@ export async function updateAccessExpirationWarningSettingsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tNotifications = await getTranslations("actionMessages.superadmin.notifications");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const days = Number(formData.get("accessExpirationWarningDays"));
   if (!Number.isInteger(days) || days < 1 || days > 30) {
-    return { status: "error", message: "จำนวนวันต้องเป็นเลขจำนวนเต็มระหว่าง 1-30" };
+    return { status: "error", message: tNotifications("daysRange") };
   }
   const inAppEnabled = formData.get("accessExpirationWarningInAppEnabled") === "true";
   const emailEnabled = formData.get("accessExpirationWarningEmailEnabled") === "true";
@@ -79,7 +84,7 @@ export async function updateAccessExpirationWarningSettingsAction(
 
   if (error) {
     console.error("updateAccessExpirationWarningSettingsAction failed:", error.message);
-    return { status: "error", message: "ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("saveSettingsFailed") };
   }
 
   await logAudit(supabase, {
@@ -95,7 +100,7 @@ export async function updateAccessExpirationWarningSettingsAction(
   });
 
   revalidatePath("/superadmin/notifications");
-  return { status: "success", message: "บันทึกการตั้งค่าแจ้งเตือนก่อนหมดอายุเรียบร้อยแล้ว" };
+  return { status: "success", message: tNotifications("expirationSettingsSavedSuccess") };
 }
 
 /**
@@ -108,6 +113,7 @@ export async function processAccessExpirationNowAction(
   _prevState: ActionResult,
   _formData: FormData
 ): Promise<ActionResult> {
+  const tNotifications = await getTranslations("actionMessages.superadmin.notifications");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -128,8 +134,8 @@ export async function processAccessExpirationNowAction(
     status: "success",
     message:
       summary.claimed === 0
-        ? "ไม่มีงานหมดอายุสิทธิ์ค้างอยู่ในคิว (ประมวลผลล่าสุดไปแล้ว)"
-        : `ประมวลผลสิทธิ์ที่หมดอายุแล้ว ${okCount}/${summary.claimed} งานสำเร็จ`,
+        ? tNotifications("noExpirationJobsPending")
+        : tNotifications("expirationProcessed", { ok: okCount, claimed: summary.claimed }),
   };
 }
 
@@ -138,15 +144,16 @@ export async function retryFailedNotificationJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const jobId = String(formData.get("jobId") || "");
-  if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
+  if (!jobId) return { status: "error", message: t("jobNotFound") };
 
   const result = await retryFailedJob(jobId);
   if (!result.ok) {
-    return { status: "error", message: result.error ?? "ลองใหม่ไม่สำเร็จ" };
+    return { status: "error", message: result.error ?? t("retryFailed") };
   }
 
   const supabase = await createClient();
@@ -158,5 +165,5 @@ export async function retryFailedNotificationJobAction(
   });
 
   revalidatePath("/superadmin/notifications");
-  return { status: "success", message: "ส่งกลับเข้าคิวเรียบร้อยแล้ว" };
+  return { status: "success", message: t("requeuedSuccess") };
 }

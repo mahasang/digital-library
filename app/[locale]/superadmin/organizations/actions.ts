@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -12,11 +13,13 @@ import type { ActionResult } from "@/lib/actions/types";
 export async function reorderOrganizationsAction(
   orderedIds: string[]
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tOrganizations = await getTranslations("actionMessages.superadmin.organizations");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   if (orderedIds.length === 0) {
-    return { status: "error", message: "ไม่มีรายการให้จัดลำดับ" };
+    return { status: "error", message: t("noItemsToReorder") };
   }
 
   const supabase = await createClient();
@@ -29,7 +32,7 @@ export async function reorderOrganizationsAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถจัดลำดับหน่วยงานได้ กรุณาลองใหม่อีกครั้ง",
+        tOrganizations("reorderFailed"),
         "reorderOrganizationsAction failed"
       ),
     };
@@ -47,5 +50,5 @@ export async function reorderOrganizationsAction(
   revalidatePath("/submit-research");
   revalidatePath("/", "layout");
   revalidatePublicOrganizations();
-  return { status: "success", message: "จัดลำดับหน่วยงานเรียบร้อยแล้ว" };
+  return { status: "success", message: tOrganizations("reorderSuccess") };
 }

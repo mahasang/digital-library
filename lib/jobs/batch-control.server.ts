@@ -1,4 +1,5 @@
 import "server-only";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -32,11 +33,12 @@ async function setStatus(
   });
 
   if (error) {
+    const t = await getTranslations("actionMessages.common");
     return {
       ok: false,
       result: {
         status: "error",
-        message: toSafeErrorMessage(error, "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง", "set_job_batch_status"),
+        message: toSafeErrorMessage(error, t("batchActionFailed"), "set_job_batch_status"),
       },
     };
   }
@@ -65,11 +67,12 @@ export async function retryFailedInBatch(batchId: string): Promise<{ ok: true } 
   const { error } = await supabase.rpc("retry_failed_jobs_in_batch", { p_batch_id: batchId });
 
   if (error) {
+    const t = await getTranslations("actionMessages.common");
     return {
       ok: false,
       result: {
         status: "error",
-        message: toSafeErrorMessage(error, "ไม่สามารถลองใหม่ได้ กรุณาลองใหม่อีกครั้ง", "retry_failed_jobs_in_batch"),
+        message: toSafeErrorMessage(error, t("batchRetryFailed"), "retry_failed_jobs_in_batch"),
       },
     };
   }

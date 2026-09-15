@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { enqueueBackgroundJob, retryFailedJob } from "@/lib/jobs/queue.server";
@@ -33,13 +34,15 @@ export async function bulkEnqueueFileRescanAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tFileSecurity = await getTranslations("actionMessages.superadmin.fileSecurity");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
   const supabase = await createClient();
 
   const selectedIds = formData.getAll("selectedIds").map(String).filter(Boolean);
   if (selectedIds.length === 0) {
-    return { status: "error", message: "กรุณาเลือกอย่างน้อยหนึ่งรายการ" };
+    return { status: "error", message: t("selectAtLeastOne") };
   }
 
   const batchSize = Math.min(200, Math.max(1, Number(formData.get("batchSize")) || 50));
@@ -51,7 +54,7 @@ export async function bulkEnqueueFileRescanAction(
     .in("id", targetIds);
 
   if (error || !items) {
-    return { status: "error", message: "ไม่สามารถดึงข้อมูลงานวิจัยที่เลือกได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("fetchSelectedResearchFailed") };
   }
 
   const batchId = crypto.randomUUID();
@@ -88,9 +91,10 @@ export async function bulkEnqueueFileRescanAction(
   return {
     status: "success",
     message:
-      selectedIds.length > targetIds.length
-        ? `สร้างงานสแกน ${queued} รายการ (ข้าม ${skipped} รายการที่มีงานค้างอยู่แล้ว) — เลือกไว้ ${selectedIds.length} รายการ เกินขนาด batch จึงทำเฉพาะ ${targetIds.length} รายการแรก กดอีกครั้งเพื่อทำส่วนที่เหลือ`
-        : `สร้างงานสแกน ${queued} รายการ (ข้าม ${skipped} รายการที่มีงานค้างอยู่แล้ว)`,
+      tFileSecurity("bulkCreated", { queued, skipped }) +
+      (selectedIds.length > targetIds.length
+        ? t("bulkOverLimitSuffix", { selected: selectedIds.length, target: targetIds.length })
+        : ""),
   };
 }
 
@@ -102,6 +106,8 @@ export async function bulkEnqueueAllMatchingFilterAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tFileSecurity = await getTranslations("actionMessages.superadmin.fileSecurity");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
   const supabase = await createClient();
@@ -121,16 +127,16 @@ export async function bulkEnqueueAllMatchingFilterAction(
 
   const parsed = fileSecurityBulkFilterSchema.safeParse(raw);
   if (!parsed.success) {
-    return { status: "error", message: "ตัวกรองไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("invalidFilter") };
   }
   const filter = parsed.data;
 
   const totalItems = await getFileSecurityCandidatesCount(filter);
   if (totalItems === null) {
-    return { status: "error", message: "ไม่สามารถนับจำนวนรายการได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("countCandidatesFailed") };
   }
   if (totalItems === 0) {
-    return { status: "error", message: "ไม่พบรายการที่ตรงตัวกรองนี้" };
+    return { status: "error", message: t("noMatchingItems") };
   }
 
   const result = await createBulkJobBatch({
@@ -145,7 +151,7 @@ export async function bulkEnqueueAllMatchingFilterAction(
     return { status: "error", message: result.error };
   }
   if (!result.isNew) {
-    return { status: "success", message: "งานนี้กำลังทำงานอยู่แล้วสำหรับตัวกรองเดียวกัน — ดูความคืบหน้าด้านล่าง" };
+    return { status: "success", message: t("alreadyRunningSameFilter") };
   }
 
   await logAudit(supabase, {
@@ -158,7 +164,7 @@ export async function bulkEnqueueAllMatchingFilterAction(
   revalidatePath("/superadmin/file-security");
   return {
     status: "success",
-    message: `เริ่มสร้างงานสแกนสำหรับ ${totalItems} รายการแล้ว (ทยอยสร้างเป็นชุด ดูความคืบหน้าด้านล่าง)`,
+    message: tFileSecurity("bulkAllCreated", { total: totalItems }),
   };
 }
 
@@ -166,16 +172,17 @@ export async function retryFailedRescanJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
   const supabase = await createClient();
 
   const jobId = String(formData.get("jobId") || "");
-  if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
+  if (!jobId) return { status: "error", message: t("jobNotFound") };
 
   const result = await retryFailedJob(jobId);
   if (!result.ok) {
-    return { status: "error", message: result.error ?? "ลองใหม่ไม่สำเร็จ" };
+    return { status: "error", message: result.error ?? t("retryFailed") };
   }
 
   await logAudit(supabase, {
@@ -186,21 +193,22 @@ export async function retryFailedRescanJobAction(
   });
 
   revalidatePath("/superadmin/file-security");
-  return { status: "success", message: "ส่งกลับเข้าคิวเรียบร้อยแล้ว" };
+  return { status: "success", message: t("requeuedSuccess") };
 }
 
 async function batchControlAction(
   formData: FormData,
   fn: (batchId: string) => ReturnType<typeof pauseJobBatch>
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
   const batchId = String(formData.get("batchId") || "");
-  if (!batchId) return { status: "error", message: "ไม่พบรหัสชุดงาน" };
+  if (!batchId) return { status: "error", message: t("batchIdNotFound") };
   const result = await fn(batchId);
   if (!result.ok) return result.result;
   revalidatePath("/superadmin/file-security");
-  return { status: "success", message: "ดำเนินการเรียบร้อยแล้ว" };
+  return { status: "success", message: t("actionSuccess") };
 }
 
 export async function pauseBatchAction(_prevState: ActionResult, formData: FormData): Promise<ActionResult> {
@@ -213,12 +221,13 @@ export async function cancelBatchAction(_prevState: ActionResult, formData: Form
   return batchControlAction(formData, cancelJobBatch);
 }
 export async function retryFailedInBatchAction(_prevState: ActionResult, formData: FormData): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
   const batchId = String(formData.get("batchId") || "");
-  if (!batchId) return { status: "error", message: "ไม่พบรหัสชุดงาน" };
+  if (!batchId) return { status: "error", message: t("batchIdNotFound") };
   const result = await retryFailedInBatch(batchId);
   if (!result.ok) return result.result;
   revalidatePath("/superadmin/file-security");
-  return { status: "success", message: "ส่งรายการที่ล้มเหลวกลับเข้าคิวแล้ว" };
+  return { status: "success", message: t("requeuedFailedSuccess") };
 }

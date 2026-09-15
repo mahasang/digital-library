@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -24,15 +25,16 @@ export async function retryDeadLetterJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const jobId = String(formData.get("jobId") || "");
-  if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
+  if (!jobId) return { status: "error", message: t("jobNotFound") };
 
   const result = await retryFailedJob(jobId);
   if (!result.ok) {
-    return { status: "error", message: result.error ?? "ลองใหม่ไม่สำเร็จ" };
+    return { status: "error", message: result.error ?? t("retryFailed") };
   }
 
   const supabase = await createClient();
@@ -44,23 +46,25 @@ export async function retryDeadLetterJobAction(
   });
 
   revalidatePath("/superadmin/jobs");
-  return { status: "success", message: "ส่งกลับเข้าคิวเรียบร้อยแล้ว" };
+  return { status: "success", message: t("requeuedSuccess") };
 }
 
 export async function cancelDeadLetterJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tJobs = await getTranslations("actionMessages.superadmin.jobs");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const jobId = String(formData.get("jobId") || "");
-  if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
+  if (!jobId) return { status: "error", message: t("jobNotFound") };
   const note = String(formData.get("note") || "").trim() || undefined;
 
   const result = await cancelDeadLetterJob(jobId, auth.userId, note);
   if (!result.ok) {
-    return { status: "error", message: result.error ?? "ยกเลิกไม่สำเร็จ" };
+    return { status: "error", message: result.error ?? tJobs("cancelFailed") };
   }
 
   const supabase = await createClient();
@@ -73,26 +77,28 @@ export async function cancelDeadLetterJobAction(
   });
 
   revalidatePath("/superadmin/jobs");
-  return { status: "success", message: "ยกเลิกงานนี้เรียบร้อยแล้ว" };
+  return { status: "success", message: tJobs("cancelSuccess") };
 }
 
 export async function resolveDeadLetterJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tJobs = await getTranslations("actionMessages.superadmin.jobs");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const jobId = String(formData.get("jobId") || "");
-  if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
+  if (!jobId) return { status: "error", message: t("jobNotFound") };
   const note = String(formData.get("note") || "").trim();
   if (!note) {
-    return { status: "error", message: "กรุณาระบุเหตุผลที่ทำเครื่องหมายว่าแก้ไขแล้ว" };
+    return { status: "error", message: tJobs("resolveReasonRequired") };
   }
 
   const result = await resolveDeadLetterJob(jobId, auth.userId, note);
   if (!result.ok) {
-    return { status: "error", message: result.error ?? "บันทึกไม่สำเร็จ" };
+    return { status: "error", message: result.error ?? tJobs("resolveFailed") };
   }
 
   const supabase = await createClient();
@@ -105,7 +111,7 @@ export async function resolveDeadLetterJobAction(
   });
 
   revalidatePath("/superadmin/jobs");
-  return { status: "success", message: "ทำเครื่องหมายว่าแก้ไขแล้วเรียบร้อยแล้ว" };
+  return { status: "success", message: tJobs("resolveSuccess") };
 }
 
 /**
@@ -119,22 +125,24 @@ export async function updateJobConcurrencyAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tJobs = await getTranslations("actionMessages.superadmin.jobs");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const jobType = String(formData.get("jobType") || "") as BackgroundJobTypeRow;
   if (!JOB_TYPES.includes(jobType)) {
-    return { status: "error", message: "ไม่รู้จักประเภทงานนี้" };
+    return { status: "error", message: tJobs("unknownJobType") };
   }
 
   const concurrency = Number(formData.get("concurrency"));
   if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 20) {
-    return { status: "error", message: "จำนวนต้องเป็นเลขจำนวนเต็มระหว่าง 1-20" };
+    return { status: "error", message: tJobs("concurrencyRange") };
   }
 
   const defaultBatchSize = Number(formData.get("defaultBatchSize"));
   if (!Number.isInteger(defaultBatchSize) || defaultBatchSize < 1 || defaultBatchSize > 500) {
-    return { status: "error", message: "ขนาด chunk ต้องเป็นเลขจำนวนเต็มระหว่าง 1-500" };
+    return { status: "error", message: tJobs("batchSizeRange") };
   }
 
   const service = createServiceRoleClient();
@@ -145,7 +153,7 @@ export async function updateJobConcurrencyAction(
 
   if (error) {
     console.error("updateJobConcurrencyAction failed:", error.message);
-    return { status: "error", message: "บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("saveFailedGeneric") };
   }
 
   const supabase = await createClient();
@@ -158,5 +166,5 @@ export async function updateJobConcurrencyAction(
   });
 
   revalidatePath("/superadmin/jobs");
-  return { status: "success", message: "บันทึกค่าเรียบร้อยแล้ว" };
+  return { status: "success", message: tJobs("concurrencySaveSuccess") };
 }

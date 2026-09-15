@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { SUPER_ADMIN_RANK } from "@/lib/supabase/roles";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
@@ -30,13 +31,15 @@ export async function bulkEnqueuePdfExtractionAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tPdf = await getTranslations("actionMessages.superadmin.pdfProcessing");
   const auth = await requireMinRank(SUPER_ADMIN_RANK);
   if (!auth.ok) return auth.result;
   const supabase = await createClient();
 
   const selectedIds = formData.getAll("selectedIds").map(String).filter(Boolean);
   if (selectedIds.length === 0) {
-    return { status: "error", message: "กรุณาเลือกอย่างน้อยหนึ่งรายการ" };
+    return { status: "error", message: t("selectAtLeastOne") };
   }
 
   const batchSize = Math.min(200, Math.max(1, Number(formData.get("batchSize")) || 50));
@@ -48,7 +51,7 @@ export async function bulkEnqueuePdfExtractionAction(
     .in("id", targetIds);
 
   if (error || !items) {
-    return { status: "error", message: "ไม่สามารถดึงข้อมูลงานวิจัยที่เลือกได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("fetchSelectedResearchFailed") };
   }
 
   const batchId = crypto.randomUUID();
@@ -85,9 +88,10 @@ export async function bulkEnqueuePdfExtractionAction(
   return {
     status: "success",
     message:
-      selectedIds.length > targetIds.length
-        ? `สร้างงานประมวลผล ${queued} รายการ (ข้าม ${skipped} รายการที่มีงานค้างอยู่แล้ว) — เลือกไว้ ${selectedIds.length} รายการ เกินขนาด batch จึงทำเฉพาะ ${targetIds.length} รายการแรก กดอีกครั้งเพื่อทำส่วนที่เหลือ`
-        : `สร้างงานประมวลผล ${queued} รายการ (ข้าม ${skipped} รายการที่มีงานค้างอยู่แล้ว)`,
+      tPdf("bulkCreated", { queued, skipped }) +
+      (selectedIds.length > targetIds.length
+        ? t("bulkOverLimitSuffix", { selected: selectedIds.length, target: targetIds.length })
+        : ""),
   };
 }
 
@@ -103,13 +107,15 @@ export async function bulkEnqueueOcrAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tPdf = await getTranslations("actionMessages.superadmin.pdfProcessing");
   const auth = await requireMinRank(SUPER_ADMIN_RANK);
   if (!auth.ok) return auth.result;
   const supabase = await createClient();
 
   const selectedIds = formData.getAll("selectedIds").map(String).filter(Boolean);
   if (selectedIds.length === 0) {
-    return { status: "error", message: "กรุณาเลือกอย่างน้อยหนึ่งรายการ" };
+    return { status: "error", message: t("selectAtLeastOne") };
   }
 
   const batchSize = Math.min(200, Math.max(1, Number(formData.get("batchSize")) || 50));
@@ -121,7 +127,7 @@ export async function bulkEnqueueOcrAction(
     .in("id", targetIds);
 
   if (error || !items) {
-    return { status: "error", message: "ไม่สามารถดึงข้อมูลงานวิจัยที่เลือกได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("fetchSelectedResearchFailed") };
   }
 
   const batchId = crypto.randomUUID();
@@ -174,14 +180,16 @@ export async function bulkEnqueueOcrAction(
 
   revalidatePath("/superadmin/pdf-processing");
 
-  const limitNote = rejectedByLimits > 0 ? ` — ปฏิเสธ ${rejectedByLimits} รายการเพราะเกินขีดจำกัด OCR` : "";
+  const limitNote = rejectedByLimits > 0 ? tPdf("ocrLimitNote", { count: rejectedByLimits }) : "";
 
   return {
     status: "success",
     message:
-      selectedIds.length > targetIds.length
-        ? `สร้างงาน OCR ${queued} รายการ (ข้าม ${skipped} รายการที่มีงานค้างอยู่แล้ว)${limitNote} — เลือกไว้ ${selectedIds.length} รายการ เกินขนาด batch จึงทำเฉพาะ ${targetIds.length} รายการแรก กดอีกครั้งเพื่อทำส่วนที่เหลือ`
-        : `สร้างงาน OCR ${queued} รายการ (ข้าม ${skipped} รายการที่มีงานค้างอยู่แล้ว)${limitNote}`,
+      tPdf("bulkCreatedOcr", { queued, skipped }) +
+      limitNote +
+      (selectedIds.length > targetIds.length
+        ? t("bulkOverLimitSuffix", { selected: selectedIds.length, target: targetIds.length })
+        : ""),
   };
 }
 
@@ -189,15 +197,16 @@ export async function retryFailedOcrJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(SUPER_ADMIN_RANK);
   if (!auth.ok) return auth.result;
   const supabase = await createClient();
   const jobId = String(formData.get("jobId") || "");
-  if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
+  if (!jobId) return { status: "error", message: t("jobNotFound") };
 
   const result = await retryFailedJob(jobId);
   if (!result.ok) {
-    return { status: "error", message: result.error ?? "ลองใหม่ไม่สำเร็จ" };
+    return { status: "error", message: result.error ?? t("retryFailed") };
   }
 
   await logAudit(supabase, {
@@ -208,7 +217,7 @@ export async function retryFailedOcrJobAction(
   });
 
   revalidatePath("/superadmin/pdf-processing");
-  return { status: "success", message: "ส่งกลับเข้าคิวเรียบร้อยแล้ว" };
+  return { status: "success", message: t("requeuedSuccess") };
 }
 
 /** อ่านฟิลด์ตัวกรองร่วมจาก FormData แล้วตรวจสอบด้วย ocrBulkFilterSchema
@@ -241,6 +250,8 @@ export async function bulkEnqueueAllMatchingFilterAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tPdf = await getTranslations("actionMessages.superadmin.pdfProcessing");
   const auth = await requireMinRank(SUPER_ADMIN_RANK);
   if (!auth.ok) return auth.result;
   const supabase = await createClient();
@@ -251,7 +262,7 @@ export async function bulkEnqueueAllMatchingFilterAction(
 
   const parsedFilter = parseBulkFilterFromForm(formData);
   if (!parsedFilter.success) {
-    return { status: "error", message: "ตัวกรองไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("invalidFilter") };
   }
   // โหมด extract ไม่ควรกรองด้วย ocrStatus แม้ฟอร์มจะส่งมาก็ตาม (มิติของ OCR
   // เท่านั้น) — ตัดทิ้งเสมอเมื่อไม่ใช่โหมด ocr
@@ -259,10 +270,10 @@ export async function bulkEnqueueAllMatchingFilterAction(
 
   const totalItems = await getPdfProcessingCandidatesCount(filter);
   if (totalItems === null) {
-    return { status: "error", message: "ไม่สามารถตรวจสอบจำนวนรายการได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tPdf("countCheckFailed") };
   }
   if (totalItems === 0) {
-    return { status: "error", message: "ไม่พบรายการที่ตรงตัวกรองนี้" };
+    return { status: "error", message: t("noMatchingItems") };
   }
 
   const result = await createBulkJobBatch({
@@ -278,7 +289,7 @@ export async function bulkEnqueueAllMatchingFilterAction(
   }
 
   if (!result.isNew) {
-    return { status: "success", message: "งานนี้กำลังทำงานอยู่แล้วสำหรับตัวกรองเดียวกัน — ดูความคืบหน้าด้านล่าง" };
+    return { status: "success", message: t("alreadyRunningSameFilter") };
   }
 
   await logAudit(supabase, {
@@ -291,7 +302,7 @@ export async function bulkEnqueueAllMatchingFilterAction(
   revalidatePath("/superadmin/pdf-processing");
   return {
     status: "success",
-    message: `เริ่มสร้างงานสำหรับ ${totalItems} รายการแล้ว (ทยอยสร้างเป็นชุด ดูความคืบหน้าด้านล่าง)`,
+    message: tPdf("bulkAllCreated", { total: totalItems }),
   };
 }
 
@@ -299,16 +310,17 @@ export async function retryFailedPdfJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(SUPER_ADMIN_RANK);
   if (!auth.ok) return auth.result;
   const supabase = await createClient();
 
   const jobId = String(formData.get("jobId") || "");
-  if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
+  if (!jobId) return { status: "error", message: t("jobNotFound") };
 
   const result = await retryFailedJob(jobId);
   if (!result.ok) {
-    return { status: "error", message: result.error ?? "ลองใหม่ไม่สำเร็จ" };
+    return { status: "error", message: result.error ?? t("retryFailed") };
   }
 
   await logAudit(supabase, {
@@ -319,21 +331,22 @@ export async function retryFailedPdfJobAction(
   });
 
   revalidatePath("/superadmin/pdf-processing");
-  return { status: "success", message: "ส่งกลับเข้าคิวเรียบร้อยแล้ว" };
+  return { status: "success", message: t("requeuedSuccess") };
 }
 
 async function batchControlAction(
   formData: FormData,
   fn: (batchId: string) => ReturnType<typeof pauseJobBatch>
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(SUPER_ADMIN_RANK);
   if (!auth.ok) return auth.result;
   const batchId = String(formData.get("batchId") || "");
-  if (!batchId) return { status: "error", message: "ไม่พบรหัสชุดงาน" };
+  if (!batchId) return { status: "error", message: t("batchIdNotFound") };
   const result = await fn(batchId);
   if (!result.ok) return result.result;
   revalidatePath("/superadmin/pdf-processing");
-  return { status: "success", message: "ดำเนินการเรียบร้อยแล้ว" };
+  return { status: "success", message: t("actionSuccess") };
 }
 
 export async function pauseBatchAction(_prevState: ActionResult, formData: FormData): Promise<ActionResult> {
@@ -346,12 +359,13 @@ export async function cancelBatchAction(_prevState: ActionResult, formData: Form
   return batchControlAction(formData, cancelJobBatch);
 }
 export async function retryFailedInBatchAction(_prevState: ActionResult, formData: FormData): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(SUPER_ADMIN_RANK);
   if (!auth.ok) return auth.result;
   const batchId = String(formData.get("batchId") || "");
-  if (!batchId) return { status: "error", message: "ไม่พบรหัสชุดงาน" };
+  if (!batchId) return { status: "error", message: t("batchIdNotFound") };
   const result = await retryFailedInBatch(batchId);
   if (!result.ok) return result.result;
   revalidatePath("/superadmin/pdf-processing");
-  return { status: "success", message: "ส่งรายการที่ล้มเหลวกลับเข้าคิวแล้ว" };
+  return { status: "success", message: t("requeuedFailedSuccess") };
 }

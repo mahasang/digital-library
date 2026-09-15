@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -18,18 +19,13 @@ const WEIGHT_FIELDS = [
   "weightFileHash",
 ] as const;
 
-const FIELD_LABELS_TH: Record<(typeof WEIGHT_FIELDS)[number], string> = {
-  weightTitle: "ความคล้ายชื่อเรื่อง",
-  weightAuthor: "ผู้วิจัยหลัก",
-  weightYear: "ปีเผยแพร่",
-  weightIdentifier: "DOI/ISBN/เลขอ้างอิง",
-  weightFileHash: "hash ของไฟล์",
-};
+const THRESHOLD_LEVELS = ["low", "medium", "high"] as const;
 
 type ParsedRuleValues = Record<string, number>;
 type ParseResult = { ok: true; values: ParsedRuleValues } | { ok: false; result: ActionResult };
 
-function parseWeightsAndThresholds(formData: FormData): ParseResult {
+async function parseWeightsAndThresholds(formData: FormData): Promise<ParseResult> {
+  const tSettings = await getTranslations("actionMessages.superadmin.dataQualitySettings");
   const values: ParsedRuleValues = {};
 
   for (const field of WEIGHT_FIELDS) {
@@ -39,8 +35,8 @@ function parseWeightsAndThresholds(formData: FormData): ParseResult {
         ok: false,
         result: {
           status: "error",
-          message: `น้ำหนัก "${FIELD_LABELS_TH[field]}" ต้องเป็นตัวเลข 0–100`,
-          fieldErrors: { [field]: [`ต้องเป็นตัวเลข 0–100`] },
+          message: tSettings("weightOutOfRange", { field: tSettings(`weightFields.${field}`) }),
+          fieldErrors: { [field]: [tSettings("mustBeNumber0to100")] },
         },
       };
     }
@@ -51,29 +47,32 @@ function parseWeightsAndThresholds(formData: FormData): ParseResult {
   if (Math.round(sum) !== 100) {
     return {
       ok: false,
-      result: {
-        status: "error",
-        message: `ผลรวมน้ำหนักทั้งหมดต้องเท่ากับ 100 (ตอนนี้รวมได้ ${sum})`,
-      },
+      result: { status: "error", message: tSettings("weightSumInvalid", { sum }) },
     };
   }
 
   const thresholdLow = Number(formData.get("thresholdLow"));
   const thresholdMedium = Number(formData.get("thresholdMedium"));
   const thresholdHigh = Number(formData.get("thresholdHigh"));
-  for (const [label, v] of [
-    ["ระดับความเชื่อมั่นต่ำ", thresholdLow],
-    ["ระดับความเชื่อมั่นปานกลาง", thresholdMedium],
-    ["ระดับความเชื่อมั่นสูง", thresholdHigh],
-  ] as const) {
+  const thresholdValues = [thresholdLow, thresholdMedium, thresholdHigh];
+  for (let i = 0; i < THRESHOLD_LEVELS.length; i++) {
+    const v = thresholdValues[i];
     if (!Number.isFinite(v) || v < 0 || v > 100) {
-      return { ok: false, result: { status: "error", message: `เกณฑ์ "${label}" ต้องเป็นตัวเลข 0–100` } };
+      return {
+        ok: false,
+        result: {
+          status: "error",
+          message: tSettings("thresholdOutOfRange", {
+            label: tSettings(`thresholdLabels.${THRESHOLD_LEVELS[i]}`),
+          }),
+        },
+      };
     }
   }
   if (!(thresholdLow <= thresholdMedium && thresholdMedium <= thresholdHigh)) {
     return {
       ok: false,
-      result: { status: "error", message: "เกณฑ์ต้องเรียงจากน้อยไปมาก: ต่ำ ≤ ปานกลาง ≤ สูง" },
+      result: { status: "error", message: tSettings("thresholdOrder") },
     };
   }
 
@@ -104,15 +103,12 @@ async function createRuleVersion(
   });
 
   if (error || !data) {
+    const tSettings = await getTranslations("actionMessages.superadmin.dataQualitySettings");
     return {
       ok: false,
       result: {
         status: "error",
-        message: toSafeErrorMessage(
-          error,
-          "ไม่สามารถบันทึกเกณฑ์ใหม่ได้ กรุณาลองใหม่อีกครั้ง",
-          "createRuleVersion failed"
-        ),
+        message: toSafeErrorMessage(error, tSettings("ruleSaveFailed"), "createRuleVersion failed"),
       },
     };
   }
@@ -143,10 +139,11 @@ export async function updateDuplicateDetectionRulesAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const tSettings = await getTranslations("actionMessages.superadmin.dataQualitySettings");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
-  const parsed = parseWeightsAndThresholds(formData);
+  const parsed = await parseWeightsAndThresholds(formData);
   if (!parsed.ok) return parsed.result;
 
   const created = await createRuleVersion(auth, parsed.values);
@@ -154,20 +151,20 @@ export async function updateDuplicateDetectionRulesAction(
 
   const intent = formData.get("intent") === "save_and_rescan" ? "save_and_rescan" : "save_only";
   if (intent === "save_only") {
-    return { status: "success", message: `บันทึกเกณฑ์เวอร์ชัน ${created.version} เรียบร้อยแล้ว` };
+    return { status: "success", message: tSettings("savedVersion", { version: created.version }) };
   }
 
   const totalItems = await getDuplicateScanCandidatesCount({});
   if (totalItems === null) {
     return {
       status: "success",
-      message: `บันทึกเกณฑ์เวอร์ชัน ${created.version} แล้ว แต่ไม่สามารถเริ่มสแกนใหม่ทั้งระบบได้ กรุณาลองประมวลผลใหม่ที่หน้า /superadmin/data-quality`,
+      message: tSettings("savedVersionScanFailed", { version: created.version }),
     };
   }
   if (totalItems === 0) {
     return {
       status: "success",
-      message: `บันทึกเกณฑ์เวอร์ชัน ${created.version} แล้ว (ไม่มีรายการให้สแกนในขณะนี้)`,
+      message: tSettings("savedVersionNoItems", { version: created.version }),
     };
   }
 
@@ -183,13 +180,13 @@ export async function updateDuplicateDetectionRulesAction(
   if (!batchResult.ok) {
     return {
       status: "success",
-      message: `บันทึกเกณฑ์เวอร์ชัน ${created.version} แล้ว แต่เริ่มสแกนซ้ำไม่สำเร็จ — ลองใหม่ได้ที่หน้า /superadmin/data-quality`,
+      message: tSettings("savedVersionRetryFailed", { version: created.version }),
     };
   }
   if (!batchResult.isNew) {
     return {
       status: "success",
-      message: `บันทึกเกณฑ์เวอร์ชัน ${created.version} แล้ว — มีการสแกนซ้ำทั้งระบบทำงานอยู่แล้ว (ตัวกรองเดียวกัน) ไม่ได้เริ่มซ้ำ`,
+      message: tSettings("savedVersionAlreadyRunning", { version: created.version }),
     };
   }
 
@@ -204,7 +201,7 @@ export async function updateDuplicateDetectionRulesAction(
   revalidatePath("/superadmin/data-quality");
   return {
     status: "success",
-    message: `บันทึกเกณฑ์เวอร์ชัน ${created.version} และเริ่มสแกนซ้ำทั้งระบบแล้ว (${totalItems} รายการ) — ผลลัพธ์เดิมจากเวอร์ชันก่อนหน้ายังเก็บไว้เป็นประวัติ ไม่ถูกลบ ไม่มีการรวมข้อมูลอัตโนมัติ`,
+    message: tSettings("savedVersionWithScan", { version: created.version, total: totalItems }),
   };
 }
 
@@ -212,10 +209,11 @@ export async function resetDuplicateDetectionRulesToDefaultAction(
   _prevState: ActionResult,
   _formData: FormData
 ): Promise<ActionResult> {
+  const tSettings = await getTranslations("actionMessages.superadmin.dataQualitySettings");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const created = await createRuleVersion(auth, { ...DEFAULT_DUPLICATE_DETECTION_WEIGHTS });
   if (!created.ok) return created.result;
-  return { status: "success", message: `บันทึกเกณฑ์เวอร์ชัน ${created.version} เรียบร้อยแล้ว` };
+  return { status: "success", message: tSettings("savedVersion", { version: created.version }) };
 }

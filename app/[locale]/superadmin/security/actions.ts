@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -12,6 +13,8 @@ export async function updateSecuritySettingsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tSecurity = await getTranslations("actionMessages.superadmin.security");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -26,7 +29,7 @@ export async function updateSecuritySettingsAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -46,7 +49,7 @@ export async function updateSecuritySettingsAction(
 
   if (error) {
     console.error("updateSecuritySettingsAction failed:", error.message);
-    return { status: "error", message: "ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("saveSettingsFailed") };
   }
 
   await logAudit(supabase, {
@@ -58,5 +61,5 @@ export async function updateSecuritySettingsAction(
   });
 
   revalidatePath("/superadmin/security");
-  return { status: "success", message: "บันทึกการตั้งค่าความปลอดภัยเรียบร้อยแล้ว" };
+  return { status: "success", message: tSecurity("settingsSavedSuccess") };
 }

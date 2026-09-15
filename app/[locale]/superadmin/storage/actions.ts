@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -20,6 +21,8 @@ export async function deleteOrphanedFileAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tStorage = await getTranslations("actionMessages.superadmin.storage");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -27,7 +30,7 @@ export async function deleteOrphanedFileAction(
   const path = String(formData.get("path") || "");
 
   if (!CLEANABLE_BUCKETS.includes(bucketId) || !path) {
-    return { status: "error", message: "ข้อมูลไม่ถูกต้อง" };
+    return { status: "error", message: t("invalidData") };
   }
 
   const supabase = await createClient();
@@ -45,10 +48,7 @@ export async function deleteOrphanedFileAction(
       .select("id", { count: "exact", head: true })
       .eq(column, path);
     if ((count ?? 0) > 0) {
-      return {
-        status: "error",
-        message: "ไฟล์นี้มีการอ้างอิงในฐานข้อมูลแล้ว (อาจเพิ่งถูกบันทึกใช้งาน) ไม่ได้ลบให้",
-      };
+      return { status: "error", message: tStorage("alreadyReferenced") };
     }
   } else {
     const { count } = await supabase
@@ -56,17 +56,14 @@ export async function deleteOrphanedFileAction(
       .select("id", { count: "exact", head: true })
       .like("cover_image", `%${path}`);
     if ((count ?? 0) > 0) {
-      return {
-        status: "error",
-        message: "ไฟล์นี้มีการอ้างอิงในฐานข้อมูลแล้ว (อาจเพิ่งถูกบันทึกใช้งาน) ไม่ได้ลบให้",
-      };
+      return { status: "error", message: tStorage("alreadyReferenced") };
     }
   }
 
   const { error } = await supabase.storage.from(bucketId).remove([path]);
   if (error) {
     console.error("deleteOrphanedFileAction failed:", error.message);
-    return { status: "error", message: "ไม่สามารถลบไฟล์ได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tStorage("deleteFailed") };
   }
 
   await logAudit(supabase, {
@@ -77,5 +74,5 @@ export async function deleteOrphanedFileAction(
   });
 
   revalidatePath("/superadmin/storage");
-  return { status: "success", message: "ลบไฟล์เรียบร้อยแล้ว" };
+  return { status: "success", message: tStorage("deleteSuccess") };
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
@@ -28,13 +29,15 @@ export async function addUserRoleAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tUsers = await getTranslations("actionMessages.superadmin.users");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const userId = String(formData.get("userId") || "");
   const roleNameRaw = String(formData.get("role") || "");
   if (!userId || !GENERIC_ASSIGNABLE_ROLES.includes(roleNameRaw as RoleName)) {
-    return { status: "error", message: "ข้อมูลไม่ถูกต้อง" };
+    return { status: "error", message: t("invalidData") };
   }
   const roleName = roleNameRaw as RoleName;
 
@@ -44,7 +47,7 @@ export async function addUserRoleAction(
     .select("id")
     .eq("name", roleName)
     .maybeSingle();
-  if (!role) return { status: "error", message: "ไม่พบบทบาทที่เลือก" };
+  if (!role) return { status: "error", message: tUsers("roleNotFound") };
 
   const { error } = await supabase
     .from("user_roles")
@@ -52,7 +55,7 @@ export async function addUserRoleAction(
 
   if (error && !error.message.includes("duplicate")) {
     console.error("addUserRoleAction failed:", error.message);
-    return { status: "error", message: "ไม่สามารถเพิ่มบทบาทได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tUsers("addRoleFailed") };
   }
 
   await logAudit(supabase, {
@@ -65,7 +68,7 @@ export async function addUserRoleAction(
 
   revalidatePath("/superadmin/users");
   revalidatePath(`/superadmin/users/${userId}`);
-  return { status: "success", message: "เพิ่มบทบาทเรียบร้อยแล้ว" };
+  return { status: "success", message: tUsers("addRoleSuccess") };
 }
 
 /** ถอดถอนบทบาทของผู้ใช้ — ไม่รองรับ super_admin (ดูหมายเหตุที่ GENERIC_ASSIGNABLE_ROLES) */
@@ -73,13 +76,15 @@ export async function removeUserRoleAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tUsers = await getTranslations("actionMessages.superadmin.users");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const userId = String(formData.get("userId") || "");
   const roleNameRaw = String(formData.get("role") || "");
   if (!userId || !GENERIC_ASSIGNABLE_ROLES.includes(roleNameRaw as RoleName)) {
-    return { status: "error", message: "ข้อมูลไม่ถูกต้อง" };
+    return { status: "error", message: t("invalidData") };
   }
   const roleName = roleNameRaw as RoleName;
 
@@ -89,7 +94,7 @@ export async function removeUserRoleAction(
     .select("id")
     .eq("name", roleName)
     .maybeSingle();
-  if (!role) return { status: "error", message: "ไม่พบบทบาทที่เลือก" };
+  if (!role) return { status: "error", message: tUsers("roleNotFound") };
 
   const { error } = await supabase
     .from("user_roles")
@@ -102,7 +107,7 @@ export async function removeUserRoleAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถแก้ไขบทบาทได้ กรุณาลองใหม่อีกครั้ง",
+        tUsers("removeRoleFailed"),
         "removeUserRoleAction failed"
       ),
     };
@@ -118,7 +123,7 @@ export async function removeUserRoleAction(
 
   revalidatePath("/superadmin/users");
   revalidatePath(`/superadmin/users/${userId}`);
-  return { status: "success", message: "ถอดถอนบทบาทเรียบร้อยแล้ว" };
+  return { status: "success", message: tUsers("removeRoleSuccess") };
 }
 
 /**
@@ -130,6 +135,8 @@ export async function setUserStatusAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tUsers = await getTranslations("actionMessages.superadmin.users");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -138,15 +145,12 @@ export async function setUserStatusAction(
   const durationDaysRaw = formData.get("durationDays");
   const durationDays = durationDaysRaw ? Number(durationDaysRaw) : 0;
 
-  if (!userId) return { status: "error", message: "ข้อมูลไม่ถูกต้อง" };
+  if (!userId) return { status: "error", message: t("invalidData") };
   if (userId === auth.userId && !nextActive) {
-    return { status: "error", message: "ไม่สามารถระงับบัญชีของตัวเองได้" };
+    return { status: "error", message: tUsers("cannotSuspendSelf") };
   }
   if (!isServiceRoleConfigured()) {
-    return {
-      status: "error",
-      message: "ยังไม่ได้ตั้งค่า SUPABASE_SERVICE_ROLE_KEY จึงไม่สามารถระงับ/เปิดใช้งานบัญชีได้",
-    };
+    return { status: "error", message: tUsers("serviceRoleNotConfigured") };
   }
 
   const banDuration = nextActive
@@ -163,7 +167,7 @@ export async function setUserStatusAction(
   });
   if (banError) {
     console.error("setUserStatusAction ban failed:", banError.message);
-    return { status: "error", message: "ไม่สามารถเปลี่ยนสถานะบัญชีได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tUsers("statusChangeFailed") };
   }
 
   const { error: profileError } = await supabase
@@ -172,7 +176,7 @@ export async function setUserStatusAction(
     .eq("id", userId);
   if (profileError) {
     console.error("setUserStatusAction profile update failed:", profileError.message);
-    return { status: "error", message: "ไม่สามารถเปลี่ยนสถานะบัญชีได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tUsers("statusChangeFailed") };
   }
 
   await logAudit(supabase, {
@@ -188,10 +192,10 @@ export async function setUserStatusAction(
   return {
     status: "success",
     message: nextActive
-      ? "เปิดใช้งานบัญชีแล้ว"
+      ? tUsers("enabledSuccess")
       : durationDays > 0
-        ? `ระงับบัญชีชั่วคราว ${durationDays} วันแล้ว`
-        : "ระงับบัญชีแล้ว",
+        ? tUsers("suspendedTemporarySuccess", { days: durationDays })
+        : tUsers("suspendedSuccess"),
   };
 }
 
@@ -206,7 +210,8 @@ export async function setUserStatusAction(
 
 async function getTargetProfile(
   supabase: SupabaseClient<Database>,
-  userId: string
+  userId: string,
+  unknownUserFallback: string
 ): Promise<{ email: string; fullName: string } | null> {
   const { data } = await supabase
     .from("profiles")
@@ -214,7 +219,7 @@ async function getTargetProfile(
     .eq("id", userId)
     .maybeSingle();
   if (!data) return null;
-  return { email: data.email ?? "", fullName: data.full_name || data.email || "ผู้ใช้" };
+  return { email: data.email ?? "", fullName: data.full_name || data.email || unknownUserFallback };
 }
 
 async function getUserRoleNames(
@@ -244,23 +249,22 @@ export async function grantSuperAdminAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tUsers = await getTranslations("actionMessages.superadmin.users");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const userId = String(formData.get("userId") || "");
   const confirmText = String(formData.get("confirmText") || "");
   const reason = String(formData.get("reason") || "").trim();
-  if (!userId) return { status: "error", message: "ข้อมูลไม่ถูกต้อง" };
+  if (!userId) return { status: "error", message: t("invalidData") };
 
   const supabase = await createClient();
-  const target = await getTargetProfile(supabase, userId);
-  if (!target) return { status: "error", message: "ไม่พบผู้ใช้ที่เลือก" };
+  const target = await getTargetProfile(supabase, userId, t("unknownUser"));
+  if (!target) return { status: "error", message: tUsers("notFound") };
 
   if (!isConfirmationValid(confirmText, target.email)) {
-    return {
-      status: "error",
-      message: "ยืนยันไม่ถูกต้อง กรุณาพิมพ์ CONFIRM หรืออีเมลของผู้ใช้เป้าหมายให้ตรงกัน",
-    };
+    return { status: "error", message: tUsers("confirmMismatch") };
   }
 
   const { data: role } = await supabase
@@ -268,7 +272,7 @@ export async function grantSuperAdminAction(
     .select("id")
     .eq("name", "super_admin")
     .maybeSingle();
-  if (!role) return { status: "error", message: "ไม่พบบทบาท Super Admin ในระบบ" };
+  if (!role) return { status: "error", message: tUsers("superAdminRoleNotFound") };
 
   const previousRoles = await getUserRoleNames(supabase, userId);
 
@@ -281,7 +285,7 @@ export async function grantSuperAdminAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถมอบสิทธิ์ Super Admin ได้ กรุณาลองใหม่อีกครั้ง",
+        tUsers("grantFailed"),
         "grantSuperAdminAction failed"
       ),
     };
@@ -307,7 +311,7 @@ export async function grantSuperAdminAction(
   revalidatePath(`/superadmin/users/${userId}`);
   return {
     status: "success",
-    message: `มอบสิทธิ์ Super Admin ให้ ${target.fullName} เรียบร้อยแล้ว`,
+    message: tUsers("grantSuccess", { name: target.fullName }),
   };
 }
 
@@ -316,23 +320,22 @@ export async function revokeSuperAdminAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tUsers = await getTranslations("actionMessages.superadmin.users");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const userId = String(formData.get("userId") || "");
   const confirmText = String(formData.get("confirmText") || "");
   const reason = String(formData.get("reason") || "").trim();
-  if (!userId) return { status: "error", message: "ข้อมูลไม่ถูกต้อง" };
+  if (!userId) return { status: "error", message: t("invalidData") };
 
   const supabase = await createClient();
-  const target = await getTargetProfile(supabase, userId);
-  if (!target) return { status: "error", message: "ไม่พบผู้ใช้ที่เลือก" };
+  const target = await getTargetProfile(supabase, userId, t("unknownUser"));
+  if (!target) return { status: "error", message: tUsers("notFound") };
 
   if (!isConfirmationValid(confirmText, target.email)) {
-    return {
-      status: "error",
-      message: "ยืนยันไม่ถูกต้อง กรุณาพิมพ์ CONFIRM หรืออีเมลของผู้ใช้เป้าหมายให้ตรงกัน",
-    };
+    return { status: "error", message: tUsers("confirmMismatch") };
   }
 
   const { data: role } = await supabase
@@ -340,7 +343,7 @@ export async function revokeSuperAdminAction(
     .select("id")
     .eq("name", "super_admin")
     .maybeSingle();
-  if (!role) return { status: "error", message: "ไม่พบบทบาท Super Admin ในระบบ" };
+  if (!role) return { status: "error", message: tUsers("superAdminRoleNotFound") };
 
   const previousRoles = await getUserRoleNames(supabase, userId);
 
@@ -355,7 +358,7 @@ export async function revokeSuperAdminAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถถอดถอนสิทธิ์ Super Admin ได้ กรุณาลองใหม่อีกครั้ง",
+        tUsers("revokeFailed"),
         "revokeSuperAdminAction failed"
       ),
     };
@@ -379,7 +382,7 @@ export async function revokeSuperAdminAction(
   revalidatePath(`/superadmin/users/${userId}`);
   return {
     status: "success",
-    message: `ถอดถอนสิทธิ์ Super Admin ของ ${target.fullName} เรียบร้อยแล้ว`,
+    message: tUsers("revokeSuccess", { name: target.fullName }),
   };
 }
 
@@ -396,6 +399,8 @@ export async function resetUserMfaAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tUsers = await getTranslations("actionMessages.superadmin.users");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -403,39 +408,33 @@ export async function resetUserMfaAction(
   const confirmText = String(formData.get("confirmText") || "");
   const reason = String(formData.get("reason") || "").trim();
 
-  if (!userId) return { status: "error", message: "ข้อมูลไม่ถูกต้อง" };
+  if (!userId) return { status: "error", message: t("invalidData") };
 
   if (userId === auth.userId) {
-    return {
-      status: "error",
-      message: "ไม่สามารถรีเซ็ต MFA ของตัวเองได้ ต้องให้ Super Admin คนอื่นเป็นผู้ดำเนินการ",
-    };
+    return { status: "error", message: tUsers("cannotResetOwnMfa") };
   }
 
   if (confirmText.trim().toUpperCase() !== "RESET MFA") {
-    return {
-      status: "error",
-      message: 'ยืนยันไม่ถูกต้อง กรุณาพิมพ์ "RESET MFA" ให้ตรงกันทุกตัวอักษร',
-    };
+    return { status: "error", message: tUsers("mfaConfirmMismatch") };
   }
 
   if (!reason) {
-    return { status: "error", message: "กรุณาระบุเหตุผลในการรีเซ็ต MFA" };
+    return { status: "error", message: tUsers("mfaReasonRequired") };
   }
 
   const supabase = await createClient();
-  const target = await getTargetProfile(supabase, userId);
-  if (!target) return { status: "error", message: "ไม่พบผู้ใช้ที่เลือก" };
+  const target = await getTargetProfile(supabase, userId, t("unknownUser"));
+  if (!target) return { status: "error", message: tUsers("notFound") };
 
   const outcome = await resetUserMfaFactors(userId);
 
   if (!outcome.ok) {
     const message =
       outcome.reason === "not_configured"
-        ? "ยังไม่ได้ตั้งค่า SUPABASE_SERVICE_ROLE_KEY จึงไม่สามารถรีเซ็ต MFA ได้"
+        ? tUsers("mfaResetNotConfigured")
         : outcome.reason === "no_factors"
-          ? "ผู้ใช้นี้ยังไม่ได้ตั้งค่า MFA จึงไม่มีอะไรให้รีเซ็ต"
-          : "ไม่สามารถรีเซ็ต MFA ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง";
+          ? tUsers("mfaResetNoFactors")
+          : tUsers("mfaResetFailed");
 
     await logAudit(supabase, {
       actorId: auth.userId,
@@ -473,9 +472,8 @@ export async function resetUserMfaAction(
     const service = createServiceRoleClient();
     const { error: notifyError } = await service.from("notifications").insert({
       user_id: userId,
-      title: "การยืนยันตัวตนสองขั้นตอน (MFA) ถูกรีเซ็ต",
-      message:
-        "ผู้ดูแลระบบได้รีเซ็ตการยืนยันตัวตนสองขั้นตอน (MFA) ของบัญชีคุณ หากต้องการใช้งานต่อ กรุณาตั้งค่าอุปกรณ์ใหม่ที่หน้าบัญชีของฉัน หากคุณไม่ได้ร้องขอการดำเนินการนี้ กรุณาติดต่อผู้ดูแลระบบทันที",
+      title: tUsers("mfaResetNotifyTitle"),
+      message: tUsers("mfaResetNotifyBody"),
       type: "warning",
     });
     if (notifyError) {
@@ -486,8 +484,8 @@ export async function resetUserMfaAction(
   if (settings.notificationsEmailEnabled && target.email) {
     await sendNotificationEmail({
       to: target.email,
-      subject: "การยืนยันตัวตนสองขั้นตอน (MFA) ของบัญชีคุณถูกรีเซ็ต",
-      text: `เรียนผู้ใช้งาน\n\nการยืนยันตัวตนสองขั้นตอน (MFA) ของบัญชี ${target.email} ถูกรีเซ็ตโดยผู้ดูแลระบบ\n\nหากต้องการใช้งานต่อ กรุณาเข้าสู่ระบบแล้วตั้งค่าอุปกรณ์ยืนยันตัวตนใหม่ที่หน้าบัญชีของฉัน\n\nหากคุณไม่ได้ร้องขอการดำเนินการนี้ กรุณาติดต่อผู้ดูแลระบบทันที`,
+      subject: tUsers("mfaResetEmailSubject"),
+      text: tUsers("mfaResetEmailBody", { email: target.email }),
     });
   }
 
@@ -495,6 +493,6 @@ export async function resetUserMfaAction(
   revalidatePath(`/superadmin/users/${userId}`);
   return {
     status: "success",
-    message: `รีเซ็ต MFA ของ ${target.fullName} เรียบร้อยแล้ว ระบบได้แจ้งเตือนเจ้าของบัญชีแล้ว`,
+    message: tUsers("mfaResetSuccess", { name: target.fullName }),
   };
 }

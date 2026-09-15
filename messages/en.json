@@ -1451,7 +1451,27 @@
       "toggleStatusFailed": "Could not change the status. Please try again.",
       "settingsSavedSuccess": "Settings saved successfully.",
       "saveSettingsFailed": "Could not save settings. Please try again.",
-      "fillAllFields": "Please fill in all fields."
+      "fillAllFields": "Please fill in all fields.",
+      "requiresAdminRank": "You don't have permission to do this. You must be an administrator.",
+      "mfaRequired": "You must complete two-factor authentication (MFA) before continuing. Please log in again.",
+      "unknownUser": "User",
+      "retryFailed": "Retry failed.",
+      "batchActionFailed": "Could not complete the action. Please try again.",
+      "batchRetryFailed": "Could not retry. Please try again.",
+      "selectAtLeastOne": "Please select at least one item.",
+      "jobNotFound": "Job not found.",
+      "batchIdNotFound": "Batch ID not found.",
+      "actionSuccess": "Action completed successfully.",
+      "requeuedFailedSuccess": "Failed items were requeued.",
+      "requeuedSuccess": "Requeued successfully.",
+      "invalidFilter": "Invalid filter. Please try again.",
+      "fetchSelectedResearchFailed": "Could not fetch the selected research items. Please try again.",
+      "countCandidatesFailed": "Could not count matching items. Please try again.",
+      "noMatchingItems": "No items match this filter.",
+      "alreadyRunningSameFilter": "This job is already running for the same filter — see progress below.",
+      "bulkOverLimitSuffix": " — {selected} items selected, exceeding the batch size, so only the first {target} were processed. Click again to process the rest.",
+      "saveFailedGeneric": "Save failed. Please try again.",
+      "noItemsToReorder": "No items to reorder."
     },
     "auth": {
       "rateLimitedLogin": "Too many login attempts. Please wait a moment and try again.",
@@ -1551,7 +1571,6 @@
       "itemNotFound": "Item not found.",
       "mergeDataIncomplete": "Incomplete data.",
       "mergeConfirmTextMismatch": "Please type MERGE exactly to confirm merging the research items.",
-      "requiresAdminRank": "You don't have permission to do this. You must be an administrator or higher.",
       "mergeFailed": "Could not merge research items. Please try again.",
       "mergeSuccess": "Research items merged successfully."
     },
@@ -1597,6 +1616,137 @@
       "siteNameRequired": "Please enter the organization name.",
       "latestCountRange": "The number of latest research items must be between 1 and 24.",
       "popularCountRange": "The number of popular research items must be between 1 and 24."
+    },
+    "superadmin": {
+      "users": {
+        "notFound": "Selected user not found.",
+        "roleNotFound": "Selected role not found.",
+        "superAdminRoleNotFound": "The Super Admin role was not found in the system.",
+        "addRoleFailed": "Could not add the role. Please try again.",
+        "addRoleSuccess": "Role added successfully.",
+        "removeRoleFailed": "Could not update the role. Please try again.",
+        "removeRoleSuccess": "Role removed successfully.",
+        "cannotSuspendSelf": "You cannot suspend your own account.",
+        "serviceRoleNotConfigured": "SUPABASE_SERVICE_ROLE_KEY is not configured, so accounts cannot be suspended or reactivated.",
+        "statusChangeFailed": "Could not change the account status. Please try again.",
+        "enabledSuccess": "Account enabled.",
+        "suspendedTemporarySuccess": "Account suspended for {days} day(s).",
+        "suspendedSuccess": "Account suspended.",
+        "confirmMismatch": "Confirmation failed. Please type CONFIRM or the target user's email exactly.",
+        "grantFailed": "Could not grant Super Admin access. Please try again.",
+        "grantSuccess": "Granted Super Admin access to {name} successfully.",
+        "revokeFailed": "Could not revoke Super Admin access. Please try again.",
+        "revokeSuccess": "Revoked Super Admin access from {name} successfully.",
+        "cannotResetOwnMfa": "You cannot reset your own MFA. Another Super Admin must do this for you.",
+        "mfaConfirmMismatch": "Confirmation failed. Please type \"RESET MFA\" exactly.",
+        "mfaReasonRequired": "Please provide a reason for resetting MFA.",
+        "mfaResetNotConfigured": "SUPABASE_SERVICE_ROLE_KEY is not configured, so MFA cannot be reset.",
+        "mfaResetNoFactors": "This user has not set up MFA, so there is nothing to reset.",
+        "mfaResetFailed": "Could not reset MFA right now. Please try again.",
+        "mfaResetSuccess": "Reset MFA for {name} successfully. The account owner has been notified.",
+        "mfaResetNotifyTitle": "Two-factor authentication (MFA) was reset",
+        "mfaResetNotifyBody": "An administrator has reset the two-factor authentication (MFA) on your account. To continue using it, please set up a new device on your account page. If you did not request this, please contact an administrator immediately.",
+        "mfaResetEmailSubject": "Two-factor authentication (MFA) on your account was reset",
+        "mfaResetEmailBody": "Dear user,\n\nTwo-factor authentication (MFA) on the account {email} was reset by an administrator.\n\nTo continue using it, please log in and set up a new authentication device on your account page.\n\nIf you did not request this, please contact an administrator immediately."
+      },
+      "jobs": {
+        "unknownJobType": "Unrecognized job type.",
+        "concurrencyRange": "The number must be an integer between 1 and 20.",
+        "batchSizeRange": "The chunk size must be an integer between 1 and 500.",
+        "concurrencySaveSuccess": "Value saved successfully.",
+        "cancelFailed": "Cancel failed.",
+        "cancelJobFailed": "Could not cancel this job. Please try again.",
+        "cancelSuccess": "This job was cancelled successfully.",
+        "resolveReasonRequired": "Please provide a reason for marking this as resolved.",
+        "resolveFailed": "Save failed.",
+        "resolveSuccess": "Marked as resolved successfully.",
+        "failedJobNotFoundProcessed": "This failed job was not found (it may have already been processed).",
+        "failedJobNotFoundHandled": "This failed job was not found (it may have already been handled).",
+        "failedJobNotFoundResolved": "This failed job was not found, or was already marked as resolved.",
+        "cancelledBySuperAdminNote": "Cancelled by Super Admin"
+      },
+      "pdfProcessing": {
+        "bulkCreated": "Created {queued} processing job(s) (skipped {skipped} already queued).",
+        "bulkCreatedOcr": "Created {queued} OCR job(s) (skipped {skipped} already queued).",
+        "ocrLimitNote": " — rejected {count} item(s) for exceeding the OCR limit",
+        "countCheckFailed": "Could not check the item count. Please try again.",
+        "bulkAllCreated": "Started creating jobs for {total} item(s) (created in batches — see progress below)."
+      },
+      "fileSecurity": {
+        "bulkCreated": "Created {queued} scan job(s) (skipped {skipped} already queued).",
+        "bulkAllCreated": "Started creating scan jobs for {total} item(s) (created in batches — see progress below)."
+      },
+      "dataQuality": {
+        "bulkCreated": "Created {queued} check job(s) (skipped {skipped} already queued).",
+        "bulkAllCreated": "Started creating check jobs for {total} item(s) (created in batches — see progress below)."
+      },
+      "dataQualitySettings": {
+        "weightOutOfRange": "The \"{field}\" weight must be a number between 0 and 100.",
+        "mustBeNumber0to100": "Must be a number between 0 and 100.",
+        "weightSumInvalid": "All weights must add up to 100 (currently {sum}).",
+        "thresholdOutOfRange": "The \"{label}\" threshold must be a number between 0 and 100.",
+        "thresholdOrder": "Thresholds must be in ascending order: low ≤ medium ≤ high.",
+        "ruleSaveFailed": "Could not save the new rule. Please try again.",
+        "savedVersion": "Saved rule version {version} successfully.",
+        "savedVersionScanFailed": "Saved rule version {version}, but could not start a system-wide rescan. Please try processing again from /superadmin/data-quality.",
+        "savedVersionNoItems": "Saved rule version {version} (no items to scan right now).",
+        "savedVersionRetryFailed": "Saved rule version {version}, but starting the rescan failed — try again from /superadmin/data-quality.",
+        "savedVersionAlreadyRunning": "Saved rule version {version} — a system-wide rescan is already running for the same filter, so it wasn't started again.",
+        "savedVersionWithScan": "Saved rule version {version} and started a system-wide rescan ({total} item(s)) — previous results are kept in history and were not deleted or auto-merged.",
+        "weightFields": {
+          "weightTitle": "Title similarity",
+          "weightAuthor": "Primary author",
+          "weightYear": "Publication year",
+          "weightIdentifier": "DOI/ISBN/reference number",
+          "weightFileHash": "File hash"
+        },
+        "thresholdLabels": {
+          "low": "Low confidence level",
+          "medium": "Medium confidence level",
+          "high": "High confidence level"
+        }
+      },
+      "ocr": {
+        "settingsSavedSuccess": "OCR settings saved successfully.",
+        "unknownFixture": "Unrecognized test file.",
+        "fixtureNotAvailable": "The file \"{label}\" is not yet in the system. Please add it before testing.",
+        "testRunCreateFailed": "Could not start the test. Please try again.",
+        "testJobCreateFailed": "Could not create the test job. Please try again.",
+        "testRunStarted": "Started testing with the file \"{label}\"."
+      },
+      "notifications": {
+        "settingsSavedSuccess": "Notification settings saved successfully.",
+        "daysRange": "The number of days must be an integer between 1 and 30.",
+        "expirationSettingsSavedSuccess": "Expiration warning settings saved successfully.",
+        "noExpirationJobsPending": "No expiration jobs are pending (already processed).",
+        "expirationProcessed": "Processed access expirations: {ok}/{claimed} succeeded."
+      },
+      "storage": {
+        "alreadyReferenced": "This file is already referenced in the database (it may have just been saved) — not deleted.",
+        "deleteFailed": "Could not delete the file. Please try again.",
+        "deleteSuccess": "File deleted successfully."
+      },
+      "cronMonitoring": {
+        "unknownJobName": "Unrecognized cron job name.",
+        "frequencyRange": "The expected frequency must be an integer between 1 and 1440 minutes.",
+        "thresholdRange": "The failure alert threshold must be an integer of 1 or more."
+      },
+      "security": {
+        "settingsSavedSuccess": "Security settings saved successfully."
+      },
+      "categories": {
+        "reorderFailed": "Could not reorder categories. Please try again.",
+        "reorderSuccess": "Categories reordered successfully.",
+        "moveFailed": "Could not move the category. Please try again.",
+        "moveSuccess": "Category moved successfully."
+      },
+      "organizations": {
+        "reorderFailed": "Could not reorder organizations. Please try again.",
+        "reorderSuccess": "Organizations reordered successfully."
+      },
+      "systemSettings": {
+        "bucketSyncWarning": "(default values saved, but the actual Storage bucket limits could not be updated)"
+      }
     }
   }
 }

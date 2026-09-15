@@ -113,7 +113,7 @@ export async function mergeResearchItemsAction(
 
   const rank = await getCurrentUserRoleRank();
   if (rank < 40) {
-    return { status: "error", message: tDuplicateReviews("requiresAdminRank") };
+    return { status: "error", message: t("requiresAdminRank") };
   }
 
   const { error } = await supabase.rpc("merge_research_items", {

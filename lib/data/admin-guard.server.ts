@@ -1,4 +1,5 @@
 import "server-only";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank, SUPER_ADMIN_RANK } from "@/lib/supabase/roles";
@@ -20,10 +21,13 @@ type GuardResult =
  * เผื่อกรณีเรียก Server Action ตรงโดยไม่ผ่านการนำทางหน้าปกติ
  */
 export async function requireMinRank(minRank: number): Promise<GuardResult> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "actionMessages.common" });
+
   if (!isSupabaseConfigured()) {
     return {
       ok: false,
-      result: { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" },
+      result: { status: "error", message: t("supabaseNotConfigured") },
     };
   }
 
@@ -35,7 +39,7 @@ export async function requireMinRank(minRank: number): Promise<GuardResult> {
   if (!user) {
     return {
       ok: false,
-      result: { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" },
+      result: { status: "error", message: t("mustLogIn") },
     };
   }
 
@@ -45,10 +49,7 @@ export async function requireMinRank(minRank: number): Promise<GuardResult> {
       ok: false,
       result: {
         status: "error",
-        message:
-          minRank >= 40
-            ? "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นผู้ดูแลระบบเท่านั้น"
-            : "คุณไม่มีสิทธิ์ดำเนินการนี้ ต้องเป็นบรรณารักษ์ขึ้นไป",
+        message: minRank >= 40 ? t("requiresAdminRank") : t("requiresLibrarianRank"),
       },
     };
   }
@@ -58,11 +59,7 @@ export async function requireMinRank(minRank: number): Promise<GuardResult> {
     if (aal?.currentLevel !== "aal2") {
       return {
         ok: false,
-        result: {
-          status: "error",
-          message:
-            "ต้องยืนยันตัวตนสองขั้นตอน (MFA) ให้เรียบร้อยก่อนดำเนินการนี้ กรุณาเข้าสู่ระบบใหม่",
-        },
+        result: { status: "error", message: t("mfaRequired") },
       };
     }
   }

@@ -1,5 +1,6 @@
 import "server-only";
 import crypto from "node:crypto";
+import { getTranslations } from "next-intl/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
 import { sendDeadLetterEmailAlerts } from "@/lib/jobs/dlq-notify.server";
@@ -216,10 +217,12 @@ export async function retryFailedJob(jobId: string): Promise<{ ok: boolean; erro
 
   if (error) {
     console.error("retryFailedJob failed:", error.message);
-    return { ok: false, error: "ไม่สามารถลองใหม่ได้ กรุณาลองใหม่อีกครั้ง" };
+    const t = await getTranslations("actionMessages.common");
+    return { ok: false, error: t("batchRetryFailed") };
   }
   if (!count) {
-    return { ok: false, error: "ไม่พบงานที่ล้มเหลวนี้ (อาจถูกประมวลผลไปแล้ว)" };
+    const tJobs = await getTranslations("actionMessages.superadmin.jobs");
+    return { ok: false, error: tJobs("failedJobNotFoundProcessed") };
   }
   return { ok: true };
 }
@@ -235,6 +238,7 @@ export async function cancelDeadLetterJob(
   cancelledBy: string,
   note?: string
 ): Promise<{ ok: boolean; error?: string }> {
+  const tJobs = await getTranslations("actionMessages.superadmin.jobs");
   const service = createServiceRoleClient();
   const { error, data } = await service
     .from("background_jobs")
@@ -242,7 +246,7 @@ export async function cancelDeadLetterJob(
       status: "cancelled",
       resolved_at: new Date().toISOString(),
       resolved_by: cancelledBy,
-      resolution_note: note ?? "ยกเลิกโดย Super Admin",
+      resolution_note: note ?? tJobs("cancelledBySuperAdminNote"),
     })
     .eq("id", jobId)
     .eq("status", "failed")
@@ -250,10 +254,10 @@ export async function cancelDeadLetterJob(
 
   if (error) {
     console.error("cancelDeadLetterJob failed:", error.message);
-    return { ok: false, error: "ไม่สามารถยกเลิกงานนี้ได้ กรุณาลองใหม่อีกครั้ง" };
+    return { ok: false, error: tJobs("cancelJobFailed") };
   }
   if (!(data?.length ?? 0)) {
-    return { ok: false, error: "ไม่พบงานที่ล้มเหลวนี้ (อาจถูกดำเนินการไปแล้ว)" };
+    return { ok: false, error: tJobs("failedJobNotFoundHandled") };
   }
   return { ok: true };
 }
@@ -280,10 +284,12 @@ export async function resolveDeadLetterJob(
 
   if (error) {
     console.error("resolveDeadLetterJob failed:", error.message);
-    return { ok: false, error: "ไม่สามารถบันทึกการแก้ไขได้ กรุณาลองใหม่อีกครั้ง" };
+    const t = await getTranslations("actionMessages.common");
+    return { ok: false, error: t("editSaveFailed") };
   }
   if (!(data?.length ?? 0)) {
-    return { ok: false, error: "ไม่พบงานที่ล้มเหลวนี้ หรือถูกทำเครื่องหมายแก้ไขแล้วไปก่อนหน้า" };
+    const tJobs = await getTranslations("actionMessages.superadmin.jobs");
+    return { ok: false, error: tJobs("failedJobNotFoundResolved") };
   }
   return { ok: true };
 }

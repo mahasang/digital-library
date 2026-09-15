@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -21,11 +22,13 @@ export async function reorderCategoriesAction(
   parentId: string | null,
   orderedIds: string[]
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tCategories = await getTranslations("actionMessages.superadmin.categories");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   if (orderedIds.length === 0) {
-    return { status: "error", message: "ไม่มีรายการให้จัดลำดับ" };
+    return { status: "error", message: t("noItemsToReorder") };
   }
 
   const supabase = await createClient();
@@ -39,7 +42,7 @@ export async function reorderCategoriesAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถจัดลำดับหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง",
+        tCategories("reorderFailed"),
         "reorderCategoriesAction failed"
       ),
     };
@@ -56,7 +59,7 @@ export async function reorderCategoriesAction(
   revalidatePath("/superadmin/categories");
   revalidatePath("/dashboard/categories");
   revalidatePath("/", "layout");
-  return { status: "success", message: "จัดลำดับหมวดหมู่เรียบร้อยแล้ว" };
+  return { status: "success", message: tCategories("reorderSuccess") };
 }
 
 /**
@@ -70,6 +73,7 @@ export async function moveCategoryAction(
   newParentId: string | null,
   orderedIds: string[]
 ): Promise<ActionResult> {
+  const tCategories = await getTranslations("actionMessages.superadmin.categories");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -85,7 +89,7 @@ export async function moveCategoryAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถย้ายหมวดหมู่ได้ กรุณาลองใหม่อีกครั้ง",
+        tCategories("moveFailed"),
         "moveCategoryAction failed"
       ),
     };
@@ -102,5 +106,5 @@ export async function moveCategoryAction(
   revalidatePath("/superadmin/categories");
   revalidatePath("/dashboard/categories");
   revalidatePath("/", "layout");
-  return { status: "success", message: "ย้ายหมวดหมู่เรียบร้อยแล้ว" };
+  return { status: "success", message: tCategories("moveSuccess") };
 }

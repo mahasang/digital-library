@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { enqueueBackgroundJob, retryFailedJob } from "@/lib/jobs/queue.server";
@@ -26,12 +27,14 @@ export async function bulkEnqueueDuplicateScanAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tDataQuality = await getTranslations("actionMessages.superadmin.dataQuality");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const selectedIds = formData.getAll("selectedIds").map(String).filter(Boolean);
   if (selectedIds.length === 0) {
-    return { status: "error", message: "กรุณาเลือกอย่างน้อยหนึ่งรายการ" };
+    return { status: "error", message: t("selectAtLeastOne") };
   }
 
   const batchSize = Math.min(200, Math.max(1, Number(formData.get("batchSize")) || 50));
@@ -71,9 +74,10 @@ export async function bulkEnqueueDuplicateScanAction(
   return {
     status: "success",
     message:
-      selectedIds.length > targetIds.length
-        ? `สร้างงานตรวจสอบ ${queued} รายการ (ข้าม ${skipped} รายการที่มีงานค้างอยู่แล้ว) — เลือกไว้ ${selectedIds.length} รายการ เกินขนาด batch จึงทำเฉพาะ ${targetIds.length} รายการแรก กดอีกครั้งเพื่อทำส่วนที่เหลือ`
-        : `สร้างงานตรวจสอบ ${queued} รายการ (ข้าม ${skipped} รายการที่มีงานค้างอยู่แล้ว)`,
+      tDataQuality("bulkCreated", { queued, skipped }) +
+      (selectedIds.length > targetIds.length
+        ? t("bulkOverLimitSuffix", { selected: selectedIds.length, target: targetIds.length })
+        : ""),
   };
 }
 
@@ -88,6 +92,8 @@ export async function bulkEnqueueAllMatchingFilterAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tDataQuality = await getTranslations("actionMessages.superadmin.dataQuality");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -108,16 +114,16 @@ export async function bulkEnqueueAllMatchingFilterAction(
 
   const parsed = duplicateScanBulkFilterSchema.safeParse(raw);
   if (!parsed.success) {
-    return { status: "error", message: "ตัวกรองไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("invalidFilter") };
   }
   const filters = parsed.data;
 
   const totalItems = await getDuplicateScanCandidatesCount(filters);
   if (totalItems === null) {
-    return { status: "error", message: "ไม่สามารถนับจำนวนรายการได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("countCandidatesFailed") };
   }
   if (totalItems === 0) {
-    return { status: "error", message: "ไม่พบรายการที่ตรงตัวกรองนี้" };
+    return { status: "error", message: t("noMatchingItems") };
   }
 
   const supabase = await createClient();
@@ -134,7 +140,7 @@ export async function bulkEnqueueAllMatchingFilterAction(
   }
 
   if (!result.isNew) {
-    return { status: "success", message: "งานนี้กำลังทำงานอยู่แล้วสำหรับตัวกรองเดียวกัน — ดูความคืบหน้าด้านล่าง" };
+    return { status: "success", message: t("alreadyRunningSameFilter") };
   }
 
   await logAudit(supabase, {
@@ -147,7 +153,7 @@ export async function bulkEnqueueAllMatchingFilterAction(
   revalidatePath("/superadmin/data-quality");
   return {
     status: "success",
-    message: `เริ่มสร้างงานตรวจสอบสำหรับ ${totalItems} รายการแล้ว (ทยอยสร้างเป็นชุด ดูความคืบหน้าด้านล่าง)`,
+    message: tDataQuality("bulkAllCreated", { total: totalItems }),
   };
 }
 
@@ -155,14 +161,15 @@ async function batchControlAction(
   formData: FormData,
   fn: (batchId: string) => ReturnType<typeof pauseJobBatch>
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
   const batchId = String(formData.get("batchId") || "");
-  if (!batchId) return { status: "error", message: "ไม่พบรหัสชุดงาน" };
+  if (!batchId) return { status: "error", message: t("batchIdNotFound") };
   const result = await fn(batchId);
   if (!result.ok) return result.result;
   revalidatePath("/superadmin/data-quality");
-  return { status: "success", message: "ดำเนินการเรียบร้อยแล้ว" };
+  return { status: "success", message: t("actionSuccess") };
 }
 
 export async function pauseBatchAction(_prevState: ActionResult, formData: FormData): Promise<ActionResult> {
@@ -175,29 +182,31 @@ export async function cancelBatchAction(_prevState: ActionResult, formData: Form
   return batchControlAction(formData, cancelJobBatch);
 }
 export async function retryFailedInBatchAction(_prevState: ActionResult, formData: FormData): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
   const batchId = String(formData.get("batchId") || "");
-  if (!batchId) return { status: "error", message: "ไม่พบรหัสชุดงาน" };
+  if (!batchId) return { status: "error", message: t("batchIdNotFound") };
   const result = await retryFailedInBatch(batchId);
   if (!result.ok) return result.result;
   revalidatePath("/superadmin/data-quality");
-  return { status: "success", message: "ส่งรายการที่ล้มเหลวกลับเข้าคิวแล้ว" };
+  return { status: "success", message: t("requeuedFailedSuccess") };
 }
 
 export async function retryFailedDuplicateScanJobAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const jobId = String(formData.get("jobId") || "");
-  if (!jobId) return { status: "error", message: "ไม่พบรหัสงาน" };
+  if (!jobId) return { status: "error", message: t("jobNotFound") };
 
   const result = await retryFailedJob(jobId);
   if (!result.ok) {
-    return { status: "error", message: result.error ?? "ลองใหม่ไม่สำเร็จ" };
+    return { status: "error", message: result.error ?? t("retryFailed") };
   }
 
   const supabase = await createClient();
@@ -209,5 +218,5 @@ export async function retryFailedDuplicateScanJobAction(
   });
 
   revalidatePath("/superadmin/data-quality");
-  return { status: "success", message: "ส่งกลับเข้าคิวเรียบร้อยแล้ว" };
+  return { status: "success", message: t("requeuedSuccess") };
 }

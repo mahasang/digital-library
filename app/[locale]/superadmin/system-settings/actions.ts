@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -13,6 +14,8 @@ export async function updateSystemSettingsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tSystemSettings = await getTranslations("actionMessages.superadmin.systemSettings");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -40,7 +43,7 @@ export async function updateSystemSettingsAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -92,10 +95,10 @@ export async function updateSystemSettingsAction(
 
   if (error) {
     console.error("updateSystemSettingsAction failed:", error.message);
-    return { status: "error", message: "ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("saveSettingsFailed") };
   }
 
-  let bucketSyncWarning = "";
+  let bucketSyncFailed = false;
   try {
     const bucketUpdates = await Promise.all([
       supabase.rpc("superadmin_update_bucket_limit", {
@@ -115,7 +118,7 @@ export async function updateSystemSettingsAction(
     if (failed?.error) throw failed.error;
   } catch (err) {
     console.error("updateSystemSettingsAction bucket sync failed:", err);
-    bucketSyncWarning = " (บันทึกค่าตั้งต้นสำเร็จ แต่ไม่สามารถอัปเดตขีดจำกัดจริงของ Storage bucket ได้)";
+    bucketSyncFailed = true;
   }
 
   await logAudit(supabase, {
@@ -134,5 +137,8 @@ export async function updateSystemSettingsAction(
   revalidatePath("/superadmin/system-settings");
   revalidatePath("/dashboard/settings");
   revalidatePublicSettings();
-  return { status: "success", message: `บันทึกการตั้งค่าเรียบร้อยแล้ว${bucketSyncWarning}` };
+  return {
+    status: "success",
+    message: t("settingsSavedSuccess") + (bucketSyncFailed ? ` ${tSystemSettings("bucketSyncWarning")}` : ""),
+  };
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -23,22 +24,24 @@ export async function updateCronMonitoringSettingsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tCron = await getTranslations("actionMessages.superadmin.cronMonitoring");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const jobName = String(formData.get("jobName") || "") as CronJobNameRow;
   if (!VALID_JOB_NAMES.includes(jobName)) {
-    return { status: "error", message: "ไม่รู้จักชื่อ cron นี้" };
+    return { status: "error", message: tCron("unknownJobName") };
   }
 
   const expectedFrequencyMinutes = Number(formData.get("expectedFrequencyMinutes"));
   if (!Number.isInteger(expectedFrequencyMinutes) || expectedFrequencyMinutes < 1 || expectedFrequencyMinutes > 1440) {
-    return { status: "error", message: "ความถี่ที่คาดหวังต้องเป็นเลขจำนวนเต็มระหว่าง 1-1440 นาที" };
+    return { status: "error", message: tCron("frequencyRange") };
   }
 
   const failureThreshold = Number(formData.get("failureThreshold"));
   if (!Number.isInteger(failureThreshold) || failureThreshold < 1) {
-    return { status: "error", message: "จำนวนงานล้มเหลวเกณฑ์แจ้งเตือนต้องเป็นเลขจำนวนเต็มตั้งแต่ 1 ขึ้นไป" };
+    return { status: "error", message: tCron("thresholdRange") };
   }
 
   const service = createServiceRoleClient();
@@ -54,7 +57,7 @@ export async function updateCronMonitoringSettingsAction(
 
   if (error) {
     console.error("updateCronMonitoringSettingsAction failed:", error.message);
-    return { status: "error", message: "บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("saveFailedGeneric") };
   }
 
   const supabase = await createClient();
@@ -67,5 +70,5 @@ export async function updateCronMonitoringSettingsAction(
   });
 
   revalidatePath("/superadmin/cron-monitoring");
-  return { status: "success", message: "บันทึกการตั้งค่าเรียบร้อยแล้ว" };
+  return { status: "success", message: t("settingsSavedSuccess") };
 }

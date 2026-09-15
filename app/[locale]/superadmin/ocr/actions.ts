@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
@@ -16,6 +17,8 @@ export async function updateOcrSettingsAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tOcr = await getTranslations("actionMessages.superadmin.ocr");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
@@ -31,7 +34,7 @@ export async function updateOcrSettingsAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -52,7 +55,7 @@ export async function updateOcrSettingsAction(
 
   if (error) {
     console.error("updateOcrSettingsAction failed:", error.message);
-    return { status: "error", message: "ไม่สามารถบันทึกการตั้งค่าได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: t("saveSettingsFailed") };
   }
 
   await logAudit(supabase, {
@@ -71,7 +74,7 @@ export async function updateOcrSettingsAction(
   });
 
   revalidatePath("/superadmin/ocr");
-  return { status: "success", message: "บันทึกการตั้งค่า OCR เรียบร้อยแล้ว" };
+  return { status: "success", message: tOcr("settingsSavedSuccess") };
 }
 
 /**
@@ -114,16 +117,17 @@ export async function triggerOcrTestRunAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const tOcr = await getTranslations("actionMessages.superadmin.ocr");
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
   const fixtureName = String(formData.get("fixtureName") || "");
   const fixture = await getOcrTestFixture(fixtureName);
   if (!fixture) {
-    return { status: "error", message: "ไม่รู้จักไฟล์ทดสอบนี้" };
+    return { status: "error", message: tOcr("unknownFixture") };
   }
   if (!fixture.available) {
-    return { status: "error", message: `ยังไม่มีไฟล์ "${fixture.label}" ในระบบ กรุณาเพิ่มไฟล์ก่อนทดสอบ` };
+    return { status: "error", message: tOcr("fixtureNotAvailable", { label: fixture.label }) };
   }
 
   const service = createServiceRoleClient();
@@ -135,7 +139,7 @@ export async function triggerOcrTestRunAction(
 
   if (insertError || !testRun) {
     console.error("triggerOcrTestRunAction: สร้างแถว ocr_test_runs ไม่สำเร็จ:", insertError?.message);
-    return { status: "error", message: "ไม่สามารถเริ่มทดสอบได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tOcr("testRunCreateFailed") };
   }
 
   const enqueueResult = await enqueueBackgroundJob({
@@ -147,7 +151,7 @@ export async function triggerOcrTestRunAction(
   });
 
   if (!enqueueResult.ok) {
-    return { status: "error", message: "ไม่สามารถสร้างงานทดสอบได้ กรุณาลองใหม่อีกครั้ง" };
+    return { status: "error", message: tOcr("testJobCreateFailed") };
   }
 
   const isRetry = formData.get("isRetry") === "true";
@@ -161,5 +165,5 @@ export async function triggerOcrTestRunAction(
   });
 
   revalidatePath("/superadmin/ocr");
-  return { status: "success", message: `เริ่มทดสอบด้วยไฟล์ "${fixture.label}" แล้ว` };
+  return { status: "success", message: tOcr("testRunStarted", { label: fixture.label }) };
 }
