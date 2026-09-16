@@ -1,4 +1,4 @@
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import { getSessionUser } from "@/lib/supabase/session";
@@ -21,6 +21,7 @@ export default async function BlogAdminEditPage({
   const rank = await getCurrentUserRoleRank();
   if (rank < 30) return redirect({ href: "/403", locale });
 
+  const t = await getTranslations("blogAdmin.editPage");
   const post = await getBlogPostById(id);
   if (!post) notFound();
 
@@ -33,7 +34,7 @@ export default async function BlogAdminEditPage({
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">ແກ້ໄຂບົດຄວາມ</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t("heading")}</h1>
         <p className="mt-1 text-sm text-gray-500 font-mono">/{post.slug}</p>
       </div>
       <BlogPostForm

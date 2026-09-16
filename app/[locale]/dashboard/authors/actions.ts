@@ -8,7 +8,7 @@ import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { createAuthorSchema } from "@/lib/validation/author";
 import { validateOrcid } from "@/lib/validation/orcid";
 import { logAudit } from "@/lib/data/audit.server";
-import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { lookupOrcidPublicRecord } from "@/lib/orcid/orcid-public-api.server";
 import { checkRateLimit, rateLimitKeyForUser } from "@/lib/rate-limit.server";
 import type { ActionResult } from "@/lib/actions/types";
@@ -535,7 +535,7 @@ export async function mergeAuthorsAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(error, tAuthors("mergeFailed"), "mergeAuthorsAction failed"),
+      message: await toSafeErrorMessageLocalized(error, tAuthors("mergeFailed"), "mergeAuthorsAction failed"),
     };
   }
 

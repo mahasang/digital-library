@@ -1550,7 +1550,16 @@
       "revokeReasonRequired": "Please provide a reason for revoking this grant.",
       "revokeFailed": "Could not revoke the grant. Please try again.",
       "grantNotFoundOrRevoked": "Grant not found, or it has already been revoked.",
-      "revokeSuccess": "Grant revoked successfully."
+      "revokeSuccess": "Grant revoked successfully.",
+      "mustLoginToRequest": "Please log in before submitting a document access request",
+      "alreadyHasAccess": "You already have this permission — no need to submit a request",
+      "submitRateLimited": "Too many requests submitted. Please try again later.",
+      "duplicatePending": "You already have a pending request for this document",
+      "submitFailed": "Could not submit the request. Please try again.",
+      "submitSuccess": "Request submitted. Staff will review it and notify you of the result.",
+      "cancelFailed": "Could not cancel the request. Please try again.",
+      "cancelNotAllowed": "This request cannot be cancelled (it may already have been reviewed)",
+      "cancelSuccess": "Request cancelled successfully"
     },
     "research": {
       "noPermissionToCreate": "You don't have permission to add research. You must be a librarian or higher.",
@@ -2086,5 +2095,122 @@
         "saveFailed": "Could not save the ORCID connection. Please try again."
       }
     }
+  },
+  "blogAdmin": {
+    "nav": {
+      "overview": "Overview",
+      "newPost": "New Post",
+      "subtitle": "Manage posts",
+      "backToDashboard": "Back to Dashboard",
+      "viewBlog": "View Blog"
+    },
+    "list": {
+      "heading": "All Posts",
+      "subtitle": "Manage your blog posts",
+      "newPostButton": "New Post",
+      "statTotal": "Total",
+      "statPublished": "Published",
+      "statScheduled": "Scheduled",
+      "statDraft": "Draft",
+      "colTitle": "Title",
+      "colStatus": "Status",
+      "colDate": "Date",
+      "colActions": "Actions",
+      "emptyState": "No posts yet",
+      "viewTitle": "View",
+      "editTitle": "Edit",
+      "statusPublished": "Published",
+      "statusScheduled": "Scheduled",
+      "statusDraft": "Draft",
+      "statusArchived": "Archived"
+    },
+    "newPage": {
+      "heading": "New Post",
+      "subtitle": "Write and publish a post"
+    },
+    "editPage": {
+      "heading": "Edit Post"
+    },
+    "deleteButton": {
+      "confirmMessage": "Delete “{title}”? This cannot be undone.",
+      "title": "Delete"
+    },
+    "editor": {
+      "placeholder": "Write your content here...",
+      "uploadImageTitle": "Upload image",
+      "uploading": "Uploading...",
+      "charactersSuffix": "characters",
+      "dropHint": "Drag an image here or Ctrl+V to paste an image",
+      "linkPrompt": "Link URL:"
+    },
+    "form": {
+      "langLao": "Lao",
+      "langThai": "Thai",
+      "langEnglish": "English",
+      "langVietnamese": "Vietnamese",
+      "tagPlaceholder": "Type a tag and press Enter...",
+      "tagHint": "Press Enter or , to add a tag",
+      "slugLabel": "Slug (URL)",
+      "slugHint": "Use a-z, 0-9, - only",
+      "titleLabel": "Title",
+      "excerptLabel": "Excerpt",
+      "contentLabel": "Content",
+      "contentPlaceholder": "Write content ({lang})...",
+      "publishSectionTitle": "Publishing",
+      "statusLabel": "Status:",
+      "statusPublished": "✅ Published",
+      "statusScheduled": "⏰ Scheduled",
+      "statusDraft": "📝 Draft",
+      "saving": "Saving...",
+      "saveDraftButton": "💾 Save Draft",
+      "publishButton": "🚀 Publish",
+      "scheduleSectionTitle": "⏰ Schedule",
+      "scheduleHint": "If scheduled for the future, the status will automatically become “Scheduled”",
+      "coverSectionTitle": "🖼 Cover Image",
+      "uploadButton": "Upload Image",
+      "orDivider": "or",
+      "tagsSectionTitle": "🏷 Tags",
+      "seoSectionTitle": "🔍 SEO",
+      "metaTitlePlaceholder": "Title for Google (uses post title if empty)",
+      "metaDescriptionPlaceholder": "Description for Google (uses excerpt if empty)",
+      "ogImageHint": "(uses cover image if empty)",
+      "previewLabel": "Google preview",
+      "previewTitleFallback": "(post title)",
+      "previewDescriptionFallback": "(excerpt)",
+      "authorsSectionTitle": "✍️ Authors",
+      "noAuthorSelected": "No author selected yet",
+      "uploadingButton": "Uploading..."
+    }
+  },
+  "sqlErrors": {
+    "cannotRemoveLastSuperAdmin": "Cannot remove the last Super Admin. At least one Super Admin must remain at all times.",
+    "requiresSuperAdminForBucketLimits": "Super Admin permission is required to change Storage bucket limits",
+    "unknownBucket": "Unknown storage bucket",
+    "requiresSuperAdminForSettings": "Super Admin permission is required to change this setting",
+    "requiresSuperAdminForOrdering": "Super Admin permission is required to reorder items",
+    "requiresSuperAdminForCategoryOrdering": "Super Admin permission is required to reorder categories",
+    "requiresSuperAdminForCategoryMove": "Super Admin permission is required to move categories",
+    "requiresSuperAdminForOrgOrdering": "Super Admin permission is required to reorder organizations",
+    "categoryCannotBeSelfParent": "A category cannot be its own parent category",
+    "categoryCircularReference": "Cannot set a parent category that would create a circular reference",
+    "cannotPublishUnscannedFile": "Cannot publish this research item because its file has not passed the security scan",
+    "organizationCannotBeSelfParent": "An organization cannot be its own parent organization",
+    "organizationCircularReference": "Cannot set a parent organization that would create a circular reference",
+    "requiresLibrarianForAuthorMerge": "Librarian permission or higher is required to merge author records",
+    "cannotMergeAuthorWithSelf": "Cannot merge an author with itself",
+    "authorNotFoundOrMerged": "The specified author was not found or has already been merged",
+    "requiresLibrarianForOrgMerge": "Librarian permission or higher is required to merge organization records",
+    "cannotMergeOrganizationWithSelf": "Cannot merge an organization with itself",
+    "organizationNotFoundOrMerged": "The specified organization was not found or has already been merged",
+    "requiresAdminForResearchMerge": "Admin permission or higher is required to merge research items",
+    "cannotMergeResearchWithSelf": "Cannot merge a research item with itself",
+    "researchNotFoundOrMerged": "The specified research item was not found or has already been merged",
+    "requiresSuperAdminForDuplicateRules": "Only a Super Admin can adjust duplicate detection rules",
+    "invalidStatusTransition": "Cannot change this job batch to the specified status from its current status",
+    "requiresSuperAdminForRetry": "Super Admin permission is required to retry jobs",
+    "requiresSuperAdminForBatchCreate": "Super Admin permission is required to create a batch job",
+    "requiresSuperAdminForBatchControl": "Super Admin permission is required to control batch jobs",
+    "invalidTargetStatus": "Invalid target status",
+    "notAuthenticated": "Not authenticated"
   }
 }

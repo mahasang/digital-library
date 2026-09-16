@@ -9,7 +9,7 @@ import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { createSubmissionSchema } from "@/lib/validation/submission";
 import { replaceResearchRelations } from "@/lib/data/submission-write.server";
 import { logAudit } from "@/lib/data/audit.server";
-import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { validateSubmissionFiles } from "@/lib/security/validate-upload.server";
 import { enqueueReplacementFileProcessingJobs } from "@/lib/jobs/enqueue-research-jobs.server";
 import { replaceEntityJob } from "@/lib/jobs/queue.server";
@@ -191,7 +191,7 @@ export async function adminUpdateResearchAction(
   if (updateError) {
     return {
       status: "error",
-      message: toSafeErrorMessage(
+      message: await toSafeErrorMessageLocalized(
         updateError,
         t("editSaveFailed"),
         "adminUpdateResearchAction update failed"

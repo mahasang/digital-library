@@ -8,7 +8,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
-import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { resetUserMfaFactors } from "@/lib/security/mfa-admin.server";
 import { getSettings } from "@/lib/data/settings.server";
 import { sendNotificationEmail } from "@/lib/notifications/email.server";
@@ -105,7 +105,7 @@ export async function removeUserRoleAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(
+      message: await toSafeErrorMessageLocalized(
         error,
         tUsers("removeRoleFailed"),
         "removeUserRoleAction failed"
@@ -356,7 +356,7 @@ export async function revokeSuperAdminAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(
+      message: await toSafeErrorMessageLocalized(
         error,
         tUsers("revokeFailed"),
         "revokeSuperAdminAction failed"

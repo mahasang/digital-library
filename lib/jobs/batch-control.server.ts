@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
-import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import type { ActionResult } from "@/lib/actions/types";
 
 /**
@@ -38,7 +38,7 @@ async function setStatus(
       ok: false,
       result: {
         status: "error",
-        message: toSafeErrorMessage(error, t("batchActionFailed"), "set_job_batch_status"),
+        message: await toSafeErrorMessageLocalized(error, t("batchActionFailed"), "set_job_batch_status"),
       },
     };
   }
@@ -72,7 +72,7 @@ export async function retryFailedInBatch(batchId: string): Promise<{ ok: true } 
       ok: false,
       result: {
         status: "error",
-        message: toSafeErrorMessage(error, t("batchRetryFailed"), "retry_failed_jobs_in_batch"),
+        message: await toSafeErrorMessageLocalized(error, t("batchRetryFailed"), "retry_failed_jobs_in_batch"),
       },
     };
   }

@@ -11,7 +11,7 @@ import {
   replaceResearchRelations,
 } from "@/lib/data/submission-write.server";
 import { logAudit } from "@/lib/data/audit.server";
-import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { validateSubmissionFiles } from "@/lib/security/validate-upload.server";
 import { enqueueInitialFileProcessingJobs } from "@/lib/jobs/enqueue-research-jobs.server";
 import { detectDuplicatesForResearchItem } from "@/lib/data/duplicate-research.server";
@@ -152,7 +152,7 @@ export async function adminCreateResearchAction(
   if (error || !inserted) {
     return {
       status: "error",
-      message: toSafeErrorMessage(
+      message: await toSafeErrorMessageLocalized(
         error,
         tResearch("createSaveFailed"),
         "adminCreateResearchAction insert failed"

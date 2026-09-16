@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { logAudit } from "@/lib/data/audit.server";
-import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { revalidatePublicResearch } from "@/lib/cache/public-home";
 import type { ActionResult } from "@/lib/actions/types";
 
@@ -125,7 +125,7 @@ export async function mergeResearchItemsAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(error, tDuplicateReviews("mergeFailed"), "mergeResearchItemsAction failed"),
+      message: await toSafeErrorMessageLocalized(error, tDuplicateReviews("mergeFailed"), "mergeResearchItemsAction failed"),
     };
   }
 

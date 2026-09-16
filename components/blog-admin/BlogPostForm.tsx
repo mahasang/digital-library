@@ -2,25 +2,20 @@
 
 import { useActionState, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Upload, X, Globe } from "lucide-react";
 import { upsertBlogPostAction, uploadCoverImageAction, type BlogFormState } from "@/app/[locale]/blog-admin/actions";
 import type { BlogPost } from "@/lib/data/blog.server";
 import type { StaffProfile } from "@/lib/data/blog-admin.server";
 import TipTapEditor from "./TipTapEditor";
 
-const LANGS = [
-  { key: "lo", label: "ລາວ", flag: "🇱🇦" },
-  { key: "th", label: "ໄທ", flag: "🇹🇭" },
-  { key: "en", label: "ອັງກິດ", flag: "🇬🇧" },
-  { key: "vi", label: "ຫວຽດນາມ", flag: "🇻🇳" },
-] as const;
-
-type Lang = typeof LANGS[number]["key"];
+type Lang = "lo" | "th" | "en" | "vi";
 
 const initialState: BlogFormState = { status: "idle" };
 
 function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
   const [input, setInput] = useState("");
+  const t = useTranslations("blogAdmin.form");
 
   function addTag(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" || e.key === ",") {
@@ -46,10 +41,10 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={addTag}
-        placeholder="ພິມ tag ແລ້ວກົດ Enter..."
+        placeholder={t("tagPlaceholder")}
         className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:outline-none"
       />
-      <p className="text-xs text-gray-400">ກົດ Enter ຫຼື , ເພື່ອເພີ່ມ tag</p>
+      <p className="text-xs text-gray-400">{t("tagHint")}</p>
     </div>
   );
 }
@@ -64,6 +59,13 @@ export default function BlogPostForm({
   initialAuthorIds?: string[];
 }) {
   const router = useRouter();
+  const t = useTranslations("blogAdmin.form");
+  const LANGS = [
+    { key: "lo" as const, label: t("langLao"), flag: "🇱🇦" },
+    { key: "th" as const, label: t("langThai"), flag: "🇹🇭" },
+    { key: "en" as const, label: t("langEnglish"), flag: "🇬🇧" },
+    { key: "vi" as const, label: t("langVietnamese"), flag: "🇻🇳" },
+  ];
   const action = upsertBlogPostAction.bind(null, post?.id ?? null);
   const [state, formAction, isPending] = useActionState(action, initialState);
   const [activeLang, setActiveLang] = useState<Lang>("lo");
@@ -136,7 +138,7 @@ export default function BlogPostForm({
                 className="flex-1 border-0 bg-transparent text-sm focus:outline-none"
               />
             </div>
-            <p className="mt-1 text-xs text-gray-400">ໃຊ້ a-z, 0-9, - ເທົ່ານັ້ນ</p>
+            <p className="mt-1 text-xs text-gray-400">{t("slugHint")}</p>
           </div>
 
           {/* Lang tabs */}
@@ -162,7 +164,7 @@ export default function BlogPostForm({
             {LANGS.map(({ key }) => (
               <div key={key} className={activeLang === key ? "flex flex-col gap-3" : "hidden"}>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">ຫົວຂໍ້</label>
+                  <label className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">{t("titleLabel")}</label>
                   <input
                     name={`title_${key}`}
                     type="text"
@@ -172,7 +174,7 @@ export default function BlogPostForm({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">ຫຍໍ້ຄວາມ</label>
+                  <label className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">{t("excerptLabel")}</label>
                   <textarea
                     name={`excerpt_${key}`}
                     rows={2}
@@ -182,11 +184,11 @@ export default function BlogPostForm({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">ເນື້ອຫາ</label>
+                  <label className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">{t("contentLabel")}</label>
                   <TipTapEditor
                     content={contents[key]}
                     onChange={(html) => setContents((prev) => ({ ...prev, [key]: html }))}
-                    placeholder={`ຂຽນເນື້ອຫາ (${key})...`}
+                    placeholder={t("contentPlaceholder", { lang: key })}
                   />
                 </div>
               </div>
@@ -199,23 +201,23 @@ export default function BlogPostForm({
 
           {/* Publish actions */}
           <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="mb-3 text-sm font-semibold text-gray-900">ການເຜີຍແຜ່</p>
+            <p className="mb-3 text-sm font-semibold text-gray-900">{t("publishSectionTitle")}</p>
             {post && (
               <div className="mb-3 flex items-center gap-2">
-                <span className="text-xs text-gray-500">ສະຖານະ:</span>
+                <span className="text-xs text-gray-500">{t("statusLabel")}</span>
                 {post.status === "published" && (
                   <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
-                    ✅ ເຜີຍແຜ່ແລ້ວ
+                    {t("statusPublished")}
                   </span>
                 )}
                 {post.status === "scheduled" && (
                   <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                    ⏰ ກຳນົດເວລາໄວ້
+                    {t("statusScheduled")}
                   </span>
                 )}
                 {post.status === "draft" && (
                   <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
-                    📝 ຮ່າງ
+                    {t("statusDraft")}
                   </span>
                 )}
               </div>
@@ -230,7 +232,7 @@ export default function BlogPostForm({
                 onClick={() => setPublishValue("false")}
                 className="w-full rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
               >
-                {isPending ? "ກຳລັງບັນທຶກ..." : "💾 ບັນທຶກຮ່າງ"}
+                {isPending ? t("saving") : t("saveDraftButton")}
               </button>
               <button
                 type="submit"
@@ -238,14 +240,14 @@ export default function BlogPostForm({
                 onClick={() => setPublishValue("true")}
                 className="w-full rounded-lg bg-brand-600 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50 transition-colors"
               >
-                {isPending ? "ກຳລັງບັນທຶກ..." : "🚀 ເຜີຍແຜ່"}
+                {isPending ? t("saving") : t("publishButton")}
               </button>
             </div>
           </div>
 
           {/* Schedule */}
           <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="mb-2 text-sm font-semibold text-gray-900">⏰ ກຳນົດເວລາ</p>
+            <p className="mb-2 text-sm font-semibold text-gray-900">{t("scheduleSectionTitle")}</p>
             <input
               type="datetime-local"
               name="scheduled_at"
@@ -257,13 +259,13 @@ export default function BlogPostForm({
               className={`${inputCls} text-xs`}
             />
             <p className="mt-1 text-xs text-gray-400">
-              ຖ້າກຳນົດເວລາໃນອະນາຄົດ ຈະຕັ້ງສະຖານະເປັນ &ldquo;ກຳນົດເວລາໄວ້&rdquo; ອັດຕະໂນມັດ
+              {t("scheduleHint")}
             </p>
           </div>
 
           {/* Cover image */}
           <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="mb-2 text-sm font-semibold text-gray-900">🖼 ຮູບໜ້າປົກ</p>
+            <p className="mb-2 text-sm font-semibold text-gray-900">{t("coverSectionTitle")}</p>
             {coverImage ? (
               <div className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -285,7 +287,7 @@ export default function BlogPostForm({
                   className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 py-4 text-sm text-gray-500 hover:border-brand-400 hover:text-brand-600 transition-colors disabled:opacity-50"
                 >
                   <Upload className="h-4 w-4" />
-                  {uploading ? "ກຳລັງອັບໂຫລດ..." : "ອັບໂຫລດຮູບ"}
+                  {uploading ? t("uploadingButton") : t("uploadButton")}
                 </button>
                 <input
                   ref={fileInputRef}
@@ -296,7 +298,7 @@ export default function BlogPostForm({
                 />
                 <div className="flex items-center gap-2">
                   <div className="h-px flex-1 bg-gray-200" />
-                  <span className="text-xs text-gray-400">ຫຼື</span>
+                  <span className="text-xs text-gray-400">{t("orDivider")}</span>
                   <div className="h-px flex-1 bg-gray-200" />
                 </div>
                 <input
@@ -311,7 +313,7 @@ export default function BlogPostForm({
           </div>
           {/* Tags */}
           <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="mb-2 text-sm font-semibold text-gray-900">🏷 Tags</p>
+            <p className="mb-2 text-sm font-semibold text-gray-900">{t("tagsSectionTitle")}</p>
             <TagInput
               tags={tags}
               onChange={setTags}
@@ -321,7 +323,7 @@ export default function BlogPostForm({
 
           {/* SEO */}
           <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="mb-3 text-sm font-semibold text-gray-900">🔍 SEO</p>
+            <p className="mb-3 text-sm font-semibold text-gray-900">{t("seoSectionTitle")}</p>
             <div className="flex flex-col gap-3">
 
               {/* SEO Title */}
@@ -339,7 +341,7 @@ export default function BlogPostForm({
                   value={seoTitle}
                   onChange={(e) => setSeoTitle(e.target.value)}
                   maxLength={60}
-                  placeholder="ຫົວຂໍ້ສຳລັບ Google (ຖ້າວ່າງໃຊ້ຫົວຂໍ້ບົດຄວາມ)"
+                  placeholder={t("metaTitlePlaceholder")}
                   className={inputCls}
                 />
               </div>
@@ -359,7 +361,7 @@ export default function BlogPostForm({
                   onChange={(e) => setSeoDescription(e.target.value)}
                   maxLength={160}
                   rows={3}
-                  placeholder="ຄຳອະທິບາຍສຳລັບ Google (ຖ້າວ່າງໃຊ້ excerpt)"
+                  placeholder={t("metaDescriptionPlaceholder")}
                   className={`${inputCls} resize-none`}
                 />
               </div>
@@ -368,7 +370,7 @@ export default function BlogPostForm({
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-600">
                   OG Image URL
-                  <span className="ml-1 text-gray-400">(ຖ້າວ່າງໃຊ້ຮູບໜ້າປົກ)</span>
+                  <span className="ml-1 text-gray-400">{t("ogImageHint")}</span>
                 </label>
                 <input
                   type="text"
@@ -393,15 +395,15 @@ export default function BlogPostForm({
               {/* Preview card */}
               {(seoTitle || seoDescription) && (
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                  <p className="text-xs font-medium text-gray-400 mb-1.5">ຕົວຢ່າງໃນ Google</p>
+                  <p className="text-xs font-medium text-gray-400 mb-1.5">{t("previewLabel")}</p>
                   <p className="text-sm font-medium text-blue-700 truncate">
-                    {seoTitle || "(ຫົວຂໍ້ບົດຄວາມ)"}
+                    {seoTitle || t("previewTitleFallback")}
                   </p>
                   <p className="text-xs text-green-700 truncate">
                     digital-library-sls.vercel.app/lo/blog/...
                   </p>
                   <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">
-                    {seoDescription || "(excerpt)"}
+                    {seoDescription || t("previewDescriptionFallback")}
                   </p>
                 </div>
               )}
@@ -411,7 +413,7 @@ export default function BlogPostForm({
           {/* Authors */}
           {staffProfiles.length > 0 && (
             <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <p className="mb-3 text-sm font-semibold text-gray-900">✍️ ຜູ້ຂຽນ</p>
+              <p className="mb-3 text-sm font-semibold text-gray-900">{t("authorsSectionTitle")}</p>
               <div className="flex flex-col gap-1.5">
                 {staffProfiles.map((profile) => {
                   const selected = selectedAuthorIds.includes(profile.id);
@@ -455,7 +457,7 @@ export default function BlogPostForm({
                 })}
               </div>
               {selectedAuthorIds.length === 0 && (
-                <p className="mt-2 text-xs text-gray-400">ຍັງບໍ່ໄດ້ເລືອກຜູ້ຂຽນ</p>
+                <p className="mt-2 text-xs text-gray-400">{t("noAuthorSelected")}</p>
               )}
             </div>
           )}

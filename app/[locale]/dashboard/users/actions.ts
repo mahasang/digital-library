@@ -7,7 +7,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
-import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import type { ActionResult } from "@/lib/actions/types";
 import type { RoleName } from "@/lib/supabase/database.types";
 
@@ -55,7 +55,7 @@ export async function changeUserRoleAction(
   if (deleteError) {
     return {
       status: "error",
-      message: toSafeErrorMessage(deleteError, tUsers("roleChangeFailed"), "changeUserRoleAction delete failed"),
+      message: await toSafeErrorMessageLocalized(deleteError, tUsers("roleChangeFailed"), "changeUserRoleAction delete failed"),
     };
   }
 

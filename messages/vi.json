@@ -1550,7 +1550,16 @@
       "revokeReasonRequired": "กรุณาระบุเหตุผลในการเพิกถอนสิทธิ์",
       "revokeFailed": "ไม่สามารถเพิกถอนสิทธิ์ได้ กรุณาลองใหม่อีกครั้ง",
       "grantNotFoundOrRevoked": "ไม่พบสิทธิ์นี้ หรือถูกเพิกถอนไปแล้ว",
-      "revokeSuccess": "เพิกถอนสิทธิ์เรียบร้อยแล้ว"
+      "revokeSuccess": "เพิกถอนสิทธิ์เรียบร้อยแล้ว",
+      "mustLoginToRequest": "กรุณาเข้าสู่ระบบก่อนส่งคำขอเข้าถึงเอกสาร",
+      "alreadyHasAccess": "คุณมีสิทธิ์นี้อยู่แล้ว ไม่จำเป็นต้องส่งคำขอ",
+      "submitRateLimited": "มีการส่งคำขอบ่อยเกินไป กรุณาลองใหม่ภายหลัง",
+      "duplicatePending": "คุณมีคำขอที่รอตรวจสอบอยู่แล้วสำหรับเอกสารนี้",
+      "submitFailed": "ไม่สามารถส่งคำขอได้ กรุณาลองใหม่อีกครั้ง",
+      "submitSuccess": "ส่งคำขอเรียบร้อยแล้ว เจ้าหน้าที่จะตรวจสอบและแจ้งผลกลับ",
+      "cancelFailed": "ไม่สามารถยกเลิกคำขอได้ กรุณาลองใหม่อีกครั้ง",
+      "cancelNotAllowed": "ไม่สามารถยกเลิกคำขอนี้ได้ (อาจถูกตรวจสอบไปแล้ว)",
+      "cancelSuccess": "ยกเลิกคำขอเรียบร้อยแล้ว"
     },
     "research": {
       "noPermissionToCreate": "คุณไม่มีสิทธิ์เพิ่มงานวิจัย ต้องเป็นบรรณารักษ์ขึ้นไป",
@@ -2086,5 +2095,122 @@
         "saveFailed": "ไม่สามารถบันทึกการเชื่อมต่อ ORCID ได้ กรุณาลองใหม่อีกครั้ง"
       }
     }
+  },
+  "blogAdmin": {
+    "nav": {
+      "overview": "ภาพรวม",
+      "newPost": "สร้างบทความใหม่",
+      "subtitle": "จัดการบทความ",
+      "backToDashboard": "กลับไป Dashboard",
+      "viewBlog": "ดู Blog"
+    },
+    "list": {
+      "heading": "บทความทั้งหมด",
+      "subtitle": "จัดการบทความของคุณ",
+      "newPostButton": "สร้างบทความใหม่",
+      "statTotal": "ทั้งหมด",
+      "statPublished": "เผยแพร่แล้ว",
+      "statScheduled": "กำหนดเวลา",
+      "statDraft": "ฉบับร่าง",
+      "colTitle": "หัวข้อ",
+      "colStatus": "สถานะ",
+      "colDate": "วันที่",
+      "colActions": "จัดการ",
+      "emptyState": "ยังไม่มีบทความ",
+      "viewTitle": "ดู",
+      "editTitle": "แก้ไข",
+      "statusPublished": "เผยแพร่",
+      "statusScheduled": "กำหนดเวลา",
+      "statusDraft": "ฉบับร่าง",
+      "statusArchived": "เก็บถาวร"
+    },
+    "newPage": {
+      "heading": "สร้างบทความใหม่",
+      "subtitle": "เขียนและเผยแพร่บทความ"
+    },
+    "editPage": {
+      "heading": "แก้ไขบทความ"
+    },
+    "deleteButton": {
+      "confirmMessage": "ต้องการลบ «{title}» หรือไม่? ไม่สามารถกู้คืนได้",
+      "title": "ลบ"
+    },
+    "editor": {
+      "placeholder": "เขียนเนื้อหาที่นี่...",
+      "uploadImageTitle": "อัปโหลดรูป",
+      "uploading": "กำลังอัปโหลด...",
+      "charactersSuffix": "ตัวอักษร",
+      "dropHint": "ลากรูปมาวางในช่องเขียน หรือ Ctrl+V เพื่อวางรูปได้เลย",
+      "linkPrompt": "URL ลิงก์:"
+    },
+    "form": {
+      "langLao": "ลาว",
+      "langThai": "ไทย",
+      "langEnglish": "อังกฤษ",
+      "langVietnamese": "เวียดนาม",
+      "tagPlaceholder": "พิมพ์ tag แล้วกด Enter...",
+      "tagHint": "กด Enter หรือ , เพื่อเพิ่ม tag",
+      "slugLabel": "Slug (URL)",
+      "slugHint": "ใช้ a-z, 0-9, - เท่านั้น",
+      "titleLabel": "หัวข้อ",
+      "excerptLabel": "สรุปย่อ",
+      "contentLabel": "เนื้อหา",
+      "contentPlaceholder": "เขียนเนื้อหา ({lang})...",
+      "publishSectionTitle": "การเผยแพร่",
+      "statusLabel": "สถานะ:",
+      "statusPublished": "✅ เผยแพร่แล้ว",
+      "statusScheduled": "⏰ ตั้งเวลาไว้",
+      "statusDraft": "📝 ฉบับร่าง",
+      "saving": "กำลังบันทึก...",
+      "saveDraftButton": "💾 บันทึกฉบับร่าง",
+      "publishButton": "🚀 เผยแพร่",
+      "scheduleSectionTitle": "⏰ กำหนดเวลา",
+      "scheduleHint": "ถ้ากำหนดเวลาในอนาคต จะตั้งสถานะเป็น “ตั้งเวลาไว้” โดยอัตโนมัติ",
+      "coverSectionTitle": "🖼 รูปหน้าปก",
+      "uploadButton": "อัปโหลดรูป",
+      "orDivider": "หรือ",
+      "tagsSectionTitle": "🏷 Tags",
+      "seoSectionTitle": "🔍 SEO",
+      "metaTitlePlaceholder": "หัวข้อสำหรับ Google (ถ้าว่างใช้หัวข้อบทความ)",
+      "metaDescriptionPlaceholder": "คำอธิบายสำหรับ Google (ถ้าว่างใช้ excerpt)",
+      "ogImageHint": "(ถ้าว่างใช้รูปหน้าปก)",
+      "previewLabel": "ตัวอย่างใน Google",
+      "previewTitleFallback": "(หัวข้อบทความ)",
+      "previewDescriptionFallback": "(excerpt)",
+      "authorsSectionTitle": "✍️ ผู้เขียน",
+      "noAuthorSelected": "ยังไม่ได้เลือกผู้เขียน",
+      "uploadingButton": "กำลังอัปโหลด..."
+    }
+  },
+  "sqlErrors": {
+    "cannotRemoveLastSuperAdmin": "ไม่สามารถถอดถอนสิทธิ์ Super Admin คนสุดท้ายในระบบได้ ต้องมี Super Admin เหลืออย่างน้อย 1 คนเสมอ",
+    "requiresSuperAdminForBucketLimits": "ต้องมีสิทธิ์ Super Admin จึงจะแก้ไขขีดจำกัดของ Storage bucket ได้",
+    "unknownBucket": "ไม่รู้จัก bucket นี้",
+    "requiresSuperAdminForSettings": "ต้องมีสิทธิ์ Super Admin จึงจะแก้ไขการตั้งค่านี้ได้",
+    "requiresSuperAdminForOrdering": "ต้องมีสิทธิ์ Super Admin จึงจะจัดลำดับได้",
+    "requiresSuperAdminForCategoryOrdering": "ต้องมีสิทธิ์ Super Admin จึงจะจัดลำดับหมวดหมู่ได้",
+    "requiresSuperAdminForCategoryMove": "ต้องมีสิทธิ์ Super Admin จึงจะย้ายหมวดหมู่ได้",
+    "requiresSuperAdminForOrgOrdering": "ต้องมีสิทธิ์ Super Admin จึงจะจัดลำดับหน่วยงานได้",
+    "categoryCannotBeSelfParent": "หมวดหมู่ไม่สามารถเป็นหมวดหมู่หลักของตัวเองได้",
+    "categoryCircularReference": "ไม่สามารถกำหนดหมวดหมู่หลักแบบวนกลับมาที่ตัวเองได้ (circular reference)",
+    "cannotPublishUnscannedFile": "ไม่สามารถเผยแพร่งานวิจัยนี้ได้ เนื่องจากไฟล์ยังไม่ผ่านการตรวจสอบความปลอดภัย",
+    "organizationCannotBeSelfParent": "หน่วยงานไม่สามารถเป็นหน่วยงานหลักของตัวเองได้",
+    "organizationCircularReference": "ไม่สามารถกำหนดหน่วยงานหลักแบบวนกลับมาที่ตัวเองได้ (circular reference)",
+    "requiresLibrarianForAuthorMerge": "ต้องมีสิทธิ์บรรณารักษ์ขึ้นไปจึงจะรวมข้อมูลผู้วิจัยได้",
+    "cannotMergeAuthorWithSelf": "ไม่สามารถรวมผู้วิจัยเข้ากับตัวเองได้",
+    "authorNotFoundOrMerged": "ไม่พบผู้วิจัยที่ระบุ หรือผู้วิจัยถูกรวมข้อมูลไปแล้ว",
+    "requiresLibrarianForOrgMerge": "ต้องมีสิทธิ์บรรณารักษ์ขึ้นไปจึงจะรวมข้อมูลหน่วยงานได้",
+    "cannotMergeOrganizationWithSelf": "ไม่สามารถรวมหน่วยงานเข้ากับตัวเองได้",
+    "organizationNotFoundOrMerged": "ไม่พบหน่วยงานที่ระบุ หรือหน่วยงานถูกรวมข้อมูลไปแล้ว",
+    "requiresAdminForResearchMerge": "ต้องมีสิทธิ์ผู้ดูแลระบบขึ้นไปจึงจะรวมงานวิจัยได้",
+    "cannotMergeResearchWithSelf": "ไม่สามารถรวมงานวิจัยเข้ากับตัวเองได้",
+    "researchNotFoundOrMerged": "ไม่พบงานวิจัยที่ระบุ หรืองานวิจัยถูกรวมไปแล้ว",
+    "requiresSuperAdminForDuplicateRules": "ต้องเป็น Super Admin เท่านั้นจึงจะปรับเกณฑ์ตรวจข้อมูลซ้ำได้",
+    "invalidStatusTransition": "ไม่สามารถเปลี่ยนสถานะงานชุดนี้เป็นสถานะที่ระบุจากสถานะปัจจุบันได้",
+    "requiresSuperAdminForRetry": "ต้องมีสิทธิ์ Super Admin จึงจะสั่งลองใหม่ได้",
+    "requiresSuperAdminForBatchCreate": "ต้องมีสิทธิ์ Super Admin จึงจะสร้างงานประมวลผลเป็นชุดได้",
+    "requiresSuperAdminForBatchControl": "ต้องมีสิทธิ์ Super Admin จึงจะควบคุมงานประมวลผลเป็นชุดได้",
+    "invalidTargetStatus": "สถานะเป้าหมายไม่ถูกต้อง",
+    "notAuthenticated": "ยังไม่ได้เข้าสู่ระบบ"
   }
 }

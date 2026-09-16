@@ -2,18 +2,20 @@
 
 import { useState } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import {
   BookOpen, Plus, LayoutDashboard, Menu, X, ArrowLeft,
 } from "lucide-react";
 
-const NAV_ITEMS = [
-  { href: "/blog-admin",      label: "ພາບລວມ",           icon: LayoutDashboard },
-  { href: "/blog-admin/new",  label: "ສ້າງບົດຄວາມໃໝ່",   icon: Plus },
-];
-
 export default function BlogAdminNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const t = useTranslations("blogAdmin.nav");
+
+  const NAV_ITEMS = [
+    { href: "/blog-admin",      label: t("overview"), icon: LayoutDashboard },
+    { href: "/blog-admin/new",  label: t("newPost"),   icon: Plus },
+  ];
 
   return (
     <>
@@ -34,7 +36,7 @@ export default function BlogAdminNav() {
           </span>
           <div>
             <p className="text-sm font-bold text-gray-900">Blog Admin</p>
-            <p className="text-xs text-gray-400">ຈັດການບົດຄວາມ</p>
+            <p className="text-xs text-gray-400">{t("subtitle")}</p>
           </div>
         </div>
 
@@ -67,14 +69,14 @@ export default function BlogAdminNav() {
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            ກັບໄປ Dashboard
+            {t("backToDashboard")}
           </Link>
           <Link
             href="/blog"
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
           >
             <BookOpen className="h-4 w-4" />
-            ເບິ່ງ Blog
+            {t("viewBlog")}
           </Link>
         </div>
       </aside>

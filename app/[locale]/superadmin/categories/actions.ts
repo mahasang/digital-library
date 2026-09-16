@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
-import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import type { ActionResult } from "@/lib/actions/types";
 
 /**
@@ -40,7 +40,7 @@ export async function reorderCategoriesAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(
+      message: await toSafeErrorMessageLocalized(
         error,
         tCategories("reorderFailed"),
         "reorderCategoriesAction failed"
@@ -87,7 +87,7 @@ export async function moveCategoryAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(
+      message: await toSafeErrorMessageLocalized(
         error,
         tCategories("moveFailed"),
         "moveCategoryAction failed"

@@ -24,8 +24,12 @@ export async function submitAccessRequestAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccessRequests = await getTranslations("actionMessages.accessRequests");
+  const tResearch = await getTranslations("actionMessages.research");
+
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
 
   const supabase = await createClient();
@@ -33,7 +37,7 @@ export async function submitAccessRequestAction(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนส่งคำขอเข้าถึงเอกสาร" };
+    return { status: "error", message: tAccessRequests("mustLoginToRequest") };
   }
 
   const tValidation = await getTranslations("validation");
@@ -48,7 +52,7 @@ export async function submitAccessRequestAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน",
+      message: t("invalidFormDataComplete"),
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -60,7 +64,7 @@ export async function submitAccessRequestAction(
     .maybeSingle();
 
   if (!item || item.status !== "published") {
-    return { status: "error", message: "ไม่พบงานวิจัยนี้" };
+    return { status: "error", message: tResearch("notFound") };
   }
 
   const alreadyAllowed =
@@ -71,7 +75,7 @@ export async function submitAccessRequestAction(
     alreadyAllowed ||
     (await hasActiveAccessGrantBySlug(parsed.data.researchSlug, parsed.data.requestType))
   ) {
-    return { status: "error", message: "คุณมีสิทธิ์นี้อยู่แล้ว ไม่จำเป็นต้องส่งคำขอ" };
+    return { status: "error", message: tAccessRequests("alreadyHasAccess") };
   }
 
   const headersList = await headers();
@@ -83,7 +87,7 @@ export async function submitAccessRequestAction(
     settings.rateLimitSubmitWindowSec
   );
   if (!allowed) {
-    return { status: "error", message: "มีการส่งคำขอบ่อยเกินไป กรุณาลองใหม่ภายหลัง" };
+    return { status: "error", message: tAccessRequests("submitRateLimited") };
   }
 
   const { error } = await supabase.from("access_requests").insert({
@@ -96,20 +100,20 @@ export async function submitAccessRequestAction(
 
   if (error) {
     if (error.code === "23505") {
-      return { status: "error", message: "คุณมีคำขอที่รอตรวจสอบอยู่แล้วสำหรับเอกสารนี้" };
+      return { status: "error", message: tAccessRequests("duplicatePending") };
     }
     return {
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถส่งคำขอได้ กรุณาลองใหม่อีกครั้ง",
+        tAccessRequests("submitFailed"),
         "submitAccessRequestAction failed"
       ),
     };
   }
 
   revalidatePath(`/research/${parsed.data.researchSlug}`);
-  return { status: "success", message: "ส่งคำขอเรียบร้อยแล้ว เจ้าหน้าที่จะตรวจสอบและแจ้งผลกลับ" };
+  return { status: "success", message: tAccessRequests("submitSuccess") };
 }
 
 /** ยกเลิกคำขอของตัวเอง — ทำได้เฉพาะขณะสถานะยัง "pending" เท่านั้น (บังคับซ้ำ
@@ -119,17 +123,20 @@ export async function cancelAccessRequestAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const t = await getTranslations("actionMessages.common");
+  const tAccessRequests = await getTranslations("actionMessages.accessRequests");
+
   if (!isSupabaseConfigured()) {
-    return { status: "error", message: "ระบบยังไม่ได้เชื่อมต่อ Supabase" };
+    return { status: "error", message: t("supabaseNotConfigured") };
   }
   const requestId = String(formData.get("requestId") || "");
-  if (!requestId) return { status: "error", message: "ไม่พบคำขอนี้" };
+  if (!requestId) return { status: "error", message: tAccessRequests("notFound") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  if (!user) return { status: "error", message: t("mustLogIn") };
 
   const { data, error } = await supabase
     .from("access_requests")
@@ -143,7 +150,7 @@ export async function cancelAccessRequestAction(
       status: "error",
       message: toSafeErrorMessage(
         error,
-        "ไม่สามารถยกเลิกคำขอได้ กรุณาลองใหม่อีกครั้ง",
+        tAccessRequests("cancelFailed"),
         "cancelAccessRequestAction failed"
       ),
     };
@@ -151,10 +158,10 @@ export async function cancelAccessRequestAction(
   if (!data) {
     return {
       status: "error",
-      message: "ไม่สามารถยกเลิกคำขอนี้ได้ (อาจถูกตรวจสอบไปแล้ว)",
+      message: tAccessRequests("cancelNotAllowed"),
     };
   }
 
   revalidatePath("/access-requests");
-  return { status: "success", message: "ยกเลิกคำขอเรียบร้อยแล้ว" };
+  return { status: "success", message: tAccessRequests("cancelSuccess") };
 }

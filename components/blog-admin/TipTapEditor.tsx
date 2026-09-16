@@ -7,6 +7,7 @@ import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
 import { useRef, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { uploadCoverImageAction } from "@/app/[locale]/blog-admin/actions";
 import {
   Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3,
@@ -17,12 +18,14 @@ import { useState } from "react";
 export default function TipTapEditor({
   content,
   onChange,
-  placeholder = "ຂຽນເນື້ອຫາທີ່ນີ້...",
+  placeholder,
 }: {
   content: string;
   onChange: (html: string) => void;
   placeholder?: string;
 }) {
+  const t = useTranslations("blogAdmin.editor");
+  const resolvedPlaceholder = placeholder ?? t("placeholder");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,7 +46,7 @@ export default function TipTapEditor({
       StarterKit,
       Image.configure({ allowBase64: false }),
       Link.configure({ openOnClick: false }),
-      Placeholder.configure({ placeholder }),
+      Placeholder.configure({ placeholder: resolvedPlaceholder }),
       CharacterCount,
     ],
     content,
@@ -99,7 +102,7 @@ export default function TipTapEditor({
   }
 
   function addLink() {
-    const url = window.prompt("URL ລິ້ງ:");
+    const url = window.prompt(t("linkPrompt"));
     if (url) editor.chain().focus().setLink({ href: url }).run();
   }
 
@@ -139,7 +142,7 @@ export default function TipTapEditor({
           onClick={handleImageClick}
           disabled={uploading}
           className={btnCls()}
-          title="ອັບໂຫຼດຮູບ"
+          title={t("uploadImageTitle")}
         >
           {uploading
             ? <Loader2 className="h-4 w-4 animate-spin" />
@@ -147,14 +150,14 @@ export default function TipTapEditor({
           }
         </button>
         <div className="ml-auto text-xs text-gray-400">
-          {uploading && <span className="mr-2 text-brand-500">ກຳລັງອັບໂຫຼດ...</span>}
-          {editor.storage.characterCount.characters()} ຕົວ
+          {uploading && <span className="mr-2 text-brand-500">{t("uploading")}</span>}
+          {editor.storage.characterCount.characters()} {t("charactersSuffix")}
         </div>
       </div>
 
       {/* Drop zone hint */}
       <div className="border-b border-dashed border-gray-100 bg-gray-50 px-4 py-1 text-center text-xs text-gray-400">
-        ລາກຮູບມາວາງໃນຊ່ອງຂຽນ ຫຼື Ctrl+V ເພື່ອວາງຮູບໄດ້ເລີຍ
+        {t("dropHint")}
       </div>
 
       {/* Editor */}

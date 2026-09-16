@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
-import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
+import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { revalidatePublicCategories } from "@/lib/cache/public-home";
 import type { ActionResult } from "@/lib/actions/types";
 
@@ -118,7 +118,7 @@ export async function updateCategoryAction(
   if (error) {
     return {
       status: "error",
-      message: toSafeErrorMessage(
+      message: await toSafeErrorMessageLocalized(
         error,
         t("editSaveFailed"),
         "updateCategoryAction update failed"
