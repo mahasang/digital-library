@@ -2,11 +2,13 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { submitContactAction, type ContactFormState } from "./actions";
 
 const initialState: ContactFormState = { status: "idle" };
 
 export default function ContactForm() {
+  const t = useTranslations("contactForm");
   const [state, formAction, isPending] = useActionState(
     submitContactAction,
     initialState
@@ -24,12 +26,12 @@ export default function ContactForm() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-gray-700">
-            ຊື່ <span className="text-red-500">*</span>
+            {t("firstNameLabel")} <span className="text-red-500">*</span>
           </label>
           <input
             name="first_name"
             type="text"
-            placeholder="ຊື່ຂອງທ່ານ"
+            placeholder={t("firstNamePlaceholder")}
             required
             disabled={isPending}
             className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
@@ -37,12 +39,12 @@ export default function ContactForm() {
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-gray-700">
-            ນາມສະກຸນ <span className="text-red-500">*</span>
+            {t("lastNameLabel")} <span className="text-red-500">*</span>
           </label>
           <input
             name="last_name"
             type="text"
-            placeholder="ນາມສະກຸນຂອງທ່ານ"
+            placeholder={t("lastNamePlaceholder")}
             required
             disabled={isPending}
             className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
@@ -52,7 +54,7 @@ export default function ContactForm() {
 
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-medium text-gray-700">
-          ອີເມວ <span className="text-red-500">*</span>
+          {t("emailLabel")} <span className="text-red-500">*</span>
         </label>
         <input
           name="email"
@@ -65,7 +67,7 @@ export default function ContactForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-gray-700">ເບີໂທລະສັບ</label>
+        <label className="text-xs font-medium text-gray-700">{t("phoneLabel")}</label>
         <input
           name="phone"
           type="tel"
@@ -77,12 +79,12 @@ export default function ContactForm() {
 
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-medium text-gray-700">
-          ຂໍ້ຄວາມ <span className="text-red-500">*</span>
+          {t("messageLabel")} <span className="text-red-500">*</span>
         </label>
         <textarea
           name="message"
           rows={4}
-          placeholder="ພິມຂໍ້ຄວາມຂອງທ່ານທີ່ນີ້..."
+          placeholder={t("messagePlaceholder")}
           required
           disabled={isPending}
           className="resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
@@ -97,7 +99,7 @@ export default function ContactForm() {
       )}
       {state.status === "success" && (
         <p role="status" className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
-          ຂໍຂອບໃຈ! ຂໍ້ຄວາມຂອງທ່ານຖືກສົ່ງສຳເລັດແລ້ວ ເຮົາຈະຕິດຕໍ່ກັບໃນໄວໆນີ້
+          {t("successMessage")}
         </p>
       )}
 
@@ -108,7 +110,7 @@ export default function ContactForm() {
           className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-8 py-3 text-sm font-semibold text-white hover:bg-brand-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <Send className="h-4 w-4" />
-          {isPending ? "ກຳລັງສົ່ງ..." : "ສົ່ງຂໍ້ຄວາມ"}
+          {isPending ? t("submitting") : t("submit")}
         </button>
       </div>
     </form>

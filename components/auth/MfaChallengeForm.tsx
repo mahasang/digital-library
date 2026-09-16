@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { AlertCircle, Loader2, ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 
 /**
@@ -12,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
  */
 export default function MfaChallengeForm({ redirectTo }: { redirectTo: string }) {
   const router = useRouter();
+  const t = useTranslations("mfaChallenge");
   const [factorId, setFactorId] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,13 +25,13 @@ export default function MfaChallengeForm({ redirectTo }: { redirectTo: string })
       const supabase = createClient();
       const { data, error: listError } = await supabase.auth.mfa.listFactors();
       if (listError) {
-        setError("ไม่สามารถโหลดข้อมูลการยืนยันตัวตนได้ กรุณาลองใหม่อีกครั้ง");
+        setError(t("loadError"));
         setLoading(false);
         return;
       }
       const verified = data.totp[0];
       if (!verified) {
-        setError("ไม่พบอุปกรณ์ยืนยันตัวตนที่ใช้งานได้ — กรุณาติดต่อผู้ดูแลระบบ");
+        setError(t("noFactorError"));
         setLoading(false);
         return;
       }
@@ -37,7 +39,7 @@ export default function MfaChallengeForm({ redirectTo }: { redirectTo: string })
       setLoading(false);
     }
     loadFactor();
-  }, []);
+  }, [t]);
 
   async function handleVerify() {
     if (!factorId) return;
@@ -50,7 +52,7 @@ export default function MfaChallengeForm({ redirectTo }: { redirectTo: string })
     });
     setBusy(false);
     if (verifyError) {
-      setError("รหัสยืนยันไม่ถูกต้องหรือหมดอายุ กรุณาลองใหม่อีกครั้ง");
+      setError(t("invalidCode"));
       return;
     }
     router.push(redirectTo);
@@ -61,7 +63,7 @@ export default function MfaChallengeForm({ redirectTo }: { redirectTo: string })
     return (
       <div className="flex items-center justify-center gap-2 py-6 text-sm text-gray-500">
         <Loader2 className="h-4 w-4 animate-spin" />
-        กำลังตรวจสอบ...
+        {t("checking")}
       </div>
     );
   }
@@ -70,7 +72,7 @@ export default function MfaChallengeForm({ redirectTo }: { redirectTo: string })
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2 text-accent">
         <ShieldCheck className="h-5 w-5" />
-        <p className="text-sm font-medium">กรอกรหัสจากแอปยืนยันตัวตนของคุณ</p>
+        <p className="text-sm font-medium">{t("enterCodePrompt")}</p>
       </div>
 
       {error && (
@@ -85,7 +87,7 @@ export default function MfaChallengeForm({ redirectTo }: { redirectTo: string })
           <input
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="รหัส 6 หลัก"
+            placeholder={t("codePlaceholder")}
             inputMode="numeric"
             maxLength={6}
             autoFocus
@@ -99,11 +101,10 @@ export default function MfaChallengeForm({ redirectTo }: { redirectTo: string })
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-            ยืนยัน
+            {t("verifyButton")}
           </button>
           <p className="text-center text-xs text-gray-500">
-            ทำอุปกรณ์เดิมหาย? ต้องให้ Super Admin ท่านอื่นช่วยรีเซ็ต MFA ให้คุณก่อน
-            จึงจะตั้งค่าอุปกรณ์ใหม่ได้
+            {t("lostDeviceNote")}
           </p>
         </>
       )}

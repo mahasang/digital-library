@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { Link, redirect } from "@/i18n/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { AlertTriangle, ArrowLeft, FileSearch, ImageOff } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -20,9 +20,10 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+  const t = await getTranslations("researchRead");
   const item = await getResearchById(id);
-  if (!item) return { title: "ไม่พบงานวิจัย" };
-  return { title: `อ่าน: ${item.titleTh}` };
+  if (!item) return { title: t("notFoundTitle") };
+  return { title: t("readingTitlePrefix", { title: item.titleTh }) };
 }
 
 export default async function ReadResearchPage({
@@ -31,6 +32,7 @@ export default async function ReadResearchPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const t = await getTranslations("researchRead");
   const item = await getResearchById(id);
   if (!item || item.status !== "published") {
     const redirectSlug = await getMergedRedirectSlug(id);
@@ -95,7 +97,7 @@ export default async function ReadResearchPage({
           className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-accent"
         >
           <ArrowLeft className="h-4 w-4" />
-          กลับไปหน้ารายละเอียดงานวิจัย
+          {t("backToDetail")}
         </Link>
 
         <h1 className="mb-1 line-clamp-1 text-h2 font-semibold text-gray-900">
@@ -108,19 +110,19 @@ export default async function ReadResearchPage({
         {(extraction?.status === "completed" || extraction?.ocrStatus === "completed") && (
           <p className="mb-4 flex items-center gap-1.5 text-xs text-accent">
             <FileSearch className="h-3.5 w-3.5" />
-            ค้นหาข้อความภายในเอกสารนี้ได้ที่หน้า{" "}
+            {t("searchHintPrefix")}{" "}
             <Link href="/research" className="underline hover:text-accent-strong">
-              ค้นหางานวิจัย
+              {t("searchResearch")}
             </Link>
             {extraction?.ocrStatus === "completed" && extraction.status !== "completed" && (
-              <span className="text-gray-500">(ข้อความจากการทำ OCR อาจมีความคลาดเคลื่อน)</span>
+              <span className="text-gray-500">{t("ocrNote")}</span>
             )}
           </p>
         )}
         {extraction?.status === "no_text_found" && extraction.ocrStatus !== "completed" && (
           <p className="mb-4 flex items-center gap-1.5 text-xs text-gray-500">
             <ImageOff className="h-3.5 w-3.5" />
-            เอกสารนี้อาจเป็นไฟล์สแกนหรือไม่มีข้อความที่คัดลอกได้ จึงยังไม่รองรับการค้นหาเนื้อหาภายในไฟล์
+            {t("noTextFound")}
           </p>
         )}
 
@@ -130,7 +132,7 @@ export default async function ReadResearchPage({
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </span>
             <p className="text-sm font-semibold text-amber-800">
-              ไม่สามารถเปิดเอกสารได้ในขณะนี้
+              {t("fileErrorTitle")}
             </p>
             <p className="text-xs text-amber-700">{fileError}</p>
           </div>

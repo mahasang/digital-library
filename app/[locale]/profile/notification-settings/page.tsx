@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { Link, redirect } from "@/i18n/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -13,10 +13,13 @@ import { getMySubscribedCategoryIds } from "@/lib/data/category-subscriptions.se
 import { getActiveCategoriesWithId } from "@/lib/data/categories.server";
 import { isEmailProviderConfigured } from "@/lib/notifications/email.server";
 
-export const metadata: Metadata = {
-  title: "ตั้งค่าการแจ้งเตือน",
-  description: "จัดการการแจ้งเตือนงานวิจัยใหม่ตามหมวดหมู่และคำขอเข้าถึงเอกสาร",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("notificationSettingsPage");
+  return {
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  };
+}
 
 export default async function NotificationSettingsPage() {
   if (!isSupabaseConfigured()) {
@@ -30,6 +33,7 @@ export default async function NotificationSettingsPage() {
   }
 
   const locale = await getLocale();
+  const t = await getTranslations("notificationSettingsPage");
   const user = await getSessionUser();
   if (!user) return redirect({ href: "/login?redirect=/profile/notification-settings", locale });
 
@@ -47,12 +51,12 @@ export default async function NotificationSettingsPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-brand-700"
         >
           <ArrowLeft className="h-4 w-4" />
-          กลับไปโปรไฟล์ของฉัน
+          {t("backToProfile")}
         </Link>
 
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">ตั้งค่าการแจ้งเตือน</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("pageTitle")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          เลือกหมวดหมู่งานวิจัยที่ต้องการติดตาม และช่องทางการแจ้งเตือนที่ต้องการรับ
+          {t("subtitle")}
         </p>
 
         <div className="mt-8 rounded-xl border border-gray-200 bg-surface p-5">

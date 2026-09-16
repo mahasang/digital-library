@@ -1,65 +1,68 @@
 export const dynamic = "force-dynamic";
+import { getTranslations } from "next-intl/server";
 import Container from "@/components/ui/Container";
 
 export async function generateMetadata() {
-  return { title: "ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ | Privacy Policy" };
+  const t = await getTranslations("privacy");
+  return { title: t("metaTitle") };
 }
 
 export default async function PrivacyPage() {
+  const t = await getTranslations("privacy");
   return (
     <div className="py-12 sm:py-16">
       <Container>
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-8 text-2xl font-bold text-gray-900 sm:text-3xl">
-            ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ
+            {t("title")}
           </h1>
           <div className="prose prose-gray max-w-none text-gray-600 space-y-6">
-            <p className="text-sm text-gray-400">ອັບເດດລ່າສຸດ: ກັນຍາ 2026</p>
+            <p className="text-sm text-gray-400">{t("lastUpdated")}</p>
 
             <section>
-              <h2 className="text-lg font-semibold text-gray-900">1. ຂໍ້ມູນທີ່ເກັບກຳ</h2>
-              <p>ຫ້ອງສະໝຸດດິຈິຕອນເກັບກຳຂໍ້ມູນດັ່ງຕໍ່ໄປນີ້:</p>
+              <h2 className="text-lg font-semibold text-gray-900">{t("section1.title")}</h2>
+              <p>{t("section1.intro")}</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li>ຊື່ ແລະ ທີ່ຢູ່ອີເມວ ເມື່ອທ່ານສ້າງບັນຊີ</li>
-                <li>ປະຫວັດການອ່ານ ແລະ ລາຍການທີ່ມັກ</li>
-                <li>ຄຳເຫັນ ແລະ ຄະແນນທີ່ທ່ານໃຫ້</li>
-                <li>ຂໍ້ມູນການໃຊ້ງານ (ຈຳນວນການເຂົ້າເບິ່ງ)</li>
+                <li>{t("section1.item1")}</li>
+                <li>{t("section1.item2")}</li>
+                <li>{t("section1.item3")}</li>
+                <li>{t("section1.item4")}</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-gray-900">2. ການໃຊ້ຂໍ້ມູນ</h2>
-              <p>ເຮົາໃຊ້ຂໍ້ມູນຂອງທ່ານເພື່ອ:</p>
+              <h2 className="text-lg font-semibold text-gray-900">{t("section2.title")}</h2>
+              <p>{t("section2.intro")}</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li>ໃຫ້ບໍລິການຫ້ອງສະໝຸດດິຈິຕອນ</li>
-                <li>ສົ່ງການແຈ້ງເຕືອນກ່ຽວກັບງານວິໄຈໃໝ່</li>
-                <li>ປັບປຸງປະສົບການໃຊ້ງານ</li>
+                <li>{t("section2.item1")}</li>
+                <li>{t("section2.item2")}</li>
+                <li>{t("section2.item3")}</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-gray-900">3. ການແບ່ງປັນຂໍ້ມູນ</h2>
-              <p>ເຮົາບໍ່ຂາຍ ຫຼື ແບ່ງປັນຂໍ້ມູນສ່ວນຕົວຂອງທ່ານໃຫ້ກັບບຸກຄົນທີສາມ ຍົກເວັ້ນເພື່ອການໃຫ້ບໍລິການ (Supabase, Google)</p>
+              <h2 className="text-lg font-semibold text-gray-900">{t("section3.title")}</h2>
+              <p>{t("section3.content")}</p>
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-gray-900">4. ຄວາມປອດໄພ</h2>
-              <p>ຂໍ້ມູນຂອງທ່ານຖືກເກັບຮັກສາຢ່າງປອດໄພດ້ວຍ Supabase ແລະ ການເຂົ້າລະຫັດ SSL</p>
+              <h2 className="text-lg font-semibold text-gray-900">{t("section4.title")}</h2>
+              <p>{t("section4.content")}</p>
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-gray-900">5. ສິດຂອງຜູ້ໃຊ້</h2>
-              <p>ທ່ານມີສິດ:</p>
+              <h2 className="text-lg font-semibold text-gray-900">{t("section5.title")}</h2>
+              <p>{t("section5.intro")}</p>
               <ul className="list-disc pl-6 space-y-1">
-                <li>ເຂົ້າເຖິງຂໍ້ມູນສ່ວນຕົວຂອງທ່ານ</li>
-                <li>ແກ້ໄຂ ຫຼື ລຶບຂໍ້ມູນຂອງທ່ານ</li>
-                <li>ຍົກເລີກການສະໝັກຮັບການແຈ້ງເຕືອນ</li>
+                <li>{t("section5.item1")}</li>
+                <li>{t("section5.item2")}</li>
+                <li>{t("section5.item3")}</li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-gray-900">6. ຕິດຕໍ່</h2>
-              <p>ຫາກມີຄຳຖາມ ກະລຸນາຕິດຕໍ່: <a href="mailto:info@digitallibrary.la" className="text-brand-600 hover:underline">info@digitallibrary.la</a></p>
+              <h2 className="text-lg font-semibold text-gray-900">{t("section6.title")}</h2>
+              <p>{t("section6.content")} <a href="mailto:info@digitallibrary.la" className="text-brand-600 hover:underline">info@digitallibrary.la</a></p>
             </section>
           </div>
         </div>

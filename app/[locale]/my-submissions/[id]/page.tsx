@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { Link, redirect } from "@/i18n/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -20,7 +20,10 @@ import {
 } from "@/lib/storage/signed-url.server";
 import { updateSubmissionAction } from "@/app/[locale]/my-submissions/[id]/actions";
 
-export const metadata: Metadata = { title: "รายละเอียดงานวิจัยที่ส่ง" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("mySubmissions");
+  return { title: t("detailPageTitle") };
+}
 
 const EDITABLE_STATUSES = ["draft", "revision_requested"];
 
@@ -41,6 +44,7 @@ export default async function MySubmissionDetailPage({
 
   const { id } = await params;
   const locale = await getLocale();
+  const t = await getTranslations("mySubmissions");
   const user = await getSessionUser();
   if (!user) return redirect({ href: `/login?redirect=/my-submissions/${id}`, locale });
 
@@ -64,13 +68,13 @@ export default async function MySubmissionDetailPage({
             className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-brand-700"
           >
             <ArrowLeft className="h-4 w-4" />
-            กลับไปรายการงานวิจัยของฉัน
+            {t("backToList")}
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">แก้ไขงานวิจัย</h1>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("editHeading")}</h1>
           <p className="mt-1 text-sm text-gray-500">
             {item.status === "revision_requested"
-              ? "บรรณารักษ์ขอให้แก้ไขงานวิจัยนี้ก่อนส่งตรวจสอบอีกครั้ง"
-              : "แก้ไขข้อมูลฉบับร่างแล้วบันทึกหรือส่งตรวจสอบได้ตามต้องการ"}
+              ? t("revisionRequestedNote")
+              : t("draftNote")}
           </p>
           <div className="mt-8">
             <SubmitResearchForm
@@ -108,7 +112,7 @@ export default async function MySubmissionDetailPage({
           className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-brand-700"
         >
           <ArrowLeft className="h-4 w-4" />
-          กลับไปรายการงานวิจัยของฉัน
+          {t("backToList")}
         </Link>
 
         <SubmissionDetailView

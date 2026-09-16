@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { AlertCircle, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 
 type Step = "loading" | "enrolling" | "already-verified" | "success";
@@ -26,6 +27,7 @@ interface EnrollData {
  */
 export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
   const router = useRouter();
+  const t = useTranslations("setupMfa");
   const [step, setStep] = useState<Step>("loading");
   const [enrollData, setEnrollData] = useState<EnrollData | null>(null);
   const [code, setCode] = useState("");
@@ -41,9 +43,7 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
       const supabase = createClient();
       const { data, error: listError } = await supabase.auth.mfa.listFactors();
       if (listError) {
-        setError(
-          "ไม่สามารถตรวจสอบสถานะ MFA ได้ในขณะนี้ — Supabase Auth อาจยังไม่ได้เปิดใช้งาน MFA กรุณาติดต่อผู้ดูแลระบบ"
-        );
+        setError(t("statusCheckError"));
         setStep("enrolling");
         return;
       }
@@ -66,9 +66,7 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
         factorType: "totp",
       });
       if (enrollError || !enrolled) {
-        setError(
-          "ไม่สามารถเริ่มตั้งค่า MFA ได้ — ตรวจสอบว่า Supabase เปิดใช้งาน TOTP MFA แล้วหรือยัง (ดู docs/superadmin-guide.md หัวข้อ 14)"
-        );
+        setError(t("enrollError"));
         setStep("enrolling");
         return;
       }
@@ -82,7 +80,7 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
     }
 
     init();
-  }, []);
+  }, [t]);
 
   async function handleVerify() {
     if (!enrollData) return;
@@ -95,7 +93,7 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
     });
     setBusy(false);
     if (verifyError) {
-      setError("รหัสยืนยันไม่ถูกต้องหรือหมดอายุ กรุณาลองใหม่อีกครั้ง");
+      setError(t("invalidCode"));
       return;
     }
     setStep("success");
@@ -109,7 +107,7 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
     return (
       <div className="flex items-center justify-center gap-2 py-6 text-sm text-gray-500">
         <Loader2 className="h-4 w-4 animate-spin" />
-        กำลังเตรียมการตั้งค่า...
+        {t("preparing")}
       </div>
     );
   }
@@ -118,13 +116,13 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
     return (
       <div className="flex flex-col items-center gap-3 py-4 text-center">
         <CheckCircle2 className="h-10 w-10 text-green-500" />
-        <p className="text-sm font-medium text-gray-900">บัญชีนี้ตั้งค่า MFA ไว้แล้ว</p>
+        <p className="text-sm font-medium text-gray-900">{t("alreadyVerified")}</p>
         <button
           type="button"
           onClick={() => router.push(redirectTo)}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
         >
-          ดำเนินการต่อ
+          {t("continueButton")}
         </button>
       </div>
     );
@@ -134,8 +132,8 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
     return (
       <div className="flex flex-col items-center gap-3 py-4 text-center">
         <CheckCircle2 className="h-10 w-10 text-green-500" />
-        <p className="text-sm font-medium text-gray-900">ตั้งค่า MFA สำเร็จแล้ว</p>
-        <p className="text-xs text-gray-500">กำลังพาไปยังหน้าที่ต้องการ...</p>
+        <p className="text-sm font-medium text-gray-900">{t("successMessage")}</p>
+        <p className="text-xs text-gray-500">{t("redirecting")}</p>
       </div>
     );
   }
@@ -154,7 +152,7 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
           <div className="flex items-center gap-2 text-accent">
             <ShieldCheck className="h-5 w-5" />
             <p className="text-sm font-medium">
-              สแกน QR โค้ดนี้ด้วยแอปยืนยันตัวตน แล้วกรอกรหัส 6 หลักที่แสดง
+              {t("scanPrompt")}
             </p>
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -164,17 +162,17 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
                 ? enrollData.qrCode
                 : `data:image/svg+xml;utf-8,${encodeURIComponent(enrollData.qrCode)}`
             }
-            alt="QR Code สำหรับตั้งค่า MFA"
+            alt={t("qrAlt")}
             className="h-44 w-44 self-center"
           />
           <details className="text-xs text-gray-500">
-            <summary className="cursor-pointer">สแกนไม่ได้? กรอกรหัสด้วยตนเอง</summary>
+            <summary className="cursor-pointer">{t("manualEntryToggle")}</summary>
             <p className="mt-1 break-all rounded bg-gray-50 p-2 font-mono">{enrollData.secret}</p>
           </details>
           <input
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="รหัส 6 หลัก"
+            placeholder={t("codePlaceholder")}
             inputMode="numeric"
             maxLength={6}
             autoFocus
@@ -188,7 +186,7 @@ export default function SetupMfaForm({ redirectTo }: { redirectTo: string }) {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-            ยืนยันและเปิดใช้งาน
+            {t("activateButton")}
           </button>
         </>
       )}

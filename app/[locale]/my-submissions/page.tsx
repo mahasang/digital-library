@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { Link, redirect } from "@/i18n/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { Calendar, FileText, Plus } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -12,10 +12,13 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getOwnSubmissions } from "@/lib/data/submissions.server";
 
-export const metadata: Metadata = {
-  title: "งานวิจัยของฉัน",
-  description: "รายการงานวิจัยที่คุณส่งเข้าสู่ระบบทั้งหมด",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("mySubmissions");
+  return {
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  };
+}
 
 export default async function MySubmissionsPage() {
   if (!isSupabaseConfigured()) {
@@ -29,6 +32,7 @@ export default async function MySubmissionsPage() {
   }
 
   const locale = await getLocale();
+  const t = await getTranslations("mySubmissions");
   const user = await getSessionUser();
   if (!user) return redirect({ href: "/login?redirect=/my-submissions", locale });
 
@@ -40,26 +44,26 @@ export default async function MySubmissionsPage() {
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              งานวิจัยของฉัน
+              {t("pageTitle")}
             </h1>
             <p className="mt-1 text-sm text-gray-500">
-              รายการงานวิจัยที่คุณส่งเข้าสู่ระบบทั้งหมด พร้อมสถานะล่าสุด
+              {t("subtitle")}
             </p>
           </div>
           <LinkButton href="/submit-research" variant="primary">
             <Plus className="h-4 w-4" />
-            ส่งงานวิจัยใหม่
+            {t("newSubmission")}
           </LinkButton>
         </div>
 
         {submissions.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-300 bg-surface py-16 text-center">
             <FileText className="h-10 w-10 text-gray-300" />
-            <p className="text-sm font-medium text-gray-700">ยังไม่มีงานวิจัยที่ส่ง</p>
-            <p className="text-sm text-gray-500">เริ่มส่งงานวิจัยชิ้นแรกของคุณได้เลย</p>
+            <p className="text-sm font-medium text-gray-700">{t("emptyTitle")}</p>
+            <p className="text-sm text-gray-500">{t("emptyDescription")}</p>
             <LinkButton href="/submit-research" variant="primary" size="sm" className="mt-2">
               <Plus className="h-4 w-4" />
-              ส่งงานวิจัยใหม่
+              {t("newSubmission")}
             </LinkButton>
           </div>
         ) : (
@@ -79,8 +83,8 @@ export default async function MySubmissionsPage() {
                     <AccessBadge accessLevel={item.accessLevel} />
                     <span className="flex items-center gap-1 text-xs text-gray-500">
                       <Calendar className="h-3.5 w-3.5" />
-                      อัปเดตล่าสุด{" "}
-                      {new Date(item.updatedAt).toLocaleDateString("th-TH", {
+                      {t("updatedAtLabel")}{" "}
+                      {new Date(item.updatedAt).toLocaleDateString(locale, {
                         year: "numeric",
                         month: "short",
                         day: "numeric",

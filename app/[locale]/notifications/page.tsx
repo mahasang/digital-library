@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { Link, redirect } from "@/i18n/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { Bell } from "lucide-react";
 import AccountShell from "@/components/account/AccountShell";
@@ -13,10 +13,13 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getMyNotifications } from "@/lib/data/notifications.server";
 
-export const metadata: Metadata = {
-  title: "การแจ้งเตือน",
-  description: "การแจ้งเตือนทั้งหมดของคุณ",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("notifications");
+  return {
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  };
+}
 
 const FULL_LIST_LIMIT = 50;
 
@@ -32,6 +35,7 @@ export default async function NotificationsPage() {
   }
 
   const locale = await getLocale();
+  const t = await getTranslations("notifications");
   const user = await getSessionUser();
   if (!user) return redirect({ href: "/login?redirect=/notifications", locale });
 
@@ -42,10 +46,10 @@ export default async function NotificationsPage() {
     <AccountShell>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-h1 font-semibold text-gray-900">การแจ้งเตือน</h1>
+          <h1 className="text-h1 font-semibold text-gray-900">{t("pageTitle")}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            การแจ้งเตือนล่าสุด {FULL_LIST_LIMIT} รายการของคุณ
-            {unreadCount > 0 && ` — ${unreadCount} รายการยังไม่อ่าน`}
+            {t("recentCount", { limit: FULL_LIST_LIMIT })}
+            {unreadCount > 0 && t("unreadSuffix", { count: unreadCount })}
           </p>
         </div>
         {unreadCount > 0 && <MarkAllReadButton />}
@@ -55,14 +59,14 @@ export default async function NotificationsPage() {
         {notifications.length === 0 ? (
           <AccountEmptyState
             icon={Bell}
-            title="ยังไม่มีการแจ้งเตือน"
-            description="ตั้งค่าติดตามหมวดหมู่งานวิจัยได้ที่หน้าตั้งค่าการแจ้งเตือน"
+            title={t("emptyTitle")}
+            description={t("emptyDescription")}
             action={
               <Link
                 href="/profile/notification-settings"
                 className="text-sm font-medium text-accent hover:underline"
               >
-                ตั้งค่าการแจ้งเตือน
+                {t("settingsLink")}
               </Link>
             }
           />

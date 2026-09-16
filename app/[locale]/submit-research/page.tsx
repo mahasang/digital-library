@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { redirect } from "@/i18n/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Container from "@/components/ui/Container";
 import SubmitResearchForm from "@/components/submission/SubmitResearchForm";
@@ -13,10 +13,13 @@ import { getSettings } from "@/lib/data/settings.server";
 import { isCaptchaConfigured } from "@/lib/captcha.server";
 import { submitResearchAction } from "@/app/[locale]/submit-research/actions";
 
-export const metadata: Metadata = {
-  title: "ส่งงานวิจัย",
-  description: "ส่งงานวิจัยของคุณเข้าสู่ระบบเพื่อรอการตรวจสอบและอนุมัติเผยแพร่",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("submitResearch");
+  return {
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  };
+}
 
 export default async function SubmitResearchPage() {
   if (!isSupabaseConfigured()) {
@@ -30,6 +33,7 @@ export default async function SubmitResearchPage() {
   }
 
   const locale = await getLocale();
+  const t = await getTranslations("submitResearch");
   const user = await getSessionUser();
   if (!user) return redirect({ href: "/login?redirect=/submit-research", locale });
 
@@ -47,9 +51,9 @@ export default async function SubmitResearchPage() {
   return (
     <div className="py-10 sm:py-14">
       <Container className="max-w-3xl">
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">ส่งงานวิจัย</h1>
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("pageTitle")}</h1>
         <p className="mt-1 text-sm text-gray-500">
-          กรอกข้อมูลงานวิจัยและอัปโหลดไฟล์ให้ครบถ้วน แล้วเลือกบันทึกฉบับร่างหรือส่งตรวจสอบ
+          {t("subtitle")}
         </p>
 
         <div className="mt-8">

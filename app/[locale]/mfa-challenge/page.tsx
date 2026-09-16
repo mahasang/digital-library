@@ -1,11 +1,13 @@
 export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import AuthFormShell from "@/components/auth/AuthFormShell";
 import MfaChallengeForm from "@/components/auth/MfaChallengeForm";
 
-export const metadata: Metadata = {
-  title: "ยืนยันตัวตนขั้นที่สอง",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("mfaChallenge");
+  return { title: t("pageTitle") };
+}
 
 export default async function MfaChallengePage({
   searchParams,
@@ -13,6 +15,7 @@ export default async function MfaChallengePage({
   searchParams: Promise<{ redirect?: string }>;
 }) {
   const params = await searchParams;
+  const t = await getTranslations("mfaChallenge");
   const redirectTo =
     typeof params.redirect === "string" && params.redirect.startsWith("/")
       ? params.redirect
@@ -20,8 +23,8 @@ export default async function MfaChallengePage({
 
   return (
     <AuthFormShell
-      title="ยืนยันตัวตนขั้นที่สอง"
-      description="บัญชีนี้ตั้งค่า MFA ไว้แล้ว กรุณากรอกรหัสจากแอปยืนยันตัวตนของคุณเพื่อเข้าถึงหน้า Super Admin"
+      title={t("formTitle")}
+      description={t("formDescription")}
     >
       <MfaChallengeForm redirectTo={redirectTo} />
     </AuthFormShell>

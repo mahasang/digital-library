@@ -1394,12 +1394,12 @@
       "publishedSuccess": "Published successfully",
       "deletedSuccess": "Deleted successfully",
       "errorSlugTaken": "This slug is already taken",
-    "searchPlaceholder": "Search posts...",
-    "search": "Search",
-    "allPosts": "All posts",
-    "foundPosts": "{count} posts found",
-    "prevPage": "Previous",
-    "nextPage": "Next"
+      "searchPlaceholder": "Search posts...",
+      "search": "Search",
+      "allPosts": "All posts",
+      "foundPosts": "{count} posts found",
+      "prevPage": "Previous",
+      "nextPage": "Next"
     }
   },
   "footer": {
@@ -1800,6 +1800,205 @@
   },
   "notifications": {
     "markAllRead": "Mark all as read",
-    "unreadBadge": "Unread"
+    "unreadBadge": "Unread",
+    "pageTitle": "Notifications",
+    "pageDescription": "All your notifications",
+    "recentCount": "Your {limit} most recent notifications",
+    "unreadSuffix": " — {count} unread",
+    "emptyTitle": "No notifications yet",
+    "emptyDescription": "Set up category follows on the notification settings page",
+    "settingsLink": "Notification settings"
+  },
+  "readingHistory": {
+    "pageTitle": "Reading History",
+    "pageDescription": "Research you have recently read",
+    "subtitle": "Research you've recently read (showing the latest 50)",
+    "emptyTitle": "No reading history yet",
+    "emptyDescription": "Research you read online will be recorded here",
+    "browseResearch": "Browse research"
+  },
+  "mySubmissions": {
+    "pageTitle": "My Submissions",
+    "pageDescription": "All the research you have submitted",
+    "subtitle": "All the research you have submitted, with the latest status",
+    "newSubmission": "Submit new research",
+    "emptyTitle": "No submissions yet",
+    "emptyDescription": "Go ahead and submit your first research",
+    "updatedAtLabel": "Last updated",
+    "detailPageTitle": "Submission details",
+    "backToList": "Back to my submissions",
+    "editHeading": "Edit research",
+    "revisionRequestedNote": "A librarian has requested changes to this research before it can be resubmitted for review",
+    "draftNote": "Edit your draft, then save it or submit it for review"
+  },
+  "submitResearch": {
+    "pageTitle": "Submit Research",
+    "pageDescription": "Submit your research for review and publication approval",
+    "subtitle": "Fill in the research details and upload the required files, then save as a draft or submit for review"
+  },
+  "researchRead": {
+    "notFoundTitle": "Research not found",
+    "readingTitlePrefix": "Reading: {title}",
+    "backToDetail": "Back to research details",
+    "searchHintPrefix": "You can search the text inside this document on the",
+    "searchResearch": "search research",
+    "ocrNote": "(Text from OCR may contain inaccuracies)",
+    "noTextFound": "This document may be a scanned file with no extractable text, so in-document search is not yet supported",
+    "fileErrorTitle": "Could not open this document right now"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "metaTitle": "Privacy Policy",
+    "lastUpdated": "Last updated: September 2026",
+    "section1": {
+      "title": "1. Information We Collect",
+      "intro": "The Digital Library collects the following information:",
+      "item1": "Your name and email address when you create an account",
+      "item2": "Reading history and favorites",
+      "item3": "Comments and ratings you provide",
+      "item4": "Usage data (number of visits)"
+    },
+    "section2": {
+      "title": "2. How We Use Information",
+      "intro": "We use your information to:",
+      "item1": "Provide the digital library service",
+      "item2": "Send notifications about new research",
+      "item3": "Improve the user experience"
+    },
+    "section3": {
+      "title": "3. Data Sharing",
+      "content": "We do not sell or share your personal information with third parties, except as needed to provide the service (Supabase, Google)"
+    },
+    "section4": {
+      "title": "4. Security",
+      "content": "Your data is stored securely using Supabase and SSL encryption"
+    },
+    "section5": {
+      "title": "5. Your Rights",
+      "intro": "You have the right to:",
+      "item1": "Access your personal data",
+      "item2": "Correct or delete your data",
+      "item3": "Unsubscribe from notifications"
+    },
+    "section6": {
+      "title": "6. Contact",
+      "content": "If you have any questions, please contact:"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "metaTitle": "Terms of Service",
+    "lastUpdated": "Last updated: September 2026",
+    "section1": {
+      "title": "1. Acceptance of Terms",
+      "content": "By using the Digital Library, you agree to be bound by these terms of service in full."
+    },
+    "section2": {
+      "title": "2. Acceptable Use",
+      "intro": "You agree to:",
+      "item1": "Use the service for educational and research purposes",
+      "item2": "Not copy or distribute content without permission",
+      "item3": "Not use the system for any unlawful purpose",
+      "item4": "Keep your account secure"
+    },
+    "section3": {
+      "title": "3. Copyright",
+      "content": "All content on the Digital Library is the intellectual property of its authors and related organizations. Copying or distributing it without permission is unlawful."
+    },
+    "section4": {
+      "title": "4. Liability",
+      "content": "The Digital Library is not liable for damages arising from use of the service or inaccuracies in the data."
+    },
+    "section5": {
+      "title": "5. Changes to These Terms",
+      "content": "We reserve the right to change these terms at any time. Continued use of the service constitutes acceptance of such changes."
+    },
+    "section6": {
+      "title": "6. Contact",
+      "content": "If you have questions about these terms, please contact:"
+    }
+  },
+  "contact": {
+    "metaTitle": "Contact Us",
+    "metaDescription": "Have a question or need help? Send our team a message",
+    "subtitle": "Have a question or need help? Send us a message",
+    "emailCardTitle": "Email",
+    "emailCardDesc": "Email our team",
+    "phoneCardTitle": "Phone",
+    "phoneCardDesc": "Call our team",
+    "facebookCardTitle": "Facebook",
+    "facebookCardDesc": "Follow us on Facebook",
+    "locationTitle": "Location",
+    "locationValue": "Vientiane, Lao PDR",
+    "hoursTitle": "Working Hours",
+    "weekdays": "Mon – Fri",
+    "saturday": "Sat",
+    "sunday": "Sun",
+    "closed": "Closed"
+  },
+  "contactForm": {
+    "firstNameLabel": "First name",
+    "firstNamePlaceholder": "Your first name",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Your last name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone number",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Type your message here...",
+    "successMessage": "Thank you! Your message has been sent successfully. We'll get back to you soon.",
+    "submitting": "Sending...",
+    "submit": "Send message"
+  },
+  "mfaChallenge": {
+    "pageTitle": "Two-Factor Verification",
+    "formTitle": "Two-Factor Verification",
+    "formDescription": "This account already has MFA set up. Please enter the code from your authenticator app to access the Super Admin area.",
+    "loadError": "Could not load verification data. Please try again.",
+    "noFactorError": "No usable authentication device found — please contact the administrator.",
+    "checking": "Checking...",
+    "enterCodePrompt": "Enter the code from your authenticator app",
+    "codePlaceholder": "6-digit code",
+    "verifyButton": "Verify",
+    "invalidCode": "Invalid or expired code. Please try again.",
+    "lostDeviceNote": "Lost your device? Ask another Super Admin to reset your MFA before you can set up a new device."
+  },
+  "setupMfa": {
+    "pageTitle": "Set Up Two-Factor Authentication",
+    "formTitle": "Set Up Two-Factor Authentication (MFA)",
+    "formDescription": "Super Admin accounts must set up MFA before accessing the admin area — use an authenticator app such as Google Authenticator or Authy.",
+    "statusCheckError": "Could not check MFA status right now — Supabase Auth may not have MFA enabled yet. Please contact the administrator.",
+    "enrollError": "Could not start MFA setup — check that Supabase has TOTP MFA enabled (see docs/superadmin-guide.md section 14).",
+    "preparing": "Preparing setup...",
+    "alreadyVerified": "This account already has MFA set up.",
+    "continueButton": "Continue",
+    "successMessage": "MFA setup successful.",
+    "redirecting": "Redirecting you to the requested page...",
+    "invalidCode": "Invalid or expired code. Please try again.",
+    "scanPrompt": "Scan this QR code with your authenticator app, then enter the 6-digit code shown.",
+    "codePlaceholder": "6-digit code",
+    "qrAlt": "QR code for MFA setup",
+    "manualEntryToggle": "Can't scan? Enter the code manually",
+    "activateButton": "Verify and activate"
+  },
+  "notificationSettingsPage": {
+    "pageTitle": "Notification Settings",
+    "pageDescription": "Manage notifications for new research by category and document access requests",
+    "backToProfile": "Back to my profile",
+    "subtitle": "Choose the research categories you want to follow and how you want to be notified",
+    "form": {
+      "newResearchSectionTitle": "New research notifications by category",
+      "inAppLabel": "In-app notifications",
+      "emailLabel": "Email notifications",
+      "newResearchInAppDesc": "Show in the notification bell when new research is published in categories you follow",
+      "newResearchEmailDescConfigured": "Send an email when new research is published in categories you follow",
+      "emailNotConfiguredDesc": "No email provider is configured yet — you can turn this on, but no emails will be sent until the administrator sets one up",
+      "categoriesSectionTitle": "Followed categories",
+      "categoriesSectionDesc": "Choose the research categories you want to be notified about when new items are published",
+      "noCategories": "No categories in the system yet",
+      "accessRequestSectionTitle": "Document access request notifications",
+      "accessRequestInAppDesc": "Show in the notification bell when your request is approved, rejected, or expires",
+      "accessRequestEmailDescConfigured": "Send an email when your request is approved, rejected, or more information is requested",
+      "saveButton": "Save settings"
+    }
   }
 }

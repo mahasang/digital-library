@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { redirect } from "@/i18n/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { BookOpen } from "lucide-react";
 import { LinkButton } from "@/components/ui/Button";
@@ -13,10 +13,13 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getReadingHistory } from "@/lib/data/favorites.server";
 
-export const metadata: Metadata = {
-  title: "ประวัติการอ่าน",
-  description: "งานวิจัยที่คุณเคยเปิดอ่านล่าสุด",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("readingHistory");
+  return {
+    title: t("pageTitle"),
+    description: t("pageDescription"),
+  };
+}
 
 export default async function ReadingHistoryPage() {
   if (!isSupabaseConfigured()) {
@@ -30,6 +33,7 @@ export default async function ReadingHistoryPage() {
   }
 
   const locale = await getLocale();
+  const t = await getTranslations("readingHistory");
   const user = await getSessionUser();
   if (!user) return redirect({ href: "/login?redirect=/reading-history", locale });
 
@@ -37,20 +41,18 @@ export default async function ReadingHistoryPage() {
 
   return (
     <AccountShell>
-      <h1 className="text-h1 font-semibold text-gray-900">ประวัติการอ่าน</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        งานวิจัยที่คุณเปิดอ่านล่าสุด (แสดง 50 รายการล่าสุด)
-      </p>
+      <h1 className="text-h1 font-semibold text-gray-900">{t("pageTitle")}</h1>
+      <p className="mt-1 text-sm text-gray-500">{t("subtitle")}</p>
 
       <div className="mt-6">
         {history.length === 0 ? (
           <AccountEmptyState
             icon={BookOpen}
-            title="ยังไม่มีประวัติการอ่าน"
-            description="เมื่อคุณเปิดอ่านงานวิจัยออนไลน์ ระบบจะบันทึกประวัติไว้ที่นี่"
+            title={t("emptyTitle")}
+            description={t("emptyDescription")}
             action={
               <LinkButton href="/research" variant="primary" size="sm">
-                ค้นหางานวิจัย
+                {t("browseResearch")}
               </LinkButton>
             }
           />
