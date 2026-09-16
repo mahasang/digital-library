@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mapAuthErrorMessage } from "@/lib/supabase/error-messages";
-import { forgotPasswordSchema } from "@/lib/validation/auth";
+import { createForgotPasswordSchema } from "@/lib/validation/auth";
 import { checkRateLimit, rateLimitKeyForIp } from "@/lib/rate-limit.server";
 import type { ActionResult } from "@/lib/actions/types";
 
@@ -24,7 +24,8 @@ export async function forgotPasswordAction(
     return { status: "error", message: t("supabaseNotConfiguredDetailed") };
   }
 
-  const parsed = forgotPasswordSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createForgotPasswordSchema(tValidation).safeParse({
     email: formData.get("email"),
   });
 

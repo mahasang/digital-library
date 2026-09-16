@@ -1,55 +1,66 @@
 import { z } from "zod";
+import type { useTranslations } from "next-intl";
 
-export const loginSchema = z.object({
-  email: z.string().min(1, "กรุณากรอกอีเมล").email("รูปแบบอีเมลไม่ถูกต้อง"),
-  password: z.string().min(1, "กรุณากรอกรหัสผ่าน"),
-});
+type TFunction = ReturnType<typeof useTranslations<"validation">>;
 
-export type LoginInput = z.infer<typeof loginSchema>;
-
-export const registerSchema = z
-  .object({
-    fullName: z
-      .string()
-      .min(2, "กรุณากรอกชื่อ-นามสกุลอย่างน้อย 2 ตัวอักษร")
-      .max(120, "ชื่อ-นามสกุลยาวเกินไป"),
-    organization: z.string().max(200, "ชื่อหน่วยงานยาวเกินไป").optional(),
-    phone: z
-      .string()
-      .regex(/^[0-9+\-\s()]{6,20}$/, "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง")
-      .optional()
-      .or(z.literal("")),
-    email: z.string().min(1, "กรุณากรอกอีเมล").email("รูปแบบอีเมลไม่ถูกต้อง"),
-    password: z
-      .string()
-      .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร")
-      .max(72, "รหัสผ่านยาวเกินไป"),
-    confirmPassword: z.string().min(1, "กรุณายืนยันรหัสผ่าน"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน",
-    path: ["confirmPassword"],
+export function createLoginSchema(t: TFunction) {
+  return z.object({
+    email: z.string().min(1, t("common.emailRequired")).email(t("common.emailInvalid")),
+    password: z.string().min(1, t("auth.passwordRequired")),
   });
+}
 
-export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<ReturnType<typeof createLoginSchema>>;
 
-export const forgotPasswordSchema = z.object({
-  email: z.string().min(1, "กรุณากรอกอีเมล").email("รูปแบบอีเมลไม่ถูกต้อง"),
-});
+export function createRegisterSchema(t: TFunction) {
+  return z
+    .object({
+      fullName: z
+        .string()
+        .min(2, t("common.nameTooShort"))
+        .max(120, t("common.nameTooLong")),
+      organization: z.string().max(200, t("common.organizationTooLong")).optional(),
+      phone: z
+        .string()
+        .regex(/^[0-9+\-\s()]{6,20}$/, t("common.phoneInvalid"))
+        .optional()
+        .or(z.literal("")),
+      email: z.string().min(1, t("common.emailRequired")).email(t("common.emailInvalid")),
+      password: z
+        .string()
+        .min(8, t("common.passwordTooShort"))
+        .max(72, t("common.passwordTooLong")),
+      confirmPassword: z.string().min(1, t("common.confirmPasswordRequired")),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("common.passwordMismatchConfirm"),
+      path: ["confirmPassword"],
+    });
+}
 
-export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type RegisterInput = z.infer<ReturnType<typeof createRegisterSchema>>;
 
-export const resetPasswordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร")
-      .max(72, "รหัสผ่านยาวเกินไป"),
-    confirmPassword: z.string().min(1, "กรุณายืนยันรหัสผ่าน"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน",
-    path: ["confirmPassword"],
+export function createForgotPasswordSchema(t: TFunction) {
+  return z.object({
+    email: z.string().min(1, t("common.emailRequired")).email(t("common.emailInvalid")),
   });
+}
 
-export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type ForgotPasswordInput = z.infer<ReturnType<typeof createForgotPasswordSchema>>;
+
+export function createResetPasswordSchema(t: TFunction) {
+  return z
+    .object({
+      password: z
+        .string()
+        .min(8, t("common.passwordTooShort"))
+        .max(72, t("common.passwordTooLong")),
+      confirmPassword: z.string().min(1, t("common.confirmPasswordRequired")),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("common.passwordMismatchConfirm"),
+      path: ["confirmPassword"],
+    });
+}
+
+export type ResetPasswordInput = z.infer<ReturnType<typeof createResetPasswordSchema>>;

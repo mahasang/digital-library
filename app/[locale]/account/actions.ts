@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { profileSchema, changePasswordSchema } from "@/lib/validation/profile";
+import { createProfileSchema, createChangePasswordSchema } from "@/lib/validation/profile";
 import {
   AVATAR_ALLOWED_TYPES,
   AVATAR_ALLOWED_EXTENSIONS,
@@ -23,7 +23,8 @@ export async function updateProfileAction(
 ): Promise<ActionResult> {
   const t = await getTranslations("actionMessages.common");
   const tAccount = await getTranslations("actionMessages.account");
-  const parsed = profileSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createProfileSchema(tValidation).safeParse({
     fullName: formData.get("fullName"),
     organization: formData.get("organization") || undefined,
     phone: formData.get("phone") || "",
@@ -253,7 +254,8 @@ export async function changePasswordAction(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { status: "error", message: t("mustLogIn") };
 
-  const parsed = changePasswordSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createChangePasswordSchema(tValidation).safeParse({
     newPassword: formData.get("newPassword"),
     confirmPassword: formData.get("confirmPassword"),
   });

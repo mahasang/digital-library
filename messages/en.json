@@ -2000,5 +2000,91 @@
       "accessRequestEmailDescConfigured": "Send an email when your request is approved, rejected, or more information is requested",
       "saveButton": "Save settings"
     }
+  },
+  "validation": {
+    "common": {
+      "emailInvalid": "Invalid email format",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordTooLong": "Password is too long",
+      "nameTooShort": "Please enter your full name (at least 2 characters)",
+      "nameTooLong": "Full name is too long",
+      "organizationTooLong": "Organization name is too long",
+      "phoneInvalid": "Invalid phone number format",
+      "emailRequired": "Please enter your email",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordMismatchConfirm": "Password and confirmation do not match",
+      "passwordMismatch": "Passwords do not match",
+      "nameGenericTooLong": "Name is too long",
+      "thaiNameTooShort": "Please enter a Thai name (at least 2 characters)",
+      "addressTooLong": "Address is too long",
+      "fileTypeInvalid": "The uploaded {fileType} file is invalid (file extension not allowed)",
+      "fileTypeCover": "cover image",
+      "fileTypeAttachment": "attachment",
+      "fileTypeLogo": "logo",
+      "fileTypeFavicon": "favicon"
+    },
+    "auth": {
+      "passwordRequired": "Please enter your password"
+    },
+    "author": {
+      "titlePrefixTooLong": "Title prefix is too long",
+      "biographyTooLong": "Biography is too long"
+    },
+    "organization": {
+      "descriptionTooLong": "Description is too long",
+      "organizationCodeTooLong": "Organization code is too long",
+      "websiteUrlInvalid": "Website URL must start with http:// or https://"
+    },
+    "profile": {
+      "dateOfBirthInvalid": "Invalid date of birth",
+      "dateOfBirthFuture": "Date of birth cannot be in the future"
+    },
+    "submission": {
+      "researcherNameRequired": "Please enter the researcher's name",
+      "titleThTooShort": "Please enter a Thai title (at least 5 characters)",
+      "titleTooLong": "Title is too long",
+      "abstractTooShort": "Abstract should be at least 50 characters",
+      "abstractTooLong": "Abstract is too long",
+      "organizationRequired": "Please select an organization",
+      "yearInvalid": "Year must be a number",
+      "yearOutOfRange": "Invalid year",
+      "categoryRequired": "Please select a category",
+      "keywordsRequired": "Please provide at least 1 keyword",
+      "keywordsTooMany": "You can provide up to 20 keywords",
+      "researchersRequired": "Please provide at least 1 researcher",
+      "researchersTooMany": "You can provide up to 20 researchers",
+      "copyrightNoteTooShort": "Please enter copyright information (at least 10 characters)",
+      "copyrightNoteTooLong": "Copyright information is too long",
+      "copyrightConfirmRequired": "Please confirm you own the copyright and consent to publication",
+      "pdfRequired": "Please upload a PDF file"
+    },
+    "accessRequest": {
+      "researchNotFound": "This research item was not found",
+      "requestTypeRequired": "Please select a request type",
+      "purposeTooShort": "Please describe your purpose (at least 10 characters)",
+      "purposeTooLong": "Purpose is too long",
+      "requesterNoteTooLong": "Additional details are too long",
+      "termsRequired": "Please accept the document usage terms before submitting your request"
+    },
+    "systemSettings": {
+      "siteNameRequired": "Please enter a site name",
+      "siteNameTooLong": "Site name is too long",
+      "contactPhoneTooLong": "Phone number is too long",
+      "socialLinkTooLong": "Link is too long",
+      "copyrightTextTooLong": "Copyright text is too long"
+    },
+    "orcid": {
+      "invalid": "Invalid ORCID (format or checksum check failed)",
+      "callback": {
+        "supabaseNotConfigured": "Supabase is not connected yet",
+        "mustLogin": "Please log in before continuing",
+        "missingCode": "No verification code received from ORCID",
+        "sessionExpired": "The ORCID connection session expired or is invalid. Please try again.",
+        "exchangeFailed": "Could not verify your identity with ORCID. Please try again.",
+        "invalidOrcid": "The ORCID received is invalid",
+        "alreadyLinked": "This ORCID is already linked to another researcher in the system. Please contact library staff.",
+        "saveFailed": "Could not save the ORCID connection. Please try again."
+      }
+    }
   }
 }

@@ -1,18 +1,23 @@
 import { z } from "zod";
+import type { useTranslations } from "next-intl";
 
-export const organizationAuthoritySchema = z.object({
-  nameTh: z.string().min(2, "กรุณากรอกชื่อภาษาไทยอย่างน้อย 2 ตัวอักษร").max(300, "ชื่อยาวเกินไป"),
-  nameEn: z.string().max(300, "ชื่อยาวเกินไป").optional(),
-  description: z.string().max(2000, "คำอธิบายยาวเกินไป").optional(),
-  parentId: z.string().uuid().optional().or(z.literal("")),
-  organizationCode: z.string().max(50, "รหัสหน่วยงานยาวเกินไป").optional(),
-  websiteUrl: z
-    .string()
-    .max(500)
-    .optional()
-    .refine((v) => !v || /^https?:\/\/.+/i.test(v), {
-      message: "URL เว็บไซต์ต้องขึ้นต้นด้วย http:// หรือ https://",
-    }),
-});
+type TFunction = ReturnType<typeof useTranslations<"validation">>;
 
-export type OrganizationAuthorityInput = z.infer<typeof organizationAuthoritySchema>;
+export function createOrganizationAuthoritySchema(t: TFunction) {
+  return z.object({
+    nameTh: z.string().min(2, t("common.thaiNameTooShort")).max(300, t("common.nameGenericTooLong")),
+    nameEn: z.string().max(300, t("common.nameGenericTooLong")).optional(),
+    description: z.string().max(2000, t("organization.descriptionTooLong")).optional(),
+    parentId: z.string().uuid().optional().or(z.literal("")),
+    organizationCode: z.string().max(50, t("organization.organizationCodeTooLong")).optional(),
+    websiteUrl: z
+      .string()
+      .max(500)
+      .optional()
+      .refine((v) => !v || /^https?:\/\/.+/i.test(v), {
+        message: t("organization.websiteUrlInvalid"),
+      }),
+  });
+}
+
+export type OrganizationAuthorityInput = z.infer<ReturnType<typeof createOrganizationAuthoritySchema>>;

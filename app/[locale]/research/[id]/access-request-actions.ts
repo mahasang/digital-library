@@ -2,12 +2,13 @@
 
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getSettings } from "@/lib/data/settings.server";
 import { checkRateLimit, rateLimitKeyForIp } from "@/lib/rate-limit.server";
 import { hasActiveAccessGrantBySlug } from "@/lib/data/access-grants.server";
-import { accessRequestSchema } from "@/lib/validation/access-request";
+import { createAccessRequestSchema } from "@/lib/validation/access-request";
 import { canDownload, canReadOnline } from "@/lib/labels";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import type { ActionResult } from "@/lib/actions/types";
@@ -35,7 +36,8 @@ export async function submitAccessRequestAction(
     return { status: "error", message: "กรุณาเข้าสู่ระบบก่อนส่งคำขอเข้าถึงเอกสาร" };
   }
 
-  const parsed = accessRequestSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createAccessRequestSchema(tValidation).safeParse({
     researchSlug: formData.get("researchSlug"),
     requestType: formData.get("requestType"),
     purpose: formData.get("purpose"),

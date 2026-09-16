@@ -6,7 +6,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
-import { submissionSchema } from "@/lib/validation/submission";
+import { createSubmissionSchema } from "@/lib/validation/submission";
 import { getSettings } from "@/lib/data/settings.server";
 import { checkRateLimit, rateLimitKeyForIp } from "@/lib/rate-limit.server";
 import { verifyCaptchaIfEnabled } from "@/lib/captcha.server";
@@ -97,7 +97,8 @@ export async function submitResearchAction(
     return { status: "error", message: t("research.researchersOrKeywordsInvalid") };
   }
 
-  const parsed = submissionSchema.safeParse({
+  const tValidation = await getTranslations({ locale, namespace: "validation" });
+  const parsed = createSubmissionSchema(tValidation).safeParse({
     titleTh: formData.get("titleTh"),
     titleEn: formData.get("titleEn") || undefined,
     abstract: formData.get("abstract"),

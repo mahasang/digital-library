@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const redirectTo = (status: string, reason?: string) =>
     NextResponse.redirect(`${origin}/account?orcid=${status}${reason ? `&reason=${encodeURIComponent(reason)}` : ""}`);
 
-  if (!isSupabaseConfigured()) return redirectTo("error", "ระบบยังไม่ได้เชื่อมต่อ Supabase");
+  if (!isSupabaseConfigured()) return redirectTo("error", "supabaseNotConfigured");
 
   const state = searchParams.get("state") ?? "";
   const errorParam = searchParams.get("error");
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return redirectTo("error", "กรุณาเข้าสู่ระบบก่อนดำเนินการ");
+  if (!user) return redirectTo("error", "mustLogin");
 
   // ผู้ใช้กดยกเลิกที่หน้ายืนยันของ ORCID — ยัง "ใช้" state ทิ้งเสมอ (กัน state
   // ค้างในระบบแม้ flow จะไม่จบแบบสำเร็จ)
@@ -39,11 +39,11 @@ export async function GET(request: NextRequest) {
     return redirectTo("cancelled");
   }
 
-  if (!code) return redirectTo("error", "ไม่พบรหัสยืนยันจาก ORCID");
+  if (!code) return redirectTo("error", "missingCode");
 
   const consumed = await consumeOrcidOAuthState(state, user.id);
   if (!consumed) {
-    return redirectTo("error", "เซสชันเชื่อมต่อ ORCID หมดอายุหรือไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+    return redirectTo("error", "sessionExpired");
   }
 
   const proto = request.headers.get("x-forwarded-proto") ?? (origin.startsWith("http://") ? "http" : "https");
@@ -52,12 +52,12 @@ export async function GET(request: NextRequest) {
 
   const token = await exchangeOrcidCode(code, redirectUri);
   if (!token) {
-    return redirectTo("error", "ไม่สามารถยืนยันตัวตนกับ ORCID ได้ กรุณาลองใหม่อีกครั้ง");
+    return redirectTo("error", "exchangeFailed");
   }
 
   const validated = validateOrcid(token.orcid);
   if (!validated.valid || !validated.formatted) {
-    return redirectTo("error", "ORCID ที่ได้รับไม่ถูกต้อง");
+    return redirectTo("error", "invalidOrcid");
   }
 
   const service = createServiceRoleClient();
@@ -88,13 +88,10 @@ export async function GET(request: NextRequest) {
         entityId: consumed.authorId,
         metadata: { orcid: validated.formatted },
       });
-      return redirectTo(
-        "error",
-        "ORCID นี้ถูกใช้กับผู้วิจัยคนอื่นในระบบแล้ว กรุณาติดต่อเจ้าหน้าที่ห้องสมุดเพื่อตรวจสอบ"
-      );
+      return redirectTo("error", "alreadyLinked");
     }
     console.error("ORCID callback: update authors failed:", updateError.message);
-    return redirectTo("error", "ไม่สามารถบันทึกการเชื่อมต่อ ORCID ได้ กรุณาลองใหม่อีกครั้ง");
+    return redirectTo("error", "saveFailed");
   }
 
   await storeOrcidOAuthTokens(consumed.authorId, token);

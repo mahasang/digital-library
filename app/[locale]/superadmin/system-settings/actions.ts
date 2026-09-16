@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { SETTINGS_ROW_ID } from "@/lib/data/settings.server";
-import { systemSettingsSchema } from "@/lib/validation/system-settings";
+import { createSystemSettingsSchema } from "@/lib/validation/system-settings";
 import { revalidatePublicSettings } from "@/lib/cache/public-home";
 import type { ActionResult } from "@/lib/actions/types";
 
@@ -19,7 +19,8 @@ export async function updateSystemSettingsAction(
   const auth = await requireMinRank(50);
   if (!auth.ok) return auth.result;
 
-  const parsed = systemSettingsSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createSystemSettingsSchema(tValidation).safeParse({
     siteName: formData.get("siteName"),
     contactEmail: formData.get("contactEmail") || "",
     contactPhone: formData.get("contactPhone") || "",

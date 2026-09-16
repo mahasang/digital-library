@@ -5,7 +5,7 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mapAuthErrorMessage } from "@/lib/supabase/error-messages";
-import { resetPasswordSchema } from "@/lib/validation/auth";
+import { createResetPasswordSchema } from "@/lib/validation/auth";
 import type { ActionResult } from "@/lib/actions/types";
 
 export async function resetPasswordAction(
@@ -17,7 +17,8 @@ export async function resetPasswordAction(
     return { status: "error", message: t("supabaseNotConfiguredDetailed") };
   }
 
-  const parsed = resetPasswordSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createResetPasswordSchema(tValidation).safeParse({
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
   });

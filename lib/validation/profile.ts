@@ -1,39 +1,47 @@
 import { z } from "zod";
+import type { useTranslations } from "next-intl";
+
+type TFunction = ReturnType<typeof useTranslations<"validation">>;
 
 const emptyToUndefined = (val: unknown) => (val === "" ? undefined : val);
 
-export const profileSchema = z.object({
-  fullName: z
-    .string()
-    .min(2, "กรุณากรอกชื่อ-นามสกุลอย่างน้อย 2 ตัวอักษร")
-    .max(120, "ชื่อ-นามสกุลยาวเกินไป"),
-  organization: z.string().max(200, "ชื่อหน่วยงานยาวเกินไป").optional(),
-  phone: z.preprocess(
-    emptyToUndefined,
-    z
+export function createProfileSchema(t: TFunction) {
+  return z.object({
+    fullName: z
       .string()
-      .regex(/^[0-9+\-\s()]{6,20}$/, "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง")
-      .optional()
-  ),
-  dateOfBirth: z.preprocess(
-    emptyToUndefined,
-    z
-      .string()
-      .refine((val) => !Number.isNaN(Date.parse(val)), "วันเกิดไม่ถูกต้อง")
-      .refine((val) => new Date(val) <= new Date(), "วันเกิดต้องไม่ใช่วันในอนาคต")
-      .optional()
-  ),
-  address: z.preprocess(emptyToUndefined, z.string().max(500, "ที่อยู่ยาวเกินไป").optional()),
-});
-export const changePasswordSchema = z
-  .object({
-    newPassword: z.string().min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "รหัสผ่านไม่ตรงกัน",
-    path: ["confirmPassword"],
+      .min(2, t("common.nameTooShort"))
+      .max(120, t("common.nameTooLong")),
+    organization: z.string().max(200, t("common.organizationTooLong")).optional(),
+    phone: z.preprocess(
+      emptyToUndefined,
+      z
+        .string()
+        .regex(/^[0-9+\-\s()]{6,20}$/, t("common.phoneInvalid"))
+        .optional()
+    ),
+    dateOfBirth: z.preprocess(
+      emptyToUndefined,
+      z
+        .string()
+        .refine((val) => !Number.isNaN(Date.parse(val)), t("profile.dateOfBirthInvalid"))
+        .refine((val) => new Date(val) <= new Date(), t("profile.dateOfBirthFuture"))
+        .optional()
+    ),
+    address: z.preprocess(emptyToUndefined, z.string().max(500, t("common.addressTooLong")).optional()),
   });
+}
 
-export type ProfileInput = z.infer<typeof profileSchema>;
-export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export function createChangePasswordSchema(t: TFunction) {
+  return z
+    .object({
+      newPassword: z.string().min(8, t("common.passwordTooShort")),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t("common.passwordMismatch"),
+      path: ["confirmPassword"],
+    });
+}
+
+export type ProfileInput = z.infer<ReturnType<typeof createProfileSchema>>;
+export type ChangePasswordInput = z.infer<ReturnType<typeof createChangePasswordSchema>>;

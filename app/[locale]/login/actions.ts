@@ -6,7 +6,7 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mapAuthErrorMessage } from "@/lib/supabase/error-messages";
-import { loginSchema } from "@/lib/validation/auth";
+import { createLoginSchema } from "@/lib/validation/auth";
 import { getSettings } from "@/lib/data/settings.server";
 import { checkRateLimit, rateLimitKeyForIp } from "@/lib/rate-limit.server";
 import { verifyCaptchaIfEnabled } from "@/lib/captcha.server";
@@ -46,7 +46,8 @@ export async function loginAction(
     return { status: "error", message: captchaResult.message };
   }
 
-  const parsed = loginSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createLoginSchema(tValidation).safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
   });

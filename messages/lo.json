@@ -2065,5 +2065,91 @@
       "accessRequestEmailDescConfigured": "ส่งอีเมลเมื่อคำขอของคุณได้รับการอนุมัติ ถูกปฏิเสธ หรือเจ้าหน้าที่ขอข้อมูลเพิ่ม",
       "saveButton": "บันทึกการตั้งค่า"
     }
+  },
+  "validation": {
+    "common": {
+      "emailInvalid": "รูปแบบอีเมลไม่ถูกต้อง",
+      "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+      "passwordTooLong": "รหัสผ่านยาวเกินไป",
+      "nameTooShort": "กรุณากรอกชื่อ-นามสกุลอย่างน้อย 2 ตัวอักษร",
+      "nameTooLong": "ชื่อ-นามสกุลยาวเกินไป",
+      "organizationTooLong": "ชื่อหน่วยงานยาวเกินไป",
+      "phoneInvalid": "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง",
+      "emailRequired": "กรุณากรอกอีเมล",
+      "confirmPasswordRequired": "กรุณายืนยันรหัสผ่าน",
+      "passwordMismatchConfirm": "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน",
+      "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
+      "nameGenericTooLong": "ชื่อยาวเกินไป",
+      "thaiNameTooShort": "กรุณากรอกชื่อภาษาไทยอย่างน้อย 2 ตัวอักษร",
+      "addressTooLong": "ที่อยู่ยาวเกินไป",
+      "fileTypeInvalid": "ไฟล์ {fileType} ที่อัปโหลดไม่ถูกต้อง (นามสกุลไฟล์ไม่ตรงกับที่อนุญาต)",
+      "fileTypeCover": "ภาพปก",
+      "fileTypeAttachment": "ไฟล์แนบ",
+      "fileTypeLogo": "โลโก้",
+      "fileTypeFavicon": "favicon"
+    },
+    "auth": {
+      "passwordRequired": "กรุณากรอกรหัสผ่าน"
+    },
+    "author": {
+      "titlePrefixTooLong": "คำนำหน้ายาวเกินไป",
+      "biographyTooLong": "ประวัติยาวเกินไป"
+    },
+    "organization": {
+      "descriptionTooLong": "คำอธิบายยาวเกินไป",
+      "organizationCodeTooLong": "รหัสหน่วยงานยาวเกินไป",
+      "websiteUrlInvalid": "URL เว็บไซต์ต้องขึ้นต้นด้วย http:// หรือ https://"
+    },
+    "profile": {
+      "dateOfBirthInvalid": "วันเกิดไม่ถูกต้อง",
+      "dateOfBirthFuture": "วันเกิดต้องไม่ใช่วันในอนาคต"
+    },
+    "submission": {
+      "researcherNameRequired": "กรุณากรอกชื่อผู้วิจัย",
+      "titleThTooShort": "กรุณากรอกชื่อเรื่องภาษาไทยอย่างน้อย 5 ตัวอักษร",
+      "titleTooLong": "ชื่อเรื่องยาวเกินไป",
+      "abstractTooShort": "บทคัดย่อควรมีความยาวอย่างน้อย 50 ตัวอักษร",
+      "abstractTooLong": "บทคัดย่อยาวเกินไป",
+      "organizationRequired": "กรุณาเลือกหน่วยงาน",
+      "yearInvalid": "ปีต้องเป็นตัวเลข",
+      "yearOutOfRange": "ปีไม่ถูกต้อง",
+      "categoryRequired": "กรุณาเลือกหมวดหมู่",
+      "keywordsRequired": "กรุณาระบุคำสำคัญอย่างน้อย 1 คำ",
+      "keywordsTooMany": "ระบุคำสำคัญได้ไม่เกิน 20 คำ",
+      "researchersRequired": "กรุณาระบุผู้วิจัยอย่างน้อย 1 คน",
+      "researchersTooMany": "ระบุผู้วิจัยได้ไม่เกิน 20 คน",
+      "copyrightNoteTooShort": "กรุณากรอกข้อมูลลิขสิทธิ์อย่างน้อย 10 ตัวอักษร",
+      "copyrightNoteTooLong": "ข้อมูลลิขสิทธิ์ยาวเกินไป",
+      "copyrightConfirmRequired": "กรุณายืนยันว่าเป็นเจ้าของลิขสิทธิ์และยินยอมให้เผยแพร่",
+      "pdfRequired": "กรุณาอัปโหลดไฟล์ PDF"
+    },
+    "accessRequest": {
+      "researchNotFound": "ไม่พบงานวิจัยนี้",
+      "requestTypeRequired": "กรุณาเลือกประเภทคำขอ",
+      "purposeTooShort": "กรุณาระบุวัตถุประสงค์การใช้งานอย่างน้อย 10 ตัวอักษร",
+      "purposeTooLong": "วัตถุประสงค์ยาวเกินไป",
+      "requesterNoteTooLong": "รายละเอียดเพิ่มเติมยาวเกินไป",
+      "termsRequired": "กรุณายอมรับเงื่อนไขการใช้งานเอกสารก่อนส่งคำขอ"
+    },
+    "systemSettings": {
+      "siteNameRequired": "กรุณากรอกชื่อระบบ",
+      "siteNameTooLong": "ชื่อระบบยาวเกินไป",
+      "contactPhoneTooLong": "เบอร์โทรศัพท์ยาวเกินไป",
+      "socialLinkTooLong": "ลิงก์ยาวเกินไป",
+      "copyrightTextTooLong": "ข้อความลิขสิทธิ์ยาวเกินไป"
+    },
+    "orcid": {
+      "invalid": "รูปแบบ ORCID ไม่ถูกต้อง (ตรวจสอบรูปแบบหรือ checksum ไม่ผ่าน)",
+      "callback": {
+        "supabaseNotConfigured": "ระบบยังไม่ได้เชื่อมต่อ Supabase",
+        "mustLogin": "กรุณาเข้าสู่ระบบก่อนดำเนินการ",
+        "missingCode": "ไม่พบรหัสยืนยันจาก ORCID",
+        "sessionExpired": "เซสชันเชื่อมต่อ ORCID หมดอายุหรือไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง",
+        "exchangeFailed": "ไม่สามารถยืนยันตัวตนกับ ORCID ได้ กรุณาลองใหม่อีกครั้ง",
+        "invalidOrcid": "ORCID ที่ได้รับไม่ถูกต้อง",
+        "alreadyLinked": "ORCID นี้ถูกใช้กับผู้วิจัยคนอื่นในระบบแล้ว กรุณาติดต่อเจ้าหน้าที่ห้องสมุดเพื่อตรวจสอบ",
+        "saveFailed": "ไม่สามารถบันทึกการเชื่อมต่อ ORCID ได้ กรุณาลองใหม่อีกครั้ง"
+      }
+    }
   }
 }

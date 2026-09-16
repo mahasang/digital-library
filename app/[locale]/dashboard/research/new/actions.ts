@@ -5,7 +5,7 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
-import { submissionSchema } from "@/lib/validation/submission";
+import { createSubmissionSchema } from "@/lib/validation/submission";
 import {
   generateResearchSlug,
   replaceResearchRelations,
@@ -57,7 +57,8 @@ export async function adminCreateResearchAction(
     return { status: "error", message: tResearch("researchersOrKeywordsInvalid") };
   }
 
-  const parsed = submissionSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createSubmissionSchema(tValidation).safeParse({
     titleTh: formData.get("titleTh"),
     titleEn: formData.get("titleEn") || undefined,
     abstract: formData.get("abstract"),

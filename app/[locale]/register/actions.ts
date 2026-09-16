@@ -6,7 +6,7 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mapAuthErrorMessage } from "@/lib/supabase/error-messages";
-import { registerSchema } from "@/lib/validation/auth";
+import { createRegisterSchema } from "@/lib/validation/auth";
 import { getSettings } from "@/lib/data/settings.server";
 import { checkRateLimit, rateLimitKeyForIp } from "@/lib/rate-limit.server";
 import { verifyCaptchaIfEnabled } from "@/lib/captcha.server";
@@ -46,7 +46,8 @@ export async function registerAction(
     return { status: "error", message: captchaResult.message };
   }
 
-  const parsed = registerSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createRegisterSchema(tValidation).safeParse({
     fullName: formData.get("fullName"),
     organization: formData.get("organization") || undefined,
     phone: formData.get("phone") || undefined,

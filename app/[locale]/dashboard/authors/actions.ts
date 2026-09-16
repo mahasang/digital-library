@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
-import { authorSchema } from "@/lib/validation/author";
+import { createAuthorSchema } from "@/lib/validation/author";
 import { validateOrcid } from "@/lib/validation/orcid";
 import { logAudit } from "@/lib/data/audit.server";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
@@ -15,8 +15,8 @@ import type { ActionResult } from "@/lib/actions/types";
 
 const ORCID_API_CACHE_MS = 24 * 60 * 60 * 1000;
 
-function parseAuthorForm(formData: FormData) {
-  return authorSchema.safeParse({
+function parseAuthorForm(formData: FormData, tValidation: Awaited<ReturnType<typeof getTranslations>>) {
+  return createAuthorSchema(tValidation).safeParse({
     name: formData.get("name"),
     displayNameEn: formData.get("displayNameEn") || undefined,
     titlePrefixTh: formData.get("titlePrefixTh") || undefined,
@@ -48,7 +48,8 @@ export async function createAuthorAction(
     return { status: "error", message: t("requiresLibrarianRank") };
   }
 
-  const parsed = parseAuthorForm(formData);
+  const tValidation = await getTranslations("validation");
+  const parsed = parseAuthorForm(formData, tValidation);
   if (!parsed.success) {
     return {
       status: "error",
@@ -119,7 +120,8 @@ export async function updateAuthorAction(
     return { status: "error", message: t("requiresLibrarianRank") };
   }
 
-  const parsed = parseAuthorForm(formData);
+  const tValidation = await getTranslations("validation");
+  const parsed = parseAuthorForm(formData, tValidation);
   if (!parsed.success) {
     return {
       status: "error",

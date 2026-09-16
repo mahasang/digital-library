@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
-import { submissionSchema } from "@/lib/validation/submission";
+import { createSubmissionSchema } from "@/lib/validation/submission";
 import { replaceResearchRelations } from "@/lib/data/submission-write.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
@@ -79,7 +79,8 @@ export async function adminUpdateResearchAction(
     return { status: "error", message: tResearch("researchersOrKeywordsInvalid") };
   }
 
-  const parsed = submissionSchema.safeParse({
+  const tValidation = await getTranslations("validation");
+  const parsed = createSubmissionSchema(tValidation).safeParse({
     titleTh: formData.get("titleTh"),
     titleEn: formData.get("titleEn") || undefined,
     abstract: formData.get("abstract"),

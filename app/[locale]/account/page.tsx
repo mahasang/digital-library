@@ -64,6 +64,8 @@ export default async function AccountPage({
   const readingHistory = await getReadingHistoryAction();
   const t = await getTranslations("account");
   const tRoles = await getTranslations("roles");
+  const tOrcidCallback = await getTranslations("validation.orcid.callback");
+  const redirectReason = params.reason ? tOrcidCallback(params.reason) : undefined;
 
   return (
     <AccountShell>
@@ -156,7 +158,7 @@ export default async function AccountPage({
                 status={orcidStatus}
                 isConfigured={orcidConfigured}
                 redirectStatus={params.orcid}
-                redirectReason={params.reason}
+                redirectReason={redirectReason}
               />
             </div>
           </div>
