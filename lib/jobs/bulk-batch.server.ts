@@ -4,7 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { enqueueBackgroundJob } from "@/lib/jobs/queue.server";
 import { getDefaultBatchSize } from "@/lib/data/job-type-settings.server";
 import { toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
-import type { BackgroundJobTypeRow, Database } from "@/lib/supabase/database.types";
+import type { Database, Json } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 /** เผื่อ attempts ไว้มากพอสำหรับทุก chunk ที่ bulk_enqueue coordinator ต้อง
  * requeue ตัวเอง (การ requeue นับเป็น attempt ตาม claim_background_jobs เดิม
@@ -42,9 +43,9 @@ export async function createBulkJobBatch(params: {
 
   const { data: created, error: createError } = await params.supabase.rpc("create_job_batch_if_not_exists", {
     p_job_type: params.jobType,
-    p_filter_snapshot: params.filterSnapshot,
+    p_filter_snapshot: params.filterSnapshot as Json,
     p_batch_size: batchSize,
-    p_total_items: params.totalItems,
+    p_total_items: params.totalItems ?? 0,
     p_created_by: params.createdBy,
   });
 

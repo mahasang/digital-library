@@ -529,7 +529,7 @@ export async function mergeAuthorsAction(
   const { error } = await supabase.rpc("merge_authors", {
     p_source_id: sourceId,
     p_target_id: targetId,
-    p_reason: reason || null,
+    p_reason: reason || undefined,
   });
 
   if (error) {

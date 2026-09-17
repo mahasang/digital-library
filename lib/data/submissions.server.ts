@@ -9,6 +9,7 @@ import {
 import { mapRowToApprovalLogEntry, mapRowToSubmissionItem } from "@/lib/data/mappers";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import type { ApprovalLogEntry, DocumentStatus, SubmissionItem } from "@/types/research";
+import type { DocumentStatusRow } from "@/lib/supabase/types";
 
 /**
  * ชั้นเข้าถึงข้อมูลสำหรับหน้าจัดการภายใน (ส่งงานวิจัย/อนุมัติ)
@@ -53,5 +54,11 @@ export async function getApprovalLogs(researchId: string): Promise<ApprovalLogEn
     throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงประวัติการอนุมัติได้", "getApprovalLogs failed"));
   }
 
-  return (data ?? []).map(mapRowToApprovalLogEntry);
+  return (data ?? []).map((row) =>
+    mapRowToApprovalLogEntry({
+      ...row,
+      from_status: row.from_status as DocumentStatusRow | null,
+      to_status: row.to_status as DocumentStatusRow,
+    })
+  );
 }

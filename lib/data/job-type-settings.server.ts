@@ -1,7 +1,7 @@
 import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
-import type { BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 export interface JobTypeConcurrency {
   jobType: BackgroundJobTypeRow;
@@ -25,7 +25,7 @@ export async function getJobConcurrencySettings(): Promise<Map<BackgroundJobType
     console.error("getJobConcurrencySettings failed:", error?.message);
     return new Map();
   }
-  return new Map(data.map((row) => [row.job_type, row.concurrency]));
+  return new Map(data.map((row) => [row.job_type as BackgroundJobTypeRow, row.concurrency]));
 }
 
 export function resolveConcurrency(
@@ -61,6 +61,10 @@ export async function getJobConcurrencySettingsList(): Promise<JobTypeConcurrenc
     return [];
   }
   return data
-    .map((row) => ({ jobType: row.job_type, concurrency: row.concurrency, defaultBatchSize: row.default_batch_size }))
+    .map((row) => ({
+      jobType: row.job_type as BackgroundJobTypeRow,
+      concurrency: row.concurrency,
+      defaultBatchSize: row.default_batch_size,
+    }))
     .sort((a, b) => a.jobType.localeCompare(b.jobType));
 }

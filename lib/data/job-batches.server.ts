@@ -1,7 +1,7 @@
 import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
-import type { BackgroundJobStatusRow, BackgroundJobTypeRow, JobBatchStatusRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobStatusRow, BackgroundJobTypeRow, JobBatchStatusRow } from "@/lib/supabase/types";
 
 export interface JobBatchSummary {
   batchId: string;
@@ -151,7 +151,7 @@ export async function getRecentJobs(
   return data.map((row) => ({
     id: row.id,
     entityId: row.entity_id,
-    status: row.status,
+    status: row.status as BackgroundJobStatusRow,
     attempts: row.attempts,
     maxAttempts: row.max_attempts,
     errorMessage: row.error_message,
@@ -199,7 +199,13 @@ export async function getRecentJobBatches(
     return [];
   }
 
-  return data.map(toJobBatchSummary);
+  return data.map((row) =>
+    toJobBatchSummary({
+      ...row,
+      status: row.status as JobBatchStatusRow,
+      filter_snapshot: row.filter_snapshot as Record<string, unknown> | null,
+    })
+  );
 }
 
 export interface JobBatchDetail extends JobBatchSummary {
@@ -234,7 +240,11 @@ export async function getJobBatchDetail(batchId: string): Promise<JobBatchDetail
   const byStatus = new Map((progress ?? []).map((r) => [r.status as BackgroundJobStatusRow, Number(r.item_count)]));
 
   return {
-    ...toJobBatchSummary(batch),
+    ...toJobBatchSummary({
+      ...batch,
+      status: batch.status as JobBatchStatusRow,
+      filter_snapshot: batch.filter_snapshot as Record<string, unknown> | null,
+    }),
     pending: byStatus.get("pending") ?? 0,
     processing: byStatus.get("processing") ?? 0,
   };
@@ -265,7 +275,7 @@ export async function getFailedJobs(jobType: BackgroundJobTypeRow, limit = 50): 
   return data.map((row) => ({
     id: row.id,
     entityId: row.entity_id,
-    status: row.status,
+    status: row.status as BackgroundJobStatusRow,
     attempts: row.attempts,
     maxAttempts: row.max_attempts,
     errorMessage: row.error_message,
@@ -333,7 +343,9 @@ export async function getDeadLetterJobs(limit = 100): Promise<DeadLetterJobRow[]
     console.error("getDeadLetterJobs failed:", error?.message);
     return [];
   }
-  return data.map(mapDeadLetterRow);
+  return data.map((row) =>
+    mapDeadLetterRow({ ...row, job_type: row.job_type as BackgroundJobTypeRow, status: row.status as BackgroundJobStatusRow })
+  );
 }
 
 /** ประวัติ DLQ ที่ถูกจัดการแล้ว (ลองใหม่จนสำเร็จไม่นับ — เฉพาะที่ resolve/cancel
@@ -353,7 +365,9 @@ export async function getResolvedDeadLetterJobs(limit = 50): Promise<DeadLetterJ
     console.error("getResolvedDeadLetterJobs failed:", error?.message);
     return [];
   }
-  return data.map(mapDeadLetterRow);
+  return data.map((row) =>
+    mapDeadLetterRow({ ...row, job_type: row.job_type as BackgroundJobTypeRow, status: row.status as BackgroundJobStatusRow })
+  );
 }
 
 export interface DuplicateScanBatchRow extends JobBatchSummary {

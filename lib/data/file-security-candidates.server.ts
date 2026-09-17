@@ -2,7 +2,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isSupabaseConfigured, isServiceRoleConfigured } from "@/lib/supabase/config";
-import type { ScanStatusRow } from "@/lib/supabase/database.types";
+import type { ScanStatusRow } from "@/lib/supabase/types";
 import type { CandidatesPageCursor, CandidatesPageResult } from "@/lib/data/pdf-processing.server";
 import type { FileSecurityBulkFilter } from "@/lib/validation/bulk-filters";
 
@@ -54,7 +54,7 @@ export async function getFileSecurityCandidates(
     titleTh: item.title_th,
     pdfFile: item.pdf_file as string,
     status: item.status,
-    scanStatus: item.scan_status,
+    scanStatus: item.scan_status as ScanStatusRow,
     scannedAt: item.scanned_at,
     scanReason: item.scan_reason,
   }));
@@ -79,11 +79,11 @@ export async function getFileSecurityCandidatesCount(filter: FileSecurityBulkFil
   const service = createServiceRoleClient();
 
   const { data, error } = await service.rpc("count_file_security_candidates", {
-    p_scan_status: filter.scanStatus ?? null,
+    p_scan_status: filter.scanStatus,
     p_never_scanned_only: filter.neverScannedOnly ?? false,
-    p_file_kind: filter.fileKind ?? null,
-    p_created_after: filter.createdAfter ?? null,
-    p_created_before: filter.createdBefore ?? null,
+    p_file_kind: filter.fileKind,
+    p_created_after: filter.createdAfter,
+    p_created_before: filter.createdBefore,
   });
   if (error) {
     console.error("getFileSecurityCandidatesCount failed:", error.message);
@@ -105,13 +105,13 @@ export async function getFileSecurityCandidatesPage(
   const service = createServiceRoleClient();
 
   const { data, error } = await service.rpc("page_file_security_candidates", {
-    p_scan_status: filter.scanStatus ?? null,
+    p_scan_status: filter.scanStatus,
     p_never_scanned_only: filter.neverScannedOnly ?? false,
-    p_file_kind: filter.fileKind ?? null,
-    p_created_after: filter.createdAfter ?? null,
-    p_created_before: filter.createdBefore ?? null,
-    p_after_updated_at: cursor?.updatedAt ?? null,
-    p_after_id: cursor?.id ?? null,
+    p_file_kind: filter.fileKind,
+    p_created_after: filter.createdAfter,
+    p_created_before: filter.createdBefore,
+    p_after_updated_at: cursor?.updatedAt,
+    p_after_id: cursor?.id,
     p_limit: limit,
   });
 

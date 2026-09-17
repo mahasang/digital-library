@@ -12,6 +12,7 @@ import { createAccessRequestSchema } from "@/lib/validation/access-request";
 import { canDownload, canReadOnline } from "@/lib/labels";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import type { ActionResult } from "@/lib/actions/types";
+import type { AccessLevel } from "@/types/research";
 
 /**
  * ส่งคำขอเข้าถึงเอกสาร (อ่าน/ดาวน์โหลด) — ตรวจสอบว่าผู้ใช้ยังไม่มีสิทธิ์นี้อยู่
@@ -69,8 +70,8 @@ export async function submitAccessRequestAction(
 
   const alreadyAllowed =
     parsed.data.requestType === "read"
-      ? canReadOnline(item.access_level)
-      : canDownload(item.access_level);
+      ? canReadOnline(item.access_level as AccessLevel)
+      : canDownload(item.access_level as AccessLevel);
   if (
     alreadyAllowed ||
     (await hasActiveAccessGrantBySlug(parsed.data.researchSlug, parsed.data.requestType))

@@ -2,7 +2,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isSupabaseConfigured, isServiceRoleConfigured } from "@/lib/supabase/config";
-import type { DocumentStatusRow } from "@/lib/supabase/database.types";
+import type { DocumentStatusRow } from "@/lib/supabase/types";
 import type { CandidatesPageCursor, CandidatesPageResult } from "@/lib/data/pdf-processing.server";
 import type { DuplicateScanBulkFilter } from "@/lib/validation/bulk-filters";
 
@@ -95,7 +95,7 @@ export async function getDuplicateScanCandidates(
       console.error("getDuplicateScanCandidates failed:", error?.message);
       return [];
     }
-    rawRows = data;
+    rawRows = data as unknown as RawRow[];
   }
 
   // งานวิจัยหนึ่งรายการอาจอยู่หลายหมวดหมู่ — join ผ่าน research_categories!inner
@@ -125,10 +125,10 @@ function toRpcArgs(filters: DuplicateScanBulkFilter & { recentlyEditedOnly?: boo
       ? new Date(Date.now() - RECENTLY_EDITED_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString()
       : undefined);
   return {
-    p_year: filters.year ?? null,
-    p_category_id: filters.categoryId ?? null,
-    p_status: filters.status ?? null,
-    p_edited_after: editedAfter ?? null,
+    p_year: filters.year,
+    p_category_id: filters.categoryId,
+    p_status: filters.status,
+    p_edited_after: editedAfter,
     p_never_scanned_only: filters.neverScannedOnly ?? false,
   };
 }
@@ -170,8 +170,8 @@ export async function getDuplicateScanCandidatesPage(
 
   const { data, error } = await service.rpc("page_duplicate_scan_candidates", {
     ...toRpcArgs(filters),
-    p_after_updated_at: cursor?.updatedAt ?? null,
-    p_after_id: cursor?.id ?? null,
+    p_after_updated_at: cursor?.updatedAt,
+    p_after_id: cursor?.id,
     p_limit: limit,
   });
 

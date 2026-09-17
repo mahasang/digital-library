@@ -7,6 +7,7 @@ import { LinkButton } from "@/components/ui/Button";
 import AccountShell from "@/components/account/AccountShell";
 import AccountEmptyState from "@/components/account/AccountEmptyState";
 import AccountResearchRow from "@/components/account/AccountResearchRow";
+import ReadingHistoryBlogRow from "@/components/account/ReadingHistoryBlogRow";
 import SupabaseNotConfiguredNotice from "@/components/auth/SupabaseNotConfiguredNotice";
 import Container from "@/components/ui/Container";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -58,8 +59,23 @@ export default async function ReadingHistoryPage() {
           />
         ) : (
           <div className="flex flex-col gap-3">
-            {history.map(({ item, readAt }, index) => (
-              <AccountResearchRow key={`${item.id}-${index}`} item={item} readAt={readAt} />
+            {history.map((entry, index) => (
+              <div key={`${entry.type}-${entry.item.id}-${index}`} className="relative">
+                {entry.type === "research" ? (
+                  <AccountResearchRow item={entry.item} readAt={entry.readAt} />
+                ) : (
+                  <ReadingHistoryBlogRow item={entry.item} readAt={entry.readAt} />
+                )}
+                <span
+                  className={`absolute right-2 top-2 z-10 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    entry.type === "research"
+                      ? "bg-gray-100 text-gray-500"
+                      : "bg-brand-50 text-brand-600"
+                  }`}
+                >
+                  {entry.type === "research" ? t("researchBadge") : t("blogBadge")}
+                </span>
+              </div>
             ))}
           </div>
         )}

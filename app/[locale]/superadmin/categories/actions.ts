@@ -33,7 +33,7 @@ export async function reorderCategoriesAction(
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("superadmin_reorder_categories", {
-    p_parent_id: parentId,
+    p_parent_id: parentId as string,
     p_ordered_ids: orderedIds,
   });
 
@@ -80,7 +80,7 @@ export async function moveCategoryAction(
   const supabase = await createClient();
   const { error } = await supabase.rpc("superadmin_move_category", {
     p_category_id: categoryId,
-    p_new_parent_id: newParentId,
+    p_new_parent_id: newParentId as string,
     p_ordered_ids: orderedIds,
   });
 

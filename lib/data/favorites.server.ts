@@ -61,35 +61,123 @@ export async function isResearchFavorited(
   return Boolean(favorite);
 }
 
-export async function getReadingHistory(userId: string): Promise<
-  { item: ResearchItem; readAt: string }[]
-> {
+export interface ReadingHistoryBlogPost {
+  id: string;
+  slug: string;
+  titleLo: string;
+  titleTh: string;
+  titleEn: string;
+  titleVi: string;
+  excerptLo: string;
+  excerptTh: string;
+  excerptEn: string;
+  excerptVi: string;
+  coverImage: string | null;
+  publishedAt: string | null;
+}
+
+export type ReadingHistoryItem =
+  | { type: "research"; item: ResearchItem; readAt: string }
+  | { type: "blog"; item: ReadingHistoryBlogPost; readAt: string };
+
+const READING_HISTORY_LIMIT = 50;
+
+/** ประวัติการอ่านแบบรวม research + blog เรียงตาม read_at ล่าสุดก่อน — ดึง
+ * แยก 2 query ตามประเภท (reading_history.research_id / .blog_post_id เป็น
+ * XOR กันเสมอตาม constraint) แล้ว merge + sort + ตัดเหลือ 50 รายการล่าสุดรวมกัน */
+export async function getReadingHistory(userId: string): Promise<ReadingHistoryItem[]> {
   if (!isSupabaseConfigured()) return [];
 
   const supabase = await createClient();
-  const { data: history, error } = await supabase
+
+  const { data: researchHistory, error: researchError } = await supabase
     .from("reading_history")
     .select("research_id, read_at")
     .eq("user_id", userId)
+    .not("research_id", "is", null)
     .order("read_at", { ascending: false })
-    .limit(50);
+    .limit(READING_HISTORY_LIMIT);
 
-  if (error) {
-    throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงประวัติการอ่านได้", "getReadingHistory failed"));
+  if (researchError) {
+    throw new Error(
+      toSafeErrorMessage(researchError, "ไม่สามารถดึงประวัติการอ่านได้", "getReadingHistory research query failed")
+    );
   }
 
-  const ids = [...new Set((history ?? []).map((h) => h.research_id))];
-  const rows = await fetchPublishedResearchRowsByIds(supabase, ids);
-  const itemByRowId = new Map(
-    rows.map((row) => [row.id, mapRowToResearchItem(row)])
-  );
+  const { data: blogHistory, error: blogError } = await supabase
+    .from("reading_history")
+    .select("blog_post_id, read_at")
+    .eq("user_id", userId)
+    .not("blog_post_id", "is", null)
+    .order("read_at", { ascending: false })
+    .limit(READING_HISTORY_LIMIT);
 
-  return (history ?? [])
-    .map((h) => {
-      const item = itemByRowId.get(h.research_id);
-      return item ? { item, readAt: h.read_at } : null;
+  if (blogError) {
+    throw new Error(
+      toSafeErrorMessage(blogError, "ไม่สามารถดึงประวัติการอ่านได้", "getReadingHistory blog query failed")
+    );
+  }
+
+  const researchIds = [
+    ...new Set(
+      (researchHistory ?? []).map((h) => h.research_id).filter((id): id is string => id !== null)
+    ),
+  ];
+  const researchRows = await fetchPublishedResearchRowsByIds(supabase, researchIds);
+  const researchItemByRowId = new Map(researchRows.map((row) => [row.id, mapRowToResearchItem(row)]));
+
+  const blogPostIds = [
+    ...new Set(
+      (blogHistory ?? []).map((h) => h.blog_post_id).filter((id): id is string => id !== null)
+    ),
+  ];
+  let blogPostById = new Map<string, ReadingHistoryBlogPost>();
+  if (blogPostIds.length > 0) {
+    const { data: blogPosts } = await supabase
+      .from("blog_posts")
+      .select(
+        "id, slug, title_lo, title_th, title_en, title_vi, excerpt_lo, excerpt_th, excerpt_en, excerpt_vi, cover_image, published_at"
+      )
+      .in("id", blogPostIds)
+      .eq("status", "published");
+    blogPostById = new Map(
+      (blogPosts ?? []).map((p) => [
+        p.id,
+        {
+          id: p.id,
+          slug: p.slug,
+          titleLo: p.title_lo,
+          titleTh: p.title_th,
+          titleEn: p.title_en,
+          titleVi: p.title_vi,
+          excerptLo: p.excerpt_lo,
+          excerptTh: p.excerpt_th,
+          excerptEn: p.excerpt_en,
+          excerptVi: p.excerpt_vi,
+          coverImage: p.cover_image,
+          publishedAt: p.published_at,
+        },
+      ])
+    );
+  }
+
+  const researchEntries: ReadingHistoryItem[] = (researchHistory ?? [])
+    .map((h): ReadingHistoryItem | null => {
+      const item = h.research_id ? researchItemByRowId.get(h.research_id) : undefined;
+      return item ? { type: "research", item, readAt: h.read_at } : null;
     })
-    .filter((entry): entry is { item: ResearchItem; readAt: string } => entry !== null);
+    .filter((entry): entry is ReadingHistoryItem => entry !== null);
+
+  const blogEntries: ReadingHistoryItem[] = (blogHistory ?? [])
+    .map((h): ReadingHistoryItem | null => {
+      const item = h.blog_post_id ? blogPostById.get(h.blog_post_id) : undefined;
+      return item ? { type: "blog", item, readAt: h.read_at } : null;
+    })
+    .filter((entry): entry is ReadingHistoryItem => entry !== null);
+
+  return [...researchEntries, ...blogEntries]
+    .sort((a, b) => new Date(b.readAt).getTime() - new Date(a.readAt).getTime())
+    .slice(0, READING_HISTORY_LIMIT);
 }
 
 export async function isBlogFavorited(

@@ -2,7 +2,7 @@ import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { createClient } from "@/lib/supabase/server";
 import { isServiceRoleConfigured, isSupabaseConfigured } from "@/lib/supabase/config";
-import type { CronJobNameRow, CronRunStatusRow } from "@/lib/supabase/database.types";
+import type { CronJobNameRow, CronRunStatusRow } from "@/lib/supabase/types";
 
 export interface CronMonitoringRow {
   jobName: CronJobNameRow;
@@ -72,7 +72,7 @@ export async function getCronMonitoringOverview(): Promise<CronMonitoringRow[]> 
       ? {
           startedAt: lastRunRow.started_at,
           completedAt: lastRunRow.completed_at,
-          status: lastRunRow.status,
+          status: lastRunRow.status as CronRunStatusRow,
           processedCount: lastRunRow.processed_count,
           failedCount: lastRunRow.failed_count,
           errorSummary: lastRunRow.error_summary,

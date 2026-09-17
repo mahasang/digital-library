@@ -60,13 +60,15 @@ export default async function BlogCommentsPage({
   const uniqueUserCount = new Set((statsRows ?? []).map((r) => r.user_id)).size;
   const totalPages = Math.ceil(totalComments / PAGE_SIZE);
 
-  // ดึง blog comments พร้อม join blog_posts และ profiles
+  // ดึง blog comments พร้อม join blog_posts — comments.user_id ไม่มี foreign
+  // key ไปยัง profiles ในฐานข้อมูลจริง (schema drift ระหว่าง local/production
+  // ดู supabase/migrations/20260904140000_delete_own_account.sql) จึง embed
+  // profiles ผ่าน PostgREST ตรงๆ ไม่ได้ — ต้อง query profiles แยกแล้ว join เอง
   let query = supabase
     .from("comments")
     .select(`
       id, content, created_at, user_id,
-      blog_posts!inner ( id, title_lo, slug ),
-      profiles ( full_name, email, avatar_url )
+      blog_posts!inner ( id, title_lo, slug )
     `)
     .not("blog_post_id", "is", null)
     .order("created_at", { ascending: false })
@@ -80,6 +82,18 @@ export default async function BlogCommentsPage({
   if (error) console.error("[dashboard/blog-comments] fetch error:", error.message);
 
   const comments = data ?? [];
+
+  const userIds = [...new Set(comments.map((c) => c.user_id))];
+  const profileById = new Map<string, { full_name: string | null; email: string | null; avatar_url: string | null }>();
+  if (userIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name, email, avatar_url")
+      .in("id", userIds);
+    for (const p of profiles ?? []) {
+      profileById.set(p.id, { full_name: p.full_name, email: p.email, avatar_url: p.avatar_url });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -139,10 +153,8 @@ export default async function BlogCommentsPage({
           </div>
         ) : (
           comments.map((comment) => {
-            const authorName =
-              comment.profiles?.full_name ||
-              comment.profiles?.email ||
-              "ຜູ້ໃຊ້ທີ່ບໍ່ຮູ້ຈັກ";
+            const profile = profileById.get(comment.user_id);
+            const authorName = profile?.full_name || profile?.email || "ຜູ້ໃຊ້ທີ່ບໍ່ຮູ້ຈັກ";
             const initials = authorName.slice(0, 2).toUpperCase();
 
             return (
@@ -154,10 +166,10 @@ export default async function BlogCommentsPage({
                 <div className="flex min-w-0 flex-1 gap-3">
                   {/* Avatar */}
                   <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-brand-100 flex items-center justify-center text-xs font-bold text-brand-600">
-                    {comment.profiles?.avatar_url ? (
+                    {profile?.avatar_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={comment.profiles.avatar_url}
+                        src={profile.avatar_url}
                         alt=""
                         className="h-9 w-9 object-cover"
                       />
@@ -173,7 +185,7 @@ export default async function BlogCommentsPage({
                         {authorName}
                       </span>
                       <span className="text-xs text-gray-400">
-                        {timeAgo(comment.created_at)}
+                        {comment.created_at ? timeAgo(comment.created_at) : ""}
                       </span>
                     </div>
 

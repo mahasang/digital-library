@@ -1,7 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import type { ExtractionStatusRow, OcrStatusRow } from "@/lib/supabase/database.types";
+import type { ExtractionStatusRow, OcrStatusRow } from "@/lib/supabase/types";
 
 export interface ExtractionStatusInfo {
   status: ExtractionStatusRow;
@@ -63,7 +63,7 @@ export async function getExtractionStatus(
   }
   if (!data) return null;
 
-  return mapRow(data);
+  return mapRow({ ...data, extraction_status: data.extraction_status as ExtractionStatusRow, ocr_status: data.ocr_status as OcrStatusRow });
 }
 
 /** เหมือน getExtractionStatus แต่รับ "slug" แทน uuid จริง — ใช้ในหน้าสาธารณะ
@@ -90,5 +90,5 @@ export async function getExtractionStatusBySlug(
   }
   if (!data) return null;
 
-  return mapRow(data);
+  return mapRow({ ...data, extraction_status: data.extraction_status as ExtractionStatusRow, ocr_status: data.ocr_status as OcrStatusRow });
 }

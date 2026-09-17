@@ -13,10 +13,10 @@ import type { BackgroundJobRow } from "@/lib/jobs/queue.server";
  * timeout เมื่อมีผู้ติดตามจำนวนมาก)
  */
 export async function handleCategoryNotificationJob(job: BackgroundJobRow): Promise<boolean> {
-  const researchItemId = String(job.payload.research_item_id ?? "");
-  const titleTh = String(job.payload.title_th ?? "");
-  const submittedBy =
-    typeof job.payload.submitted_by === "string" ? job.payload.submitted_by : null;
+  const payload = (job.payload ?? {}) as { research_item_id?: string; title_th?: string; submitted_by?: string };
+  const researchItemId = String(payload.research_item_id ?? "");
+  const titleTh = String(payload.title_th ?? "");
+  const submittedBy = typeof payload.submitted_by === "string" ? payload.submitted_by : null;
 
   if (!researchItemId || !titleTh) {
     await failBackgroundJob(job.id, "ข้อมูล job ไม่ครบถ้วน (research_item_id/title_th)");

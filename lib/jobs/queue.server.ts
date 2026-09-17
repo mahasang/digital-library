@@ -4,11 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
 import { sendDeadLetterEmailAlerts } from "@/lib/jobs/dlq-notify.server";
-import type {
-  BackgroundJobStatusRow,
-  BackgroundJobTypeRow,
-  Database,
-} from "@/lib/supabase/database.types";
+import type { Database, Json } from "@/lib/supabase/database.types";
+import type { BackgroundJobStatusRow, BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 /**
  * ชั้นเรียกใช้งาน job queue (`background_jobs`, ดู migration
@@ -52,7 +49,7 @@ export async function enqueueBackgroundJob(params: EnqueueJobParams): Promise<En
     .from("background_jobs")
     .insert({
       job_type: params.jobType,
-      payload: params.payload,
+      payload: params.payload as Json,
       idempotency_key: params.idempotencyKey,
       entity_type: params.entityType ?? null,
       entity_id: params.entityId ?? null,
@@ -90,7 +87,7 @@ export async function cancelActiveJobsForEntity(
   const { error } = await service.rpc("cancel_active_jobs_for_entity", {
     p_entity_type: entityType,
     p_entity_id: entityId,
-    p_job_types: jobTypes ?? null,
+    p_job_types: jobTypes ?? undefined,
   });
   if (error) {
     console.error("cancelActiveJobsForEntity failed:", error.message);
@@ -114,7 +111,7 @@ export async function claimBackgroundJobs(
   const { data, error } = await service.rpc("claim_background_jobs", {
     p_worker_id: workerId,
     p_limit: limit,
-    p_job_types: jobTypes ?? null,
+    p_job_types: jobTypes ?? undefined,
   });
   if (error) {
     console.error("claimBackgroundJobs failed:", error.message);
@@ -341,7 +338,7 @@ export async function updateJobPageProgress(
       ...(typeof fields.progressPercent === "number"
         ? { progress: Math.max(0, Math.min(100, Math.round(fields.progressPercent))) }
         : {}),
-      ...(fields.payload ? { payload: fields.payload } : {}),
+      ...(fields.payload ? { payload: fields.payload as Json } : {}),
     })
     .eq("id", jobId);
   if (error) {

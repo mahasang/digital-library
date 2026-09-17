@@ -194,7 +194,7 @@ export async function findSimilarOrganizations(
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("find_similar_organizations_by_name", {
     p_name_th: nameTh,
-    p_exclude_id: excludeId ?? null,
+    p_exclude_id: excludeId,
   });
 
   if (error) {

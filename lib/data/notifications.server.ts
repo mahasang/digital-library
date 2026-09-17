@@ -41,7 +41,7 @@ export async function getMyNotifications(limit = 10): Promise<AppNotification[]>
       .limit(limit);
 
     if (error) throw error;
-    return (data ?? []).map(mapRow);
+    return (data ?? []).map((row) => mapRow({ ...row, type: row.type as "info" | "success" | "warning" }));
   } catch (error) {
     console.error("getMyNotifications failed:", error);
     return [];

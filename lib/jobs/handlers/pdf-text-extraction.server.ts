@@ -12,8 +12,9 @@ import type { BackgroundJobRow } from "@/lib/jobs/queue.server";
  * ตัดสินว่า job นี้ completed หรือ failed
  */
 export async function handlePdfTextExtractionJob(job: BackgroundJobRow): Promise<boolean> {
-  const researchItemId = String(job.payload.research_item_id ?? "");
-  const pdfPath = String(job.payload.pdf_path ?? "");
+  const payload = (job.payload ?? {}) as { research_item_id?: string; pdf_path?: string };
+  const researchItemId = String(payload.research_item_id ?? "");
+  const pdfPath = String(payload.pdf_path ?? "");
 
   if (!researchItemId || !pdfPath) {
     await failBackgroundJob(job.id, "ข้อมูล job ไม่ครบถ้วน (research_item_id/pdf_path)");

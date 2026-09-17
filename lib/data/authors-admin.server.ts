@@ -2,7 +2,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { DocumentStatus } from "@/types/research";
-import type { AuthorRoleRow } from "@/lib/supabase/database.types";
+import type { AuthorRoleRow } from "@/lib/supabase/types";
 
 export interface AdminAuthorRow {
   id: string;
@@ -230,7 +230,7 @@ export async function findSimilarAuthors(
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("find_similar_authors_by_name", {
     p_name_th: nameTh,
-    p_exclude_id: excludeId ?? null,
+    p_exclude_id: excludeId,
   });
 
   if (error) {

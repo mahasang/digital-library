@@ -23,9 +23,10 @@ import type { BackgroundJobRow } from "@/lib/jobs/queue.server";
  * เดียวเสมอเหมือนเดิมทุกประการ — โค้ดนี้ไม่ได้เปลี่ยนพฤติกรรมของ provider เดิม
  */
 export async function handleOcrProcessingJob(job: BackgroundJobRow): Promise<boolean> {
-  const researchItemId = String(job.payload.research_item_id ?? "");
-  const pdfPath = String(job.payload.pdf_path ?? "");
-  const externalJobId = typeof job.payload.external_job_id === "string" ? job.payload.external_job_id : null;
+  const payload = (job.payload ?? {}) as Record<string, unknown>;
+  const researchItemId = String(payload.research_item_id ?? "");
+  const pdfPath = String(payload.pdf_path ?? "");
+  const externalJobId = typeof payload.external_job_id === "string" ? payload.external_job_id : null;
 
   if (!researchItemId || !pdfPath) {
     await failBackgroundJob(job.id, "ข้อมูล job ไม่ครบถ้วน (research_item_id/pdf_path)");
@@ -49,7 +50,7 @@ export async function handleOcrProcessingJob(job: BackgroundJobRow): Promise<boo
         totalPages,
         progressPercent,
         progressMessage: currentPage === null ? "กำลังประมวลผลโดย OCR provider" : null,
-        payload: { ...job.payload, external_job_id: outcome.externalJobId },
+        payload: { ...payload, external_job_id: outcome.externalJobId },
       });
       await requeueJob(job.id, new Date(Date.now() + OCR_POLL_DELAY_MS));
       return true;

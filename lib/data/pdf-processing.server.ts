@@ -2,7 +2,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isSupabaseConfigured, isServiceRoleConfigured } from "@/lib/supabase/config";
-import type { ExtractionStatusRow, OcrStatusRow } from "@/lib/supabase/database.types";
+import type { ExtractionStatusRow, OcrStatusRow } from "@/lib/supabase/types";
 import type { OcrBulkFilter } from "@/lib/validation/bulk-filters";
 
 export type PdfProcessingFilter = "all" | "no_text" | "failed" | "no_text_found" | "replaced";
@@ -70,10 +70,10 @@ export async function getPdfProcessingCandidates(
       titleTh: item.title_th,
       pdfFile: item.pdf_file as string,
       status: item.status,
-      extractionStatus: text?.extraction_status ?? null,
+      extractionStatus: (text?.extraction_status as ExtractionStatusRow | undefined) ?? null,
       extractionErrorMessage: text?.extraction_error_message ?? null,
       fileReplaced,
-      ocrStatus: text?.ocr_status ?? null,
+      ocrStatus: (text?.ocr_status as OcrStatusRow | undefined) ?? null,
       ocrErrorMessage: text?.ocr_error_message ?? null,
       accessLevel: item.access_level,
       pageCount: item.page_count,
@@ -132,11 +132,11 @@ export async function getPdfProcessingCandidatesCount(filter: OcrBulkFilter): Pr
   const service = createServiceRoleClient();
 
   const { data, error } = await service.rpc("count_pdf_processing_candidates", {
-    p_extraction_state: filter.extractionState ?? null,
-    p_ocr_status: filter.ocrStatus ?? null,
-    p_year: filter.year ?? null,
-    p_category_id: filter.categoryId ?? null,
-    p_publish_status: filter.publishStatus ?? null,
+    p_extraction_state: filter.extractionState,
+    p_ocr_status: filter.ocrStatus,
+    p_year: filter.year,
+    p_category_id: filter.categoryId,
+    p_publish_status: filter.publishStatus,
   });
   if (error) {
     console.error("getPdfProcessingCandidatesCount failed:", error.message);
@@ -161,13 +161,13 @@ export async function getPdfProcessingCandidatesPage(
   const service = createServiceRoleClient();
 
   const { data, error } = await service.rpc("page_pdf_processing_candidates", {
-    p_extraction_state: filter.extractionState ?? null,
-    p_ocr_status: filter.ocrStatus ?? null,
-    p_year: filter.year ?? null,
-    p_category_id: filter.categoryId ?? null,
-    p_publish_status: filter.publishStatus ?? null,
-    p_after_updated_at: cursor?.updatedAt ?? null,
-    p_after_id: cursor?.id ?? null,
+    p_extraction_state: filter.extractionState,
+    p_ocr_status: filter.ocrStatus,
+    p_year: filter.year,
+    p_category_id: filter.categoryId,
+    p_publish_status: filter.publishStatus,
+    p_after_updated_at: cursor?.updatedAt,
+    p_after_id: cursor?.id,
     p_limit: limit,
   });
 

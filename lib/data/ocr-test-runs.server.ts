@@ -1,7 +1,7 @@
 import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
-import type { OcrTestRunStatusRow } from "@/lib/supabase/database.types";
+import type { OcrTestRunStatusRow } from "@/lib/supabase/types";
 
 export interface OcrTestRunRow {
   id: string;
@@ -42,7 +42,7 @@ export async function getRecentOcrTestRuns(limit = 20): Promise<OcrTestRunRow[]>
   return data.map((row) => ({
     id: row.id,
     fixtureName: row.fixture_name,
-    status: row.status,
+    status: row.status as OcrTestRunStatusRow,
     pageCount: row.page_count,
     extractedCharCount: row.extracted_char_count,
     currentPage: row.current_page,

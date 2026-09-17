@@ -78,6 +78,16 @@ export default async function BlogPostPage({
   const related = await getRelatedBlogPosts(slug, post.tags ?? [], 3);
 
   const supabase = await createClient();
+
+  // บันทึกประวัติการอ่าน — await เหมือน log_reading_history ของ research
+  // (app/[locale]/research/[id]/read/page.tsx) แทนการ fire-and-forget เพราะ
+  // promise ที่ไม่ await อาจถูกตัดก่อนทำงานเสร็จใน serverless environment —
+  // RPC เอง return เงียบถ้ายังไม่ login หรือหา slug ไม่เจอ ไม่ throw
+  const { error: historyError } = await supabase.rpc("log_blog_reading_history", { p_slug: slug });
+  if (historyError) {
+    console.error("log_blog_reading_history failed:", historyError.message);
+  }
+
   const { data: commentsData } = await supabase.rpc("get_blog_comments", {
     p_blog_post_id: post.id,
     p_limit: 100,

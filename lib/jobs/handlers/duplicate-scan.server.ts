@@ -15,7 +15,8 @@ import type { BackgroundJobRow } from "@/lib/jobs/queue.server";
  * การตรวจสอบตอนส่ง/แก้ไขงานวิจัยทุกประการ
  */
 export async function handleDuplicateScanJob(job: BackgroundJobRow): Promise<boolean> {
-  const researchItemId = String(job.payload.research_item_id ?? "");
+  const payload = (job.payload ?? {}) as { research_item_id?: string };
+  const researchItemId = String(payload.research_item_id ?? "");
 
   if (!researchItemId) {
     await failBackgroundJob(job.id, "ข้อมูล job ไม่ครบถ้วน (research_item_id)");

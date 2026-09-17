@@ -20,7 +20,7 @@ import type {
   DuplicateScanBulkFilter,
 } from "@/lib/validation/bulk-filters";
 import type { BackgroundJobRow } from "@/lib/jobs/queue.server";
-import type { BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 const REQUEUE_DELAY_MS = 2000;
 /** ระยะเวลาระหว่างการตรวจสถานะซ้ำตอนถูก pause — ยาวกว่า REQUEUE_DELAY_MS ปกติ
@@ -58,7 +58,8 @@ const PAUSED_RECHECK_DELAY_MS = 30_000;
  * เฉพาะที่ยัง pending)
  */
 export async function handleBulkEnqueueJob(job: BackgroundJobRow): Promise<boolean> {
-  const jobBatchesId = String(job.payload.job_batches_id ?? "");
+  const payload = (job.payload ?? {}) as { job_batches_id?: string };
+  const jobBatchesId = String(payload.job_batches_id ?? "");
   if (!jobBatchesId) {
     await failBackgroundJob(job.id, "ข้อมูล job ไม่ครบถ้วน (job_batches_id)");
     return false;
