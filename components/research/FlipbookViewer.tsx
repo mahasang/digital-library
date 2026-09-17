@@ -51,6 +51,11 @@ export default function FlipbookViewer({
   const [failed, setFailed] = useState(false);
   const [baseWidth, setBaseWidth] = useState(480);
   const [zoom, setZoom] = useState(1);
+  // renderZoom ตามหลัง zoom แบบ debounce 300ms — ใช้กับ width prop ของ react-pdf
+  // (สั่ง re-render canvas จริงที่ resolution ใหม่ ต้นทุนสูง) ส่วน zoom เองอัปเดต
+  // ทันทีและขับ CSS transform: scale() ให้เห็นผลทันทีระหว่างรอ กันอาการกระตุก
+  // ตอนซูมด้วย Ctrl+Scroll ถี่ๆ
+  const [renderZoom, setRenderZoom] = useState(1);
   // ค่าเริ่มต้น "dark" ตรงกับรูปลักษณ์เดิมของ reader ก่อนไฮเดรต (เซิร์ฟเวอร์ไม่รู้
   // ธีมของผู้ใช้) — หลัง mount จะซิงก์ตามธีมของทั้งเว็บครั้งเดียวโดยอัตโนมัติ
   // (ดู readerThemeSynced ด้านล่าง) จากนั้นเป็นอิสระจากธีมเว็บทันทีที่ผู้อ่านกด
@@ -98,7 +103,11 @@ export default function FlipbookViewer({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  function changePage(target: number) {
+  // useCallback ทั้งหมดในกลุ่มนี้อ่านค่าปัจจุบันผ่าน ref เท่านั้น (ไม่ผ่าน state
+  // closure) จึง identity คงที่ได้ด้วย dependency array ว่าง/สั้นมาก โดยไม่เสี่ยง
+  // อ่านค่าเก่าค้าง — ทำให้ keydown effect ด้านล่างไม่ต้องผูก/ถอด listener ใหม่
+  // ทุก render (เดิมเป็น function declaration ธรรมดา ผูกใหม่ทุกครั้งที่ re-render)
+  const changePage = useCallback((target: number) => {
     const total = numPagesRef.current;
     if (!total) return;
     const clamped = Math.min(Math.max(target, 1), total);
@@ -109,13 +118,27 @@ export default function FlipbookViewer({
       setPageInput(String(clamped));
       setVisible(true);
     }, 150);
-  }
-  function goPrev() {
+  }, []);
+  const goPrev = useCallback(() => {
     changePage(currentPageRef.current - 1);
-  }
-  function goNext() {
+  }, [changePage]);
+  const goNext = useCallback(() => {
     changePage(currentPageRef.current + 1);
-  }
+  }, [changePage]);
+
+  const toggleFullscreen = useCallback(async () => {
+    if (!shellRef.current) return;
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await shellRef.current.requestFullscreen();
+      }
+    } catch {
+      // เบราว์เซอร์บางตัวปฏิเสธคำขอเต็มจอ (เช่นไม่ได้มาจาก user gesture โดยตรง)
+      // — ไม่มีอะไรให้ทำเพิ่มฝั่ง client นอกจากปล่อยผ่านเงียบๆ
+    }
+  }, []);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -147,6 +170,16 @@ export default function FlipbookViewer({
     return () => window.removeEventListener("wheel", handleWheel);
   }, []);
 
+  // รอ 300ms หลัง zoom หยุดเปลี่ยนแล้วค่อยสั่ง react-pdf re-render canvas ที่
+  // resolution ใหม่จริง — ระหว่างที่รอ zoom (อัปเดตทันที) ขับ CSS transform:
+  // scale() ให้เห็นผล preview ทันทีแทน (ดู previewScale ด้านล่าง)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRenderZoom(zoom);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [zoom]);
+
   const isEditingRef = useRef(false);
   useEffect(() => {
     if (!isEditingRef.current) {
@@ -166,20 +199,6 @@ export default function FlipbookViewer({
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
-
-  async function toggleFullscreen() {
-    if (!shellRef.current) return;
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-      } else {
-        await shellRef.current.requestFullscreen();
-      }
-    } catch {
-      // เบราว์เซอร์บางตัวปฏิเสธคำขอเต็มจอ (เช่นไม่ได้มาจาก user gesture โดยตรง)
-      // — ไม่มีอะไรให้ทำเพิ่มฝั่ง client นอกจากปล่อยผ่านเงียบๆ
-    }
-  }
 
   function goToPage(target: number) {
     changePage(target);
@@ -202,15 +221,16 @@ export default function FlipbookViewer({
     setZoom(1);
   }
 
-  const pageWidth = Math.round(baseWidth * zoom);
+  const renderWidth = Math.round(baseWidth * renderZoom);
+  const previewScale = zoom / renderZoom;
 
   return (
     <div
       ref={shellRef}
       data-reader-theme={readerTheme}
-      className={`reader-shell flex flex-col rounded-xl border border-[var(--reader-border)] bg-[var(--reader-surface)] shadow-elevated-md ${zoom > 1 ? "overflow-auto" : "overflow-hidden"}`}
+      className="reader-shell relative flex h-[65vh] flex-col overflow-hidden rounded-xl border border-[var(--reader-border)] bg-[var(--reader-surface)] shadow-elevated-md sm:h-[75vh]"
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--reader-border)] px-3 py-2.5 sm:px-4">
+      <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--reader-border)] bg-[var(--reader-surface)] px-3 py-2.5 sm:px-4">
         <p className="line-clamp-1 text-xs text-[var(--reader-ink-soft)]">{titleTh}</p>
 
         <div className="flex flex-wrap items-center gap-1">
@@ -295,7 +315,7 @@ export default function FlipbookViewer({
 
       <div
         ref={containerRef}
-        className={`relative flex min-h-[65vh] items-center justify-center bg-[var(--reader-bg)] py-6 sm:min-h-[75vh] ${zoom > 1 ? "overflow-auto" : "overflow-hidden"}`}
+        className="relative flex flex-1 items-center justify-center overflow-auto bg-[var(--reader-bg)] py-6"
       >
         {failed ? (
           <div className="flex flex-col items-center justify-center gap-3 px-6 text-center">
@@ -332,16 +352,21 @@ export default function FlipbookViewer({
             {numPages && (
               <div
                 className="bg-surface shadow-2xl"
-                style={{ opacity: visible ? 1 : 0, transition: "opacity 0.15s ease" }}
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transition: "opacity 0.15s ease",
+                  transform: `scale(${previewScale})`,
+                  transformOrigin: "center top",
+                }}
               >
                 <Page
                   pageNumber={currentPage}
-                  width={pageWidth}
+                  width={renderWidth}
                   renderAnnotationLayer={false}
                   renderTextLayer={false}
                   loading={
                     <div
-                      style={{ width: pageWidth, height: Math.round(pageWidth * 1.4142) }}
+                      style={{ width: renderWidth, height: Math.round(renderWidth * 1.4142) }}
                       className="flex items-center justify-center bg-[var(--reader-page-slot-bg)]"
                     >
                       <Loader2 className="h-5 w-5 animate-spin text-[var(--reader-ink-faint)]" />
@@ -355,7 +380,7 @@ export default function FlipbookViewer({
       </div>
 
       {numPages && !failed && (
-        <div className="flex items-center justify-center gap-4 border-t border-[var(--reader-border)] px-4 py-2.5">
+        <div className="sticky bottom-0 z-10 flex items-center justify-center gap-4 border-t border-[var(--reader-border)] bg-[var(--reader-surface)] px-4 py-2.5">
           <button
             type="button"
             onClick={goPrev}
