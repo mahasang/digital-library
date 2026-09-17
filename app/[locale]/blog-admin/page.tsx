@@ -1,10 +1,11 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
-import { Plus, FileText, Eye, Edit } from "lucide-react";
+import { Plus, FileText, Eye, Edit, Search } from "lucide-react";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
-import { getAllBlogPosts } from "@/lib/data/blog.server";
+import { getAllBlogPostsPaginated, getBlogPostStats } from "@/lib/data/blog.server";
 import DeletePostButton from "@/components/blog-admin/DeletePostButton";
+import Pagination from "@/components/ui/Pagination";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,11 @@ const STATUS_COLOR: Record<string, string> = {
   archived:  "bg-red-100 text-red-600",
 };
 
-export default async function BlogAdminPage() {
+export default async function BlogAdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; page?: string }>;
+}) {
   const locale = await getLocale();
   const user = await getSessionUser();
   if (!user) return redirect({ href: "/login?redirect=/blog-admin", locale });
@@ -30,10 +35,15 @@ export default async function BlogAdminPage() {
     archived: t("statusArchived"),
   };
 
-  const posts = await getAllBlogPosts();
-  const published = posts.filter((p) => p.status === "published").length;
-  const scheduled = posts.filter((p) => p.status === "scheduled").length;
-  const draft = posts.filter((p) => p.status === "draft").length;
+  const params = await searchParams;
+  const q = params.q?.trim() || "";
+  const page = Math.max(1, Number(params.page ?? 1));
+
+  const [{ posts, totalPages }, stats] = await Promise.all([
+    getAllBlogPostsPaginated({ page, search: q }),
+    getBlogPostStats(),
+  ]);
+  const { published, scheduled, draft } = stats;
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
@@ -55,7 +65,7 @@ export default async function BlogAdminPage() {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: t("statTotal"),     value: posts.length, color: "bg-blue-50 text-blue-700" },
+          { label: t("statTotal"),     value: stats.total,  color: "bg-blue-50 text-blue-700" },
           { label: t("statPublished"), value: published,     color: "bg-green-50 text-green-700" },
           { label: t("statScheduled"), value: scheduled,     color: "bg-amber-50 text-amber-700" },
           { label: t("statDraft"),     value: draft,         color: "bg-gray-50 text-gray-600" },
@@ -66,6 +76,26 @@ export default async function BlogAdminPage() {
           </div>
         ))}
       </div>
+
+      {/* Search */}
+      <form method="get" className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder={t("searchPlaceholder")}
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-4 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          />
+        </div>
+        <button
+          type="submit"
+          className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 transition-colors"
+        >
+          {t("search")}
+        </button>
+      </form>
 
       {/* Table */}
       <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
@@ -83,7 +113,7 @@ export default async function BlogAdminPage() {
               <tr>
                 <td colSpan={4} className="px-4 py-12 text-center">
                   <FileText className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                  <p className="text-gray-400 text-sm">{t("emptyState")}</p>
+                  <p className="text-gray-400 text-sm">{q ? t("noResults") : t("emptyState")}</p>
                 </td>
               </tr>
             ) : posts.map((post) => (
@@ -132,6 +162,12 @@ export default async function BlogAdminPage() {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        buildHref={(p) => `/blog-admin?page=${p}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+      />
     </div>
   );
 }

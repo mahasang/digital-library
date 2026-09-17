@@ -7,6 +7,9 @@ import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteCommentButton } from "./DeleteCommentButton";
+import Pagination from "@/components/ui/Pagination";
+
+const PAGE_SIZE = 20;
 
 export const metadata: Metadata = {
   title: "ຄຳເຫັນ Blog",
@@ -27,7 +30,7 @@ function timeAgo(dateStr: string): string {
 export default async function BlogCommentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const locale = await getLocale();
   const user = await getSessionUser();
@@ -38,8 +41,24 @@ export default async function BlogCommentsPage({
 
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
+  const page = Math.max(1, Number(params.page ?? 1));
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
   const supabase = await createClient();
+
+  // สถิติรวม (ทุกหน้า ไม่ใช่แค่หน้าปัจจุบัน) — query แยกจาก list หลัก เอาแค่
+  // คอลัมน์ที่จำเป็นสำหรับนับ distinct เพื่อไม่ต้องดึงทุกแถวแบบเต็ม
+  let statsQuery = supabase
+    .from("comments")
+    .select("blog_post_id, user_id", { count: "exact" })
+    .not("blog_post_id", "is", null);
+  if (q) statsQuery = statsQuery.ilike("content", `%${q}%`);
+  const { data: statsRows, count: totalCount } = await statsQuery;
+  const totalComments = totalCount ?? 0;
+  const uniquePostCount = new Set((statsRows ?? []).map((r) => r.blog_post_id).filter(Boolean)).size;
+  const uniqueUserCount = new Set((statsRows ?? []).map((r) => r.user_id)).size;
+  const totalPages = Math.ceil(totalComments / PAGE_SIZE);
 
   // ดึง blog comments พร้อม join blog_posts และ profiles
   let query = supabase
@@ -51,7 +70,7 @@ export default async function BlogCommentsPage({
     `)
     .not("blog_post_id", "is", null)
     .order("created_at", { ascending: false })
-    .limit(100);
+    .range(from, to);
 
   if (q) {
     query = query.ilike("content", `%${q}%`);
@@ -75,19 +94,15 @@ export default async function BlogCommentsPage({
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-gray-200 bg-surface p-4 text-center">
-          <p className="text-2xl font-bold text-gray-900">{comments.length}</p>
+          <p className="text-2xl font-bold text-gray-900">{totalComments}</p>
           <p className="mt-0.5 text-xs text-gray-500">ຄຳເຫັນທັງໝົດ</p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-surface p-4 text-center">
-          <p className="text-2xl font-bold text-gray-900">
-            {new Set(comments.map((c) => c.blog_posts?.id).filter(Boolean)).size}
-          </p>
+          <p className="text-2xl font-bold text-gray-900">{uniquePostCount}</p>
           <p className="mt-0.5 text-xs text-gray-500">ບົດຄວາມທີ່ມີຄຳເຫັນ</p>
         </div>
         <div className="rounded-xl border border-gray-200 bg-surface p-4 text-center">
-          <p className="text-2xl font-bold text-gray-900">
-            {new Set(comments.map((c) => c.user_id)).size}
-          </p>
+          <p className="text-2xl font-bold text-gray-900">{uniqueUserCount}</p>
           <p className="mt-0.5 text-xs text-gray-500">ຜູ້ໃຊ້ທີ່ຄຳເຫັນ</p>
         </div>
       </div>
@@ -190,6 +205,12 @@ export default async function BlogCommentsPage({
           })
         )}
       </div>
+
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        buildHref={(p) => `/dashboard/blog-comments?page=${p}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+      />
     </div>
   );
 }

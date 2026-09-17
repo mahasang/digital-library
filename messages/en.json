@@ -2125,7 +2125,10 @@
       "statusPublished": "Published",
       "statusScheduled": "Scheduled",
       "statusDraft": "Draft",
-      "statusArchived": "Archived"
+      "statusArchived": "Archived",
+      "searchPlaceholder": "Search posts...",
+      "search": "Search",
+      "noResults": "No matching posts found"
     },
     "newPage": {
       "heading": "New Post",
@@ -2231,5 +2234,10 @@
     "notConfiguredNotice": "The administrator has not configured ORCID OAuth yet — the connect button will work once <clientId>ORCID_CLIENT_ID</clientId>/<clientSecret>ORCID_CLIENT_SECRET</clientSecret> are set.",
     "connectingButton": "Redirecting to ORCID...",
     "connectButton": "Connect ORCID"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {current} of {total}"
   }
 }

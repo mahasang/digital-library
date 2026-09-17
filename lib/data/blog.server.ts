@@ -178,6 +178,76 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
   return (data ?? []).map(mapRow);
 }
 
+/** นับจำนวน post แยกตามสถานะ — ใช้ count-only query แทนการดึงทุกแถว
+ * (แยกจาก getAllBlogPostsPaginated เพราะ stats ต้องนับรวมทุกหน้า ไม่ใช่แค่หน้าปัจจุบัน) */
+export async function getBlogPostStats(): Promise<{
+  total: number;
+  published: number;
+  scheduled: number;
+  draft: number;
+}> {
+  if (!isSupabaseConfigured()) return { total: 0, published: 0, scheduled: 0, draft: 0 };
+  const supabase = await createClient();
+  const [total, published, scheduled, draft] = await Promise.all([
+    supabase.from("blog_posts").select("id", { count: "exact", head: true }),
+    supabase.from("blog_posts").select("id", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("blog_posts").select("id", { count: "exact", head: true }).eq("status", "scheduled"),
+    supabase.from("blog_posts").select("id", { count: "exact", head: true }).eq("status", "draft"),
+  ]);
+  return {
+    total: total.count ?? 0,
+    published: published.count ?? 0,
+    scheduled: scheduled.count ?? 0,
+    draft: draft.count ?? 0,
+  };
+}
+
+const ADMIN_PAGE_SIZE = 20;
+
+/** ดึง posts ทั้งหมด (draft + published) แบบมี search + pagination สำหรับ blog-admin */
+export async function getAllBlogPostsPaginated({
+  page = 1,
+  search = "",
+  pageSize = ADMIN_PAGE_SIZE,
+}: {
+  page?: number;
+  search?: string;
+  pageSize?: number;
+}): Promise<{ posts: BlogPost[]; total: number; totalPages: number }> {
+  if (!isSupabaseConfigured()) return { posts: [], total: 0, totalPages: 0 };
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("blog_posts")
+    .select(BLOG_SELECT, { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range((page - 1) * pageSize, page * pageSize - 1);
+
+  if (search) {
+    query = query.or(
+      [
+        `title_lo.ilike.%${search}%`,
+        `title_th.ilike.%${search}%`,
+        `title_en.ilike.%${search}%`,
+        `title_vi.ilike.%${search}%`,
+      ].join(",")
+    );
+  }
+
+  const { data, error, count } = await query;
+  if (error) {
+    console.error("[blog] getAllBlogPostsPaginated error:", error.message);
+    return { posts: [], total: 0, totalPages: 0 };
+  }
+
+  const total = count ?? 0;
+  return {
+    posts: (data ?? []).map(mapRow),
+    total,
+    totalPages: Math.ceil(total / pageSize),
+  };
+}
+
 /** ดึง post เดียวตาม id สำหรับ dashboard edit */
 export async function getBlogPostById(id: string): Promise<BlogPost | null> {
   if (!isSupabaseConfigured()) return null;
@@ -219,7 +289,16 @@ export async function getPublishedBlogPostsPaginated({
 
   if (tag) query = query.contains("tags", [tag]);
   if (search) query = query.or(
-    `title_lo.ilike.%${search}%,title_th.ilike.%${search}%,title_en.ilike.%${search}%`
+    [
+      `title_lo.ilike.%${search}%`,
+      `title_th.ilike.%${search}%`,
+      `title_en.ilike.%${search}%`,
+      `title_vi.ilike.%${search}%`,
+      `excerpt_lo.ilike.%${search}%`,
+      `excerpt_th.ilike.%${search}%`,
+      `excerpt_en.ilike.%${search}%`,
+      `excerpt_vi.ilike.%${search}%`,
+    ].join(",")
   );
 
   const { data, error, count } = await query;

@@ -2125,7 +2125,10 @@
       "statusPublished": "ເຜີຍແຜ່",
       "statusScheduled": "ກຳນົດເວລາ",
       "statusDraft": "ຮ່າງ",
-      "statusArchived": "ເກັບໄວ້"
+      "statusArchived": "ເກັບໄວ້",
+      "searchPlaceholder": "ຄົ້ນຫາບົດຄວາມ...",
+      "search": "ຄົ້ນຫາ",
+      "noResults": "ບໍ່ພົບບົດຄວາມທີ່ກົງກັນ"
     },
     "newPage": {
       "heading": "ສ້າງບົດຄວາມໃໝ່",
@@ -2231,5 +2234,10 @@
     "notConfiguredNotice": "ผู้ดูแลระบบยังไม่ได้ตั้งค่า ORCID OAuth — ปุ่มเชื่อมต่อจะใช้งานได้เมื่อตั้งค่า <clientId>ORCID_CLIENT_ID</clientId>/<clientSecret>ORCID_CLIENT_SECRET</clientSecret> เรียบร้อยแล้ว",
     "connectingButton": "กำลังนำไปยัง ORCID...",
     "connectButton": "เชื่อม ORCID"
+  },
+  "pagination": {
+    "previous": "ກ່ອນໜ້າ",
+    "next": "ຖັດໄປ",
+    "pageOf": "ໜ້າ {current} ຈາກ {total}"
   }
 }

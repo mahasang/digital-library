@@ -4,6 +4,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import Container from "@/components/ui/Container";
+import Pagination from "@/components/ui/Pagination";
 import { Search } from "lucide-react";
 import {
   getPublishedBlogPostsPaginated,
@@ -179,39 +180,13 @@ export default async function BlogPage({
         )}
 
         {/* ── Pagination ── */}
-        {totalPages > 1 && (
-          <div className="mt-10 flex items-center justify-center gap-2">
-            {page > 1 && (
-              <Link
-                href={`/blog?page=${page - 1}${tag ? `&tag=${tag}` : ""}${search ? `&q=${search}` : ""}`}
-                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-              >
-                ← {t("prevPage")}
-              </Link>
-            )}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <Link
-                key={p}
-                href={`/blog?page=${p}${tag ? `&tag=${tag}` : ""}${search ? `&q=${search}` : ""}`}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  p === page
-                    ? "bg-brand-600 text-white"
-                    : "border border-gray-200 text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                {p}
-              </Link>
-            ))}
-            {page < totalPages && (
-              <Link
-                href={`/blog?page=${page + 1}${tag ? `&tag=${tag}` : ""}${search ? `&q=${search}` : ""}`}
-                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-              >
-                {t("nextPage")} →
-              </Link>
-            )}
-          </div>
-        )}
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          buildHref={(p) =>
+            `/blog?page=${p}${tag ? `&tag=${encodeURIComponent(tag)}` : ""}${search ? `&q=${encodeURIComponent(search)}` : ""}`
+          }
+        />
       </Container>
     </div>
   );

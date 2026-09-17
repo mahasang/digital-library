@@ -2125,7 +2125,10 @@
       "statusPublished": "เผยแพร่",
       "statusScheduled": "กำหนดเวลา",
       "statusDraft": "ฉบับร่าง",
-      "statusArchived": "เก็บถาวร"
+      "statusArchived": "เก็บถาวร",
+      "searchPlaceholder": "ค้นหาบทความ...",
+      "search": "ค้นหา",
+      "noResults": "ไม่พบบทความที่ตรงกัน"
     },
     "newPage": {
       "heading": "สร้างบทความใหม่",
@@ -2231,5 +2234,10 @@
     "notConfiguredNotice": "ผู้ดูแลระบบยังไม่ได้ตั้งค่า ORCID OAuth — ปุ่มเชื่อมต่อจะใช้งานได้เมื่อตั้งค่า <clientId>ORCID_CLIENT_ID</clientId>/<clientSecret>ORCID_CLIENT_SECRET</clientSecret> เรียบร้อยแล้ว",
     "connectingButton": "กำลังนำไปยัง ORCID...",
     "connectButton": "เชื่อม ORCID"
+  },
+  "pagination": {
+    "previous": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "pageOf": "หน้า {current} จาก {total}"
   }
 }
