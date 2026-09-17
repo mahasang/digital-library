@@ -9,7 +9,7 @@ import { logAudit } from "@/lib/data/audit.server";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import { notifyAccessRequestByEmail } from "@/lib/notifications/access-request-email.server";
 import type { ActionResult } from "@/lib/actions/types";
-import type { AccessRequestTypeRow } from "@/lib/supabase/database.types";
+import type { AccessRequestTypeRow } from "@/lib/supabase/types";
 
 interface RequestRow {
   id: string;
