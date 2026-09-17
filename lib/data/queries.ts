@@ -1,10 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
-import type {
-  AccessLevelRow,
-  Database,
-  DocumentStatusRow,
-} from "@/lib/supabase/database.types";
+import type { Database } from "@/lib/supabase/database.types";
+import type { AccessLevelRow, DocumentStatusRow } from "@/lib/supabase/types";
 import type {
   RawResearchRow,
   RawManagementResearchRow,

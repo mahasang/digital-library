@@ -2,7 +2,7 @@ import type {
   AccessLevelRow,
   DocumentStatusRow,
   ScanStatusRow,
-} from "@/lib/supabase/database.types";
+} from "@/lib/supabase/types";
 
 export interface RawOrganizationRef {
   name_th: string | null;

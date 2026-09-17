@@ -7,7 +7,7 @@ import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import type { ActionResult } from "@/lib/actions/types";
-import type { CronJobNameRow } from "@/lib/supabase/database.types";
+import type { CronJobNameRow } from "@/lib/supabase/types";
 
 const VALID_JOB_NAMES: CronJobNameRow[] = [
   "queue_worker",

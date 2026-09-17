@@ -56,7 +56,7 @@ function mapRow(row: {
   content_en: string;
   content_vi: string;
   cover_image: string | null;
-  status: "draft" | "scheduled" | "published" | "archived";
+  status: string;
   author_id: string | null;
   published_at: string | null;
   scheduled_at: string | null;
@@ -92,7 +92,7 @@ function mapRow(row: {
     contentEn: row.content_en,
     contentVi: row.content_vi,
     coverImage: row.cover_image,
-    status: row.status,
+    status: row.status as BlogPost["status"],
     authorId: row.author_id,
     publishedAt: row.published_at,
     scheduledAt: row.scheduled_at ?? null,

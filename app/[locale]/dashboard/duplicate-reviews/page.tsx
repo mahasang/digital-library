@@ -7,7 +7,7 @@ import Badge from "@/components/ui/Badge";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getDuplicateReviews } from "@/lib/data/duplicate-research.server";
-import type { DuplicateReviewStatusRow } from "@/lib/supabase/database.types";
+import type { DuplicateReviewStatusRow } from "@/lib/supabase/types";
 
 export async function generateMetadata({
   params,

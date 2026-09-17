@@ -177,8 +177,8 @@ export async function getPriorRequestsForRequesterAndItem(
   }
   return (data ?? []).map((row) => ({
     id: row.id,
-    requestType: row.request_type,
-    status: row.status,
+    requestType: row.request_type as AccessRequestType,
+    status: row.status as AccessRequestStatus,
     createdAt: row.created_at,
   }));
 }
@@ -206,7 +206,7 @@ export async function getGrantsForUserAndItem(
   }
   return (data ?? []).map((row) => ({
     id: row.id,
-    accessType: row.access_type,
+    accessType: row.access_type as AccessRequestType,
     startsAt: row.starts_at,
     expiresAt: row.expires_at,
     revokedAt: row.revoked_at,

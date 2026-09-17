@@ -20,7 +20,7 @@ import { handleOcrTestRunJob } from "@/lib/jobs/handlers/ocr-test-run.server";
 import { startCronRun, finishCronRun } from "@/lib/cron/cron-runs.server";
 import { JOB_TYPE_LABELS } from "@/lib/jobs/dlq.server";
 import type { BackgroundJobRow } from "@/lib/jobs/queue.server";
-import type { BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 const DEFAULT_BATCH_SIZE = 5;
 

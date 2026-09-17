@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { JobBatchList } from "@/components/superadmin/JobBatchList";
 import type { JobBatchSummary } from "@/lib/data/job-batches.server";
-import type { BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 import type { ActionResult } from "@/lib/actions/types";
 
 type BatchAction = (prevState: ActionResult, formData: FormData) => Promise<ActionResult>;

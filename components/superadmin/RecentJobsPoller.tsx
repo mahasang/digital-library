@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { RecentJobsList } from "@/components/superadmin/JobBatchList";
 import type { RecentJobRow } from "@/lib/data/job-batches.server";
-import type { BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 const POLL_INTERVAL_MS = 5000;
 

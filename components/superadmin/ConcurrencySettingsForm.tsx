@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { Loader2, Save } from "lucide-react";
 import { idleActionResult, type ActionResult } from "@/lib/actions/types";
 import type { JobTypeConcurrency } from "@/lib/data/job-type-settings.server";
-import type { BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 function ConcurrencyRow({
   setting,

@@ -8,7 +8,7 @@ import { getSuperAdminRecipients } from "@/lib/data/super-admins.server";
 import { getQueueHealth } from "@/lib/data/queue-health.server";
 import { startCronRun, finishCronRun } from "@/lib/cron/cron-runs.server";
 import { JOB_TYPE_LABELS } from "@/lib/jobs/dlq.server";
-import type { CronJobNameRow } from "@/lib/supabase/database.types";
+import type { CronJobNameRow } from "@/lib/supabase/types";
 
 /**
  * ตรวจสุขภาพของ cron/worker ที่สำคัญทั้งหมด (ช่วงที่ 31) — เรียกจาก

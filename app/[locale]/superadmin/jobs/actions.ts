@@ -13,7 +13,7 @@ import {
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { JOB_TYPES } from "@/lib/jobs/queue.server";
 import type { ActionResult } from "@/lib/actions/types";
-import type { BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 /**
  * Server Actions ของหน้า /superadmin/jobs (Dead-letter Queue) — ทั้งสามตัว

@@ -113,7 +113,7 @@ export async function getAuditLogs(filters: AuditLogFilters): Promise<AuditLogRe
       action: r.action,
       entityType: r.entity_type,
       entityId: r.entity_id,
-      metadata: r.metadata,
+      metadata: (r.metadata ?? {}) as Record<string, unknown>,
       createdAt: r.created_at,
     }));
 

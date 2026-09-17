@@ -1,6 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import type { QueueHealth } from "@/lib/data/queue-health.server";
-import type { BackgroundJobStatusRow, BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobStatusRow, BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 const STATUS_LABEL: Record<BackgroundJobStatusRow, string> = {
   pending: "รอดำเนินการ",

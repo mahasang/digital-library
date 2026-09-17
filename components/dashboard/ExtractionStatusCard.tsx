@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { CheckCircle2, AlertCircle, Clock, ImageOff, Loader2, RefreshCw, ScanText } from "lucide-react";
 import { reprocessResearchTextAction, triggerOcrAction } from "@/app/[locale]/dashboard/research/[id]/edit/actions";
 import { idleActionResult } from "@/lib/actions/types";
-import type { ExtractionStatusRow, OcrStatusRow } from "@/lib/supabase/database.types";
+import type { ExtractionStatusRow, OcrStatusRow } from "@/lib/supabase/types";
 
 const STATUS_ICON: Record<ExtractionStatusRow, typeof CheckCircle2> = {
   pending: Clock,

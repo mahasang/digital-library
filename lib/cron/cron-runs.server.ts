@@ -1,7 +1,7 @@
 import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
-import type { CronJobNameRow, CronRunStatusRow } from "@/lib/supabase/database.types";
+import type { CronJobNameRow, CronRunStatusRow } from "@/lib/supabase/types";
 
 /**
  * บันทึกประวัติการทำงานของ cron/worker ที่สำคัญแต่ละครั้ง (ช่วงที่ 31) —

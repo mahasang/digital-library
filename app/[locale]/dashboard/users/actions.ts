@@ -9,7 +9,7 @@ import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import type { ActionResult } from "@/lib/actions/types";
-import type { RoleName } from "@/lib/supabase/database.types";
+import type { RoleName } from "@/lib/supabase/types";
 
 const ASSIGNABLE_ROLES: RoleName[] = ["member", "staff", "librarian", "admin"];
 

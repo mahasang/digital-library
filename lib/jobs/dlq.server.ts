@@ -1,6 +1,6 @@
 import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/service";
-import type { BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 /**
  * ป้ายภาษาไทยของแต่ละประเภทงาน — ใช้แสดงผลที่หน้า /superadmin/jobs และในอีเมล

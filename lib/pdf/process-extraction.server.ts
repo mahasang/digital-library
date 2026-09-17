@@ -4,7 +4,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
 import { extractPdfText, normalizeExtractedText } from "@/lib/pdf/extract-text.server";
-import type { Database, ExtractionStatusRow } from "@/lib/supabase/database.types";
+import type { Database } from "@/lib/supabase/database.types";
+import type { ExtractionStatusRow } from "@/lib/supabase/types";
 
 /**
  * ดึงข้อความจาก PDF ของงานวิจัยหนึ่งรายการแบบ end-to-end: ล็อกแถวแบบ atomic

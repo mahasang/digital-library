@@ -1,7 +1,7 @@
 import "server-only";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
-import type { BackgroundJobStatusRow, BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobStatusRow, BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 /**
  * ข้อมูล queue health สำหรับหน้า /superadmin/jobs (ช่วงที่ 30) — เรียก 2 SQL

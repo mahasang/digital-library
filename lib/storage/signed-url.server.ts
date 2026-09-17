@@ -3,7 +3,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isServiceRoleConfigured } from "@/lib/supabase/config";
 import { canDownload, canReadOnline } from "@/lib/labels";
 import type { AccessLevel } from "@/types/research";
-import type { ScanStatusRow } from "@/lib/supabase/database.types";
+import type { ScanStatusRow } from "@/lib/supabase/types";
 
 const UNSAFE_SCAN_STATUSES: readonly ScanStatusRow[] = ["pending", "infected", "error"];
 

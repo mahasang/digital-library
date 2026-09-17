@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getRecentJobBatches, getJobBatchDetail, getRecentJobs } from "@/lib/data/job-batches.server";
-import type { BackgroundJobTypeRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobTypeRow } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
 

@@ -13,7 +13,8 @@ import { resetUserMfaFactors } from "@/lib/security/mfa-admin.server";
 import { getSettings } from "@/lib/data/settings.server";
 import { sendNotificationEmail } from "@/lib/notifications/email.server";
 import type { ActionResult } from "@/lib/actions/types";
-import type { Database, RoleName } from "@/lib/supabase/database.types";
+import type { Database } from "@/lib/supabase/database.types";
+import type { RoleName } from "@/lib/supabase/types";
 
 /**
  * บทบาทที่ปรับผ่านฟอร์ม checkbox ทันที (ไม่ต้องยืนยันซ้ำ) — ตั้งใจไม่รวม

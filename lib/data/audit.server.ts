@@ -1,6 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/database.types";
+import type { Database, Json } from "@/lib/supabase/database.types";
 
 /**
  * บันทึก audit_logs สำหรับการแก้ไขสำคัญที่ทำผ่านหน้าจัดการภายใน (Dashboard)
@@ -24,7 +24,7 @@ export async function logAudit(
     action: params.action,
     entity_type: params.entityType,
     entity_id: params.entityId ?? null,
-    metadata: params.metadata ?? {},
+    metadata: (params.metadata ?? {}) as Json,
   });
 
   if (error) {

@@ -171,7 +171,7 @@ export async function getUserActivityHistory(
         action: r.action,
         entityType: r.entity_type,
         entityId: r.entity_id,
-        metadata: r.metadata,
+        metadata: (r.metadata ?? {}) as Record<string, unknown>,
         createdAt: r.created_at,
       })),
     };

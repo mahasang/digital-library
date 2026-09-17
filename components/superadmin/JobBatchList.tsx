@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { JobBatchSummary, JobRow, RecentJobRow } from "@/lib/data/job-batches.server";
 import type { ActionResult } from "@/lib/actions/types";
-import type { BackgroundJobStatusRow } from "@/lib/supabase/database.types";
+import type { BackgroundJobStatusRow } from "@/lib/supabase/types";
 import Badge from "@/components/ui/Badge";
 import RetryJobButton from "@/components/superadmin/RetryJobButton";
 import JobBatchDetailDrawer from "@/components/superadmin/JobBatchDetailDrawer";

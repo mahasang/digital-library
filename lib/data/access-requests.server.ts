@@ -102,5 +102,5 @@ export async function getMyLatestRequestForItem(
     console.error("getMyLatestRequestForItem failed:", error.message);
     return null;
   }
-  return data;
+  return data ? { id: data.id, status: data.status as AccessRequestStatus } : null;
 }
