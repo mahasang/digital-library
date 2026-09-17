@@ -18,8 +18,9 @@ import { OCR_JOB_MAX_ATTEMPTS } from "@/lib/ocr/ocr-provider.server";
 import { detectDuplicatesForResearchItem } from "@/lib/data/duplicate-research.server";
 import { notifyResearchPublished } from "@/lib/publishing/publish-event.server";
 import { revalidatePublicResearch } from "@/lib/cache/public-home";
+import { saveRevision } from "@/lib/data/revisions.server";
 import type { ActionResult } from "@/lib/actions/types";
-import type { DocumentStatusRow } from "@/lib/supabase/database.types";
+import type { DocumentStatusRow } from "@/lib/supabase/types";
 
 const SUBMISSION_FIELD_TO_SCHEMA_KEY = {
   pdf: "pdfPath",
@@ -60,11 +61,17 @@ export async function adminUpdateResearchAction(
     return { status: "error", message: tResearch("noPermissionToEdit") };
   }
 
-  const { data: existing } = await supabase
-    .from("research_items")
-    .select("id, cover_image, attachment_file, pdf_file, status, submitted_by, title_th, title_en, year")
-    .eq("id", researchId)
-    .maybeSingle();
+  // ดึงข้อมูลปัจจุบันเต็มแถว + relations ก่อนแก้ไข — ใช้ทั้งใน logic ด้านล่าง
+  // (pdf_file/status/submitted_by/title_th/title_en/year/cover_image/
+  // attachment_file) และเป็น snapshot สำหรับ revision history (saveRevision
+  // ด้านล่าง) ต้องดึงก่อน .update() เสมอ ไม่งั้นจะได้ค่าที่เพิ่งบันทึกใหม่แทน
+  const [{ data: existing }, { data: currentAuthors }, { data: currentCategories }, { data: currentKeywords }] =
+    await Promise.all([
+      supabase.from("research_items").select("*").eq("id", researchId).maybeSingle(),
+      supabase.from("research_authors").select("author_id, author_order").eq("research_id", researchId),
+      supabase.from("research_categories").select("category_id").eq("research_id", researchId),
+      supabase.from("research_keywords").select("keyword_id").eq("research_id", researchId),
+    ]);
 
   if (!existing) {
     return { status: "error", message: tResearch("notFound") };
@@ -198,6 +205,19 @@ export async function adminUpdateResearchAction(
       ),
     };
   }
+
+  // best-effort เท่านั้น — ห้าม await/block การบันทึกหลักถ้า revision บันทึกไม่สำเร็จ
+  saveRevision({
+    entityType: "research_item",
+    entityId: researchId,
+    actorId: user.id,
+    snapshot: {
+      ...existing,
+      _authors: currentAuthors ?? [],
+      _categories: currentCategories ?? [],
+      _keywords: currentKeywords ?? [],
+    },
+  }).catch(console.error);
 
   try {
     await replaceResearchRelations(supabase, researchId, parsed.data);

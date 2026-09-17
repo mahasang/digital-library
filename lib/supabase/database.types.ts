@@ -688,6 +688,41 @@ export type Database = {
         }
         Relationships: []
       }
+      content_revisions: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          snapshot: Json
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          snapshot: Json
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_revisions_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cron_alert_state: {
         Row: {
           check_name: string

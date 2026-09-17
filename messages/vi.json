@@ -1823,11 +1823,13 @@
   },
   "readingHistory": {
     "pageTitle": "ประวัติการอ่าน",
-    "pageDescription": "งานวิจัยที่คุณเคยเปิดอ่านล่าสุด",
-    "subtitle": "งานวิจัยที่คุณเปิดอ่านล่าสุด (แสดง 50 รายการล่าสุด)",
+    "pageDescription": "งานวิจัยและบทความที่คุณเคยเปิดอ่านล่าสุด",
+    "subtitle": "งานวิจัยและบทความที่คุณเปิดอ่านล่าสุด (แสดง 50 รายการล่าสุด)",
     "emptyTitle": "ยังไม่มีประวัติการอ่าน",
-    "emptyDescription": "เมื่อคุณเปิดอ่านงานวิจัยออนไลน์ ระบบจะบันทึกประวัติไว้ที่นี่",
-    "browseResearch": "ค้นหางานวิจัย"
+    "emptyDescription": "เมื่อคุณเปิดอ่านงานวิจัยหรือบทความ ระบบจะบันทึกประวัติไว้ที่นี่",
+    "browseResearch": "ค้นหางานวิจัย",
+    "blogBadge": "บทความ",
+    "researchBadge": "งานวิจัย"
   },
   "mySubmissions": {
     "pageTitle": "งานวิจัยของฉัน",
@@ -2188,6 +2190,14 @@
       "uploadingButton": "กำลังอัปโหลด..."
     }
   },
+  "revisionHistory": {
+    "buttonLabel": "Lịch sử chỉnh sửa",
+    "title": "Lịch sử chỉnh sửa",
+    "loading": "Đang tải...",
+    "noRevisions": "Chưa có lịch sử chỉnh sửa",
+    "selectVersion": "Chọn phiên bản bên trái để xem chi tiết",
+    "unknownActor": "Không rõ người chỉnh sửa"
+  },
   "sqlErrors": {
     "cannotRemoveLastSuperAdmin": "ไม่สามารถถอดถอนสิทธิ์ Super Admin คนสุดท้ายในระบบได้ ต้องมี Super Admin เหลืออย่างน้อย 1 คนเสมอ",
     "requiresSuperAdminForBucketLimits": "ต้องมีสิทธิ์ Super Admin จึงจะแก้ไขขีดจำกัดของ Storage bucket ได้",
@@ -2239,5 +2249,11 @@
     "previous": "ก่อนหน้า",
     "next": "ถัดไป",
     "pageOf": "หน้า {current} จาก {total}"
+  },
+  "accountBlogRow": {
+    "coverAlt": "ปกบทความ: {title}",
+    "readAt": "อ่านเมื่อ",
+    "continueReading": "อ่านต่อ",
+    "continueReadingAria": "อ่านต่อ: {title}"
   }
 }

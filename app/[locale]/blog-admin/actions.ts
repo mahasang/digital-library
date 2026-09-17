@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getSessionUser } from "@/lib/supabase/session";
+import { saveRevision } from "@/lib/data/revisions.server";
 
 export type BlogFormState =
   | { status: "idle" }
@@ -104,9 +105,26 @@ export async function upsertBlogPostAction(
 
   let resultId: string;
   if (id) {
+    // snapshot สถานะก่อนแก้ไข (สำหรับ revision history) — ดึงก่อน .update()
+    // เสมอ ไม่งั้นจะได้ค่าที่เพิ่งบันทึกใหม่แทนค่าก่อนหน้า
+    const [{ data: currentPost }, { data: currentAuthors }] = await Promise.all([
+      supabase.from("blog_posts").select("*").eq("id", id).maybeSingle(),
+      supabase.from("blog_post_authors").select("profile_id, display_order").eq("blog_post_id", id),
+    ]);
+
     const { error } = await supabase.from("blog_posts").update(payload).eq("id", id);
     if (error) return { status: "error", message: error.message };
     resultId = id;
+
+    // best-effort เท่านั้น — ห้าม await/block การบันทึกหลักถ้า revision บันทึกไม่สำเร็จ
+    if (currentPost) {
+      saveRevision({
+        entityType: "blog_post",
+        entityId: id,
+        actorId: user.id,
+        snapshot: { ...currentPost, _authors: currentAuthors ?? [] },
+      }).catch(console.error);
+    }
   } else {
     const { data, error } = await supabase.from("blog_posts").insert(payload).select("id").single();
     if (error) return { status: "error", message: error.message };

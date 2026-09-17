@@ -6,6 +6,8 @@ import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getBlogPostById } from "@/lib/data/blog.server";
 import BlogPostForm from "@/components/blog-admin/BlogPostForm";
 import { getStaffProfiles, getBlogPostAuthors } from "@/lib/data/blog-admin.server";
+import { getRevisions } from "@/lib/data/revisions.server";
+import { RevisionHistoryModal } from "@/components/shared/RevisionHistoryModal";
 
 export const dynamic = "force-dynamic";
 
@@ -25,17 +27,21 @@ export default async function BlogAdminEditPage({
   const post = await getBlogPostById(id);
   if (!post) notFound();
 
-  const [staffProfiles, currentAuthors] = await Promise.all([
+  const [staffProfiles, currentAuthors, revisions] = await Promise.all([
     getStaffProfiles(),
     getBlogPostAuthors(post.id),
+    getRevisions("blog_post", post.id),
   ]);
   const initialAuthorIds = currentAuthors.map((a) => a.id);
 
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t("heading")}</h1>
-        <p className="mt-1 text-sm text-gray-500 font-mono">/{post.slug}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t("heading")}</h1>
+          <p className="mt-1 text-sm text-gray-500 font-mono">/{post.slug}</p>
+        </div>
+        <RevisionHistoryModal revisions={revisions} />
       </div>
       <BlogPostForm
         post={post}

@@ -13,6 +13,8 @@ import { getCategories } from "@/lib/data/categories.server";
 import { getSettings } from "@/lib/data/settings.server";
 import { getSubmissionById } from "@/lib/data/submissions.server";
 import { getExtractionStatus } from "@/lib/pdf/extraction-status.server";
+import { getRevisions } from "@/lib/data/revisions.server";
+import { RevisionHistoryModal } from "@/components/shared/RevisionHistoryModal";
 import { adminUpdateResearchAction } from "@/app/[locale]/dashboard/research/[id]/edit/actions";
 
 export async function generateMetadata({
@@ -43,11 +45,12 @@ export default async function DashboardEditResearchPage({
   if (rank < 30) return redirect({ href: "/403", locale });
   if (!item) notFound();
 
-  const [organizations, categories, settings, extraction] = await Promise.all([
+  const [organizations, categories, settings, extraction, revisions] = await Promise.all([
     getOrganizations(),
     getCategories(),
     getSettings(),
     getExtractionStatus(item.id),
+    getRevisions("research_item", item.id),
   ]);
 
   const t = await getTranslations("dashboard.research.edit");
@@ -62,11 +65,14 @@ export default async function DashboardEditResearchPage({
         {t("backLink")}
       </Link>
 
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("heading")}</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {t("subtitle")}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t("heading")}</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            {t("subtitle")}
+          </p>
+        </div>
+        <RevisionHistoryModal revisions={revisions} />
       </div>
 
       <ExtractionStatusCard

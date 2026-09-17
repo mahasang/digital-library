@@ -1823,11 +1823,13 @@
   },
   "readingHistory": {
     "pageTitle": "Reading History",
-    "pageDescription": "Research you have recently read",
-    "subtitle": "Research you've recently read (showing the latest 50)",
+    "pageDescription": "Research and articles you have recently read",
+    "subtitle": "Research and articles you've recently read (showing the latest 50)",
     "emptyTitle": "No reading history yet",
-    "emptyDescription": "Research you read online will be recorded here",
-    "browseResearch": "Browse research"
+    "emptyDescription": "Research or articles you read will be recorded here",
+    "browseResearch": "Browse research",
+    "blogBadge": "Article",
+    "researchBadge": "Research"
   },
   "mySubmissions": {
     "pageTitle": "My Submissions",
@@ -2188,6 +2190,14 @@
       "uploadingButton": "Uploading..."
     }
   },
+  "revisionHistory": {
+    "buttonLabel": "Revision history",
+    "title": "Revision history",
+    "loading": "Loading...",
+    "noRevisions": "No revisions yet",
+    "selectVersion": "Select a version on the left to view details",
+    "unknownActor": "Unknown editor"
+  },
   "sqlErrors": {
     "cannotRemoveLastSuperAdmin": "Cannot remove the last Super Admin. At least one Super Admin must remain at all times.",
     "requiresSuperAdminForBucketLimits": "Super Admin permission is required to change Storage bucket limits",
@@ -2239,5 +2249,11 @@
     "previous": "Previous",
     "next": "Next",
     "pageOf": "Page {current} of {total}"
+  },
+  "accountBlogRow": {
+    "coverAlt": "Cover: {title}",
+    "readAt": "Read at",
+    "continueReading": "Continue reading",
+    "continueReadingAria": "Continue reading: {title}"
   }
 }

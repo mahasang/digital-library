@@ -1823,11 +1823,13 @@
   },
   "readingHistory": {
     "pageTitle": "ประวัติการอ่าน",
-    "pageDescription": "งานวิจัยที่คุณเคยเปิดอ่านล่าสุด",
-    "subtitle": "งานวิจัยที่คุณเปิดอ่านล่าสุด (แสดง 50 รายการล่าสุด)",
+    "pageDescription": "งานวิจัยและบทความที่คุณเคยเปิดอ่านล่าสุด",
+    "subtitle": "งานวิจัยและบทความที่คุณเปิดอ่านล่าสุด (แสดง 50 รายการล่าสุด)",
     "emptyTitle": "ยังไม่มีประวัติการอ่าน",
-    "emptyDescription": "เมื่อคุณเปิดอ่านงานวิจัยออนไลน์ ระบบจะบันทึกประวัติไว้ที่นี่",
-    "browseResearch": "ค้นหางานวิจัย"
+    "emptyDescription": "เมื่อคุณเปิดอ่านงานวิจัยหรือบทความ ระบบจะบันทึกประวัติไว้ที่นี่",
+    "browseResearch": "ค้นหางานวิจัย",
+    "blogBadge": "บทความ",
+    "researchBadge": "งานวิจัย"
   },
   "mySubmissions": {
     "pageTitle": "งานวิจัยของฉัน",
@@ -2188,6 +2190,14 @@
       "uploadingButton": "ກຳລັງອັບໂຫລດ..."
     }
   },
+  "revisionHistory": {
+    "buttonLabel": "ປະຫວັດການແກ້ໄຂ",
+    "title": "ປະຫວັດການແກ້ໄຂ",
+    "loading": "ກຳລັງໂຫລດ...",
+    "noRevisions": "ຍັງບໍ່ມີປະຫວັດການແກ້ໄຂ",
+    "selectVersion": "ເລືອກເວີຊັນທາງຊ້າຍເພື່ອເບິ່ງລາຍລະອຽດ",
+    "unknownActor": "ບໍ່ຮູ້ຈັກຜູ້ແກ້ໄຂ"
+  },
   "sqlErrors": {
     "cannotRemoveLastSuperAdmin": "ไม่สามารถถอดถอนสิทธิ์ Super Admin คนสุดท้ายในระบบได้ ต้องมี Super Admin เหลืออย่างน้อย 1 คนเสมอ",
     "requiresSuperAdminForBucketLimits": "ต้องมีสิทธิ์ Super Admin จึงจะแก้ไขขีดจำกัดของ Storage bucket ได้",
@@ -2239,5 +2249,11 @@
     "previous": "ກ່ອນໜ້າ",
     "next": "ຖັດໄປ",
     "pageOf": "ໜ້າ {current} ຈາກ {total}"
+  },
+  "accountBlogRow": {
+    "coverAlt": "ปกบทความ: {title}",
+    "readAt": "อ่านเมื่อ",
+    "continueReading": "อ่านต่อ",
+    "continueReadingAria": "อ่านต่อ: {title}"
   }
 }
