@@ -175,7 +175,12 @@ export async function getReadingHistoryAction(): Promise<ReadingHistoryEntry[]> 
 
   const seen = new Set<string>();
   const deduped: ReadingHistoryEntry[] = [];
-  for (const { item, readAt } of history) {
+  for (const entry of history) {
+    // ส่วนนี้ (ReadingHistorySection ในหน้า /account) แสดงเฉพาะ research —
+    // ข้าม entry ประเภท blog ไป (blog reading history แสดงแยกที่หน้า
+    // /reading-history เท่านั้น ผ่าน mixed timeline)
+    if (entry.type !== "research") continue;
+    const { item, readAt } = entry;
     if (seen.has(item.id)) continue;
     seen.add(item.id);
     deduped.push({ id: item.id, readAt, research: item });
