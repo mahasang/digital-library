@@ -7,6 +7,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { SETTINGS_ROW_ID } from "@/lib/data/settings.server";
+import { toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { ocrSettingsSchema } from "@/lib/validation/ocr-settings";
 import { checkOcrProviderConnectivity, OCR_JOB_MAX_ATTEMPTS } from "@/lib/ocr/ocr-provider.server";
 import { getOcrTestFixture } from "@/lib/ocr/test-fixtures.server";
@@ -54,8 +55,10 @@ export async function updateOcrSettingsAction(
     .eq("id", SETTINGS_ROW_ID);
 
   if (error) {
-    console.error("updateOcrSettingsAction failed:", error.message);
-    return { status: "error", message: t("saveSettingsFailed") };
+    return {
+      status: "error",
+      message: await toSafeErrorMessageLocalized(error, t("saveSettingsFailed"), "updateOcrSettingsAction failed"),
+    };
   }
 
   await logAudit(supabase, {

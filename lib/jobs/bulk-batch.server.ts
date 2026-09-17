@@ -1,7 +1,9 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { getTranslations } from "next-intl/server";
 import { enqueueBackgroundJob } from "@/lib/jobs/queue.server";
 import { getDefaultBatchSize } from "@/lib/data/job-type-settings.server";
+import { toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import type { BackgroundJobTypeRow, Database } from "@/lib/supabase/database.types";
 
 /** เผื่อ attempts ไว้มากพอสำหรับทุก chunk ที่ bulk_enqueue coordinator ต้อง
@@ -35,6 +37,7 @@ export async function createBulkJobBatch(params: {
   | { ok: true; batchId: string; totalItems: number | null; isNew: boolean }
   | { ok: false; error: string }
 > {
+  const t = await getTranslations("actionMessages.common");
   const batchSize = params.batchSize ?? (await getDefaultBatchSize(params.jobType));
 
   const { data: created, error: createError } = await params.supabase.rpc("create_job_batch_if_not_exists", {
@@ -46,8 +49,10 @@ export async function createBulkJobBatch(params: {
   });
 
   if (createError || !created || created.length === 0) {
-    console.error("createBulkJobBatch: create_job_batch_if_not_exists failed:", createError?.message);
-    return { ok: false, error: "ไม่สามารถสร้างชุดงานได้ กรุณาลองใหม่อีกครั้ง" };
+    return {
+      ok: false,
+      error: await toSafeErrorMessageLocalized(createError, t("batchCreateFailed"), "createBulkJobBatch: create_job_batch_if_not_exists failed"),
+    };
   }
 
   const { batch_id: batchId, is_new: isNew } = created[0];
@@ -71,7 +76,7 @@ export async function createBulkJobBatch(params: {
   if (!result.ok) {
     return {
       ok: false,
-      error: "สร้างชุดงานสำเร็จ แต่เริ่มประมวลผลไม่สำเร็จ กรุณาลองใหม่ที่หน้า Dead-letter Queue",
+      error: t("batchCreatedButEnqueueFailed"),
     };
   }
 

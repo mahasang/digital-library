@@ -1471,7 +1471,9 @@
       "alreadyRunningSameFilter": "This job is already running for the same filter — see progress below.",
       "bulkOverLimitSuffix": " — {selected} items selected, exceeding the batch size, so only the first {target} were processed. Click again to process the rest.",
       "saveFailedGeneric": "Save failed. Please try again.",
-      "noItemsToReorder": "No items to reorder."
+      "noItemsToReorder": "No items to reorder.",
+      "batchCreateFailed": "Could not create the job batch. Please try again.",
+      "batchCreatedButEnqueueFailed": "The job batch was created, but processing could not start. Please retry from the Dead-letter Queue page."
     },
     "auth": {
       "rateLimitedLogin": "Too many login attempts. Please wait a moment and try again.",
@@ -1496,7 +1498,8 @@
       "readingHistoryDeleteFailed": "Could not delete reading history. Please try again.",
       "passwordChangeFailed": "Could not change your password. Please try again.",
       "passwordChangedSuccess": "Password changed successfully.",
-      "signOutAllFailed": "Could not sign out. Please try again."
+      "signOutAllFailed": "Could not sign out. Please try again.",
+      "deleteAccountFailed": "Could not delete the account. Please try again."
     },
     "authors": {
       "notFound": "Author not found.",
@@ -2212,5 +2215,21 @@
     "requiresSuperAdminForBatchControl": "Super Admin permission is required to control batch jobs",
     "invalidTargetStatus": "Invalid target status",
     "notAuthenticated": "Not authenticated"
+  },
+  "orcidConnect": {
+    "status": {
+      "connected": "ORCID connected successfully",
+      "cancelled": "ORCID connection cancelled. No data was changed.",
+      "error": "Failed to connect ORCID"
+    },
+    "notLinkedNotice": "Your account is not yet linked to a researcher record in the system — if you are a researcher with published work in this library, please contact library staff to have your account linked first.",
+    "verifiedViaOauth": "ORCID connected (verified via real ORCID OAuth)",
+    "verifiedAtPrefix": "Verified on",
+    "existingOrcidNotice": "The system already has ORCID {orcid} on file ({verificationStatus}) — connect via ORCID OAuth for stronger identity verification.",
+    "verificationStatusManual": "manually verified by staff",
+    "verificationStatusUnverified": "not yet verified",
+    "notConfiguredNotice": "The administrator has not configured ORCID OAuth yet — the connect button will work once <clientId>ORCID_CLIENT_ID</clientId>/<clientSecret>ORCID_CLIENT_SECRET</clientSecret> are set.",
+    "connectingButton": "Redirecting to ORCID...",
+    "connectButton": "Connect ORCID"
   }
 }

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { createProfileSchema, createChangePasswordSchema } from "@/lib/validation/profile";
 import {
   AVATAR_ALLOWED_TYPES,
@@ -226,6 +227,7 @@ export async function clearReadingHistoryAction(): Promise<{ error: string | nul
  * ทดสอบจริงกับ user ทดสอบก่อน implement ฝั่ง UI */
 export async function deleteAccountAction(): Promise<{ error: string | null }> {
   const t = await getTranslations("actionMessages.common");
+  const tAccount = await getTranslations("actionMessages.account");
   if (!isSupabaseConfigured()) {
     return { error: t("supabaseNotConfigured") };
   }
@@ -237,7 +239,9 @@ export async function deleteAccountAction(): Promise<{ error: string | null }> {
   if (!user) return { error: t("mustLogIn") };
 
   const { error } = await supabase.rpc("delete_own_account");
-  if (error) return { error: error.message };
+  if (error) {
+    return { error: await toSafeErrorMessageLocalized(error, tAccount("deleteAccountFailed"), "deleteAccountAction failed") };
+  }
 
   await supabase.auth.signOut();
   return { error: null };

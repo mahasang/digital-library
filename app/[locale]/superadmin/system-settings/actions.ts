@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { SETTINGS_ROW_ID } from "@/lib/data/settings.server";
+import { toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { createSystemSettingsSchema } from "@/lib/validation/system-settings";
 import { revalidatePublicSettings } from "@/lib/cache/public-home";
 import type { ActionResult } from "@/lib/actions/types";
@@ -95,11 +96,13 @@ export async function updateSystemSettingsAction(
     .eq("id", SETTINGS_ROW_ID);
 
   if (error) {
-    console.error("updateSystemSettingsAction failed:", error.message);
-    return { status: "error", message: t("saveSettingsFailed") };
+    return {
+      status: "error",
+      message: await toSafeErrorMessageLocalized(error, t("saveSettingsFailed"), "updateSystemSettingsAction failed"),
+    };
   }
 
-  let bucketSyncFailed = false;
+  let bucketSyncWarning: string | null = null;
   try {
     const bucketUpdates = await Promise.all([
       supabase.rpc("superadmin_update_bucket_limit", {
@@ -118,8 +121,11 @@ export async function updateSystemSettingsAction(
     const failed = bucketUpdates.find((r) => r.error);
     if (failed?.error) throw failed.error;
   } catch (err) {
-    console.error("updateSystemSettingsAction bucket sync failed:", err);
-    bucketSyncFailed = true;
+    bucketSyncWarning = await toSafeErrorMessageLocalized(
+      err,
+      tSystemSettings("bucketSyncWarning"),
+      "updateSystemSettingsAction bucket sync failed"
+    );
   }
 
   await logAudit(supabase, {
@@ -140,6 +146,6 @@ export async function updateSystemSettingsAction(
   revalidatePublicSettings();
   return {
     status: "success",
-    message: t("settingsSavedSuccess") + (bucketSyncFailed ? ` ${tSystemSettings("bucketSyncWarning")}` : ""),
+    message: t("settingsSavedSuccess") + (bucketSyncWarning ? ` ${bucketSyncWarning}` : ""),
   };
 }

@@ -1471,7 +1471,9 @@
       "alreadyRunningSameFilter": "งานนี้กำลังทำงานอยู่แล้วสำหรับตัวกรองเดียวกัน — ดูความคืบหน้าด้านล่าง",
       "bulkOverLimitSuffix": " — เลือกไว้ {selected} รายการ เกินขนาด batch จึงทำเฉพาะ {target} รายการแรก กดอีกครั้งเพื่อทำส่วนที่เหลือ",
       "saveFailedGeneric": "บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
-      "noItemsToReorder": "ไม่มีรายการให้จัดลำดับ"
+      "noItemsToReorder": "ไม่มีรายการให้จัดลำดับ",
+      "batchCreateFailed": "ไม่สามารถสร้างชุดงานได้ กรุณาลองใหม่อีกครั้ง",
+      "batchCreatedButEnqueueFailed": "สร้างชุดงานสำเร็จ แต่เริ่มประมวลผลไม่สำเร็จ กรุณาลองใหม่ที่หน้า Dead-letter Queue"
     },
     "auth": {
       "rateLimitedLogin": "Bạn đã thử đăng nhập quá nhiều lần. Vui lòng đợi một chút rồi thử lại.",
@@ -1496,7 +1498,8 @@
       "readingHistoryDeleteFailed": "Không thể xóa lịch sử đọc. Vui lòng thử lại.",
       "passwordChangeFailed": "Không thể đổi mật khẩu. Vui lòng thử lại.",
       "passwordChangedSuccess": "Đổi mật khẩu thành công.",
-      "signOutAllFailed": "Không thể đăng xuất. Vui lòng thử lại."
+      "signOutAllFailed": "Không thể đăng xuất. Vui lòng thử lại.",
+      "deleteAccountFailed": "ไม่สามารถลบบัญชีได้ กรุณาลองใหม่อีกครั้ง"
     },
     "authors": {
       "notFound": "ไม่พบผู้วิจัยนี้",
@@ -2212,5 +2215,21 @@
     "requiresSuperAdminForBatchControl": "ต้องมีสิทธิ์ Super Admin จึงจะควบคุมงานประมวลผลเป็นชุดได้",
     "invalidTargetStatus": "สถานะเป้าหมายไม่ถูกต้อง",
     "notAuthenticated": "ยังไม่ได้เข้าสู่ระบบ"
+  },
+  "orcidConnect": {
+    "status": {
+      "connected": "เชื่อมต่อ ORCID สำเร็จแล้ว",
+      "cancelled": "ยกเลิกการเชื่อมต่อ ORCID แล้ว ไม่มีการเปลี่ยนแปลงข้อมูลใดๆ",
+      "error": "เชื่อมต่อ ORCID ไม่สำเร็จ"
+    },
+    "notLinkedNotice": "บัญชีของคุณยังไม่ได้เชื่อมกับข้อมูลผู้วิจัยในระบบ — หากคุณเป็นผู้วิจัยที่มีผลงานในห้องสมุดนี้ กรุณาติดต่อเจ้าหน้าที่ห้องสมุดเพื่อเชื่อมบัญชีให้ก่อน",
+    "verifiedViaOauth": "เชื่อมต่อ ORCID แล้ว (ยืนยันผ่าน ORCID OAuth จริง)",
+    "verifiedAtPrefix": "ยืนยันเมื่อ",
+    "existingOrcidNotice": "ระบบมี ORCID {orcid} บันทึกไว้แล้ว ({verificationStatus}) — เชื่อมต่อผ่าน ORCID OAuth เพื่อยืนยันตัวตนที่น่าเชื่อถือกว่าเดิม",
+    "verificationStatusManual": "เจ้าหน้าที่ยืนยันด้วยตนเอง",
+    "verificationStatusUnverified": "ยังไม่ได้ยืนยัน",
+    "notConfiguredNotice": "ผู้ดูแลระบบยังไม่ได้ตั้งค่า ORCID OAuth — ปุ่มเชื่อมต่อจะใช้งานได้เมื่อตั้งค่า <clientId>ORCID_CLIENT_ID</clientId>/<clientSecret>ORCID_CLIENT_SECRET</clientSecret> เรียบร้อยแล้ว",
+    "connectingButton": "กำลังนำไปยัง ORCID...",
+    "connectButton": "เชื่อม ORCID"
   }
 }

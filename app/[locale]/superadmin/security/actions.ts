@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireMinRank } from "@/lib/data/admin-guard.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { SETTINGS_ROW_ID } from "@/lib/data/settings.server";
+import { toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { securitySettingsSchema } from "@/lib/validation/security-settings";
 import type { ActionResult } from "@/lib/actions/types";
 
@@ -48,8 +49,10 @@ export async function updateSecuritySettingsAction(
     .eq("id", SETTINGS_ROW_ID);
 
   if (error) {
-    console.error("updateSecuritySettingsAction failed:", error.message);
-    return { status: "error", message: t("saveSettingsFailed") };
+    return {
+      status: "error",
+      message: await toSafeErrorMessageLocalized(error, t("saveSettingsFailed"), "updateSecuritySettingsAction failed"),
+    };
   }
 
   await logAudit(supabase, {
