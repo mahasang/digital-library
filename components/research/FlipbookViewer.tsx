@@ -144,6 +144,22 @@ export default function FlipbookViewer({
     changePage(currentPageRef.current + 1);
   }, [changePage]);
 
+  // คลิกครึ่งซ้าย/ขวาของหน้ากระดาษเพื่อพลิกหน้า — ทางลัดเสริมจากปุ่ม
+  // ก่อนหน้า/ถัดไปที่ bottom bar (ไม่ได้แทนที่) วัดตำแหน่งคลิกเทียบกับ
+  // wrapper div ที่ครอบ <Page> ตรงๆ ไม่ใช่ตัว canvas ของ react-pdf เอง
+  const handlePageClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      if (clickX < rect.width / 2) {
+        goPrev();
+      } else {
+        goNext();
+      }
+    },
+    [goPrev, goNext]
+  );
+
   const toggleFullscreen = useCallback(async () => {
     if (!shellRef.current) return;
     try {
@@ -369,7 +385,8 @@ export default function FlipbookViewer({
           >
             {numPages && (
               <div
-                className="bg-surface shadow-2xl"
+                onClick={handlePageClick}
+                className="group relative cursor-pointer select-none bg-surface shadow-2xl"
                 style={{
                   opacity: visible ? 1 : 0,
                   transition: "opacity 0.15s ease",
@@ -377,6 +394,16 @@ export default function FlipbookViewer({
                   transformOrigin: "center top",
                 }}
               >
+                {currentPage > 1 && (
+                  <div className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-2xl text-[var(--reader-ink)] opacity-0 transition-opacity group-hover:opacity-40">
+                    ◀
+                  </div>
+                )}
+                {currentPage < numPages && (
+                  <div className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-2xl text-[var(--reader-ink)] opacity-0 transition-opacity group-hover:opacity-40">
+                    ▶
+                  </div>
+                )}
                 <Page
                   pageNumber={currentPage}
                   width={renderWidth}
