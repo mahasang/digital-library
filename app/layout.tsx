@@ -45,7 +45,7 @@ export const metadata: Metadata = {
 // metadata (Next.js 15 deprecate metadata.themeColor แล้ว — ใส่ใน metadata
 // จะขึ้น console warning ตอน build/dev แม้ยังทำงานได้ก็ตาม)
 export const viewport: Viewport = {
-  themeColor: "#185ff2",
+  themeColor: "#2D4A8C",
 };
 
 /**

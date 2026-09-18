@@ -23,29 +23,29 @@
    * keeps native chrome in sync with the rest of the page. */
   color-scheme: light;
 
-  --color-background: #f6f7fb;
-  --color-surface: #ffffff;
-  --color-surface-muted: #eef1f7;
-  --color-surface-translucent: rgba(255, 255, 255, 0.95);
-  --color-border: #dde2ec;
-  --color-border-strong: #c7cee0;
+  --color-background: #F5F2ED;
+  --color-surface: #FDFCFA;
+  --color-surface-muted: #EDE9E2;
+  --color-surface-translucent: rgba(253, 252, 250, 0.95);
+  --color-border: #DDD8CF;
+  --color-border-strong: #C5BEB2;
 
-  --color-ink: #14213d;
-  --color-ink-soft: #55617a;
-  --color-ink-faint: #8892a6;
+  --color-ink: #1A2235;
+  --color-ink-soft: #4A5568;
+  --color-ink-faint: #7A8599;
 
-  --color-accent: #185ff2;
-  --color-accent-strong: #134bd6;
-  --color-accent-soft: #eaf2ff;
-  --color-accent-soft-hover: #d9eaff;
-  --color-accent-ink: #0c3aa6;
+  --color-accent: #2D4A8C;
+  --color-accent-strong: #1E3363;
+  --color-accent-soft: #E8EDF8;
+  --color-accent-soft-hover: #D8E0F2;
+  --color-accent-ink: #1E3363;
 
   --color-success: #0f766e;
   --color-warning: #9a5b06;
   --color-danger: #c0152f;
   --color-info: #6941c6;
 
-  --color-focus-ring: #185ff2;
+  --color-focus-ring: #2D4A8C;
 
   --shadow-sm: 0 1px 2px rgba(20, 33, 61, 0.06);
   --shadow-md: 0 6px 20px rgba(20, 33, 61, 0.08);
@@ -80,33 +80,47 @@
   font-family: var(--font-noto-lao), ui-serif, serif;
 }
 
+/*
+ * Hallmark — Phase UI-5: Lao heading typography.
+ * body (/lo/) ใช้ Noto Serif Lao (block บน) แต่ heading ต้องการ weight
+ * สูงกว่าและ line-height ที่รองรับ ascender/descender ของ script ลาว
+ * font-family ซ้ำเพื่อ explicit override กรณีที่ browser specificity เล่นตลก
+ * line-height: 1.5 (ต่ำกว่า body 1.8) เพราะ heading มักสั้นกว่า 1 บรรทัด
+ */
+:lang(lo) h1,
+:lang(lo) h2 {
+  font-family: var(--font-noto-lao), ui-serif, serif;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --color-background: #0b1220;
-    --color-surface: #111a2e;
-    --color-surface-muted: #172239;
-    --color-surface-translucent: rgba(11, 18, 32, 0.9);
-    --color-border: #263252;
-    --color-border-strong: #34426a;
+    --color-background: #0D1525;
+    --color-surface: #141E30;
+    --color-surface-muted: #1A2640;
+    --color-surface-translucent: rgba(13, 21, 37, 0.92);
+    --color-border: #283554;
+    --color-border-strong: #354470;
 
     --color-ink: #eef1f8;
     --color-ink-soft: #aab4cc;
     --color-ink-faint: #7986a6;
 
-    --color-accent: #5b9dff;
-    --color-accent-strong: #8fbeff;
-    --color-accent-soft: #16233d;
-    --color-accent-soft-hover: #1e2f52;
-    --color-accent-ink: #bcdaff;
+    --color-accent: #7BA3E8;
+    --color-accent-strong: #9DBCF0;
+    --color-accent-soft: #182640;
+    --color-accent-soft-hover: #1F2F52;
+    --color-accent-ink: #B8D0F8;
 
     --color-success: #6fe0d3;
     --color-warning: #f0b45e;
     --color-danger: #ff9fb0;
     --color-info: #c3aefc;
 
-    --color-focus-ring: #5b9dff;
+    --color-focus-ring: #7BA3E8;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -134,29 +148,29 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --color-background: #0b1220;
-  --color-surface: #111a2e;
-  --color-surface-muted: #172239;
-  --color-surface-translucent: rgba(11, 18, 32, 0.9);
-  --color-border: #263252;
-  --color-border-strong: #34426a;
+  --color-background: #0D1525;
+  --color-surface: #141E30;
+  --color-surface-muted: #1A2640;
+  --color-surface-translucent: rgba(13, 21, 37, 0.92);
+  --color-border: #283554;
+  --color-border-strong: #354470;
 
   --color-ink: #eef1f8;
   --color-ink-soft: #aab4cc;
   --color-ink-faint: #7986a6;
 
-  --color-accent: #5b9dff;
-  --color-accent-strong: #8fbeff;
-  --color-accent-soft: #16233d;
-  --color-accent-soft-hover: #1e2f52;
-  --color-accent-ink: #bcdaff;
+  --color-accent: #7BA3E8;
+  --color-accent-strong: #9DBCF0;
+  --color-accent-soft: #182640;
+  --color-accent-soft-hover: #1F2F52;
+  --color-accent-ink: #B8D0F8;
 
   --color-success: #6fe0d3;
   --color-warning: #f0b45e;
   --color-danger: #ff9fb0;
   --color-info: #c3aefc;
 
-  --color-focus-ring: #5b9dff;
+  --color-focus-ring: #7BA3E8;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -308,6 +322,17 @@ body {
  * always-dark appearance exactly, so nothing changes until a reader
  * explicitly toggles it. See components/research/FlipbookViewer.tsx.
  */
+/*
+ * Hallmark — Phase UI-2: Spine line — signature element ของ section heading
+ * ทั่วทั้งเว็บ ใช้ var(--color-accent) เพื่อให้ dark mode ทำงานถูกต้อง
+ * อัตโนมัติ ไม่มี border-radius เพราะ spine line ต้องตรง
+ */
+.section-heading {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 0.875rem;
+  border-radius: 0;
+}
+
 .reader-shell[data-reader-theme="dark"] {
   --reader-bg: #0b1220;
   --reader-surface: #111a2e;

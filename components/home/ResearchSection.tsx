@@ -34,7 +34,7 @@ export default async function ResearchSection({
               <Icon className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="text-h2 font-semibold text-gray-900">
+              <h2 className="section-heading text-h2 font-semibold text-gray-900">
                 {title}
               </h2>
               <p className="mt-1 text-sm text-gray-500">{description}</p>

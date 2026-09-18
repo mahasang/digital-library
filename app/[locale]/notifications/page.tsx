@@ -46,7 +46,7 @@ export default async function NotificationsPage() {
     <AccountShell>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-h1 font-semibold text-gray-900">{t("pageTitle")}</h1>
+          <h1 className="section-heading text-h1 font-semibold text-gray-900">{t("pageTitle")}</h1>
           <p className="mt-1 text-sm text-gray-500">
             {t("recentCount", { limit: FULL_LIST_LIMIT })}
             {unreadCount > 0 && t("unreadSuffix", { count: unreadCount })}

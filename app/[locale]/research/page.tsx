@@ -72,7 +72,7 @@ export default async function ResearchListPage({
     <section className="py-10 sm:py-12">
       <Container>
         <div className="mb-8">
-          <h1 className="text-h1 font-semibold text-gray-900">
+          <h1 className="section-heading text-h1 font-semibold text-gray-900">
             {t("pageHeading")}
           </h1>
           <p className="mt-1.5 text-sm text-gray-500">

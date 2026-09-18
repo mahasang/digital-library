@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutList, LayoutGrid } from "lucide-react";
 import FilterBar from "@/components/research/FilterBar";
 import ResearchGrid from "@/components/research/ResearchGrid";
 import type { SortOption } from "@/lib/search";
@@ -41,6 +42,7 @@ export default function ResearchExplorer({
   const searchParams = useSearchParams();
   const t = useTranslations("research");
   const locale = useLocale();
+  const [view, setView] = useState<"list" | "grid">("list");
 
   function updateUrl(next: Record<string, string | undefined>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -93,9 +95,37 @@ export default function ResearchExplorer({
           </span>{" "}
           {t("resultsFoundAfter")}
         </p>
+        <div className="flex items-center rounded-lg border border-gray-200 p-0.5">
+          <button
+            type="button"
+            onClick={() => setView("list")}
+            aria-label="แสดงแบบรายการ"
+            aria-pressed={view === "list"}
+            className={`rounded-md p-1.5 transition-colors ${
+              view === "list"
+                ? "bg-accent-soft text-accent-ink"
+                : "text-gray-400 hover:text-gray-600"
+            }`}
+          >
+            <LayoutList className="h-4 w-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("grid")}
+            aria-label="แสดงแบบตาราง"
+            aria-pressed={view === "grid"}
+            className={`rounded-md p-1.5 transition-colors ${
+              view === "grid"
+                ? "bg-accent-soft text-accent-ink"
+                : "text-gray-400 hover:text-gray-600"
+            }`}
+          >
+            <LayoutGrid className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
       </div>
 
-      <ResearchGrid items={result.items} />
+      <ResearchGrid items={result.items} view={view} />
 
       {result.totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 border-t border-gray-100 pt-6">

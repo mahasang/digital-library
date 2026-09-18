@@ -42,7 +42,7 @@ export default async function ReadingHistoryPage() {
 
   return (
     <AccountShell>
-      <h1 className="text-h1 font-semibold text-gray-900">{t("pageTitle")}</h1>
+      <h1 className="section-heading text-h1 font-semibold text-gray-900">{t("pageTitle")}</h1>
       <p className="mt-1 text-sm text-gray-500">{t("subtitle")}</p>
 
       <div className="mt-6">
