@@ -29,6 +29,10 @@ const MAX_ZOOM = 2.0;
 const ZOOM_STEP = 0.125;
 const MIN_CONTAINER_WIDTH = 220;
 const MAX_CONTAINER_WIDTH = 900;
+/** px ขั้นต่ำที่ต้อง drag แนวนอนก่อนถือว่าเป็น swipe เปลี่ยนหน้า (กัน accidental) */
+const SWIPE_THRESHOLD = 50;
+/** px สูงสุดที่ยอมให้ปลายนิ้ว/pointer ขยับได้ก่อนถือว่าไม่ใช่ tap แล้ว (ยังนับเป็น swipe ต่อ) */
+const TAP_MAX_MOVEMENT = 5;
 /** อัตราส่วนสูง/กว้างเริ่มต้นก่อนรู้ขนาดจริงของหน้า PDF (A4 แนวตั้ง) — อัปเดต
  * เป็นค่าจริงทันทีที่ react-pdf โหลดหน้าแรกสำเร็จผ่าน onLoadSuccess ของ
  * <Page> (originalWidth/originalHeight) เพราะเอกสารจริงไม่ได้เป็น A4 เสมอไป */
@@ -70,6 +74,16 @@ export default function FlipbookViewer({
   const readerThemeSynced = useRef(false);
   const [fullscreenSupported, setFullscreenSupported] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // dragOffset ขับ CSS translateX ระหว่างลาก (visual feedback) — dragState
+  // เป็น ref ไม่ใช่ state เพราะอัปเดตทุก pointermove ถี่มาก ไม่ต้อง re-render
+  // ทุกครั้งที่รู้ตำแหน่งล่าสุด (แค่ dragOffset ที่ derive จากมันเท่านั้นที่ต้อง)
+  const [dragOffset, setDragOffset] = useState(0);
+  const dragState = useRef<{ startX: number; startY: number; isDragging: boolean; dragX: number }>({
+    startX: 0,
+    startY: 0,
+    isDragging: false,
+    dragX: 0,
+  });
 
   const shellRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -144,21 +158,62 @@ export default function FlipbookViewer({
     changePage(currentPageRef.current + 1);
   }, [changePage]);
 
-  // คลิกครึ่งซ้าย/ขวาของหน้ากระดาษเพื่อพลิกหน้า — ทางลัดเสริมจากปุ่ม
-  // ก่อนหน้า/ถัดไปที่ bottom bar (ไม่ได้แทนที่) วัดตำแหน่งคลิกเทียบกับ
-  // wrapper div ที่ครอบ <Page> ตรงๆ ไม่ใช่ตัว canvas ของ react-pdf เอง
-  const handlePageClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      if (clickX < rect.width / 2) {
-        goPrev();
-      } else {
+  // Pointer Events รองรับทั้ง touch (มือถือ) และ mouse (desktop) ในโค้ดเดียว —
+  // แทนที่ click-to-navigate เดิม (คลิกครึ่งซ้าย/ขวาพลิกหน้า) เพราะมีทั้งสอง
+  // พร้อมกันจะ conflict (ลากเล็กน้อยจะ trigger click ด้วย) — tap แบบเดิม
+  // (ขยับน้อยกว่า TAP_MAX_MOVEMENT) ยังพลิกหน้าตามครึ่งซ้าย/ขวาเหมือนเดิมทุก
+  // ประการ แค่ตรวจจับผ่าน handlePointerUp แทน onClick โดยตรง
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      // ไม่ drag ถ้า zoom > 1 — ผู้อ่านอาจต้องการ scroll/pan เนื้อหาที่ซูมอยู่แทน
+      if (zoom > 1) return;
+      dragState.current = { startX: e.clientX, startY: e.clientY, isDragging: true, dragX: 0 };
+      e.currentTarget.setPointerCapture(e.pointerId);
+    },
+    [zoom]
+  );
+
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragState.current.isDragging) return;
+    const dx = e.clientX - dragState.current.startX;
+    const dy = e.clientY - dragState.current.startY;
+    // เลื่อนขึ้นลงมากกว่าซ้ายขวา = ตั้งใจ scroll ไม่ใช่ swipe พลิกหน้า
+    if (Math.abs(dy) > Math.abs(dx) + 10) {
+      dragState.current.isDragging = false;
+      setDragOffset(0);
+      return;
+    }
+    dragState.current.dragX = dx;
+    // resist — เลื่อนตาม pointer แค่บางส่วน ไม่ตามเป๊ะ 1:1
+    setDragOffset(dx * 0.3);
+  }, []);
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!dragState.current.isDragging) return;
+      const dx = dragState.current.dragX;
+      dragState.current.isDragging = false;
+      setDragOffset(0);
+
+      if (Math.abs(dx) < TAP_MAX_MOVEMENT) {
+        // ขยับน้อยมาก — ถือเป็น tap/click พลิกหน้าตามครึ่งซ้าย/ขวาที่กด
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        if (clickX < rect.width / 2) goPrev();
+        else goNext();
+      } else if (dx < -SWIPE_THRESHOLD) {
         goNext();
+      } else if (dx > SWIPE_THRESHOLD) {
+        goPrev();
       }
     },
-    [goPrev, goNext]
+    [goNext, goPrev]
   );
+
+  const handlePointerCancel = useCallback(() => {
+    dragState.current.isDragging = false;
+    setDragOffset(0);
+  }, []);
 
   const toggleFullscreen = useCallback(async () => {
     if (!shellRef.current) return;
@@ -385,13 +440,20 @@ export default function FlipbookViewer({
           >
             {numPages && (
               <div
-                onClick={handlePageClick}
-                className="group relative cursor-pointer select-none bg-surface shadow-2xl"
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerCancel}
+                className="group relative select-none bg-surface shadow-2xl"
                 style={{
                   opacity: visible ? 1 : 0,
-                  transition: "opacity 0.15s ease",
-                  transform: `scale(${previewScale})`,
+                  transform: `scale(${previewScale}) translateX(${dragOffset}px)`,
                   transformOrigin: "center top",
+                  transition: dragState.current.isDragging
+                    ? "opacity 0.15s ease"
+                    : "opacity 0.15s ease, transform 0.15s ease-out",
+                  touchAction: zoom > 1 ? "auto" : "none",
+                  cursor: zoom <= 1 ? "grab" : "auto",
                 }}
               >
                 {currentPage > 1 && (
