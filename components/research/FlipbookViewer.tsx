@@ -24,11 +24,15 @@ import {
 // แทนการพึ่ง CDN ภายนอกสำหรับฟีเจอร์หลักของเว็บ
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
-const MIN_ZOOM = 0.75;
+const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 2.0;
 const ZOOM_STEP = 0.125;
 const MIN_CONTAINER_WIDTH = 220;
 const MAX_CONTAINER_WIDTH = 900;
+/** อัตราส่วนสูง/กว้างเริ่มต้นก่อนรู้ขนาดจริงของหน้า PDF (A4 แนวตั้ง) — อัปเดต
+ * เป็นค่าจริงทันทีที่ react-pdf โหลดหน้าแรกสำเร็จผ่าน onLoadSuccess ของ
+ * <Page> (originalWidth/originalHeight) เพราะเอกสารจริงไม่ได้เป็น A4 เสมอไป */
+const DEFAULT_PAGE_ASPECT_RATIO = 1.4142;
 
 const TOOLBAR_BUTTON =
   "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-[var(--reader-ink-soft)] transition-colors hover:bg-[var(--reader-control-hover)] hover:text-[var(--reader-ink)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent";
@@ -49,7 +53,8 @@ export default function FlipbookViewer({
   const [pageInput, setPageInput] = useState("1");
   const [visible, setVisible] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [baseWidth, setBaseWidth] = useState(480);
+  const [fitWidth, setFitWidth] = useState(480);
+  const [pageAspectRatio, setPageAspectRatio] = useState(DEFAULT_PAGE_ASPECT_RATIO);
   const [zoom, setZoom] = useState(1);
   // renderZoom ตามหลัง zoom แบบ debounce 300ms — ใช้กับ width prop ของ react-pdf
   // (สั่ง re-render canvas จริงที่ resolution ใหม่ ต้นทุนสูง) ส่วน zoom เองอัปเดต
@@ -92,16 +97,29 @@ export default function FlipbookViewer({
     setReaderTheme((t) => (t === "dark" ? "light" : "dark"));
   }, []);
 
+  // คำนวณ width ของหน้าจาก "พื้นที่ที่มีจริง" ทั้งกว้างและสูงของ content area
+  // (containerRef) — ไม่ใช่จาก clientWidth อย่างเดียวเหมือนเดิม เพราะหน้า PDF
+  // แนวตั้งสูงกว่ากว้างมาก (~1.41 เท่า) การตั้ง width จาก container กว้างได้
+  // อย่างเดียวทำให้หน้าสูงเกิน viewport ที่มี (h-[65vh]/sm:h-[75vh] ของ shell)
+  // จนต้องเลื่อนดู — ใช้ ResizeObserver แทน window resize listener เพราะ
+  // content area เปลี่ยนขนาดได้จากหลายสาเหตุ (breakpoint, sticky toolbar,
+  // sidebar เปิด/ปิด) ไม่ใช่แค่ resize หน้าต่างเบราว์เซอร์
   useEffect(() => {
-    function updateWidth() {
-      if (!containerRef.current) return;
-      const available = containerRef.current.clientWidth;
-      setBaseWidth(Math.max(MIN_CONTAINER_WIDTH, Math.min(available, MAX_CONTAINER_WIDTH)));
+    const el = containerRef.current;
+    if (!el) return;
+    function updateFitWidth() {
+      if (!el) return;
+      const containerW = el.clientWidth;
+      const containerH = el.clientHeight;
+      const widthFromHeight = containerH / pageAspectRatio;
+      const fit = Math.min(widthFromHeight, containerW) * 0.95; // เผื่อ padding รอบหน้า
+      setFitWidth(Math.max(MIN_CONTAINER_WIDTH, Math.min(fit, MAX_CONTAINER_WIDTH)));
     }
-    updateWidth();
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
+    updateFitWidth();
+    const observer = new ResizeObserver(updateFitWidth);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [pageAspectRatio]);
 
   // useCallback ทั้งหมดในกลุ่มนี้อ่านค่าปัจจุบันผ่าน ref เท่านั้น (ไม่ผ่าน state
   // closure) จึง identity คงที่ได้ด้วย dependency array ว่าง/สั้นมาก โดยไม่เสี่ยง
@@ -221,7 +239,7 @@ export default function FlipbookViewer({
     setZoom(1);
   }
 
-  const renderWidth = Math.round(baseWidth * renderZoom);
+  const renderWidth = Math.round(fitWidth * renderZoom);
   const previewScale = zoom / renderZoom;
 
   return (
@@ -362,11 +380,15 @@ export default function FlipbookViewer({
                 <Page
                   pageNumber={currentPage}
                   width={renderWidth}
+                  onLoadSuccess={(page) => {
+                    const ratio = page.originalHeight / page.originalWidth;
+                    setPageAspectRatio((prev) => (Math.abs(prev - ratio) > 0.01 ? ratio : prev));
+                  }}
                   renderAnnotationLayer={false}
                   renderTextLayer={false}
                   loading={
                     <div
-                      style={{ width: renderWidth, height: Math.round(renderWidth * 1.4142) }}
+                      style={{ width: renderWidth, height: Math.round(renderWidth * pageAspectRatio) }}
                       className="flex items-center justify-center bg-[var(--reader-page-slot-bg)]"
                     >
                       <Loader2 className="h-5 w-5 animate-spin text-[var(--reader-ink-faint)]" />
