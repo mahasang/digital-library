@@ -1792,73 +1792,73 @@
     }
   },
   "accountState": {
-    "errorTitle": "ไม่สามารถโหลดข้อมูลได้ในขณะนี้",
-    "errorDescription": "เกิดข้อผิดพลาดบางอย่างระหว่างโหลดข้อมูล กรุณาลองใหม่อีกครั้ง",
-    "errorRetry": "ลองใหม่อีกครั้ง",
-    "loadingText": "กำลังโหลดข้อมูล..."
+    "errorTitle": "ບໍ່ສາມາດໂຫລດຂໍ້ມູນໄດ້ໃນຂະນະນີ້",
+    "errorDescription": "ເກີດຂໍ້ຜິດພາດບາງຢ່າງລະຫວ່າງໂຫລດຂໍ້ມູນ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
+    "errorRetry": "ລອງໃໝ່ອີກຄັ້ງ",
+    "loadingText": "ກຳລັງໂຫລດຂໍ້ມູນ..."
   },
   "supabaseNotice": {
-    "title": "ยังไม่ได้เชื่อมต่อ Supabase",
-    "description": "กรุณาตั้งค่า <url>NEXT_PUBLIC_SUPABASE_URL</url> และ <key>NEXT_PUBLIC_SUPABASE_ANON_KEY</key> ในไฟล์ <env>.env.local</env> ก่อนใช้งานฟังก์ชันนี้ (ดูวิธีตั้งค่าได้ใน README.md)"
+    "title": "ຍັງບໍ່ໄດ້ເຊື່ອມຕໍ່ Supabase",
+    "description": "ກະລຸນາຕັ້ງຄ່າ <url>NEXT_PUBLIC_SUPABASE_URL</url> ແລະ <key>NEXT_PUBLIC_SUPABASE_ANON_KEY</key> ໃນໄຟລ໌ <env>.env.local</env> ກ່ອນໃຊ້ງານຟັງຊັນນີ້ (ເບິ່ງວິທີຕັ້ງຄ່າໄດ້ໃນ README.md)"
   },
   "accountResearchRow": {
-    "coverAlt": "ปกงานวิจัย: {title}",
-    "readAt": "อ่านเมื่อ",
-    "continueReading": "อ่านต่อ",
-    "continueReadingAria": "อ่านต่อ: {title}"
+    "coverAlt": "ໜ້າປົກງານວິໄຈ: {title}",
+    "readAt": "ອ່ານເມື່ອ",
+    "continueReading": "ອ່ານຕໍ່",
+    "continueReadingAria": "ອ່ານຕໍ່: {title}"
   },
   "authFormShell": {
     "backToHome": "ກັບສູ່ໜ້າທຳອິດ"
   },
   "notifications": {
-    "markAllRead": "ทำเครื่องหมายว่าอ่านทั้งหมด",
-    "unreadBadge": "ยังไม่อ่าน",
-    "pageTitle": "การแจ้งเตือน",
-    "pageDescription": "การแจ้งเตือนทั้งหมดของคุณ",
-    "recentCount": "การแจ้งเตือนล่าสุด {limit} รายการของคุณ",
-    "unreadSuffix": " — {count} รายการยังไม่อ่าน",
-    "emptyTitle": "ยังไม่มีการแจ้งเตือน",
-    "emptyDescription": "ตั้งค่าติดตามหมวดหมู่งานวิจัยได้ที่หน้าตั้งค่าการแจ้งเตือน",
-    "settingsLink": "ตั้งค่าการแจ้งเตือน"
+    "markAllRead": "ເຮັດໝາຍວ່າອ່ານທັງໝົດ",
+    "unreadBadge": "ຍັງບໍ່ໄດ້ອ່ານ",
+    "pageTitle": "ການແຈ້ງເຕືອນ",
+    "pageDescription": "ການແຈ້ງເຕືອນທັງໝົດຂອງທ່ານ",
+    "recentCount": "ການແຈ້ງເຕືອນລ່າສຸດ {limit} ລາຍການຂອງທ່ານ",
+    "unreadSuffix": " — {count} ລາຍການຍັງບໍ່ໄດ້ອ່ານ",
+    "emptyTitle": "ຍັງບໍ່ມີການແຈ້ງເຕືອນ",
+    "emptyDescription": "ຕັ້ງຄ່າຕິດຕາມໝວດໝູ່ງານວິໄຈໄດ້ທີ່ໜ້າຕັ້ງຄ່າການແຈ້ງເຕືອນ",
+    "settingsLink": "ຕັ້ງຄ່າການແຈ້ງເຕືອນ"
   },
   "readingHistory": {
-    "pageTitle": "ประวัติการอ่าน",
-    "pageDescription": "งานวิจัยและบทความที่คุณเคยเปิดอ่านล่าสุด",
-    "subtitle": "งานวิจัยและบทความที่คุณเปิดอ่านล่าสุด (แสดง 50 รายการล่าสุด)",
-    "emptyTitle": "ยังไม่มีประวัติการอ่าน",
-    "emptyDescription": "เมื่อคุณเปิดอ่านงานวิจัยหรือบทความ ระบบจะบันทึกประวัติไว้ที่นี่",
-    "browseResearch": "ค้นหางานวิจัย",
-    "blogBadge": "บทความ",
-    "researchBadge": "งานวิจัย"
+    "pageTitle": "ປະຫວັດການອ່ານ",
+    "pageDescription": "ງານວິໄຈແລະບົດຄວາມທີ່ທ່ານເຄີຍເປີດອ່ານລ່າສຸດ",
+    "subtitle": "ງານວິໄຈແລະບົດຄວາມທີ່ທ່ານເປີດອ່ານລ່າສຸດ (ສະແດງ 50 ລາຍການລ່າສຸດ)",
+    "emptyTitle": "ຍັງບໍ່ມີປະຫວັດການອ່ານ",
+    "emptyDescription": "ເມື່ອທ່ານເປີດອ່ານງານວິໄຈຫຼືບົດຄວາມ ລະບົບຈະບັນທຶກປະຫວັດໄວ້ທີ່ນີ້",
+    "browseResearch": "ຄົ້ນຫາງານວິໄຈ",
+    "blogBadge": "ບົດຄວາມ",
+    "researchBadge": "ງານວິໄຈ"
   },
   "mySubmissions": {
-    "pageTitle": "งานวิจัยของฉัน",
-    "pageDescription": "รายการงานวิจัยที่คุณส่งเข้าสู่ระบบทั้งหมด",
-    "subtitle": "รายการงานวิจัยที่คุณส่งเข้าสู่ระบบทั้งหมด พร้อมสถานะล่าสุด",
-    "newSubmission": "ส่งงานวิจัยใหม่",
-    "emptyTitle": "ยังไม่มีงานวิจัยที่ส่ง",
-    "emptyDescription": "เริ่มส่งงานวิจัยชิ้นแรกของคุณได้เลย",
-    "updatedAtLabel": "อัปเดตล่าสุด",
-    "detailPageTitle": "รายละเอียดงานวิจัยที่ส่ง",
-    "backToList": "กลับไปรายการงานวิจัยของฉัน",
-    "editHeading": "แก้ไขงานวิจัย",
-    "revisionRequestedNote": "บรรณารักษ์ขอให้แก้ไขงานวิจัยนี้ก่อนส่งตรวจสอบอีกครั้ง",
-    "draftNote": "แก้ไขข้อมูลฉบับร่างแล้วบันทึกหรือส่งตรวจสอบได้ตามต้องการ"
+    "pageTitle": "ງານວິໄຈຂອງຂ້ອຍ",
+    "pageDescription": "ລາຍການງານວິໄຈທີ່ທ່ານສົ່ງເຂົ້າສູ່ລະບົບທັງໝົດ",
+    "subtitle": "ລາຍການງານວິໄຈທີ່ທ່ານສົ່ງເຂົ້າສູ່ລະບົບທັງໝົດ ພ້ອມສະຖານະລ່າສຸດ",
+    "newSubmission": "ສົ່ງງານວິໄຈໃໝ່",
+    "emptyTitle": "ຍັງບໍ່ມີງານວິໄຈທີ່ສົ່ງ",
+    "emptyDescription": "ເລີ່ມສົ່ງງານວິໄຈຊິ້ນທຳອິດຂອງທ່ານໄດ້ເລີຍ",
+    "updatedAtLabel": "ອັບເດດລ່າສຸດ",
+    "detailPageTitle": "ລາຍລະອຽດງານວິໄຈທີ່ສົ່ງ",
+    "backToList": "ກັບໄປລາຍການງານວິໄຈຂອງຂ້ອຍ",
+    "editHeading": "ແກ້ໄຂງານວິໄຈ",
+    "revisionRequestedNote": "ບັນນາລັກຂໍໃຫ້ແກ້ໄຂງານວິໄຈນີ້ກ່ອນສົ່ງກວດສອບອີກຄັ້ງ",
+    "draftNote": "ແກ້ໄຂຂໍ້ມູນສະບັບຮ່າງແລ້ວບັນທຶກຫຼືສົ່ງກວດສອບໄດ້ຕາມຕ້ອງການ"
   },
   "submitResearch": {
-    "pageTitle": "ส่งงานวิจัย",
-    "pageDescription": "ส่งงานวิจัยของคุณเข้าสู่ระบบเพื่อรอการตรวจสอบและอนุมัติเผยแพร่",
-    "subtitle": "กรอกข้อมูลงานวิจัยและอัปโหลดไฟล์ให้ครบถ้วน แล้วเลือกบันทึกฉบับร่างหรือส่งตรวจสอบ"
+    "pageTitle": "ສົ່ງງານວິໄຈ",
+    "pageDescription": "ສົ່ງງານວິໄຈຂອງທ່ານເຂົ້າສູ່ລະບົບເພື່ອລໍຖ້າການກວດສອບແລະອານຸມັດເຜີຍແຜ່",
+    "subtitle": "ປ້ອນຂໍ້ມູນງານວິໄຈແລະອັບໂຫລດໄຟລ໌ໃຫ້ຄົບຖ້ວນ ແລ້ວເລືອກບັນທຶກສະບັບຮ່າງຫຼືສົ່ງກວດສອບ"
   },
   "researchRead": {
-    "notFoundTitle": "ไม่พบงานวิจัย",
-    "readingTitlePrefix": "อ่าน: {title}",
-    "backToDetail": "กลับไปหน้ารายละเอียดงานวิจัย",
-    "searchHintPrefix": "ค้นหาข้อความภายในเอกสารนี้ได้ที่หน้า",
-    "searchResearch": "ค้นหางานวิจัย",
-    "ocrNote": "(ข้อความจากการทำ OCR อาจมีความคลาดเคลื่อน)",
-    "noTextFound": "เอกสารนี้อาจเป็นไฟล์สแกนหรือไม่มีข้อความที่คัดลอกได้ จึงยังไม่รองรับการค้นหาเนื้อหาภายในไฟล์",
-    "fileErrorTitle": "ไม่สามารถเปิดเอกสารได้ในขณะนี้"
+    "notFoundTitle": "ບໍ່ພົບງານວິໄຈ",
+    "readingTitlePrefix": "ອ່ານ: {title}",
+    "backToDetail": "ກັບໄປໜ້າລາຍລະອຽດງານວິໄຈ",
+    "searchHintPrefix": "ຄົ້ນຫາຂໍ້ຄວາມພາຍໃນເອກະສານນີ້ໄດ້ທີ່ໜ້າ",
+    "searchResearch": "ຄົ້ນຫາງານວິໄຈ",
+    "ocrNote": "(ຂໍ້ຄວາມຈາກການເຮັດ OCR ອາດມີຄວາມຄາດເຄື່ອນ)",
+    "noTextFound": "ເອກະສານນີ້ອາດເປັນໄຟລ໌ສະແກນຫຼືບໍ່ມີຂໍ້ຄວາມທີ່ສາມາດຄັດລອກໄດ້ ຈຶ່ງຍັງບໍ່ຮອງຮັບການຄົ້ນຫາເນື້ອຫາພາຍໃນໄຟລ໌",
+    "fileErrorTitle": "ບໍ່ສາມາດເປີດເອກະສານໄດ້ໃນຂະນະນີ້"
   },
   "privacy": {
     "title": "ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ",
@@ -1964,55 +1964,55 @@
     "submit": "ສົ່ງຂໍ້ຄວາມ"
   },
   "mfaChallenge": {
-    "pageTitle": "ยืนยันตัวตนขั้นที่สอง",
-    "formTitle": "ยืนยันตัวตนขั้นที่สอง",
-    "formDescription": "บัญชีนี้ตั้งค่า MFA ไว้แล้ว กรุณากรอกรหัสจากแอปยืนยันตัวตนของคุณเพื่อเข้าถึงหน้า Super Admin",
-    "loadError": "ไม่สามารถโหลดข้อมูลการยืนยันตัวตนได้ กรุณาลองใหม่อีกครั้ง",
-    "noFactorError": "ไม่พบอุปกรณ์ยืนยันตัวตนที่ใช้งานได้ — กรุณาติดต่อผู้ดูแลระบบ",
-    "checking": "กำลังตรวจสอบ...",
-    "enterCodePrompt": "กรอกรหัสจากแอปยืนยันตัวตนของคุณ",
-    "codePlaceholder": "รหัส 6 หลัก",
-    "verifyButton": "ยืนยัน",
-    "invalidCode": "รหัสยืนยันไม่ถูกต้องหรือหมดอายุ กรุณาลองใหม่อีกครั้ง",
-    "lostDeviceNote": "ทำอุปกรณ์เดิมหาย? ต้องให้ Super Admin ท่านอื่นช่วยรีเซ็ต MFA ให้คุณก่อน จึงจะตั้งค่าอุปกรณ์ใหม่ได้"
+    "pageTitle": "ຢືນຢັນຕົວຕົນຂັ້ນທີສອງ",
+    "formTitle": "ຢືນຢັນຕົວຕົນຂັ້ນທີສອງ",
+    "formDescription": "ບັນຊີນີ້ຕັ້ງຄ່າ MFA ໄວ້ແລ້ວ ກະລຸນາປ້ອນລະຫັດຈາກແອັບຢືນຢັນຕົວຕົນຂອງທ່ານເພື່ອເຂົ້າເຖິງໜ້າ Super Admin",
+    "loadError": "ບໍ່ສາມາດໂຫລດຂໍ້ມູນການຢືນຢັນຕົວຕົນໄດ້ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
+    "noFactorError": "ບໍ່ພົບອຸປະກອນຢືນຢັນຕົວຕົນທີ່ໃຊ້ງານໄດ້ — ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບ",
+    "checking": "ກຳລັງກວດສອບ...",
+    "enterCodePrompt": "ປ້ອນລະຫັດຈາກແອັບຢືນຢັນຕົວຕົນຂອງທ່ານ",
+    "codePlaceholder": "ລະຫັດ 6 ຫຼັກ",
+    "verifyButton": "ຢືນຢັນ",
+    "invalidCode": "ລະຫັດຢືນຢັນບໍ່ຖືກຕ້ອງຫຼືໝົດອາຍຸ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
+    "lostDeviceNote": "ເຮັດອຸປະກອນເດີມເສຍ? ຕ້ອງໃຫ້ Super Admin ທ່ານອື່ນຊ່ວຍຣີເຊັດ MFA ໃຫ້ທ່ານກ່ອນ ຈຶ່ງຈະຕັ້ງຄ່າອຸປະກອນໃໝ່ໄດ້"
   },
   "setupMfa": {
-    "pageTitle": "ตั้งค่ายืนยันตัวตนสองขั้นตอน",
-    "formTitle": "ตั้งค่ายืนยันตัวตนสองขั้นตอน (MFA)",
-    "formDescription": "บัญชี Super Admin ต้องตั้งค่า MFA ก่อนจึงจะเข้าถึงส่วนจัดการระบบได้ — ใช้แอปยืนยันตัวตน เช่น Google Authenticator หรือ Authy",
-    "statusCheckError": "ไม่สามารถตรวจสอบสถานะ MFA ได้ในขณะนี้ — Supabase Auth อาจยังไม่ได้เปิดใช้งาน MFA กรุณาติดต่อผู้ดูแลระบบ",
-    "enrollError": "ไม่สามารถเริ่มตั้งค่า MFA ได้ — ตรวจสอบว่า Supabase เปิดใช้งาน TOTP MFA แล้วหรือยัง (ดู docs/superadmin-guide.md หัวข้อ 14)",
-    "preparing": "กำลังเตรียมการตั้งค่า...",
-    "alreadyVerified": "บัญชีนี้ตั้งค่า MFA ไว้แล้ว",
-    "continueButton": "ดำเนินการต่อ",
-    "successMessage": "ตั้งค่า MFA สำเร็จแล้ว",
-    "redirecting": "กำลังพาไปยังหน้าที่ต้องการ...",
-    "invalidCode": "รหัสยืนยันไม่ถูกต้องหรือหมดอายุ กรุณาลองใหม่อีกครั้ง",
-    "scanPrompt": "สแกน QR โค้ดนี้ด้วยแอปยืนยันตัวตน แล้วกรอกรหัส 6 หลักที่แสดง",
-    "codePlaceholder": "รหัส 6 หลัก",
-    "qrAlt": "QR Code สำหรับตั้งค่า MFA",
-    "manualEntryToggle": "สแกนไม่ได้? กรอกรหัสด้วยตนเอง",
-    "activateButton": "ยืนยันและเปิดใช้งาน"
+    "pageTitle": "ຕັ້ງຄ່າຢືນຢັນຕົວຕົນສອງຂັ້ນຕອນ",
+    "formTitle": "ຕັ້ງຄ່າຢືນຢັນຕົວຕົນສອງຂັ້ນຕອນ (MFA)",
+    "formDescription": "ບັນຊີ Super Admin ຕ້ອງຕັ້ງຄ່າ MFA ກ່ອນຈຶ່ງຈະເຂົ້າເຖິງສ່ວນຈັດການລະບົບໄດ້ — ໃຊ້ແອັບຢືນຢັນຕົວຕົນ ເຊັ່ນ Google Authenticator ຫຼື Authy",
+    "statusCheckError": "ບໍ່ສາມາດກວດສອບສະຖານະ MFA ໄດ້ໃນຂະນະນີ້ — Supabase Auth ອາດຍັງບໍ່ໄດ້ເປີດໃຊ້ງານ MFA ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບ",
+    "enrollError": "ບໍ່ສາມາດເລີ່ມຕັ້ງຄ່າ MFA ໄດ້ — ກວດສອບວ່າ Supabase ເປີດໃຊ້ງານ TOTP MFA ແລ້ວຫຼືຍັງ (ເບິ່ງ docs/superadmin-guide.md ຫົວຂໍ້ 14)",
+    "preparing": "ກຳລັງກຽມການຕັ້ງຄ່າ...",
+    "alreadyVerified": "ບັນຊີນີ້ຕັ້ງຄ່າ MFA ໄວ້ແລ້ວ",
+    "continueButton": "ດຳເນີນການຕໍ່",
+    "successMessage": "ຕັ້ງຄ່າ MFA ສຳເລັດແລ້ວ",
+    "redirecting": "ກຳລັງພາໄປຫາໜ້າທີ່ຕ້ອງການ...",
+    "invalidCode": "ລະຫັດຢືນຢັນບໍ່ຖືກຕ້ອງຫຼືໝົດອາຍຸ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
+    "scanPrompt": "ສະແກນ QR ໂຄ້ດນີ້ດ້ວຍແອັບຢືນຢັນຕົວຕົນ ແລ້ວປ້ອນລະຫັດ 6 ຫຼັກທີ່ສະແດງ",
+    "codePlaceholder": "ລະຫັດ 6 ຫຼັກ",
+    "qrAlt": "QR Code ສຳລັບຕັ້ງຄ່າ MFA",
+    "manualEntryToggle": "ສະແກນບໍ່ໄດ້? ປ້ອນລະຫັດດ້ວຍຕົນເອງ",
+    "activateButton": "ຢືນຢັນແລະເປີດໃຊ້ງານ"
   },
   "notificationSettingsPage": {
-    "pageTitle": "ตั้งค่าการแจ้งเตือน",
-    "pageDescription": "จัดการการแจ้งเตือนงานวิจัยใหม่ตามหมวดหมู่และคำขอเข้าถึงเอกสาร",
-    "backToProfile": "กลับไปโปรไฟล์ของฉัน",
-    "subtitle": "เลือกหมวดหมู่งานวิจัยที่ต้องการติดตาม และช่องทางการแจ้งเตือนที่ต้องการรับ",
+    "pageTitle": "ຕັ້ງຄ່າການແຈ້ງເຕືອນ",
+    "pageDescription": "ຈັດການການແຈ້ງເຕືອນງານວິໄຈໃໝ່ຕາມໝວດໝູ່ແລະຄຳຂໍເຂົ້າເຖິງເອກະສານ",
+    "backToProfile": "ກັບໄປໂປຣໄຟລ໌ຂອງຂ້ອຍ",
+    "subtitle": "ເລືອກໝວດໝູ່ງານວິໄຈທີ່ຕ້ອງການຕິດຕາມ ແລະຊ່ອງທາງການແຈ້ງເຕືອນທີ່ຕ້ອງການຮັບ",
     "form": {
-      "newResearchSectionTitle": "แจ้งเตือนงานวิจัยใหม่ตามหมวดหมู่",
-      "inAppLabel": "แจ้งเตือนในระบบ",
-      "emailLabel": "แจ้งเตือนทางอีเมล",
-      "newResearchInAppDesc": "แสดงในกระดิ่งแจ้งเตือนเมื่อมีงานวิจัยใหม่ในหมวดหมู่ที่คุณติดตาม",
-      "newResearchEmailDescConfigured": "ส่งอีเมลเมื่อมีงานวิจัยใหม่ในหมวดหมู่ที่คุณติดตาม",
-      "emailNotConfiguredDesc": "ระบบยังไม่ได้ตั้งค่าผู้ให้บริการอีเมล — เปิดไว้ได้แต่จะยังไม่มีอีเมลส่งจริงจนกว่าผู้ดูแลระบบจะตั้งค่า",
-      "categoriesSectionTitle": "หมวดหมู่ที่ติดตาม",
-      "categoriesSectionDesc": "เลือกหมวดหมู่งานวิจัยที่ต้องการรับแจ้งเตือนเมื่อมีงานใหม่เผยแพร่",
-      "noCategories": "ยังไม่มีหมวดหมู่ในระบบ",
-      "accessRequestSectionTitle": "แจ้งเตือนคำขอเข้าถึงเอกสาร",
-      "accessRequestInAppDesc": "แสดงในกระดิ่งแจ้งเตือนเมื่อคำขอของคุณได้รับการอนุมัติ ถูกปฏิเสธ หรือหมดอายุ",
-      "accessRequestEmailDescConfigured": "ส่งอีเมลเมื่อคำขอของคุณได้รับการอนุมัติ ถูกปฏิเสธ หรือเจ้าหน้าที่ขอข้อมูลเพิ่ม",
-      "saveButton": "บันทึกการตั้งค่า"
+      "newResearchSectionTitle": "ແຈ້ງເຕືອນງານວິໄຈໃໝ່ຕາມໝວດໝູ່",
+      "inAppLabel": "ແຈ້ງເຕືອນໃນລະບົບ",
+      "emailLabel": "ແຈ້ງເຕືອນທາງອີເມລ",
+      "newResearchInAppDesc": "ສະແດງໃນກະດິ່ງແຈ້ງເຕືອນເມື່ອມີງານວິໄຈໃໝ່ໃນໝວດໝູ່ທີ່ທ່ານຕິດຕາມ",
+      "newResearchEmailDescConfigured": "ສົ່ງອີເມລເມື່ອມີງານວິໄຈໃໝ່ໃນໝວດໝູ່ທີ່ທ່ານຕິດຕາມ",
+      "emailNotConfiguredDesc": "ລະບົບຍັງບໍ່ໄດ້ຕັ້ງຄ່າຜູ້ໃຫ້ບໍລິການອີເມລ — ເປີດໄວ້ໄດ້ແຕ່ຈະຍັງບໍ່ມີອີເມລສົ່ງຈິງຈົນກວ່າຜູ້ດູແລລະບົບຈະຕັ້ງຄ່າ",
+      "categoriesSectionTitle": "ໝວດໝູ່ທີ່ຕິດຕາມ",
+      "categoriesSectionDesc": "ເລືອກໝວດໝູ່ງານວິໄຈທີ່ຕ້ອງການຮັບແຈ້ງເຕືອນເມື່ອມີງານໃໝ່ເຜີຍແຜ່",
+      "noCategories": "ຍັງບໍ່ມີໝວດໝູ່ໃນລະບົບ",
+      "accessRequestSectionTitle": "ແຈ້ງເຕືອນຄຳຂໍເຂົ້າເຖິງເອກະສານ",
+      "accessRequestInAppDesc": "ສະແດງໃນກະດິ່ງແຈ້ງເຕືອນເມື່ອຄຳຂໍຂອງທ່ານໄດ້ຮັບການອານຸມັດ ຖືກປະຕິເສດ ຫຼືໝົດອາຍຸ",
+      "accessRequestEmailDescConfigured": "ສົ່ງອີເມລເມື່ອຄຳຂໍຂອງທ່ານໄດ້ຮັບການອານຸມັດ ຖືກປະຕິເສດ ຫຼືເຈົ້າໜ້າທີ່ຂໍຂໍ້ມູນເພີ່ມ",
+      "saveButton": "ບັນທຶກການຕັ້ງຄ່າ"
     }
   },
   "validation": {
@@ -2231,19 +2231,19 @@
   },
   "orcidConnect": {
     "status": {
-      "connected": "เชื่อมต่อ ORCID สำเร็จแล้ว",
-      "cancelled": "ยกเลิกการเชื่อมต่อ ORCID แล้ว ไม่มีการเปลี่ยนแปลงข้อมูลใดๆ",
-      "error": "เชื่อมต่อ ORCID ไม่สำเร็จ"
+      "connected": "ເຊື່ອມຕໍ່ ORCID ສຳເລັດແລ້ວ",
+      "cancelled": "ຍົກເລີກການເຊື່ອມຕໍ່ ORCID ແລ້ວ ບໍ່ມີການປ່ຽນແປງຂໍ້ມູນໃດໆ",
+      "error": "ເຊື່ອມຕໍ່ ORCID ບໍ່ສຳເລັດ"
     },
-    "notLinkedNotice": "บัญชีของคุณยังไม่ได้เชื่อมกับข้อมูลผู้วิจัยในระบบ — หากคุณเป็นผู้วิจัยที่มีผลงานในห้องสมุดนี้ กรุณาติดต่อเจ้าหน้าที่ห้องสมุดเพื่อเชื่อมบัญชีให้ก่อน",
-    "verifiedViaOauth": "เชื่อมต่อ ORCID แล้ว (ยืนยันผ่าน ORCID OAuth จริง)",
-    "verifiedAtPrefix": "ยืนยันเมื่อ",
-    "existingOrcidNotice": "ระบบมี ORCID {orcid} บันทึกไว้แล้ว ({verificationStatus}) — เชื่อมต่อผ่าน ORCID OAuth เพื่อยืนยันตัวตนที่น่าเชื่อถือกว่าเดิม",
-    "verificationStatusManual": "เจ้าหน้าที่ยืนยันด้วยตนเอง",
-    "verificationStatusUnverified": "ยังไม่ได้ยืนยัน",
-    "notConfiguredNotice": "ผู้ดูแลระบบยังไม่ได้ตั้งค่า ORCID OAuth — ปุ่มเชื่อมต่อจะใช้งานได้เมื่อตั้งค่า <clientId>ORCID_CLIENT_ID</clientId>/<clientSecret>ORCID_CLIENT_SECRET</clientSecret> เรียบร้อยแล้ว",
-    "connectingButton": "กำลังนำไปยัง ORCID...",
-    "connectButton": "เชื่อม ORCID"
+    "notLinkedNotice": "ບັນຊີຂອງທ່ານຍັງບໍ່ໄດ້ເຊື່ອມກັບຂໍ້ມູນນັກວິໄຈໃນລະບົບ — ຫາກທ່ານເປັນນັກວິໄຈທີ່ມີຜົນງານໃນຫໍສະໝຸດນີ້ ກະລຸນາຕິດຕໍ່ເຈົ້າໜ້າທີ່ຫໍສະໝຸດເພື່ອເຊື່ອມບັນຊີໃຫ້ກ່ອນ",
+    "verifiedViaOauth": "ເຊື່ອມຕໍ່ ORCID ແລ້ວ (ຢືນຢັນຜ່ານ ORCID OAuth ແທ້)",
+    "verifiedAtPrefix": "ຢືນຢັນເມື່ອ",
+    "existingOrcidNotice": "ລະບົບມີ ORCID {orcid} ບັນທຶກໄວ້ແລ້ວ ({verificationStatus}) — ເຊື່ອມຕໍ່ຜ່ານ ORCID OAuth ເພື່ອຢືນຢັນຕົວຕົນທີ່ໜ້າເຊື່ອຖືກວ່າເດີມ",
+    "verificationStatusManual": "ເຈົ້າໜ້າທີ່ຢືນຢັນດ້ວຍຕົນເອງ",
+    "verificationStatusUnverified": "ຍັງບໍ່ໄດ້ຢືນຢັນ",
+    "notConfiguredNotice": "ຜູ້ດູແລລະບົບຍັງບໍ່ໄດ້ຕັ້ງຄ່າ ORCID OAuth — ປຸ່ມເຊື່ອມຕໍ່ຈະໃຊ້ງານໄດ້ເມື່ອຕັ້ງຄ່າ <clientId>ORCID_CLIENT_ID</clientId>/<clientSecret>ORCID_CLIENT_SECRET</clientSecret> ຮຽບຮ້ອຍແລ້ວ",
+    "connectingButton": "ກຳລັງພາໄປຫາ ORCID...",
+    "connectButton": "ເຊື່ອມ ORCID"
   },
   "pagination": {
     "previous": "ກ່ອນໜ້າ",
@@ -2251,9 +2251,9 @@
     "pageOf": "ໜ້າ {current} ຈາກ {total}"
   },
   "accountBlogRow": {
-    "coverAlt": "ปกบทความ: {title}",
-    "readAt": "อ่านเมื่อ",
-    "continueReading": "อ่านต่อ",
-    "continueReadingAria": "อ่านต่อ: {title}"
+    "coverAlt": "ໜ້າປົກບົດຄວາມ: {title}",
+    "readAt": "ອ່ານເມື່ອ",
+    "continueReading": "ອ່ານຕໍ່",
+    "continueReadingAria": "ອ່ານຕໍ່: {title}"
   }
 }
