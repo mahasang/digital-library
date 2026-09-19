@@ -81,20 +81,24 @@ export function SettingsDropdown() {
 
   return (
     <div ref={ref} className="relative">
-      {/* Pill trigger */}
+      {/* Pill trigger — เพิ่ม glow เมื่อ open (งาน 6) */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="true"
         aria-label={t("settingsLabel")}
-        className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-surface px-3 py-1.5 text-sm transition-colors hover:bg-gray-50"
+        className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-all duration-200 ${
+          open
+            ? "border-accent/50 bg-accent-soft text-accent-ink shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
+            : "border-gray-200 bg-surface text-gray-700 hover:border-gray-300 dark:border-white/10 dark:text-gray-300 dark:hover:border-white/20"
+        }`}
       >
         {/* dot สีน้ำเงินแสดงว่า locale active */}
         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600" aria-hidden="true" />
-        <span className="font-medium text-gray-700">{LOCALE_LABELS[locale]}</span>
-        <span className="mx-0.5 h-3 w-px bg-gray-200" aria-hidden="true" />
-        <ThemeIcon className="h-3.5 w-3.5 text-gray-500" aria-hidden="true" />
+        <span className="font-medium">{LOCALE_LABELS[locale]}</span>
+        <span className="mx-0.5 h-3 w-px bg-gray-200 dark:bg-white/10" aria-hidden="true" />
+        <ThemeIcon className="h-3.5 w-3.5" aria-hidden="true" />
         <svg
           className={`h-3 w-3 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"
@@ -106,34 +110,52 @@ export function SettingsDropdown() {
         </svg>
       </button>
 
-      {/* Dropdown panel */}
-      {open && (
-        <div
-          role="dialog"
-          aria-label={t("settingsLabel")}
-          className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-xl border border-gray-200 bg-surface shadow-lg"
-        >
-          {/* ── ส่วนภาษา ── */}
-          <div className="px-3 pb-1 pt-2.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-            {t("languageLabel")}
-          </div>
-          {routing.locales.map((loc) => (
+      {/* Dropdown panel — always-mounted (ไม่ใช่ {open && ...}) เพื่อให้
+       * CSS transition เล่นได้ทั้งตอนเปิดและปิด (งาน 1) + glassmorphism
+       * (งาน 2) — `inert` ตอนปิดกันไม่ให้ Tab เข้าไปโฟกัสปุ่มที่มองไม่เห็น
+       * ได้ (ผลข้างเคียงของการเปลี่ยนจาก conditional render เป็น
+       * always-mounted ที่ prompt ไม่ได้พูดถึง แต่จำเป็นเพื่อไม่ให้เกิด
+       * keyboard trap) */}
+      <div
+        role="dialog"
+        aria-label={t("settingsLabel")}
+        aria-hidden={!open}
+        inert={!open}
+        data-open={open}
+        className={[
+          "absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl",
+          "border border-white/20 backdrop-blur-xl",
+          "bg-white/80 dark:bg-[#0F1117]/85 dark:border-[#3730A3]/40",
+          "shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
+          "origin-top-right transition-all duration-200 ease-out",
+          open
+            ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 scale-95 -translate-y-1 pointer-events-none",
+        ].join(" ")}
+      >
+        {/* ── ส่วนภาษา ── */}
+        <div className="px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+          {t("languageLabel")}
+        </div>
+        {routing.locales.map((loc) => {
+          const isActive = loc === locale;
+          return (
             <button
               key={loc}
               type="button"
               lang={loc}
               onClick={() => handleLocaleChange(loc)}
-              className={`flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                loc === locale
-                  ? "bg-accent-soft text-accent-ink"
-                  : "text-gray-700 hover:bg-gray-50"
+              className={`flex w-full items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
+                isActive
+                  ? "border-l-2 border-accent bg-accent-soft font-medium text-accent-ink"
+                  : "border-l-2 border-transparent text-gray-700 hover:bg-gray-50/80 dark:text-gray-300 dark:hover:bg-white/5"
               }`}
             >
               <span className="text-base" aria-hidden="true">
                 {LOCALE_FLAGS[loc]}
               </span>
               <span className="flex-1 text-left">{t(loc)}</span>
-              {loc === locale && (
+              {isActive && (
                 <svg
                   className="h-4 w-4 text-accent"
                   fill="none"
@@ -145,35 +167,38 @@ export function SettingsDropdown() {
                 </svg>
               )}
             </button>
-          ))}
+          );
+        })}
 
-          {/* divider */}
-          <div className="my-1 border-t border-gray-100" />
+        {/* divider — เส้นไล่เฉด (งาน 5) */}
+        <div className="mx-3 my-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-white/10" />
 
-          {/* ── ส่วน theme ── */}
-          <div className="px-3 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
-            {t("themeLabel")}
-          </div>
-          <div className="grid grid-cols-3 gap-1 px-3 pb-3">
-            {THEME_OPTIONS.map(({ value, labelKey, icon: Icon }) => (
+        {/* ── ส่วน theme ── */}
+        <div className="px-3 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+          {t("themeLabel")}
+        </div>
+        <div className="grid grid-cols-3 gap-1 px-3 pb-3">
+          {THEME_OPTIONS.map(({ value, labelKey, icon: Icon }) => {
+            const isActive = mounted && theme === value;
+            return (
               <button
                 key={value}
                 type="button"
                 onClick={() => setTheme(value)}
-                aria-pressed={mounted && theme === value}
-                className={`flex flex-col items-center gap-1 rounded-lg border px-2 py-2 text-[11px] transition-colors ${
-                  mounted && theme === value
-                    ? "border-brand-200 bg-accent-soft text-accent-ink"
-                    : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100"
+                aria-pressed={isActive}
+                className={`flex flex-col items-center gap-1 rounded-lg px-2 py-2 text-[11px] transition-all ${
+                  isActive
+                    ? "bg-accent-soft text-accent-ink shadow-[0_0_8px_rgba(99,102,241,0.2)] ring-1 ring-accent/50 dark:shadow-[0_0_12px_rgba(99,102,241,0.3)]"
+                    : "text-gray-500 hover:bg-gray-50/80 dark:text-gray-400 dark:hover:bg-white/5"
                 }`}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {t(labelKey)}
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      )}
+      </div>
     </div>
   );
 }
