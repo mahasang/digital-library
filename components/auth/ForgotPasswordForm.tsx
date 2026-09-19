@@ -52,7 +52,7 @@ export default function ForgotPasswordForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="mt-1 w-full rounded-xl bg-[#1a5276] py-3 text-sm font-semibold text-white transition-colors hover:bg-[#154360] disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 w-full rounded-xl bg-accent py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? t("forgotPasswordSubmitting") : t("forgotPasswordSubmit")}
       </button>

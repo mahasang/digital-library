@@ -16,9 +16,9 @@ const FlipbookViewer = dynamic(() => import("./FlipbookViewer"), {
   // นี้ FlipbookViewer (ซึ่งเป็นเจ้าของ toggle) ยังไม่ mount จึงยังไม่มี
   // element ที่ประกาศ --reader-* ให้ inherit
   loading: () => (
-    <div className="flex min-h-[65vh] flex-col items-center justify-center gap-3 rounded-xl border border-[#263252] bg-[#111a2e] sm:min-h-[75vh]">
-      <Loader2 className="h-6 w-6 animate-spin text-[#aab4cc]" />
-      <p className="text-sm text-[#eef1f8]">กำลังเตรียมตัวอ่านหนังสือ...</p>
+    <div className="flex min-h-[65vh] flex-col items-center justify-center gap-3 rounded-xl border border-[#2A2D4A] bg-[#161820] sm:min-h-[75vh]">
+      <Loader2 className="h-6 w-6 animate-spin text-[#9CA3AF]" />
+      <p className="text-sm text-[#E8E9F0]">กำลังเตรียมตัวอ่านหนังสือ...</p>
     </div>
   ),
 });

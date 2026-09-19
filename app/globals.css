@@ -109,18 +109,20 @@
     --color-ink-soft: #aab4cc;
     --color-ink-faint: #7986a6;
 
-    --color-accent: #7BA3E8;
-    --color-accent-strong: #9DBCF0;
-    --color-accent-soft: #182640;
-    --color-accent-soft-hover: #1F2F52;
-    --color-accent-ink: #B8D0F8;
+    /* Phase UI-Redesign: accent → indigo/violet (was blue #7BA3E8) for the
+     * "Premium" dark identity */
+    --color-accent: #6366F1;
+    --color-accent-strong: #818CF8;
+    --color-accent-soft: #1E1B4B;
+    --color-accent-soft-hover: #2D2A6E;
+    --color-accent-ink: #A5B4FC;
 
     --color-success: #6fe0d3;
     --color-warning: #f0b45e;
     --color-danger: #ff9fb0;
     --color-info: #c3aefc;
 
-    --color-focus-ring: #7BA3E8;
+    --color-focus-ring: #6366F1;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -159,18 +161,21 @@
   --color-ink-soft: #aab4cc;
   --color-ink-faint: #7986a6;
 
-  --color-accent: #7BA3E8;
-  --color-accent-strong: #9DBCF0;
-  --color-accent-soft: #182640;
-  --color-accent-soft-hover: #1F2F52;
-  --color-accent-ink: #B8D0F8;
+  /* Phase UI-Redesign: accent → indigo/violet (was blue #7BA3E8) for the
+   * "Premium" dark identity — must stay bit-for-bit identical to the
+   * @media block above */
+  --color-accent: #6366F1;
+  --color-accent-strong: #818CF8;
+  --color-accent-soft: #1E1B4B;
+  --color-accent-soft-hover: #2D2A6E;
+  --color-accent-ink: #A5B4FC;
 
   --color-success: #6fe0d3;
   --color-warning: #f0b45e;
   --color-danger: #ff9fb0;
   --color-info: #c3aefc;
 
-  --color-focus-ring: #7BA3E8;
+  --color-focus-ring: #6366F1;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -192,6 +197,48 @@
 
   --purple-50: #1c1330; --purple-100: #241a3d; --purple-200: #332352; --purple-300: #48326f; --purple-400: #684a94;
   --purple-500: #9169c4; --purple-600: #b28ce0; --purple-700: #c7a9ea; --purple-800: #dcc7f2; --purple-900: #eeddfa;
+}
+
+/*
+ * Phase UI-Redesign: dark-mode-only structural "Premium" effects. These are
+ * genuinely new in dark mode (not a --color-* value swap under identical
+ * markup like the rest of the theme system) — a light-mode Academic card/
+ * header never gets this hairline ring/glow or extra blur. `.card-premium`
+ * is applied on ResearchCard.tsx's link wrapper; `header` targets
+ * components/layout/Header.tsx's top-level <header> element directly (no
+ * class needed there — it's the only <header> in the document).
+ * #3730A3/rgba(99,102,241,...) are not existing tokens: the rgba value is
+ * the new --color-accent (#6366F1) at low opacity for a subtle glow;
+ * #3730A3 is a deeper indigo for a barely-visible hairline ring.
+ */
+[data-theme="dark"] .card-premium {
+  border-color: #2A2D4A;
+  box-shadow: 0 0 0 0.5px #3730A3, 0 4px 24px rgba(99, 102, 241, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .card-premium {
+    border-color: #2A2D4A;
+    box-shadow: 0 0 0 0.5px #3730A3, 0 4px 24px rgba(99, 102, 241, 0.08);
+  }
+}
+
+/* Header already uses bg-[var(--color-surface-translucent)] + backdrop-blur
+ * (both theme-aware) — this rule only adds what's genuinely new for dark:
+ * a stronger blur and an indigo-tinted border instead of the generic
+ * border-gray-200 the element also carries. */
+[data-theme="dark"] header {
+  border-bottom-color: #2A2D4A;
+  background: var(--color-surface-translucent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) header {
+    border-bottom-color: #2A2D4A;
+    background: var(--color-surface-translucent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
 }
 
 html {
@@ -333,24 +380,42 @@ body {
   border-radius: 0;
 }
 
+/*
+ * Phase UI-Redesign: reader-shell dark synced to the new Premium palette —
+ * deliberately a shade darker than the site's own dark background
+ * (--color-background: #0D1525) per the redesign brief ("darker than site
+ * dark bg"), not a 1:1 pull like light mode below. --reader-ink-faint/
+ * -control-hover/-page-slot-bg aren't named in the redesign brief but are
+ * read by FlipbookViewer.tsx (toolbar hover, faint captions, loading
+ * skeleton) — derived here to sit consistently between bg/surface/border
+ * the same way the pre-redesign values did.
+ */
 .reader-shell[data-reader-theme="dark"] {
-  --reader-bg: #0b1220;
-  --reader-surface: #111a2e;
-  --reader-border: #263252;
-  --reader-ink: #eef1f8;
-  --reader-ink-soft: #aab4cc;
-  --reader-ink-faint: #7986a6;
-  --reader-control-hover: #1b2740;
-  --reader-page-slot-bg: #172239;
+  --reader-bg: #0F1117;
+  --reader-surface: #161820;
+  --reader-border: #2A2D4A;
+  --reader-ink: #E8E9F0;
+  --reader-ink-soft: #9CA3AF;
+  --reader-ink-faint: #6B7280;
+  --reader-control-hover: #1D202D;
+  --reader-page-slot-bg: #13151D;
+  --reader-accent: #6366F1;
 }
 
+/*
+ * Phase UI-Redesign: reader-shell light re-synced 1:1 to the current
+ * --color-* Academic palette (the original mapping this file documents —
+ * control-hover=surface-muted, page-slot-bg=background — was correct, it
+ * was just pointing at the stale pre-redesign values).
+ */
 .reader-shell[data-reader-theme="light"] {
-  --reader-bg: #eef1f7;
-  --reader-surface: #ffffff;
-  --reader-border: #dde2ec;
-  --reader-ink: #14213d;
-  --reader-ink-soft: #55617a;
-  --reader-ink-faint: #8892a6;
-  --reader-control-hover: #eef1f7;
-  --reader-page-slot-bg: #f6f7fb;
+  --reader-bg: #F5F2ED;
+  --reader-surface: #FDFCFA;
+  --reader-border: #DDD8CF;
+  --reader-ink: #1A2235;
+  --reader-ink-soft: #4A5568;
+  --reader-ink-faint: #7A8599;
+  --reader-control-hover: #EDE9E2;
+  --reader-page-slot-bg: #F5F2ED;
+  --reader-accent: #2D4A8C;
 }

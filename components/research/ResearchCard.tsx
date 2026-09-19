@@ -81,7 +81,7 @@ export default function ResearchCard({
   return (
     <Link
       href={`/research/${item.id}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-elevated-md"
+      className="card-premium group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-elevated-md"
     >
       <div className="relative aspect-[4/5.6] w-full overflow-hidden bg-gray-100">
         {showRealCover ? (
@@ -102,7 +102,7 @@ export default function ResearchCard({
           </span>
         )}
         {typeof rank === "number" && (
-          <span className="absolute -left-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gray-900 text-xs font-bold text-white shadow-elevated-sm">
+          <span className="absolute -left-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-ink text-xs font-bold text-background shadow-elevated-sm">
             {rank}
           </span>
         )}
