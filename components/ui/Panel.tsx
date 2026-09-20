@@ -11,6 +11,7 @@ export default function Panel({
   title,
   action,
   tone = "default",
+  flush = false,
   children,
 }: {
   icon?: LucideIcon;
@@ -19,11 +20,16 @@ export default function Panel({
   /** "alert" ใช้เมื่อการ์ดนี้อยู่ในกลุ่ม "ต้องดำเนินการ" — ขอบซ้ายเน้นสีเดียว
    * ไม่ทำให้ทั้งการ์ดกลายเป็นสีฉูดฉาด */
   tone?: "default" | "alert";
+  /** true = ไม่มี shadow (border ล้วนๆ เหมือนรูปลักษณ์เดิมก่อนเพิ่ม
+   * shadow-elevated-sm) — ใช้เมื่อ Panel ซ้อนอยู่ในบริบทที่มี elevation
+   * ของตัวเองอยู่แล้ว (เช่น ในการ์ด/โมดัลอื่นที่มี shadow อยู่แล้ว) เพื่อไม่ให้
+   * เกิด shadow ซ้อนกันสองชั้น */
+  flush?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <section
-      className={`rounded-xl border bg-surface p-5 ${
+      className={`rounded-xl border bg-surface p-5 ${flush ? "shadow-none" : "shadow-elevated-sm"} ${
         tone === "alert" ? "border-gray-200 border-l-4 border-l-amber-400" : "border-gray-200"
       }`}
     >
