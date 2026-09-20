@@ -1,5 +1,6 @@
 import { BookMarked, FileText, Users2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import Container from "@/components/ui/Container";
 import HomeSearchBox from "@/components/home/HomeSearchBox";
 
@@ -31,7 +32,7 @@ export default async function Hero({
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-900">
+    <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-900 dark:from-[#0A0C14] dark:via-[#0F1117] dark:to-[#0F1117]">
       <div
         aria-hidden
         className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(circle_at_15%_15%,white,transparent_35%),radial-gradient(circle_at_85%_0%,white,transparent_30%)]"
@@ -49,6 +50,15 @@ export default async function Hero({
 
         <div className="w-full max-w-2xl">
           <HomeSearchBox />
+        </div>
+
+        <div className="flex justify-center">
+          <Link
+            href="/research"
+            className="text-sm text-white/70 underline-offset-4 transition-colors hover:text-white hover:underline"
+          >
+            {t("browseAllResearch")} →
+          </Link>
         </div>
 
         <dl className="grid w-full max-w-2xl grid-cols-3 gap-4 pt-2">

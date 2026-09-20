@@ -92,7 +92,8 @@
     "latestTitle": "Latest Research",
     "latestDescription": "Sorted by publication date, newest first",
     "popularTitle": "Popular Research",
-    "popularDescription": "Sorted by total views"
+    "popularDescription": "Sorted by total views",
+    "browseAllResearch": "Xem tất cả nghiên cứu"
   },
   "research": {
     "pageTitle": "Search Research",

@@ -92,7 +92,8 @@
     "latestTitle": "งานวิจัยล่าสุด",
     "latestDescription": "เรียงตามวันที่เผยแพร่ ใหม่ไปเก่า",
     "popularTitle": "งานวิจัยยอดนิยม",
-    "popularDescription": "เรียงตามยอดเข้าชมสะสมสูงสุดในระบบ"
+    "popularDescription": "เรียงตามยอดเข้าชมสะสมสูงสุดในระบบ",
+    "browseAllResearch": "เรียกดูงานวิจัยทั้งหมด"
   },
   "research": {
     "pageTitle": "ค้นหางานวิจัย",

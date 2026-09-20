@@ -2,15 +2,14 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { getTranslations, getLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import Image from "next/image";
 import Container from "@/components/ui/Container";
 import Pagination from "@/components/ui/Pagination";
+import BlogCard from "@/components/blog/BlogCard";
 import { Search } from "lucide-react";
 import {
   getPublishedBlogPostsPaginated,
   getAllBlogTags,
 } from "@/lib/data/blog.server";
-import type { BlogPost } from "@/lib/data/blog.server";
 
 export async function generateMetadata({
   params,
@@ -20,15 +19,6 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
   return { title: t("pageTitle") };
-}
-
-function getLocalizedField(post: BlogPost, field: "title" | "excerpt", locale: string): string {
-  const map = {
-    title:   { lo: post.titleLo,   th: post.titleTh,   en: post.titleEn,   vi: post.titleVi },
-    excerpt: { lo: post.excerptLo, th: post.excerptTh, en: post.excerptEn, vi: post.excerptVi },
-  };
-  const values = map[field];
-  return values[locale as keyof typeof values] || values.lo || values.th || values.en || values.vi || "—";
 }
 
 export default async function BlogPage({
@@ -127,54 +117,7 @@ export default async function BlogPage({
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/blog/${post.slug}`}
-                className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-              >
-                {post.coverImage ? (
-                  <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
-                    <Image
-                      src={post.coverImage}
-                      alt={getLocalizedField(post, "title", locale)}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                ) : (
-                  <div className="aspect-video w-full bg-gradient-to-br from-brand-50 to-brand-100" />
-                )}
-                <div className="flex flex-1 flex-col gap-2 p-4">
-                  {/* Tags */}
-                  {post.tags && post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {post.tags.slice(0, 3).map((tag_) => (
-                        <span key={tag_} className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-600">
-                          #{tag_}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <h2 className="line-clamp-2 font-semibold text-gray-900 group-hover:text-brand-700">
-                    {getLocalizedField(post, "title", locale)}
-                  </h2>
-                  <p className="line-clamp-3 text-sm text-gray-500">
-                    {getLocalizedField(post, "excerpt", locale)}
-                  </p>
-                  <div className="mt-auto flex items-center justify-between pt-2 text-xs text-gray-400">
-                    <span>
-                      {post.publishedAt
-                        ? new Date(post.publishedAt).toLocaleDateString("lo-LA", {
-                            year: "numeric", month: "short", day: "numeric",
-                          })
-                        : ""}
-                    </span>
-                    <span className="text-brand-600 font-medium group-hover:underline">
-                      {t("readMore")} →
-                    </span>
-                  </div>
-                </div>
-              </Link>
+              <BlogCard key={post.id} post={post} locale={locale} readMoreLabel={t("readMore")} />
             ))}
           </div>
         )}
