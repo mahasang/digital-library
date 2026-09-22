@@ -1371,6 +1371,7 @@
     "searchPlaceholder": "ค้นหาบทความ...",
     "search": "ค้นหา",
     "allPosts": "ทุกบทความ",
+    "exploreAll": "ดูบทความทั้งหมด",
     "foundPosts": "พบ {count} บทความ",
     "prevPage": "ก่อนหน้า",
     "nextPage": "ถัดไป",

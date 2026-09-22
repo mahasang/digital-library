@@ -43,10 +43,18 @@ export default async function BlogPage({
     <div className="py-12 sm:py-16">
       <Container>
         {/* ── Header ── */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">{t("heading")}</h1>
-          <p className="mt-2 text-sm text-gray-500">{t("subtitle")}</p>
-        </div>
+        <div className="mb-8 flex items-start justify-between gap-4">
+  <div>
+    <h1 className="text-3xl font-bold text-gray-900">{t("heading")}</h1>
+    <p className="mt-1 text-sm text-gray-500">{t("subtitle")}</p>
+  </div>
+  <Link
+    href="/blog"
+    className="shrink-0 rounded-full bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800"
+  >
+    {t("exploreAll")}
+  </Link>
+</div>
 
         {/* ── Search ── */}
         <form method="get" className="mb-6 flex gap-2">
@@ -71,28 +79,32 @@ export default async function BlogPage({
 
         {/* ── Tags ── */}
         {allTags.length > 0 && (
-          <div className="mb-8 flex flex-wrap gap-2">
-            <Link
-              href="/blog"
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                !tag ? "bg-brand-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {t("allPosts")}
-            </Link>
-            {allTags.map((t_) => (
-              <Link
-                key={t_}
-                href={`/blog?tag=${encodeURIComponent(t_)}`}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  tag === t_ ? "bg-brand-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                #{t_}
-              </Link>
-            ))}
-          </div>
-        )}
+  <div className="mb-8 flex flex-wrap gap-2">
+    <Link
+      href="/blog"
+      className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+        !tag
+          ? "border-brand-600 bg-white text-brand-700"
+          : "border-gray-300 bg-white text-gray-600 hover:border-brand-400 hover:text-brand-600"
+      }`}
+    >
+      {t("allPosts")}
+    </Link>
+    {allTags.map((t_) => (
+      <Link
+        key={t_}
+        href={`/blog?tag=${encodeURIComponent(t_)}`}
+        className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+          tag === t_
+            ? "border-brand-600 bg-white text-brand-700"
+            : "border-gray-300 bg-white text-gray-600 hover:border-brand-400 hover:text-brand-600"
+        }`}
+      >
+        {t_}
+      </Link>
+    ))}
+  </div>
+)}
 
         {/* ── Results info ── */}
         {(search || tag) && (
