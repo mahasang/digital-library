@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Bell, CheckCheck } from "lucide-react";
 import {
@@ -24,13 +25,14 @@ export default function NotificationBell({
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("notifications.bell");
 
   return (
     <div className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="การแจ้งเตือน"
+        aria-label={t("ariaLabel")}
         className="relative rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
       >
         <Bell className="h-5 w-5" />
@@ -46,7 +48,7 @@ export default function NotificationBell({
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl border border-gray-200 bg-surface shadow-lg">
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2.5">
-              <p className="text-sm font-semibold text-gray-900">การแจ้งเตือน</p>
+              <p className="text-sm font-semibold text-gray-900">{t("title")}</p>
               {unreadCount > 0 && (
                 <button
                   type="button"
@@ -55,13 +57,13 @@ export default function NotificationBell({
                   className="flex items-center gap-1 text-xs font-medium text-accent hover:underline disabled:opacity-50"
                 >
                   <CheckCheck className="h-3 w-3" />
-                  อ่านทั้งหมด
+                  {t("readAll")}
                 </button>
               )}
             </div>
             <div className="max-h-80 overflow-y-auto">
               {notifications.length === 0 ? (
-                <p className="px-4 py-8 text-center text-sm text-gray-500">ยังไม่มีการแจ้งเตือน</p>
+                <p className="px-4 py-8 text-center text-sm text-gray-500">{t("empty")}</p>
               ) : (
                 notifications.map((n) => (
                   <button
@@ -92,7 +94,7 @@ export default function NotificationBell({
                 onClick={() => setOpen(false)}
                 className="text-xs font-medium text-accent hover:underline"
               >
-                ดูการแจ้งเตือนทั้งหมด
+                {t("viewAll")}
               </Link>
             </div>
           </div>

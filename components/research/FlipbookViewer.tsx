@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import { useTranslations } from "next-intl";
 import { Document, Page } from "react-pdf";
 import { pdfjs } from "react-pdf";
 import {
@@ -52,6 +53,7 @@ export default function FlipbookViewer({
   downloadUrl?: string;
   downloadDisabled?: boolean;
 }) {
+  const t = useTranslations("researchRead.viewer");
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageInput, setPageInput] = useState("1");
@@ -327,8 +329,8 @@ export default function FlipbookViewer({
             type="button"
             onClick={zoomOut}
             disabled={zoom <= MIN_ZOOM}
-            title="ย่อขนาดหน้า"
-            aria-label="ย่อขนาดหน้า"
+            title={t("zoomOut")}
+            aria-label={t("zoomOut")}
             className={TOOLBAR_BUTTON}
           >
             <ZoomOut className="h-3.5 w-3.5" />
@@ -336,8 +338,8 @@ export default function FlipbookViewer({
           <button
             type="button"
             onClick={resetZoom}
-            title="รีเซ็ตเป็น 100%"
-            aria-label={`ขนาดหน้าปัจจุบัน ${Math.round(zoom * 100)}% — กดเพื่อรีเซ็ตเป็น 100%`}
+            title={t("zoomResetTitle")}
+            aria-label={t("zoomReset", { percent: Math.round(zoom * 100) })}
             className={`${TOOLBAR_BUTTON} tabular-nums`}
           >
             {Math.round(zoom * 100)}%
@@ -346,8 +348,8 @@ export default function FlipbookViewer({
             type="button"
             onClick={zoomIn}
             disabled={zoom >= MAX_ZOOM}
-            title="ขยายขนาดหน้า"
-            aria-label="ขยายขนาดหน้า"
+            title={t("zoomIn")}
+            aria-label={t("zoomIn")}
             className={TOOLBAR_BUTTON}
           >
             <ZoomIn className="h-3.5 w-3.5" />
@@ -358,8 +360,8 @@ export default function FlipbookViewer({
           <button
             type="button"
             onClick={handleToggleReaderTheme}
-            title={readerTheme === "dark" ? "สลับเป็นโหมดสว่าง" : "สลับเป็นโหมดมืด"}
-            aria-label={readerTheme === "dark" ? "สลับหน้าอ่านเป็นโหมดสว่าง" : "สลับหน้าอ่านเป็นโหมดมืด"}
+            title={readerTheme === "dark" ? t("switchLight") : t("switchDark")}
+            aria-label={readerTheme === "dark" ? t("switchLight") : t("switchDark")}
             className={TOOLBAR_BUTTON}
           >
             {readerTheme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
@@ -369,8 +371,8 @@ export default function FlipbookViewer({
             <button
               type="button"
               onClick={toggleFullscreen}
-              title={isFullscreen ? "ออกจากโหมดเต็มจอ" : "แสดงผลเต็มจอ"}
-              aria-label={isFullscreen ? "ออกจากโหมดเต็มจอ" : "แสดงผลเต็มจอ"}
+              title={isFullscreen ? t("exitFullscreen") : t("enterFullscreen")}
+              aria-label={isFullscreen ? t("exitFullscreen") : t("enterFullscreen")}
               className={TOOLBAR_BUTTON}
             >
               {isFullscreen ? <Minimize className="h-3.5 w-3.5" /> : <Maximize className="h-3.5 w-3.5" />}
@@ -383,20 +385,20 @@ export default function FlipbookViewer({
             href={fileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            title="เปิดเอกสารในแท็บใหม่"
+            title={t("openNewTab")}
             className={TOOLBAR_BUTTON}
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">เปิดในแท็บใหม่</span>
+            <span className="hidden sm:inline">{t("openNewTabLabel")}</span>
           </a>
           {downloadUrl && !downloadDisabled && (
             <a
               href={downloadUrl}
-              title="ดาวน์โหลดไฟล์ PDF"
+              title={t("download")}
               className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-700"
             >
               <Download className="h-3.5 w-3.5" />
-              ดาวน์โหลด
+              {t("downloadLabel")}
             </a>
           )}
         </div>
@@ -410,11 +412,10 @@ export default function FlipbookViewer({
           <div className="flex flex-col items-center justify-center gap-3 px-6 text-center">
             <AlertTriangle className="h-10 w-10 text-amber-400" />
             <p className="text-sm font-medium text-[var(--reader-ink)]">
-              ไม่สามารถแสดงเอกสารในหน้านี้ได้
+              {t("errorDisplay")}
             </p>
             <p className="text-xs text-[var(--reader-ink-faint)]">
-              เบราว์เซอร์ของคุณอาจไม่รองรับการแสดงผลแบบนี้ กรุณาใช้ปุ่ม &quot;เปิดในแท็บใหม่&quot;
-              ด้านบนแทน
+              {t("errorBrowser")}
             </p>
           </div>
         ) : (
@@ -428,13 +429,13 @@ export default function FlipbookViewer({
             loading={
               <div className="flex items-center gap-2 text-sm text-[var(--reader-ink-soft)]">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                กำลังโหลดเอกสาร...
+                {t("loading")}
               </div>
             }
             error={
               <div className="flex items-center gap-2 text-sm text-[var(--reader-ink-soft)]">
                 <AlertTriangle className="h-4 w-4 text-amber-400" />
-                ไม่สามารถโหลดเอกสารได้
+                {t("loadFailed")}
               </div>
             }
           >
@@ -496,15 +497,15 @@ export default function FlipbookViewer({
             type="button"
             onClick={goPrev}
             disabled={currentPage <= 1}
-            title="หน้าก่อนหน้า (คีย์ลูกศรซ้าย)"
-            aria-label="ไปหน้าก่อนหน้า"
+            title={t("prevPage")}
+            aria-label={t("prevPageLabel")}
             className={TOOLBAR_BUTTON}
           >
             <ChevronLeft className="h-4 w-4" />
-            ก่อนหน้า
+            {t("prevPageText")}
           </button>
           <span className="flex items-center gap-1.5 text-xs tabular-nums text-[var(--reader-ink-faint)]">
-            หน้า
+            {t("pageLabel")}
             <input
               type="number"
               inputMode="numeric"
@@ -524,7 +525,7 @@ export default function FlipbookViewer({
                 isEditingRef.current = false;
                 commitPageInput();
               }}
-              aria-label="ไปยังหน้าที่ต้องการ"
+              aria-label={t("goToPage")}
               className="w-12 rounded-md border border-[var(--reader-border)] bg-transparent px-1.5 py-0.5 text-center tabular-nums text-[var(--reader-ink)] focus:border-brand-500 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
             / {numPages}
@@ -533,11 +534,11 @@ export default function FlipbookViewer({
             type="button"
             onClick={goNext}
             disabled={currentPage >= numPages}
-            title="หน้าถัดไป (คีย์ลูกศรขวา)"
-            aria-label="ไปหน้าถัดไป"
+            title={t("nextPage")}
+            aria-label={t("nextPageLabel")}
             className={TOOLBAR_BUTTON}
           >
-            ถัดไป
+            {t("nextPageText")}
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>

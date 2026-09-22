@@ -96,6 +96,7 @@ export default function SubmitResearchForm({
 
   const tAccessLevels = useTranslations("accessLevels");
   const tUpload = useTranslations("upload");
+  const t = useTranslations("submitResearch.form");
   const [titleTh, setTitleTh] = useState(initialData?.titleTh ?? "");
   const [titleEn, setTitleEn] = useState(initialData?.titleEn ?? "");
   const [abstract, setAbstract] = useState(initialData?.abstract ?? "");
@@ -191,21 +192,21 @@ export default function SubmitResearchForm({
 
   function validateBeforeSubmit(): boolean {
     const errors: Record<string, string[]> = {};
-    if (!titleTh.trim()) errors.titleTh = ["กรุณากรอกชื่อเรื่องภาษาไทย"];
-    if (abstract.trim().length < 50) errors.abstract = ["บทคัดย่อควรมีความยาวอย่างน้อย 50 ตัวอักษร"];
+    if (!titleTh.trim()) errors.titleTh = [t("validationTitleTh")];
+    if (abstract.trim().length < 50) errors.abstract = [t("validationAbstract")];
     if (researchers.every((r) => !r.name.trim())) {
-      errors.researchers = ["กรุณาระบุผู้วิจัยอย่างน้อย 1 คน"];
+      errors.researchers = [t("validationResearchers")];
     }
-    if (keywords.length === 0) errors.keywords = ["กรุณาระบุคำสำคัญอย่างน้อย 1 คำ"];
-    if (!copyrightNote.trim()) errors.copyrightNote = ["กรุณากรอกข้อมูลลิขสิทธิ์"];
+    if (keywords.length === 0) errors.keywords = [t("validationKeywords")];
+    if (!copyrightNote.trim()) errors.copyrightNote = [t("validationCopyright")];
     if (!copyrightConfirmed) {
-      errors.copyrightConfirmed = ["กรุณายืนยันว่าเป็นเจ้าของลิขสิทธิ์และยินยอมให้เผยแพร่"];
+      errors.copyrightConfirmed = [t("validationCopyrightConfirm")];
     }
     if (!isEditMode && !pdfFile) {
-      errors.pdfPath = ["กรุณาอัปโหลดไฟล์ PDF"];
+      errors.pdfPath = [t("validationPdf")];
     }
     if (captchaSiteKey && !captchaToken) {
-      errors.turnstileToken = ["กรุณายืนยันตัวตน (CAPTCHA) ก่อนดำเนินการ"];
+      errors.turnstileToken = [t("validationCaptcha")];
     }
 
     setFieldErrors(errors);
@@ -217,7 +218,7 @@ export default function SubmitResearchForm({
     setFieldErrors({});
 
     if (!validateBeforeSubmit()) {
-      setError("กรุณาตรวจสอบข้อมูลในฟอร์มให้ครบถ้วน");
+      setError(t("errorRequired"));
       return;
     }
 
@@ -236,7 +237,7 @@ export default function SubmitResearchForm({
         setUploadProgress
       );
       if (result.error || !result.path) {
-        setError(result.error ?? "อัปโหลดไฟล์ PDF ไม่สำเร็จ");
+        setError(result.error ?? t("uploadPdfFailed"));
         setStatus("idle");
         setUploadingKind(null);
         return;
@@ -256,7 +257,7 @@ export default function SubmitResearchForm({
         setUploadProgress
       );
       if (result.error || !result.path) {
-        setError(result.error ?? "อัปโหลดภาพปกไม่สำเร็จ");
+        setError(result.error ?? t("uploadCoverFailed"));
         setStatus("idle");
         setUploadingKind(null);
         return;
@@ -276,7 +277,7 @@ export default function SubmitResearchForm({
         setUploadProgress
       );
       if (result.error || !result.path) {
-        setError(result.error ?? "อัปโหลดไฟล์แนบไม่สำเร็จ");
+        setError(result.error ?? t("uploadAttachmentFailed"));
         setStatus("idle");
         setUploadingKind(null);
         return;
@@ -338,17 +339,17 @@ export default function SubmitResearchForm({
 
       {/* ข้อมูลพื้นฐาน */}
       <section className="rounded-xl border border-gray-200 bg-surface p-5">
-        <h2 className="mb-4 text-sm font-semibold text-gray-900">ข้อมูลงานวิจัย</h2>
+        <h2 className="mb-4 text-sm font-semibold text-gray-900">{t("sectionResearchInfo")}</h2>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
-              ชื่อเรื่อง (ภาษาไทย) <span className="text-red-500">*</span>
+              {t("titleTh")} <span className="text-red-500">*</span>
             </label>
             <input
               value={titleTh}
               onChange={(e) => setTitleTh(e.target.value)}
               className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-              placeholder="ชื่อเรื่องงานวิจัยภาษาไทย"
+              placeholder={t("titleThPlaceholder")}
             />
             {fieldErrors.titleTh && (
               <p className="text-xs text-red-600">{fieldErrors.titleTh[0]}</p>
@@ -356,25 +357,25 @@ export default function SubmitResearchForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">ชื่อเรื่อง (ภาษาอังกฤษ)</label>
+            <label className="text-sm font-medium text-gray-700">{t("titleEn")}</label>
             <input
               value={titleEn}
               onChange={(e) => setTitleEn(e.target.value)}
               className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-              placeholder="Research title in English"
+              placeholder={t("titleEnPlaceholder")}
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
-              บทคัดย่อ <span className="text-red-500">*</span>
+              {t("abstract")} <span className="text-red-500">*</span>
             </label>
             <textarea
               value={abstract}
               onChange={(e) => setAbstract(e.target.value)}
               rows={6}
               className="resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-              placeholder="สรุปเนื้อหาสาระสำคัญของงานวิจัย (อย่างน้อย 50 ตัวอักษร)"
+              placeholder={t("abstractPlaceholder")}
             />
             {fieldErrors.abstract && (
               <p className="text-xs text-red-600">{fieldErrors.abstract[0]}</p>
@@ -383,7 +384,7 @@ export default function SubmitResearchForm({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">หน่วยงาน</label>
+              <label className="text-sm font-medium text-gray-700">{t("organization")}</label>
               <select
                 value={organizationId}
                 onChange={(e) => setOrganizationId(e.target.value)}
@@ -398,7 +399,7 @@ export default function SubmitResearchForm({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">ปีที่เผยแพร่ (พ.ศ.)</label>
+              <label className="text-sm font-medium text-gray-700">{t("year")}</label>
               <input
                 type="number"
                 value={year}
@@ -408,7 +409,7 @@ export default function SubmitResearchForm({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">หมวดหมู่</label>
+              <label className="text-sm font-medium text-gray-700">{t("category")}</label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
@@ -423,7 +424,7 @@ export default function SubmitResearchForm({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">สิทธิ์การเข้าถึง</label>
+              <label className="text-sm font-medium text-gray-700">{t("accessLevel")}</label>
               <select
                 value={accessLevel}
                 onChange={(e) => setAccessLevel(e.target.value as AccessLevel)}
@@ -444,7 +445,7 @@ export default function SubmitResearchForm({
       <section className="rounded-xl border border-gray-200 bg-surface p-5">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-900">
-            ผู้วิจัย <span className="text-red-500">*</span>
+            {t("sectionResearchers")} <span className="text-red-500">*</span>
           </h2>
           <button
             type="button"
@@ -452,7 +453,7 @@ export default function SubmitResearchForm({
             className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-strong"
           >
             <Plus className="h-3.5 w-3.5" />
-            เพิ่มผู้วิจัย
+            {t("addResearcher")}
           </button>
         </div>
         {fieldErrors.researchers && (
@@ -464,13 +465,13 @@ export default function SubmitResearchForm({
               <input
                 value={researcher.name}
                 onChange={(e) => updateResearcher(index, "name", e.target.value)}
-                placeholder="ชื่อ-นามสกุลผู้วิจัย"
+                placeholder={t("researcherName")}
                 className="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
               <input
                 value={researcher.organization}
                 onChange={(e) => updateResearcher(index, "organization", e.target.value)}
-                placeholder="หน่วยงาน (ถ้ามี)"
+                placeholder={t("researcherOrg")}
                 className="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
               {researchers.length > 1 && (
@@ -478,7 +479,7 @@ export default function SubmitResearchForm({
                   type="button"
                   onClick={() => removeResearcher(index)}
                   className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-gray-500 hover:bg-gray-50 hover:text-red-600"
-                  aria-label="ลบผู้วิจัยรายนี้"
+                  aria-label={t("removeResearcher")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -491,7 +492,7 @@ export default function SubmitResearchForm({
       {/* คำสำคัญ */}
       <section className="rounded-xl border border-gray-200 bg-surface p-5">
         <h2 className="mb-4 text-sm font-semibold text-gray-900">
-          คำสำคัญ <span className="text-red-500">*</span>
+          {t("sectionKeywords")} <span className="text-red-500">*</span>
         </h2>
         <div className="flex gap-2">
           <input
@@ -503,7 +504,7 @@ export default function SubmitResearchForm({
                 addKeyword();
               }
             }}
-            placeholder="พิมพ์คำสำคัญแล้วกด Enter หรือปุ่มเพิ่ม"
+            placeholder={t("keywordPlaceholder")}
             className="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
           <button
@@ -512,7 +513,7 @@ export default function SubmitResearchForm({
             className="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             <Plus className="h-4 w-4" />
-            เพิ่ม
+            {t("addKeyword")}
           </button>
         </div>
         {fieldErrors.keywords && (
@@ -529,7 +530,7 @@ export default function SubmitResearchForm({
                 <button
                   type="button"
                   onClick={() => removeKeyword(keyword)}
-                  aria-label={`ลบคำสำคัญ ${keyword}`}
+                  aria-label={t("removeKeyword", { keyword })}
                   className="text-gray-500 hover:text-red-600"
                 >
                   <X className="h-3 w-3" />
@@ -542,14 +543,16 @@ export default function SubmitResearchForm({
 
       {/* ไฟล์แนบ */}
       <section className="rounded-xl border border-gray-200 bg-surface p-5">
-        <h2 className="mb-4 text-sm font-semibold text-gray-900">ไฟล์เอกสาร</h2>
+        <h2 className="mb-4 text-sm font-semibold text-gray-900">{t("sectionFiles")}</h2>
         <div className="flex flex-col gap-4">
           <FileInputRow
             icon={FileText}
-            label={`ไฟล์ PDF ฉบับเต็ม ${isEditMode ? "" : "*"}`}
-            helper={`รองรับ PDF เท่านั้น ขนาดไม่เกิน ${formatFileSize(pdfMaxBytes)}`}
+            label={`${t("pdfLabel")} ${isEditMode ? "" : "*"}`}
+            helper={t("pdfHelper", { size: formatFileSize(pdfMaxBytes) })}
             file={pdfFile}
-            currentFileLabel={isEditMode && initialData?.pdfFile ? "มีไฟล์ปัจจุบันอยู่แล้ว" : undefined}
+            currentFileLabel={isEditMode && initialData?.pdfFile ? t("hasCurrentFile") : undefined}
+            noFileSelectedLabel={t("noFileSelected")}
+            chooseFileLabel={t("chooseFile")}
             inputRef={pdfInputRef}
             accept="application/pdf"
             onChange={(file) => handleFileChange(file, "pdf")}
@@ -557,10 +560,12 @@ export default function SubmitResearchForm({
           />
           <FileInputRow
             icon={ImageIcon}
-            label="ภาพปก (แนะนำ)"
-            helper={`PNG, JPEG, WEBP หรือ SVG ขนาดไม่เกิน ${formatFileSize(coverMaxBytes)}`}
+            label={t("coverLabel")}
+            helper={t("coverHelper", { size: formatFileSize(coverMaxBytes) })}
             file={coverFile}
-            currentFileLabel={isEditMode && initialData?.coverImage ? "มีภาพปกปัจจุบันอยู่แล้ว" : undefined}
+            currentFileLabel={isEditMode && initialData?.coverImage ? t("hasCurrentFile") : undefined}
+            noFileSelectedLabel={t("noFileSelected")}
+            chooseFileLabel={t("chooseFile")}
             inputRef={coverInputRef}
             accept="image/png,image/jpeg,image/webp,image/svg+xml"
             onChange={(file) => handleFileChange(file, "cover")}
@@ -568,10 +573,12 @@ export default function SubmitResearchForm({
           />
           <FileInputRow
             icon={Paperclip}
-            label="เอกสารประกอบ (ถ้ามี)"
-            helper={`เช่น หนังสือรับรองลิขสิทธิ์ — PDF/รูปภาพ/Word ขนาดไม่เกิน ${formatFileSize(attachmentMaxBytes)}`}
+            label={t("attachmentLabel")}
+            helper={t("attachmentHelper", { size: formatFileSize(attachmentMaxBytes) })}
             file={attachmentFile}
-            currentFileLabel={isEditMode && initialData?.attachmentFile ? "มีไฟล์แนบปัจจุบันอยู่แล้ว" : undefined}
+            currentFileLabel={isEditMode && initialData?.attachmentFile ? t("hasCurrentFile") : undefined}
+            noFileSelectedLabel={t("noFileSelected")}
+            chooseFileLabel={t("chooseFile")}
             inputRef={attachmentInputRef}
             accept=".pdf,.doc,.docx,image/png,image/jpeg"
             onChange={(file) => handleFileChange(file, "attachment")}
@@ -582,13 +589,13 @@ export default function SubmitResearchForm({
 
       {/* ลิขสิทธิ์ */}
       <section className="rounded-xl border border-gray-200 bg-surface p-5">
-        <h2 className="mb-4 text-sm font-semibold text-gray-900">ข้อมูลลิขสิทธิ์</h2>
+        <h2 className="mb-4 text-sm font-semibold text-gray-900">{t("sectionCopyright")}</h2>
         <div className="flex flex-col gap-3">
           <textarea
             value={copyrightNote}
             onChange={(e) => setCopyrightNote(e.target.value)}
             rows={3}
-            placeholder="เช่น ข้าพเจ้าเป็นเจ้าของลิขสิทธิ์งานวิจัยนี้แต่เพียงผู้เดียว และยินยอมให้ห้องสมุดดิจิทัลเผยแพร่ภายใต้เงื่อนไขที่กำหนด"
+            placeholder={t("copyrightNotePlaceholder")}
             className="resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
           {fieldErrors.copyrightNote && (
@@ -601,7 +608,7 @@ export default function SubmitResearchForm({
               onChange={(e) => setCopyrightConfirmed(e.target.checked)}
               className="mt-0.5 rounded border-gray-300"
             />
-            ข้าพเจ้ายืนยันว่าเป็นเจ้าของลิขสิทธิ์งานวิจัยนี้ และยินยอมให้เผยแพร่บนห้องสมุดดิจิทัล
+            {t("copyrightConfirm")}
           </label>
           {fieldErrors.copyrightConfirmed && (
             <p className="text-xs text-red-600">{fieldErrors.copyrightConfirmed[0]}</p>
@@ -611,7 +618,7 @@ export default function SubmitResearchForm({
 
       {captchaSiteKey && (
         <section className="rounded-xl border border-gray-200 bg-surface p-5">
-          <h2 className="mb-3 text-sm font-semibold text-gray-900">ยืนยันตัวตน</h2>
+          <h2 className="mb-3 text-sm font-semibold text-gray-900">{t("sectionCaptcha")}</h2>
           <TurnstileWidget siteKey={captchaSiteKey} onToken={setCaptchaToken} />
           {fieldErrors.turnstileToken && (
             <p className="mt-2 text-xs text-red-600">{fieldErrors.turnstileToken[0]}</p>
@@ -640,7 +647,7 @@ export default function SubmitResearchForm({
           className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-6 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          บันทึกฉบับร่าง
+          {t("saveDraft")}
         </button>
         <button
           type="button"
@@ -650,10 +657,10 @@ export default function SubmitResearchForm({
         >
           {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           {status === "uploading"
-            ? "กำลังอัปโหลดไฟล์..."
+            ? t("uploading")
             : status === "submitting"
-              ? "กำลังบันทึก..."
-              : "ส่งตรวจสอบ"}
+              ? t("saving")
+              : t("submit")}
         </button>
         {extraIntents.map((intent) => (
           <button
@@ -678,6 +685,8 @@ function FileInputRow({
   helper,
   file,
   currentFileLabel,
+  noFileSelectedLabel,
+  chooseFileLabel,
   inputRef,
   accept,
   onChange,
@@ -688,6 +697,8 @@ function FileInputRow({
   helper: string;
   file: File | null;
   currentFileLabel?: string;
+  noFileSelectedLabel: string;
+  chooseFileLabel: string;
   inputRef: React.RefObject<HTMLInputElement | null>;
   accept: string;
   onChange: (file: File | null) => void;
@@ -703,7 +714,7 @@ function FileInputRow({
           className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
           <Icon className="h-4 w-4" />
-          เลือกไฟล์
+          {chooseFileLabel}
         </button>
         <input
           ref={inputRef}
@@ -713,7 +724,7 @@ function FileInputRow({
           onChange={(e) => onChange(e.target.files?.[0] ?? null)}
         />
         <span className="truncate text-xs text-gray-500">
-          {file ? `${file.name} (${formatFileSize(file.size)})` : currentFileLabel || "ยังไม่ได้เลือกไฟล์"}
+          {file ? `${file.name} (${formatFileSize(file.size)})` : currentFileLabel || noFileSelectedLabel}
         </span>
       </div>
       <p className="text-xs text-gray-500">{helper}</p>

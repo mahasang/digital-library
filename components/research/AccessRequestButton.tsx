@@ -53,7 +53,8 @@ export default function AccessRequestButton({
   const [expanded, setExpanded] = useState(false);
   const [state, formAction, pending] = useActionState(submitAccessRequestAction, idleActionResult);
   const tStatuses = useTranslations("accessRequestStatuses");
-  const label = requestType === "read" ? "ขอสิทธิ์อ่านเอกสาร" : "ขอสิทธิ์ดาวน์โหลด";
+  const t = useTranslations("accessRequest");
+  const label = requestType === "read" ? t("requestRead") : t("requestDownload");
   const ctaClassName =
     variant === "primary"
       ? "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-700 sm:w-auto"
@@ -70,7 +71,7 @@ export default function AccessRequestButton({
         className={ctaClassName}
       >
         <KeyRound className="h-4 w-4" />
-        เข้าสู่ระบบเพื่อ{label}
+        {t("loginToRequest", { label })}
       </Link>
     );
   }
@@ -83,7 +84,7 @@ export default function AccessRequestButton({
           <Icon className="h-4 w-4" />
           {label}: {tStatuses(latestStatus)}
         </span>
-        {reviewerNote && <p className="text-xs opacity-90">หมายเหตุจากเจ้าหน้าที่: {reviewerNote}</p>}
+        {reviewerNote && <p className="text-xs opacity-90">{t("reviewerNote", { note: reviewerNote })}</p>}
       </div>
     );
   }
@@ -101,7 +102,7 @@ export default function AccessRequestButton({
         </button>
         {latestStatus && (
           <p className="text-xs text-gray-500">
-            คำขอก่อนหน้า: {tStatuses(latestStatus)} — ส่งคำขอใหม่ได้
+            {t("previousRequest", { status: tStatuses(latestStatus) })}
           </p>
         )}
       </div>
@@ -120,7 +121,7 @@ export default function AccessRequestButton({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`purpose-${requestType}`} className="text-xs font-medium text-gray-700">
-          วัตถุประสงค์การใช้งาน (จำเป็น)
+          {t("purposeLabel")}
         </label>
         <textarea
           id={`purpose-${requestType}`}
@@ -129,7 +130,7 @@ export default function AccessRequestButton({
           minLength={10}
           rows={3}
           disabled={pending}
-          placeholder="เช่น ใช้ประกอบการทำวิทยานิพนธ์ระดับปริญญาโท สาขา..."
+          placeholder={t("purposePlaceholder")}
           className="resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         />
         {state.status === "error" && state.fieldErrors?.purpose && (
@@ -139,7 +140,7 @@ export default function AccessRequestButton({
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`note-${requestType}`} className="text-xs font-medium text-gray-700">
-          รายละเอียดเพิ่มเติม (ไม่บังคับ)
+          {t("detailLabel")}
         </label>
         <textarea
           id={`note-${requestType}`}
@@ -159,7 +160,7 @@ export default function AccessRequestButton({
           disabled={pending}
           className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300"
         />
-        ข้าพเจ้ายอมรับเงื่อนไขการใช้งานเอกสาร และจะใช้เอกสารนี้ตามวัตถุประสงค์ที่ระบุไว้เท่านั้น
+        {t("termsConfirm")}
       </label>
 
       {state.status === "error" && (
@@ -182,7 +183,7 @@ export default function AccessRequestButton({
           disabled={pending}
           className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
         >
-          ยกเลิก
+          {t("cancel")}
         </button>
         <button
           type="submit"
@@ -190,7 +191,7 @@ export default function AccessRequestButton({
           className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-xs font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          ส่งคำขอ
+          {t("submit")}
         </button>
       </div>
     </form>
