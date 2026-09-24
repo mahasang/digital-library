@@ -43,9 +43,9 @@ export default function ContactMap() {
   return (
     <div
       ref={mapRef}
-      className="rounded-2xl overflow-hidden border"
+      className="rounded-2xl overflow-hidden border border-border shadow-elevated-sm"
       style={{ height: 240 }}
-      aria-label="แผนที่ที่ตั้งห้องสมุด"
+      aria-label="ແຜນທີ່ທີ່ຕັ້ງຫ້ອງສະໝຸດ"
       role="application"
     />
   );

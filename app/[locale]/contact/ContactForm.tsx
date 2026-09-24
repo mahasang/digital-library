@@ -20,9 +20,7 @@ export default function ContactForm() {
     phone: '',
     message: '',
   });
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>(
-    'idle'
-  );
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -34,7 +32,6 @@ export default function ContactForm() {
     e.preventDefault();
     setStatus('sending');
     try {
-      // ส่งผ่าน Resend (ที่ใช้อยู่แล้วใน project)
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,12 +46,12 @@ export default function ContactForm() {
 
   if (status === 'sent') {
     return (
-      <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-center">
-        <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-600 text-2xl">
+      <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+        <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-2xl">
           ✓
         </div>
-        <p className="font-medium">{t('successTitle')}</p>
-        <p className="text-sm text-muted-foreground">{t('successBody')}</p>
+        <p className="font-medium text-ink">{t('successTitle')}</p>
+        <p className="text-body-sm text-ink-soft">{t('successBody')}</p>
       </div>
     );
   }
@@ -90,12 +87,13 @@ export default function ContactForm() {
         required
       />
 
+      {/* Phone with country code prefix */}
       <div>
-        <label className="block text-sm text-muted-foreground mb-1">
+        <label className="block text-body-sm text-ink-soft mb-1">
           {t('phone')}
         </label>
-        <div className="flex rounded-lg border overflow-hidden bg-background">
-          <span className="px-3 py-2 text-sm border-r bg-muted text-muted-foreground">
+        <div className="flex rounded-lg border border-border overflow-hidden bg-surface focus-within:ring-2 focus-within:ring-accent focus-within:border-accent transition-colors">
+          <span className="px-3 py-2 text-body-sm border-r border-border bg-surface-muted text-ink-faint select-none">
             +856
           </span>
           <input
@@ -104,13 +102,14 @@ export default function ContactForm() {
             value={form.phone}
             onChange={handleChange}
             placeholder={t('phonePlaceholder')}
-            className="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
+            className="flex-1 px-3 py-2 text-body-sm bg-transparent text-ink placeholder:text-ink-faint outline-none"
           />
         </div>
       </div>
 
+      {/* Message */}
       <div>
-        <label className="block text-sm text-muted-foreground mb-1">
+        <label className="block text-body-sm text-ink-soft mb-1">
           {t('message')}
         </label>
         <textarea
@@ -120,20 +119,20 @@ export default function ContactForm() {
           placeholder={t('messagePlaceholder')}
           rows={5}
           required
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none resize-none focus:ring-1 focus:ring-primary"
+          className="w-full rounded-lg border border-border bg-surface text-ink placeholder:text-ink-faint px-3 py-2 text-body-sm outline-none resize-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
         />
       </div>
 
       <button
         type="submit"
         disabled={status === 'sending'}
-        className="self-start rounded-lg bg-primary text-primary-foreground px-6 py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-60 transition-colors"
+        className="self-start rounded-lg bg-accent text-white px-6 py-2 text-body-sm font-medium hover:bg-accent-strong disabled:opacity-60 transition-colors"
       >
         {status === 'sending' ? t('sending') : t('submit')}
       </button>
 
       {status === 'error' && (
-        <p className="text-sm text-destructive">{t('error')}</p>
+        <p className="text-body-sm text-danger">{t('error')}</p>
       )}
     </form>
   );
@@ -158,7 +157,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={name} className="block text-sm text-muted-foreground mb-1">
+      <label htmlFor={name} className="block text-body-sm text-ink-soft mb-1">
         {label}
       </label>
       <input
@@ -169,7 +168,7 @@ function Field({
         placeholder={placeholder}
         onChange={onChange}
         required={required}
-        className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
+        className="w-full rounded-lg border border-border bg-surface text-ink placeholder:text-ink-faint px-3 py-2 text-body-sm outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors"
       />
     </div>
   );
