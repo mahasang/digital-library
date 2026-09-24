@@ -2053,35 +2053,39 @@
     }
   },
   "contact": {
-    "metaTitle": "ຕິດຕໍ່ຫາເຮົາ",
-    "metaDescription": "ມີຄຳຖາມຫຼືຕ້ອງການຊ່ວຍເຫຼືອ? ສົ່ງຂໍ້ຄວາມຫາທີມງານຂອງເຮົາໄດ້ເລີຍ",
-    "subtitle": "ມີຄຳຖາມຫຼືຕ້ອງການຊ່ວຍເຫຼືອ? ສົ່ງຂໍ້ຄວາມຫາເຮົາໄດ້ເລີຍ",
-    "emailCardTitle": "ອີເມວ",
-    "emailCardDesc": "ສົ່ງອີເມວຫາທີມງານຂອງເຮົາ",
-    "phoneCardTitle": "ໂທລະສັບ",
-    "phoneCardDesc": "ໂທຫາທີມງານຂອງເຮົາ",
-    "facebookCardTitle": "Facebook",
-    "facebookCardDesc": "ຕິດຕາມຫາເຮົາໃນ Facebook",
-    "locationTitle": "ທີ່ຕັ້ງ",
-    "locationValue": "ວຽງຈັນ, ສປປ ລາວ",
-    "hoursTitle": "ເວລາເຮັດວຽກ",
-    "weekdays": "ຈັນ – ສຸກ",
-    "saturday": "ເສົາ",
-    "sunday": "ອາທິດ",
-    "closed": "ປິດ"
-  },
-  "contactForm": {
-    "firstNameLabel": "ຊື່",
-    "firstNamePlaceholder": "ຊື່ຂອງທ່ານ",
-    "lastNameLabel": "ນາມສະກຸນ",
-    "lastNamePlaceholder": "ນາມສະກຸນຂອງທ່ານ",
-    "emailLabel": "ອີເມວ",
-    "phoneLabel": "ເບີໂທລະສັບ",
-    "messageLabel": "ຂໍ້ຄວາມ",
-    "messagePlaceholder": "ພິມຂໍ້ຄວາມຂອງທ່ານທີ່ນີ້...",
-    "successMessage": "ຂໍຂອບໃຈ! ຂໍ້ຄວາມຂອງທ່ານຖືກສົ່ງສຳເລັດແລ້ວ ເຮົາຈະຕິດຕໍ່ກັບໃນໄວໆນີ້",
-    "submitting": "ກຳລັງສົ່ງ...",
-    "submit": "ສົ່ງຂໍ້ຄວາມ"
+    "meta": {
+      "title": "ຕິດຕໍ່ພວກເຮົາ",
+      "description": "ຕິດຕໍ່ຫ້ອງສະໝຸດດິຈິຕອນ"
+    },
+    "heading": "ຕິດຕໍ່ພວກເຮົາ",
+    "subheading": "ຍິນດີຮັບຟັງທຸກຄຳຖາມ ຄຳແນະນຳ ຫຼື ຄຳຂໍຄວາມຊ່ວຍເຫຼືອ",
+    "info": {
+      "address": "ທີ່ຕັ້ງ",
+      "addressValue": "123 ຖ. ຫລ້ານຫລວງ, ນະຄອນຫລວງວຽງຈັນ, ສປປລ",
+      "email": "ອີເມລ",
+      "emailValue": "library@example.la",
+      "phone": "ໂທລະສັບ",
+      "phoneValue": "+856 21 000 000",
+      "hours": "ເວລາທຳການ",
+      "hoursValue": "ຈັນ–ສຸກ 08:00–17:00"
+    },
+    "form": {
+      "firstName": "ຊື່",
+      "firstNamePlaceholder": "ຊື່ຂອງທ່ານ",
+      "lastName": "ນາມສະກຸນ",
+      "lastNamePlaceholder": "ນາມສະກຸນຂອງທ່ານ",
+      "email": "ອີເມລ",
+      "emailPlaceholder": "example@email.com",
+      "phone": "ເບີໂທລະສັບ",
+      "phonePlaceholder": "20 000 0000",
+      "message": "ຂໍ້ຄວາມ",
+      "messagePlaceholder": "ກະລຸນາພິມຂໍ້ຄວາມຂອງທ່ານທີ່ນີ້..",
+      "submit": "ສົ່ງຂໍ້ຄວາມ",
+      "sending": "ກຳລັງສົ່ງ...",
+      "successTitle": "ສົ່ງສຳເລັດແລ້ວ",
+      "successBody": "ພວກເຮົາຈະຕິດຕໍ່ກັບໄປຫາທ່ານໃນໄວໆນີ້",
+      "error": "ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່"
+    }
   },
   "mfaChallenge": {
     "pageTitle": "ຢືນຢັນຕົວຕົນຂັ້ນທີສອງ",

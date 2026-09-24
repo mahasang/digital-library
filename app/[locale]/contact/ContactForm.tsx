@@ -1,118 +1,176 @@
-"use client";
+'use client';
 
-import { useActionState, useEffect, useRef } from "react";
-import { Send } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { submitContactAction, type ContactFormState } from "./actions";
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
-const initialState: ContactFormState = { status: "idle" };
+interface FormState {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  message: string;
+}
 
 export default function ContactForm() {
-  const t = useTranslations("contactForm");
-  const [state, formAction, isPending] = useActionState(
-    submitContactAction,
-    initialState
+  const t = useTranslations('contact.form');
+  const [form, setForm] = useState<FormState>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    message: '',
+  });
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>(
+    'idle'
   );
-  const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (state.status === "success") {
-      formRef.current?.reset();
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('sending');
+    try {
+      // ส่งผ่าน Resend (ที่ใช้อยู่แล้วใน project)
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error('failed');
+      setStatus('sent');
+    } catch {
+      setStatus('error');
     }
-  }, [state]);
+  };
+
+  if (status === 'sent') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-center">
+        <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-600 text-2xl">
+          ✓
+        </div>
+        <p className="font-medium">{t('successTitle')}</p>
+        <p className="text-sm text-muted-foreground">{t('successBody')}</p>
+      </div>
+    );
+  }
 
   return (
-    <form ref={formRef} action={formAction} className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-gray-700">
-            {t("firstNameLabel")} <span className="text-red-500">*</span>
-          </label>
-          <input
-            name="first_name"
-            type="text"
-            placeholder={t("firstNamePlaceholder")}
-            required
-            disabled={isPending}
-            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-gray-700">
-            {t("lastNameLabel")} <span className="text-red-500">*</span>
-          </label>
-          <input
-            name="last_name"
-            type="text"
-            placeholder={t("lastNamePlaceholder")}
-            required
-            disabled={isPending}
-            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-gray-700">
-          {t("emailLabel")} <span className="text-red-500">*</span>
-        </label>
-        <input
-          name="email"
-          type="email"
-          placeholder="example@gmail.com"
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-3">
+        <Field
+          label={t('firstName')}
+          name="firstName"
+          value={form.firstName}
+          placeholder={t('firstNamePlaceholder')}
+          onChange={handleChange}
           required
-          disabled={isPending}
-          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
+        />
+        <Field
+          label={t('lastName')}
+          name="lastName"
+          value={form.lastName}
+          placeholder={t('lastNamePlaceholder')}
+          onChange={handleChange}
+          required
         />
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-gray-700">{t("phoneLabel")}</label>
-        <input
-          name="phone"
-          type="tel"
-          placeholder="+856 20 XXXX XXXX"
-          disabled={isPending}
-          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
-        />
+      <Field
+        label={t('email')}
+        name="email"
+        type="email"
+        value={form.email}
+        placeholder={t('emailPlaceholder')}
+        onChange={handleChange}
+        required
+      />
+
+      <div>
+        <label className="block text-sm text-muted-foreground mb-1">
+          {t('phone')}
+        </label>
+        <div className="flex rounded-lg border overflow-hidden bg-background">
+          <span className="px-3 py-2 text-sm border-r bg-muted text-muted-foreground">
+            +856
+          </span>
+          <input
+            type="tel"
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder={t('phonePlaceholder')}
+            className="flex-1 px-3 py-2 text-sm bg-transparent outline-none"
+          />
+        </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-gray-700">
-          {t("messageLabel")} <span className="text-red-500">*</span>
+      <div>
+        <label className="block text-sm text-muted-foreground mb-1">
+          {t('message')}
         </label>
         <textarea
           name="message"
-          rows={4}
-          placeholder={t("messagePlaceholder")}
+          value={form.message}
+          onChange={handleChange}
+          placeholder={t('messagePlaceholder')}
+          rows={5}
           required
-          disabled={isPending}
-          className="resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-50"
+          className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none resize-none focus:ring-1 focus:ring-primary"
         />
       </div>
 
-      {/* ── Feedback ── */}
-      {state.status === "error" && (
-        <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
-          {state.message}
-        </p>
-      )}
-      {state.status === "success" && (
-        <p role="status" className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
-          {t("successMessage")}
-        </p>
-      )}
+      <button
+        type="submit"
+        disabled={status === 'sending'}
+        className="self-start rounded-lg bg-primary text-primary-foreground px-6 py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-60 transition-colors"
+      >
+        {status === 'sending' ? t('sending') : t('submit')}
+      </button>
 
-      <div className="flex justify-center mt-2">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-8 py-3 text-sm font-semibold text-white hover:bg-brand-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          <Send className="h-4 w-4" />
-          {isPending ? t("submitting") : t("submit")}
-        </button>
-      </div>
+      {status === 'error' && (
+        <p className="text-sm text-destructive">{t('error')}</p>
+      )}
     </form>
+  );
+}
+
+function Field({
+  label,
+  name,
+  type = 'text',
+  value,
+  placeholder,
+  onChange,
+  required,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  value: string;
+  placeholder: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <label htmlFor={name} className="block text-sm text-muted-foreground mb-1">
+        {label}
+      </label>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        onChange={onChange}
+        required={required}
+        className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary"
+      />
+    </div>
   );
 }

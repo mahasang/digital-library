@@ -2053,35 +2053,39 @@
     }
   },
   "contact": {
-    "metaTitle": "Contact Us",
-    "metaDescription": "Have a question or need help? Send our team a message",
-    "subtitle": "Have a question or need help? Send us a message",
-    "emailCardTitle": "Email",
-    "emailCardDesc": "Email our team",
-    "phoneCardTitle": "Phone",
-    "phoneCardDesc": "Call our team",
-    "facebookCardTitle": "Facebook",
-    "facebookCardDesc": "Follow us on Facebook",
-    "locationTitle": "Location",
-    "locationValue": "Vientiane, Lao PDR",
-    "hoursTitle": "Working Hours",
-    "weekdays": "Mon – Fri",
-    "saturday": "Sat",
-    "sunday": "Sun",
-    "closed": "Closed"
-  },
-  "contactForm": {
-    "firstNameLabel": "First name",
-    "firstNamePlaceholder": "Your first name",
-    "lastNameLabel": "Last name",
-    "lastNamePlaceholder": "Your last name",
-    "emailLabel": "Email",
-    "phoneLabel": "Phone number",
-    "messageLabel": "Message",
-    "messagePlaceholder": "Type your message here...",
-    "successMessage": "Thank you! Your message has been sent successfully. We'll get back to you soon.",
-    "submitting": "Sending...",
-    "submit": "Send message"
+    "meta": {
+      "title": "Contact Us",
+      "description": "Contact the digital library"
+    },
+    "heading": "Contact Us",
+    "subheading": "We'd love to hear your questions, suggestions, or requests for help",
+    "info": {
+      "address": "Address",
+      "addressValue": "123 Lan Xang Ave, Vientiane Capital, Lao PDR",
+      "email": "Email",
+      "emailValue": "library@example.la",
+      "phone": "Phone",
+      "phoneValue": "+856 21 000 000",
+      "hours": "Working Hours",
+      "hoursValue": "Mon–Fri 08:00–17:00"
+    },
+    "form": {
+      "firstName": "First name",
+      "firstNamePlaceholder": "Your first name",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Your last name",
+      "email": "Email",
+      "emailPlaceholder": "example@email.com",
+      "phone": "Phone number",
+      "phonePlaceholder": "20 000 0000",
+      "message": "Message",
+      "messagePlaceholder": "Type your message here...",
+      "submit": "Send message",
+      "sending": "Sending...",
+      "successTitle": "Message sent",
+      "successBody": "We'll get back to you soon",
+      "error": "Something went wrong, please try again"
+    }
   },
   "mfaChallenge": {
     "pageTitle": "Two-Factor Verification",

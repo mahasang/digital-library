@@ -2053,35 +2053,39 @@
     }
   },
   "contact": {
-    "metaTitle": "Contact Us",
-    "metaDescription": "Have a question or need help? Send our team a message",
-    "subtitle": "Have a question or need help? Send us a message",
-    "emailCardTitle": "Email",
-    "emailCardDesc": "Email our team",
-    "phoneCardTitle": "Phone",
-    "phoneCardDesc": "Call our team",
-    "facebookCardTitle": "Facebook",
-    "facebookCardDesc": "Follow us on Facebook",
-    "locationTitle": "Location",
-    "locationValue": "Vientiane, Lao PDR",
-    "hoursTitle": "Working Hours",
-    "weekdays": "Mon – Fri",
-    "saturday": "Sat",
-    "sunday": "Sun",
-    "closed": "Closed"
-  },
-  "contactForm": {
-    "firstNameLabel": "First name",
-    "firstNamePlaceholder": "Your first name",
-    "lastNameLabel": "Last name",
-    "lastNamePlaceholder": "Your last name",
-    "emailLabel": "Email",
-    "phoneLabel": "Phone number",
-    "messageLabel": "Message",
-    "messagePlaceholder": "Type your message here...",
-    "successMessage": "Thank you! Your message has been sent successfully. We'll get back to you soon.",
-    "submitting": "Sending...",
-    "submit": "Send message"
+    "meta": {
+      "title": "Liên hệ với chúng tôi",
+      "description": "Liên hệ với thư viện số"
+    },
+    "heading": "Liên hệ với chúng tôi",
+    "subheading": "Chúng tôi luôn sẵn sàng lắng nghe câu hỏi, góp ý hoặc yêu cầu hỗ trợ của bạn",
+    "info": {
+      "address": "Địa chỉ",
+      "addressValue": "123 Đại lộ Lan Xang, Thủ đô Vientiane, CHDCND Lào",
+      "email": "Email",
+      "emailValue": "library@example.la",
+      "phone": "Điện thoại",
+      "phoneValue": "+856 21 000 000",
+      "hours": "Giờ làm việc",
+      "hoursValue": "Thứ 2–Thứ 6 08:00–17:00"
+    },
+    "form": {
+      "firstName": "Tên",
+      "firstNamePlaceholder": "Tên của bạn",
+      "lastName": "Họ",
+      "lastNamePlaceholder": "Họ của bạn",
+      "email": "Email",
+      "emailPlaceholder": "example@email.com",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "20 000 0000",
+      "message": "Tin nhắn",
+      "messagePlaceholder": "Nhập tin nhắn của bạn tại đây..",
+      "submit": "Gửi tin nhắn",
+      "sending": "Đang gửi...",
+      "successTitle": "Đã gửi thành công",
+      "successBody": "Chúng tôi sẽ liên hệ lại với bạn sớm nhất",
+      "error": "Đã xảy ra lỗi, vui lòng thử lại"
+    }
   },
   "mfaChallenge": {
     "pageTitle": "Two-Factor Verification",

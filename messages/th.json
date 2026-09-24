@@ -2053,35 +2053,39 @@
     }
   },
   "contact": {
-    "metaTitle": "ติดต่อเรา",
-    "metaDescription": "มีคำถามหรือต้องการความช่วยเหลือ? ส่งข้อความหาทีมงานของเราได้เลย",
-    "subtitle": "มีคำถามหรือต้องการความช่วยเหลือ? ส่งข้อความหาเราได้เลย",
-    "emailCardTitle": "อีเมล",
-    "emailCardDesc": "ส่งอีเมลหาทีมงานของเรา",
-    "phoneCardTitle": "โทรศัพท์",
-    "phoneCardDesc": "โทรหาทีมงานของเรา",
-    "facebookCardTitle": "Facebook",
-    "facebookCardDesc": "ติดตามเราทาง Facebook",
-    "locationTitle": "ที่ตั้ง",
-    "locationValue": "เวียงจันทน์ สปป.ลาว",
-    "hoursTitle": "เวลาทำการ",
-    "weekdays": "จันทร์ – ศุกร์",
-    "saturday": "เสาร์",
-    "sunday": "อาทิตย์",
-    "closed": "ปิด"
-  },
-  "contactForm": {
-    "firstNameLabel": "ชื่อ",
-    "firstNamePlaceholder": "ชื่อของคุณ",
-    "lastNameLabel": "นามสกุล",
-    "lastNamePlaceholder": "นามสกุลของคุณ",
-    "emailLabel": "อีเมล",
-    "phoneLabel": "เบอร์โทรศัพท์",
-    "messageLabel": "ข้อความ",
-    "messagePlaceholder": "พิมพ์ข้อความของคุณที่นี่...",
-    "successMessage": "ขอบคุณ! ข้อความของคุณถูกส่งสำเร็จแล้ว เราจะติดต่อกลับในเร็วๆ นี้",
-    "submitting": "กำลังส่ง...",
-    "submit": "ส่งข้อความ"
+    "meta": {
+      "title": "ติดต่อเรา",
+      "description": "ติดต่อห้องสมุดดิจิทัล"
+    },
+    "heading": "ติดต่อเรา",
+    "subheading": "ยินดีรับฟังทุกคำถาม คำแนะนำ หรือคำขอความช่วยเหลือ",
+    "info": {
+      "address": "ที่อยู่",
+      "addressValue": "123 ถ. ล้านช้าง, นครหลวงเวียงจันทน์, สปป.ลาว",
+      "email": "อีเมล",
+      "emailValue": "library@example.la",
+      "phone": "โทรศัพท์",
+      "phoneValue": "+856 21 000 000",
+      "hours": "เวลาทำการ",
+      "hoursValue": "จันทร์–ศุกร์ 08:00–17:00"
+    },
+    "form": {
+      "firstName": "ชื่อ",
+      "firstNamePlaceholder": "ชื่อของคุณ",
+      "lastName": "นามสกุล",
+      "lastNamePlaceholder": "นามสกุลของคุณ",
+      "email": "อีเมล",
+      "emailPlaceholder": "example@email.com",
+      "phone": "เบอร์โทรศัพท์",
+      "phonePlaceholder": "20 000 0000",
+      "message": "ข้อความ",
+      "messagePlaceholder": "กรุณาพิมพ์ข้อความของคุณที่นี่..",
+      "submit": "ส่งข้อความ",
+      "sending": "กำลังส่ง...",
+      "successTitle": "ส่งสำเร็จแล้ว",
+      "successBody": "เราจะติดต่อกลับไปหาคุณในไม่ช้า",
+      "error": "เกิดข้อผิดพลาด กรุณาลองใหม่"
+    }
   },
   "mfaChallenge": {
     "pageTitle": "ยืนยันตัวตนขั้นที่สอง",
