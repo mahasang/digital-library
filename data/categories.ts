@@ -57,6 +57,13 @@ export const categories: Category[] = [
     description: "งานวิจัยด้านวิทยาศาสตร์บริสุทธิ์และประยุกต์",
     icon: "FlaskConical",
   },
+  {
+    id: "history",
+    nameTh: "ประวัติศาสตร์",
+    nameEn: "History",
+    description: "ประวัติศาสตร์ บันทึกการเดินทาง และเอกสารทางประวัติศาสตร์",
+    icon: "Landmark",
+  },
 ];
 
 export function getCategoryById(id: string): Category | undefined {

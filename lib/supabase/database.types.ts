@@ -1871,6 +1871,9 @@ export type Database = {
           downloads: number
           id: string
           isbn: string | null
+          language: string | null
+          license: string | null
+          license_url: string | null
           merged_into_research_item_id: string | null
           normalized_title_en: string | null
           normalized_title_th: string | null
@@ -1878,6 +1881,7 @@ export type Database = {
           page_count: number
           pdf_file: string | null
           published_at: string | null
+          publisher: string | null
           review_note: string | null
           reviewed_by: string | null
           scan_provider: string | null
@@ -1885,6 +1889,7 @@ export type Database = {
           scan_status: string
           scanned_at: string | null
           slug: string
+          source_url: string | null
           status: string
           submitted_by: string | null
           title_en: string | null
@@ -1906,6 +1911,9 @@ export type Database = {
           downloads?: number
           id?: string
           isbn?: string | null
+          language?: string | null
+          license?: string | null
+          license_url?: string | null
           merged_into_research_item_id?: string | null
           normalized_title_en?: string | null
           normalized_title_th?: string | null
@@ -1913,6 +1921,7 @@ export type Database = {
           page_count?: number
           pdf_file?: string | null
           published_at?: string | null
+          publisher?: string | null
           review_note?: string | null
           reviewed_by?: string | null
           scan_provider?: string | null
@@ -1920,6 +1929,7 @@ export type Database = {
           scan_status?: string
           scanned_at?: string | null
           slug: string
+          source_url?: string | null
           status?: string
           submitted_by?: string | null
           title_en?: string | null
@@ -1941,6 +1951,9 @@ export type Database = {
           downloads?: number
           id?: string
           isbn?: string | null
+          language?: string | null
+          license?: string | null
+          license_url?: string | null
           merged_into_research_item_id?: string | null
           normalized_title_en?: string | null
           normalized_title_th?: string | null
@@ -1948,6 +1961,7 @@ export type Database = {
           page_count?: number
           pdf_file?: string | null
           published_at?: string | null
+          publisher?: string | null
           review_note?: string | null
           reviewed_by?: string | null
           scan_provider?: string | null
@@ -1955,6 +1969,7 @@ export type Database = {
           scan_status?: string
           scanned_at?: string | null
           slug?: string
+          source_url?: string | null
           status?: string
           submitted_by?: string | null
           title_en?: string | null
