@@ -33,7 +33,7 @@ describe("buildWorkspaceLinks", () => {
     ]);
   });
 
-  it("adds dashboard for librarian", () => {
+  it("adds dashboard + blog-admin for librarian", () => {
     const links = buildWorkspaceLinks(makeUser("librarian"));
     expect(links.map((l) => l.href)).toEqual([
       "/favorites",
@@ -41,6 +41,7 @@ describe("buildWorkspaceLinks", () => {
       "/submit-research",
       "/my-submissions",
       "/dashboard",
+      "/blog-admin",
     ]);
   });
 
@@ -52,6 +53,7 @@ describe("buildWorkspaceLinks", () => {
       "/submit-research",
       "/my-submissions",
       "/dashboard",
+      "/blog-admin",
     ]);
   });
 
@@ -63,6 +65,7 @@ describe("buildWorkspaceLinks", () => {
       "/submit-research",
       "/my-submissions",
       "/dashboard",
+      "/blog-admin",
       "/superadmin/overview",
     ]);
   });
