@@ -76,7 +76,7 @@ async function loginAs(page: Page, email: string, password: string) {
   await page.goto("/th/login", { waitUntil: "networkidle" });
   await page.getByRole("textbox", { name: /อีเมล/ }).fill(email);
   await page.getByRole("textbox", { name: "รหัสผ่าน" }).fill(password);
-  await page.getByRole("button", { name: /เข้าสู่ระบบ/ }).click();
+  await page.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }).click();
   await page.waitForURL((u) => !u.pathname.includes("/login"), { timeout: 30_000 });
 }
 
