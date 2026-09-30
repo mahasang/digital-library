@@ -99,11 +99,12 @@ test.describe("authenticated (admin) routes", () => {
     !adminEmail || !adminPassword,
     "E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD not set in .env.local — skipping authenticated a11y checks"
   );
+  // session from e2e/auth.setup.ts — avoids one login per test (rate limit)
+  test.use({ storageState: "e2e/.auth/admin.json" });
 
   for (const theme of THEMES) {
     for (const route of AUTH_ROUTES) {
       test(`${route.name} — ${theme} theme`, async ({ page }) => {
-        await loginAs(page, adminEmail!, adminPassword!);
         await page.goto(route.path, { waitUntil: "networkidle" });
         await setTheme(page, theme);
         await expectNoViolations(page);

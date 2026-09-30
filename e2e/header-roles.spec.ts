@@ -7,8 +7,9 @@ import { test, expect, type Page } from "@playwright/test";
  * Suspense-streamed Server Component did not change any visible behavior:
  * same links, same badge, same guest fallback, for every role.
  *
- * Each role logs in fresh in its own test (no shared storageState) so a
- * failure in one role can't leak session state into another.
+ * member/staff/librarian/admin reuse the per-role session saved by
+ * e2e/auth.setup.ts (login is rate limited); super_admin still signs in
+ * through the form because its account needs TOTP and is not seeded.
  */
 
 const ACCOUNTS = {
@@ -27,14 +28,15 @@ type RoleName = keyof typeof ACCOUNTS;
 const EXPECTED_LINKS: Record<RoleName, string[]> = {
   member: ["/favorites", "/access-requests"],
   staff: ["/favorites", "/access-requests", "/submit-research", "/my-submissions"],
-  librarian: ["/favorites", "/access-requests", "/submit-research", "/my-submissions", "/dashboard"],
-  admin: ["/favorites", "/access-requests", "/submit-research", "/my-submissions", "/dashboard"],
+  librarian: ["/favorites", "/access-requests", "/submit-research", "/my-submissions", "/dashboard", "/blog-admin"],
+  admin: ["/favorites", "/access-requests", "/submit-research", "/my-submissions", "/dashboard", "/blog-admin"],
   super_admin: [
     "/favorites",
     "/access-requests",
     "/submit-research",
     "/my-submissions",
     "/dashboard",
+    "/blog-admin",
     "/superadmin/overview",
   ],
 };
@@ -54,8 +56,10 @@ async function openUserMenuAndGetLinks(page: Page): Promise<string[]> {
   await page.goto("/th/", { waitUntil: "networkidle" });
   const trigger = page.getByRole("button", { name: /โปรไฟล์ของฉัน|@/ });
   await trigger.click();
-  const menu = page.locator(".absolute.right-0.z-50");
-  await expect(menu).toBeVisible();
+  // The menu panel has no role/name of its own; it is the trigger's parent
+  // wrapper (the language/theme dialog lives elsewhere and has role="dialog").
+  const menu = trigger.locator("xpath=..");
+  await expect(menu.getByRole("link", { name: "โปรไฟล์ของฉัน" })).toBeVisible();
   // ลิงก์ก่อนเส้นคั่นอันแรกคือ workspaceLinks (ตามด้วย "โปรไฟล์ของฉัน" เสมอ)
   // i18n cleanup pass — UserMenu ใช้ next-intl Link แล้ว จึงมี locale prefix
   // เสมอ ตัด prefix ทุก locale ออกก่อนเทียบ (ไม่ hardcode แค่ /lo)
@@ -99,9 +103,14 @@ for (const role of Object.keys(ACCOUNTS) as RoleName[]) {
 
   test.describe(`Header account area — ${role}`, () => {
     test.skip(!email || !password, `E2E_${role.toUpperCase()}_EMAIL / _PASSWORD not set in .env.local — skipping`);
+    const usesSavedSession = role !== "super_admin";
+    if (usesSavedSession) {
+      test.use({ storageState: `e2e/.auth/${role}.json` });
+    }
 
     test(`shows exactly the ${role} workspace links and a notification bell`, async ({ page }) => {
-      await loginAs(page, email!, password!);
+      if (!usesSavedSession) await loginAs(page, email!, password!);
+      await page.goto("/th/", { waitUntil: "networkidle" });
 
       await expect(page.getByRole("button", { name: "การแจ้งเตือน" })).toBeVisible();
 
@@ -111,7 +120,7 @@ for (const role of Object.keys(ACCOUNTS) as RoleName[]) {
 
     test(`mobile menu shows the same ${role} workspace links and profile/logout`, async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 800 });
-      await loginAs(page, email!, password!);
+      if (!usesSavedSession) await loginAs(page, email!, password!);
 
       await page.goto("/th/", { waitUntil: "networkidle" });
       await page.getByRole("button", { name: "เปิดเมนู" }).click();
@@ -131,11 +140,11 @@ for (const role of Object.keys(ACCOUNTS) as RoleName[]) {
 test.describe("Header account area — notification badge", () => {
   const { email, password } = ACCOUNTS.member;
   test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set in .env.local — skipping");
+  test.use({ storageState: "e2e/.auth/member.json" });
 
   test("bell has no numeric badge when there are no unread notifications, and opens an empty panel", async ({
     page,
   }) => {
-    await loginAs(page, email!, password!);
     await page.goto("/th/", { waitUntil: "networkidle" });
 
     const bell = page.getByRole("button", { name: "การแจ้งเตือน" });

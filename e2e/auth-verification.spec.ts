@@ -40,31 +40,12 @@ function hasAccount(role: RoleName) {
   return Boolean(ACCOUNTS[role].email && ACCOUNTS[role].password);
 }
 
-// ------------------------------------------------------------------
-// 1) Logout
-// ------------------------------------------------------------------
-test.describe("logout", () => {
-  const { email, password } = ACCOUNTS.member;
-  test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set — skipping");
-
-  test("logging out clears the session — protected pages redirect to /login again afterward", async ({
-    page,
-  }) => {
-    await loginAs(page, email!, password!);
-
-    await page.goto("/th/account", { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/account/);
-
-    await page.getByRole("button", { name: "ออกจากระบบ" }).first().click();
-    // i18n Phase 0A — ทุก path ผ่าน locale prefix เสมอ (localePrefix: "always")
-    // "/" จริงจะ redirect เป็น /th, /en, /lo หรือ /vi ตาม locale ที่ negotiate ได้
-    await page.waitForURL((u) => /^\/(th|en|lo|vi)$/.test(u.pathname), { timeout: 10_000 });
-
-    // guest อีกครั้งแล้ว — เข้าหน้าที่ต้อง login ต้องถูกเด้งไป /login
-    await page.goto("/th/account", { waitUntil: "networkidle" });
-    await expect(page).toHaveURL(/\/login/);
-  });
-});
+// Roles with a saved session from e2e/auth.setup.ts (super_admin needs TOTP, so
+// it still signs in through the form).
+const STORAGE_STATE_ROLES: readonly RoleName[] = ["member", "staff", "librarian", "admin"];
+function storageStateFor(role: RoleName) {
+  return `e2e/.auth/${role}.json`;
+}
 
 // ------------------------------------------------------------------
 // 2) Protected-route role-gate matrix (middleware.ts:
@@ -108,11 +89,16 @@ for (const role of ALL_ROLES) {
   test.describe(`role gate — ${role}`, () => {
     const { email, password } = ACCOUNTS[role];
     test.skip(!hasAccount(role), `E2E_${role.toUpperCase()}_EMAIL / _PASSWORD not set — skipping`);
+    if (STORAGE_STATE_ROLES.includes(role)) {
+      test.use({ storageState: storageStateFor(role) });
+    }
 
     test(`${role} can reach its allowed pages and is blocked (403) from higher-rank pages`, async ({
       page,
     }) => {
-      await loginAs(page, email!, password!);
+      if (!STORAGE_STATE_ROLES.includes(role)) {
+        await loginAs(page, email!, password!);
+      }
 
       const { allowed, forbidden } = ROLE_GATE_MATRIX[role];
       for (const path of allowed) {
@@ -134,6 +120,7 @@ for (const role of ALL_ROLES) {
 test.describe("corrupted session token", () => {
   const { email, password } = ACCOUNTS.member;
   test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set — skipping");
+  test.use({ storageState: storageStateFor("member") });
 
   async function tamperAccessToken(context: BrowserContext) {
     const cookies = await context.cookies();
@@ -147,11 +134,12 @@ test.describe("corrupted session token", () => {
     await context.addCookies([{ ...authCookie!, value: tampered }]);
   }
 
-  test("a tampered/invalid access token is treated as logged-out, not a crash and not a bypass", async ({
-    page,
-    context,
-  }) => {
-    await loginAs(page, email!, password!);
+  // @destructive: the middleware signs the session out when it rejects the
+  // token, so it runs last (after every test sharing the member session).
+  test("a tampered/invalid access token is treated as logged-out, not a crash and not a bypass", {
+    tag: "@destructive",
+  }, async ({ page, context }) => {
+    await page.goto("/th/", { waitUntil: "networkidle" });
     await tamperAccessToken(context);
 
     // ต้องไม่ crash (ไม่ใช่หน้า error 500) และไม่ถือว่ายัง login อยู่ (bypass)
@@ -179,12 +167,16 @@ test.describe("document download authorization", () => {
     expect(response?.status()).toBe(404);
   });
 
+  test.describe("as a logged-in member", () => {
+    test.use({ storageState: storageStateFor("member") });
+
   test("a read_only item is visible but never downloadable, even for a member", async ({ page }) => {
     const { email, password } = ACCOUNTS.member;
     test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set — skipping");
 
-    await loginAs(page, email!, password!);
-    await page.goto("/lo/research/edu-2024-005", { waitUntil: "networkidle" });
+    // /th/ (not /lo/): AccessRequestButton's label is now i18n (accessRequest.requestDownload),
+    // and this test asserts the Thai text.
+    await page.goto("/th/research/edu-2024-005", { waitUntil: "networkidle" });
     // read_only ไม่ผ่าน canDownload() เลย — หน้าเว็บจึงแสดง AccessRequestButton
     // (ปุ่ม "ขอสิทธิ์ดาวน์โหลด" หรือ สถานะคำขอเดิมถ้าเคยส่งคำขอไปแล้ว — ทั้งสอง
     // กรณีมีข้อความ "ขอสิทธิ์ดาวน์โหลด" ปรากฏอยู่เสมอ) แทน DownloadButton ที่ใช้
@@ -198,8 +190,35 @@ test.describe("document download authorization", () => {
     const { email, password } = ACCOUNTS.member;
     test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set — skipping");
 
-    await loginAs(page, email!, password!);
     await page.goto("/lo/research/it-2024-002", { waitUntil: "networkidle" });
     await expect(page.getByRole("button", { name: "ดาวน์โหลดไฟล์" })).toBeEnabled();
+  });
+  });
+});
+
+// ------------------------------------------------------------------
+// 5) Logout — @destructive: signOut() is global, so it revokes the member
+//    session shared by every other test; it runs last in its own project
+//    (see playwright.config.ts) and reuses the saved member session.
+// ------------------------------------------------------------------
+test.describe("logout", () => {
+  const { email, password } = ACCOUNTS.member;
+  test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set — skipping");
+  test.use({ storageState: storageStateFor("member") });
+
+  test("logging out clears the session — protected pages redirect to /login again afterward", {
+    tag: "@destructive",
+  }, async ({ page }) => {
+    await page.goto("/th/account", { waitUntil: "networkidle" });
+    await expect(page).toHaveURL(/\/account/);
+
+    await page.getByRole("button", { name: "ออกจากระบบ" }).first().click();
+    // i18n Phase 0A — ทุก path ผ่าน locale prefix เสมอ (localePrefix: "always")
+    // "/" จริงจะ redirect เป็น /th, /en, /lo หรือ /vi ตาม locale ที่ negotiate ได้
+    await page.waitForURL((u) => /^\/(th|en|lo|vi)$/.test(u.pathname), { timeout: 10_000 });
+
+    // guest อีกครั้งแล้ว — เข้าหน้าที่ต้อง login ต้องถูกเด้งไป /login
+    await page.goto("/th/account", { waitUntil: "networkidle" });
+    await expect(page).toHaveURL(/\/login/);
   });
 });

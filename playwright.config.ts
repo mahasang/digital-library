@@ -18,6 +18,25 @@ export default defineConfig({
     baseURL: process.env.E2E_BASE_URL ?? "http://localhost:3001",
     trace: "retain-on-failure",
   },
+  // Login rate limit is 10 attempts / 15 min / IP (login/actions.ts), so roles
+  // sign in once in "setup" and specs reuse e2e/.auth/<role>.json. Tests that
+  // end the session server-side (logout signs out globally) are tagged
+  // @destructive and run last in their own project.
+  projects: [
+    { name: "setup", testMatch: /auth\.setup\.ts/ },
+    {
+      name: "chromium",
+      testIgnore: /auth\.setup\.ts/,
+      grepInvert: /@destructive/,
+      dependencies: ["setup"],
+    },
+    {
+      name: "destructive",
+      testIgnore: /auth\.setup\.ts/,
+      grep: /@destructive/,
+      dependencies: ["setup"],
+    },
+  ],
   // webServer: process.env.E2E_BASE_URL
   //   ? undefined
   //   : {

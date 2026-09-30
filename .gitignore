@@ -53,3 +53,6 @@ homepage-initial.png
 /android/
 file_prompt/
 *.swp
+
+# Playwright per-role storageState (contains session tokens)
+e2e/.auth/

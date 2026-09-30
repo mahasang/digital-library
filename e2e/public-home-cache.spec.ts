@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 /**
  * Live cache-invalidation proof for public homepage caching (Hallmark —
@@ -28,21 +28,13 @@ import { test, expect, type Page } from "@playwright/test";
 const adminEmail = process.env.E2E_ADMIN_EMAIL;
 const adminPassword = process.env.E2E_ADMIN_PASSWORD;
 
-async function loginAs(page: Page, email: string, password: string) {
-  // /th/login โดยเจาะจง — locator ด้านล่างจับข้อความภาษาไทยของฟอร์มตรงๆ
-  // (auth.email/auth.password ผูกกับ next-intl แล้ว จึงต่างกันไปตาม locale)
-  await page.goto("/th/login", { waitUntil: "networkidle" });
-  await page.getByRole("textbox", { name: /อีเมล/ }).fill(email);
-  await page.getByRole("textbox", { name: "รหัสผ่าน" }).fill(password);
-  await page.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }).click();
-  await page.waitForURL((u) => !u.pathname.includes("/login"), { timeout: 15_000 });
-}
-
 test.describe("public homepage cache invalidation — categories", () => {
   test.skip(
     !adminEmail || !adminPassword,
     "E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD not set in .env.local — skipping live cache-invalidation check"
   );
+  // session from e2e/auth.setup.ts (login is rate limited)
+  test.use({ storageState: "e2e/.auth/admin.json" });
 
   test("a newly created category appears on the homepage within seconds, and disappears within seconds after deletion — well inside the 60s revalidation policy", async ({
     page,
@@ -50,8 +42,6 @@ test.describe("public homepage cache invalidation — categories", () => {
     const unique = Date.now().toString(36);
     const nameTh = `ทดสอบแคช-${unique}`;
     const nameEn = `cache-test-${unique}`;
-
-    await loginAs(page, adminEmail!, adminPassword!);
 
     // 1) โฮมเพจก่อนสร้าง — ต้องยังไม่เห็นชื่อหมวดหมู่ทดสอบ (กัน false positive
     // จาก run ก่อนหน้าที่อาจล้มเหลวกลางทางแล้วไม่ได้ลบทิ้ง)
