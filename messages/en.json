@@ -152,7 +152,17 @@
         "defaultAuthorName": "User",
         "edit": "Edit comment",
         "delete": "Delete comment",
-        "deleteConfirm": "Delete this comment?"
+        "deleteConfirm": "Delete this comment?",
+        "submit": "Post comment"
+      },
+      "bibliographic": {
+        "title": "Bibliographic information",
+        "publisher": "Publisher",
+        "language": "Language",
+        "license": "License",
+        "source": "Source",
+        "viewSource": "View original",
+        "opensInNewTab": "opens in a new tab"
       }
     },
     "searchModeAll": "Search All",

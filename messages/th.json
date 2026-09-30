@@ -152,7 +152,17 @@
         "defaultAuthorName": "ผู้ใช้งาน",
         "edit": "แก้ไขความคิดเห็น",
         "delete": "ลบความคิดเห็น",
-        "deleteConfirm": "ต้องการลบความคิดเห็นนี้หรือไม่?"
+        "deleteConfirm": "ต้องการลบความคิดเห็นนี้หรือไม่?",
+        "submit": "ส่งความคิดเห็น"
+      },
+      "bibliographic": {
+        "title": "ข้อมูลบรรณานุกรม",
+        "publisher": "ผู้จัดพิมพ์",
+        "language": "ภาษา",
+        "license": "สัญญาอนุญาต",
+        "source": "แหล่งที่มา",
+        "viewSource": "ดูต้นฉบับ",
+        "opensInNewTab": "เปิดในแท็บใหม่"
       }
     },
     "searchModeAll": "ค้นหาทั้งหมด",

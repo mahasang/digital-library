@@ -8,6 +8,7 @@ import {
   Leaf,
   FlaskConical,
   BookOpen,
+  Landmark,
   type LucideIcon,
 } from "lucide-react";
 
@@ -20,6 +21,7 @@ export const categoryIconMap: Record<string, LucideIcon> = {
   Users,
   Leaf,
   FlaskConical,
+  Landmark,
 };
 
 export function getCategoryIcon(icon: string): LucideIcon {

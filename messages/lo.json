@@ -152,7 +152,17 @@
         "defaultAuthorName": "ຜູ້ໃຊ້ງານ",
         "edit": "ແກ້ໄຂຄຳເຫັນ",
         "delete": "ລຶບຄຳເຫັນ",
-        "deleteConfirm": "ທ່ານຕ້ອງການລຶບຄຳເຫັນນີ້ບໍ?"
+        "deleteConfirm": "ທ່ານຕ້ອງການລຶບຄຳເຫັນນີ້ບໍ?",
+        "submit": "ສົ່ງຄຳເຫັນ"
+      },
+      "bibliographic": {
+        "title": "ຂໍ້ມູນບັນນານຸກົມ",
+        "publisher": "ສຳນັກພິມ",
+        "language": "ພາສາ",
+        "license": "ໃບອະນຸຍາດ",
+        "source": "ແຫຼ່ງທີ່ມາ",
+        "viewSource": "ເບິ່ງຕົ້ນສະບັບ",
+        "opensInNewTab": "ເປີດໃນແຖບໃໝ່"
       }
     },
     "searchModeAll": "ຄົ້ນຫາທັງຫມົດ",

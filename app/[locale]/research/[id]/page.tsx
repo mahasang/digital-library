@@ -37,6 +37,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getMyActiveGrantsBySlug } from "@/lib/data/access-grants.server";
 import { getMyLatestRequestForItem } from "@/lib/data/access-requests.server";
 import AccessRequestButton from "@/components/research/AccessRequestButton";
+import BibliographicInfo from "@/components/research/BibliographicInfo";
 import RatingSection from "@/components/research/RatingSection";
 import CommentSection from "@/components/research/CommentSection";
 import {
@@ -312,6 +313,15 @@ export default async function ResearchDetailPage({
                 ))}
               </div>
             </div>
+
+            <BibliographicInfo
+              publisher={item.publisher}
+              language={item.language}
+              license={item.license}
+              licenseUrl={item.licenseUrl}
+              sourceUrl={item.sourceUrl}
+              locale={locale}
+            />
 
             <div className="rounded-xl border border-gray-200 bg-accent-soft p-4 text-sm text-accent-ink">
               <p className="text-xs font-semibold uppercase tracking-wide text-accent-ink">

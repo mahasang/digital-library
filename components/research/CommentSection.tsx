@@ -139,12 +139,13 @@ export default function CommentSection({
           type="button"
           onClick={handleSubmit}
           disabled={!text.trim() || !isLoggedIn || isPending}
+          aria-label={t("submit")}
           className="flex h-10 w-10 shrink-0 items-center justify-center self-end rounded-full bg-brand-600 text-white transition-colors hover:bg-brand-700 disabled:opacity-40"
         >
           {isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
           ) : (
-            <Send className="h-4 w-4" />
+            <Send className="h-4 w-4" aria-hidden="true" />
           )}
         </button>
       </div>

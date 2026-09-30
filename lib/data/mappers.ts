@@ -42,6 +42,11 @@ export function mapRowToResearchItem(row: RawResearchRow): ResearchItem {
     ...calcRating(row.ratings),
     publishedAt: row.published_at ?? "",
     scanStatus: row.scan_status,
+    license: row.license ?? null,
+    licenseUrl: row.license_url ?? null,
+    sourceUrl: row.source_url ?? null,
+    publisher: row.publisher ?? null,
+    language: row.language ?? null,
   };
 }
 

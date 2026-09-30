@@ -52,6 +52,12 @@ export interface RawResearchRow {
   research_categories: RawCategoryRef[];
   research_keywords: RawKeywordRef[];
   ratings: { score: number }[];
+  // เฉพาะ RESEARCH_DETAIL_SELECT (หน้ารายละเอียด) — query รายการ/ค้นหาไม่ได้ดึงคอลัมน์เหล่านี้
+  license?: string | null;
+  license_url?: string | null;
+  source_url?: string | null;
+  publisher?: string | null;
+  language?: string | null;
 }
 
 /**

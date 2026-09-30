@@ -50,6 +50,12 @@ export interface ResearchItem {
   ratingCount: number;
   publishedAt: string;
   scanStatus: ScanStatus;
+  /** ข้อมูลบรรณานุกรม — มีค่าเฉพาะที่ได้จาก query หน้ารายละเอียดเท่านั้น */
+  license?: string | null;
+  licenseUrl?: string | null;
+  sourceUrl?: string | null;
+  publisher?: string | null;
+  language?: string | null;
 }
 
 export interface Category {

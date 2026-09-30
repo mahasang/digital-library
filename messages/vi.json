@@ -152,7 +152,17 @@
         "defaultAuthorName": "User",
         "edit": "Edit comment",
         "delete": "Delete comment",
-        "deleteConfirm": "Delete this comment?"
+        "deleteConfirm": "Delete this comment?",
+        "submit": "Gửi bình luận"
+      },
+      "bibliographic": {
+        "title": "Thông tin thư mục",
+        "publisher": "Nhà xuất bản",
+        "language": "Ngôn ngữ",
+        "license": "Giấy phép",
+        "source": "Nguồn",
+        "viewSource": "Xem bản gốc",
+        "opensInNewTab": "mở trong tab mới"
       }
     },
     "searchModeAll": "Search All",

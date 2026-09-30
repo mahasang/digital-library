@@ -27,6 +27,16 @@ const RESEARCH_SELECT = `
 `;
 
 /**
+ * select ของหน้ารายละเอียดงานวิจัยเท่านั้น — เพิ่มข้อมูลบรรณานุกรม (license,
+ * license_url, source_url, publisher, language) ต่อท้าย RESEARCH_SELECT โดย
+ * ไม่แตะ query รายการ/ค้นหา/จัดการที่ใช้ RESEARCH_SELECT ร่วมกัน
+ */
+const RESEARCH_DETAIL_SELECT = `
+  ${RESEARCH_SELECT},
+  license, license_url, source_url, publisher, language
+`;
+
+/**
  * select string สำหรับหน้าจัดการภายใน (ส่งงานวิจัย/อนุมัติ) รวมฟิลด์เพิ่มเติม
  * ที่ไม่แสดงต่อสาธารณะ — การมองเห็นแถวยังคงถูกจำกัดโดย RLS ตามปกติ
  * (เจ้าของงานหรือ librarian/admin เท่านั้น)
@@ -144,7 +154,7 @@ export async function fetchResearchRowBySlug(
 ): Promise<RawResearchRow | null> {
   const { data, error } = await client
     .from("research_items")
-    .select(RESEARCH_SELECT)
+    .select(RESEARCH_DETAIL_SELECT)
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
