@@ -27,6 +27,25 @@ import { createServiceRoleClient } from "@/lib/supabase/service";
 import type { Database } from "@/lib/supabase/database.types";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+// Safety gate — runs at import time, before any client is created or any
+// network call is made. This file creates and deletes auth users, so it must
+// never run against anything but the local Supabase.
+if (SUPABASE_URL) {
+  let hostname = "";
+  try {
+    hostname = new URL(SUPABASE_URL).hostname;
+  } catch {
+    // unparsable -> refused below
+  }
+  const isLocal = ["127.0.0.1", "localhost", "[::1]"].includes(hostname);
+  if (!isLocal || hostname.endsWith("supabase.co")) {
+    throw new Error(
+      "REFUSED: NEXT_PUBLIC_SUPABASE_URL is not a local Supabase URL. This integration test only runs against local."
+    );
+  }
+}
+
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
