@@ -7,6 +7,12 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { createSubmissionSchema } from "@/lib/validation/submission";
+import {
+  createBibliographicSchema,
+  hasBibliographicFormData,
+  readBibliographicFormData,
+  toBibliographicColumns,
+} from "@/lib/validation/bibliographic";
 import { replaceResearchRelations } from "@/lib/data/submission-write.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
@@ -104,11 +110,20 @@ export async function adminUpdateResearchAction(
     attachmentPath: formData.get("attachmentPath") || undefined,
   });
 
-  if (!parsed.success) {
+  // license/source/publisher/language — librarian+ only (rank checked above),
+  // validated here regardless of what the client already checked
+  const biblioParsed = createBibliographicSchema(tValidation).safeParse(
+    readBibliographicFormData(formData)
+  );
+
+  if (!parsed.success || !biblioParsed.success) {
     return {
       status: "error",
       message: t("invalidFormDataComplete"),
-      fieldErrors: parsed.error.flatten().fieldErrors,
+      fieldErrors: {
+        ...(parsed.success ? {} : parsed.error.flatten().fieldErrors),
+        ...(biblioParsed.success ? {} : biblioParsed.error.flatten().fieldErrors),
+      },
     };
   }
 
@@ -192,6 +207,8 @@ export async function adminUpdateResearchAction(
       reviewed_by: user.id,
       copyright_note: parsed.data.copyrightNote,
       copyright_confirmed: parsed.data.copyrightConfirmed,
+      // only touch the five columns when the form actually sent them
+      ...(hasBibliographicFormData(formData) ? toBibliographicColumns(biblioParsed.data) : {}),
     })
     .eq("id", researchId);
 

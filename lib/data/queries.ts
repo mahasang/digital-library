@@ -46,7 +46,8 @@ const RESEARCH_MANAGEMENT_SELECT = `
   submitted_by, reviewed_by, review_note, attachment_file,
   copyright_note, copyright_confirmed,
   scan_status, scanned_at, scan_provider, scan_reason,
-  created_at, updated_at
+  created_at, updated_at,
+  license, license_url, source_url, publisher, language
 `;
 
 export async function fetchPublishedResearchRows(

@@ -14,7 +14,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ATTACHMENT_ALLOWED_TYPES,
   COVER_ALLOWED_TYPES,
@@ -28,6 +28,11 @@ import {
 } from "@/lib/storage/limits";
 import { createDraftKey } from "@/lib/storage/paths";
 import { uploadResearchFileTus } from "@/lib/storage/upload.client";
+import {
+  LANGUAGE_OPTIONS,
+  LICENSE_SUGGESTIONS,
+  createBibliographicSchema,
+} from "@/lib/validation/bibliographic";
 import TurnstileWidget from "@/components/auth/TurnstileWidget";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import type { ActionResult } from "@/lib/actions/types";
@@ -70,6 +75,16 @@ interface SubmitResearchFormProps {
   fileLimits?: FileLimits;
   /** ใส่เฉพาะหน้า /submit-research (ส่งงานวิจัยใหม่) เมื่อเปิด CAPTCHA และตั้งค่าคีย์ครบ */
   captchaSiteKey?: string;
+  /** แสดงกลุ่มช่องบรรณานุกรม/สัญญาอนุญาต — เฉพาะหน้า Librarian/Admin (dashboard/research) */
+  showBibliographicFields?: boolean;
+}
+
+function languageLabel(code: string, locale: string): string {
+  try {
+    return new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
 }
 
 export default function SubmitResearchForm({
@@ -82,6 +97,7 @@ export default function SubmitResearchForm({
   extraIntents = [],
   fileLimits,
   captchaSiteKey,
+  showBibliographicFields = false,
 }: SubmitResearchFormProps) {
   const router = useRouter();
   const isEditMode = Boolean(initialData);
@@ -96,6 +112,8 @@ export default function SubmitResearchForm({
 
   const tAccessLevels = useTranslations("accessLevels");
   const tUpload = useTranslations("upload");
+  const tValidation = useTranslations("validation");
+  const locale = useLocale();
   const t = useTranslations("submitResearch.form");
   const [titleTh, setTitleTh] = useState(initialData?.titleTh ?? "");
   const [titleEn, setTitleEn] = useState(initialData?.titleEn ?? "");
@@ -108,6 +126,11 @@ export default function SubmitResearchForm({
   const [accessLevel, setAccessLevel] = useState<AccessLevel>(
     initialData?.accessLevel ?? "public"
   );
+  const [license, setLicense] = useState(initialData?.license ?? "");
+  const [licenseUrl, setLicenseUrl] = useState(initialData?.licenseUrl ?? "");
+  const [sourceUrl, setSourceUrl] = useState(initialData?.sourceUrl ?? "");
+  const [publisher, setPublisher] = useState(initialData?.publisher ?? "");
+  const [language, setLanguage] = useState(initialData?.language ?? "");
   const [copyrightNote, setCopyrightNote] = useState(initialData?.copyrightNote ?? "");
   const [copyrightConfirmed, setCopyrightConfirmed] = useState(
     initialData?.copyrightConfirmed ?? false
@@ -208,6 +231,19 @@ export default function SubmitResearchForm({
     if (captchaSiteKey && !captchaToken) {
       errors.turnstileToken = [t("validationCaptcha")];
     }
+    if (showBibliographicFields) {
+      // UX only - the server action re-validates with the same schema
+      const biblio = createBibliographicSchema(tValidation).safeParse({
+        license,
+        licenseUrl,
+        sourceUrl,
+        publisher,
+        language,
+      });
+      if (!biblio.success) {
+        Object.assign(errors, biblio.error.flatten().fieldErrors);
+      }
+    }
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -307,6 +343,13 @@ export default function SubmitResearchForm({
     formData.set("accessLevel", accessLevel);
     formData.set("copyrightNote", copyrightNote);
     formData.set("copyrightConfirmed", copyrightConfirmed ? "true" : "false");
+    if (showBibliographicFields) {
+      formData.set("license", license);
+      formData.set("licenseUrl", licenseUrl);
+      formData.set("sourceUrl", sourceUrl);
+      formData.set("publisher", publisher);
+      formData.set("language", language);
+    }
     formData.set("pdfPath", pdfPath);
     if (coverPath) formData.set("coverPath", coverPath);
     if (attachmentPath) formData.set("attachmentPath", attachmentPath);
@@ -540,6 +583,154 @@ export default function SubmitResearchForm({
           </div>
         )}
       </section>
+
+      {/* ข้อมูลบรรณานุกรมและสัญญาอนุญาต (เฉพาะ Librarian/Admin) */}
+      {showBibliographicFields && (
+        <fieldset className="rounded-xl border border-gray-200 bg-surface p-5">
+          <legend className="px-1 text-sm font-semibold text-gray-900">
+            {t("sectionBibliographic")}
+          </legend>
+          <div className="mt-2 flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="biblio-license" className="text-sm font-medium text-gray-700">
+                {t("license")} <span className="font-normal text-ink-soft">{t("optional")}</span>
+              </label>
+              <input
+                id="biblio-license"
+                list="biblio-license-suggestions"
+                value={license}
+                onChange={(e) => setLicense(e.target.value)}
+                maxLength={100}
+                placeholder={t("licensePlaceholder")}
+                aria-invalid={Boolean(fieldErrors.license)}
+                aria-describedby={fieldErrors.license ? "biblio-license-error" : undefined}
+                className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              />
+              <datalist id="biblio-license-suggestions">
+                {LICENSE_SUGGESTIONS.map((value) => (
+                  <option key={value} value={value} />
+                ))}
+              </datalist>
+              {fieldErrors.license && (
+                <p id="biblio-license-error" className="text-xs text-red-600">
+                  {fieldErrors.license[0]}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="biblio-license-url" className="text-sm font-medium text-gray-700">
+                  {t("licenseUrl")} <span className="font-normal text-ink-soft">{t("optional")}</span>
+                </label>
+                <input
+                  id="biblio-license-url"
+                  type="url"
+                  inputMode="url"
+                  value={licenseUrl}
+                  onChange={(e) => setLicenseUrl(e.target.value)}
+                  placeholder="https://creativecommons.org/licenses/by/4.0/"
+                  aria-invalid={Boolean(fieldErrors.licenseUrl)}
+                  aria-describedby={
+                    fieldErrors.licenseUrl
+                      ? "biblio-license-url-hint biblio-license-url-error"
+                      : "biblio-license-url-hint"
+                  }
+                  className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                />
+                <p id="biblio-license-url-hint" className="text-xs text-ink-soft">
+                  {t("urlHint")}
+                </p>
+                {fieldErrors.licenseUrl && (
+                  <p id="biblio-license-url-error" className="text-xs text-red-600">
+                    {fieldErrors.licenseUrl[0]}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="biblio-source-url" className="text-sm font-medium text-gray-700">
+                  {t("sourceUrl")} <span className="font-normal text-ink-soft">{t("optional")}</span>
+                </label>
+                <input
+                  id="biblio-source-url"
+                  type="url"
+                  inputMode="url"
+                  value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
+                  placeholder="https://"
+                  aria-invalid={Boolean(fieldErrors.sourceUrl)}
+                  aria-describedby={
+                    fieldErrors.sourceUrl
+                      ? "biblio-source-url-hint biblio-source-url-error"
+                      : "biblio-source-url-hint"
+                  }
+                  className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                />
+                <p id="biblio-source-url-hint" className="text-xs text-ink-soft">
+                  {t("urlHint")}
+                </p>
+                {fieldErrors.sourceUrl && (
+                  <p id="biblio-source-url-error" className="text-xs text-red-600">
+                    {fieldErrors.sourceUrl[0]}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="biblio-publisher" className="text-sm font-medium text-gray-700">
+                  {t("publisher")} <span className="font-normal text-ink-soft">{t("optional")}</span>
+                </label>
+                <input
+                  id="biblio-publisher"
+                  value={publisher}
+                  onChange={(e) => setPublisher(e.target.value)}
+                  maxLength={300}
+                  aria-invalid={Boolean(fieldErrors.publisher)}
+                  aria-describedby={fieldErrors.publisher ? "biblio-publisher-error" : undefined}
+                  className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                />
+                {fieldErrors.publisher && (
+                  <p id="biblio-publisher-error" className="text-xs text-red-600">
+                    {fieldErrors.publisher[0]}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="biblio-language" className="text-sm font-medium text-gray-700">
+                  {t("language")} <span className="font-normal text-ink-soft">{t("optional")}</span>
+                </label>
+                <select
+                  id="biblio-language"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  aria-invalid={Boolean(fieldErrors.language)}
+                  aria-describedby={fieldErrors.language ? "biblio-language-error" : undefined}
+                  className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                >
+                  <option value="">{t("languageNone")}</option>
+                  {[
+                    ...LANGUAGE_OPTIONS,
+                    ...(language && !(LANGUAGE_OPTIONS as readonly string[]).includes(language)
+                      ? [language]
+                      : []),
+                  ].map((code) => (
+                    <option key={code} value={code}>
+                      {languageLabel(code, locale)}
+                    </option>
+                  ))}
+                </select>
+                {fieldErrors.language && (
+                  <p id="biblio-language-error" className="text-xs text-red-600">
+                    {fieldErrors.language[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      )}
 
       {/* ไฟล์แนบ */}
       <section className="rounded-xl border border-gray-200 bg-surface p-5">

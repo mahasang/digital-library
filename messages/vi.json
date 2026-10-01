@@ -1950,7 +1950,17 @@
       "validationCopyright": "Please enter copyright information",
       "validationCopyrightConfirm": "Please confirm that you own the copyright and consent to publication",
       "validationPdf": "Please upload a PDF file",
-      "validationCaptcha": "Please complete the verification (CAPTCHA) before proceeding"
+      "validationCaptcha": "Please complete the verification (CAPTCHA) before proceeding",
+      "sectionBibliographic": "Thông tin thư mục và giấy phép",
+      "optional": "(không bắt buộc)",
+      "license": "Giấy phép (License)",
+      "licensePlaceholder": "VD: CC BY 4.0 hoặc Public Domain",
+      "licenseUrl": "Liên kết giấy phép",
+      "sourceUrl": "Liên kết nguồn gốc",
+      "urlHint": "Phải bắt đầu bằng https:// (hoặc http://)",
+      "publisher": "Nhà xuất bản",
+      "language": "Ngôn ngữ tài liệu",
+      "languageNone": "Không xác định"
     }
   },
   "researchRead": {
@@ -2233,6 +2243,13 @@
         "alreadyLinked": "This ORCID is already linked to another researcher in the system. Please contact library staff.",
         "saveFailed": "Could not save the ORCID connection. Please try again."
       }
+    },
+    "bibliographic": {
+      "licenseTooLong": "Giấy phép tối đa 100 ký tự",
+      "publisherTooLong": "Tên nhà xuất bản tối đa 300 ký tự",
+      "urlInvalid": "Liên kết phải bắt đầu bằng http:// hoặc https:// và không chứa khoảng trắng",
+      "urlTooLong": "Liên kết quá dài (tối đa 2.000 ký tự)",
+      "languageInvalid": "Mã ngôn ngữ không hợp lệ"
     }
   },
   "blogAdmin": {

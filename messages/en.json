@@ -1950,7 +1950,17 @@
       "validationCopyright": "Please enter copyright information",
       "validationCopyrightConfirm": "Please confirm that you own the copyright and consent to publication",
       "validationPdf": "Please upload a PDF file",
-      "validationCaptcha": "Please complete the verification (CAPTCHA) before proceeding"
+      "validationCaptcha": "Please complete the verification (CAPTCHA) before proceeding",
+      "sectionBibliographic": "Bibliographic and license information",
+      "optional": "(optional)",
+      "license": "License",
+      "licensePlaceholder": "e.g. CC BY 4.0 or Public Domain",
+      "licenseUrl": "License link",
+      "sourceUrl": "Original source link",
+      "urlHint": "Must start with https:// (or http://)",
+      "publisher": "Publisher",
+      "language": "Document language",
+      "languageNone": "Not specified"
     }
   },
   "researchRead": {
@@ -2233,6 +2243,13 @@
         "alreadyLinked": "This ORCID is already linked to another researcher in the system. Please contact library staff.",
         "saveFailed": "Could not save the ORCID connection. Please try again."
       }
+    },
+    "bibliographic": {
+      "licenseTooLong": "License must be 100 characters or fewer",
+      "publisherTooLong": "Publisher must be 300 characters or fewer",
+      "urlInvalid": "The link must start with http:// or https:// and contain no spaces",
+      "urlTooLong": "The link is too long (2,000 characters max)",
+      "languageInvalid": "Invalid language code"
     }
   },
   "blogAdmin": {

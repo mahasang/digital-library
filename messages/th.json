@@ -1950,7 +1950,17 @@
       "validationCopyright": "กรุณากรอกข้อมูลลิขสิทธิ์",
       "validationCopyrightConfirm": "กรุณายืนยันว่าเป็นเจ้าของลิขสิทธิ์และยินยอมให้เผยแพร่",
       "validationPdf": "กรุณาอัปโหลดไฟล์ PDF",
-      "validationCaptcha": "กรุณายืนยันตัวตน (CAPTCHA) ก่อนดำเนินการ"
+      "validationCaptcha": "กรุณายืนยันตัวตน (CAPTCHA) ก่อนดำเนินการ",
+      "sectionBibliographic": "ข้อมูลบรรณานุกรมและสัญญาอนุญาต",
+      "optional": "(ไม่บังคับ)",
+      "license": "สัญญาอนุญาต (License)",
+      "licensePlaceholder": "เช่น CC BY 4.0 หรือ Public Domain",
+      "licenseUrl": "ลิงก์สัญญาอนุญาต",
+      "sourceUrl": "ลิงก์แหล่งที่มาต้นฉบับ",
+      "urlHint": "ต้องเป็นลิงก์ที่ขึ้นต้นด้วย https:// (หรือ http://)",
+      "publisher": "ผู้จัดพิมพ์",
+      "language": "ภาษาของเอกสาร",
+      "languageNone": "ไม่ระบุ"
     }
   },
   "researchRead": {
@@ -2233,6 +2243,13 @@
         "alreadyLinked": "ORCID นี้ถูกใช้กับผู้วิจัยคนอื่นในระบบแล้ว กรุณาติดต่อเจ้าหน้าที่ห้องสมุดเพื่อตรวจสอบ",
         "saveFailed": "ไม่สามารถบันทึกการเชื่อมต่อ ORCID ได้ กรุณาลองใหม่อีกครั้ง"
       }
+    },
+    "bibliographic": {
+      "licenseTooLong": "สัญญาอนุญาตต้องไม่เกิน 100 ตัวอักษร",
+      "publisherTooLong": "ชื่อผู้จัดพิมพ์ต้องไม่เกิน 300 ตัวอักษร",
+      "urlInvalid": "ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https:// และห้ามมีช่องว่าง",
+      "urlTooLong": "ลิงก์ยาวเกินไป (ไม่เกิน 2,000 ตัวอักษร)",
+      "languageInvalid": "รหัสภาษาไม่ถูกต้อง"
     }
   },
   "blogAdmin": {

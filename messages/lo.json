@@ -1950,7 +1950,17 @@
       "validationCopyright": "ກະລຸນາປ້ອນຂໍ້ມູນລິຂະສິດ",
       "validationCopyrightConfirm": "ກະລຸນາຢືນຢັນວ່າເປັນເຈົ້າຂອງລິຂະສິດແລະຍິນຍອມໃຫ້ເຜີຍແຜ່",
       "validationPdf": "ກະລຸນາອັບໂຫລດໄຟລ໌ PDF",
-      "validationCaptcha": "ກະລຸນາຢືນຢັນຕົວຕົນ (CAPTCHA) ກ່ອນດຳເນີນການ"
+      "validationCaptcha": "ກະລຸນາຢືນຢັນຕົວຕົນ (CAPTCHA) ກ່ອນດຳເນີນການ",
+      "sectionBibliographic": "ຂໍ້ມູນບັນນານຸກົມ ແລະ ໃບອະນຸຍາດ",
+      "optional": "(ບໍ່ບັງຄັບ)",
+      "license": "ໃບອະນຸຍາດ (License)",
+      "licensePlaceholder": "ເຊັ່ນ CC BY 4.0 ຫຼື Public Domain",
+      "licenseUrl": "ລິ້ງໃບອະນຸຍາດ",
+      "sourceUrl": "ລິ້ງແຫຼ່ງທີ່ມາຕົ້ນສະບັບ",
+      "urlHint": "ຕ້ອງເລີ່ມຕົ້ນດ້ວຍ https:// (ຫຼື http://)",
+      "publisher": "ສຳນັກພິມ",
+      "language": "ພາສາຂອງເອກະສານ",
+      "languageNone": "ບໍ່ລະບຸ"
     }
   },
   "researchRead": {
@@ -2233,6 +2243,13 @@
         "alreadyLinked": "ORCID ນີ້ຖືກໃຊ້ກັບນັກວິໄຈຄົນອື່ນໃນລະບົບແລ້ວ ກະລຸນາຕິດຕໍ່ເຈົ້າໜ້າທີ່ຫໍສະໝຸດເພື່ອກວດສອບ",
         "saveFailed": "ບໍ່ສາມາດບັນທຶກການເຊື່ອມຕໍ່ ORCID ໄດ້ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ"
       }
+    },
+    "bibliographic": {
+      "licenseTooLong": "ໃບອະນຸຍາດຕ້ອງບໍ່ເກີນ 100 ຕົວອັກສອນ",
+      "publisherTooLong": "ຊື່ສຳນັກພິມຕ້ອງບໍ່ເກີນ 300 ຕົວອັກສອນ",
+      "urlInvalid": "ລິ້ງຕ້ອງເລີ່ມຕົ້ນດ້ວຍ http:// ຫຼື https:// ແລະ ຫ້າມມີຊ່ອງຫວ່າງ",
+      "urlTooLong": "ລິ້ງຍາວເກີນໄປ (ບໍ່ເກີນ 2,000 ຕົວອັກສອນ)",
+      "languageInvalid": "ລະຫັດພາສາບໍ່ຖືກຕ້ອງ"
     }
   },
   "blogAdmin": {

@@ -59,6 +59,7 @@ export default async function DashboardNewResearchPage() {
         organizations={organizations}
         categories={categories}
         submitAction={adminCreateResearchAction}
+        showBibliographicFields
         extraIntents={[{ value: "published", label: t("publishNowIntent") }]}
         fileLimits={{
           maxPdfSizeMb: settings.maxPdfSizeMb,

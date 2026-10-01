@@ -7,6 +7,12 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { createSubmissionSchema } from "@/lib/validation/submission";
 import {
+  createBibliographicSchema,
+  hasBibliographicFormData,
+  readBibliographicFormData,
+  toBibliographicColumns,
+} from "@/lib/validation/bibliographic";
+import {
   generateResearchSlug,
   replaceResearchRelations,
 } from "@/lib/data/submission-write.server";
@@ -75,11 +81,20 @@ export async function adminCreateResearchAction(
     attachmentPath: formData.get("attachmentPath") || undefined,
   });
 
-  if (!parsed.success) {
+  // license/source/publisher/language — librarian+ only (rank checked above),
+  // validated here regardless of what the client already checked
+  const biblioParsed = createBibliographicSchema(tValidation).safeParse(
+    readBibliographicFormData(formData)
+  );
+
+  if (!parsed.success || !biblioParsed.success) {
     return {
       status: "error",
       message: t("invalidFormDataComplete"),
-      fieldErrors: parsed.error.flatten().fieldErrors,
+      fieldErrors: {
+        ...(parsed.success ? {} : parsed.error.flatten().fieldErrors),
+        ...(biblioParsed.success ? {} : biblioParsed.error.flatten().fieldErrors),
+      },
     };
   }
 
@@ -141,6 +156,7 @@ export async function adminCreateResearchAction(
       submitted_by: user.id,
       copyright_note: parsed.data.copyrightNote,
       copyright_confirmed: parsed.data.copyrightConfirmed,
+      ...(hasBibliographicFormData(formData) ? toBibliographicColumns(biblioParsed.data) : {}),
       scan_status: pdfScan.scanStatus,
       scanned_at: pdfScan.scannedAt,
       scan_provider: pdfScan.scanProvider,

@@ -92,6 +92,7 @@ export default async function DashboardEditResearchPage({
         organizations={organizations}
         categories={categories}
         submitAction={adminUpdateResearchAction}
+        showBibliographicFields
         initialData={item}
         researchId={item.id}
         extraIntents={[{ value: "published", label: t("publishIntent") }]}
