@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:a11y": "playwright test",
     "e2e:seed-users": "node scripts/e2e-seed-users.mjs",
+    "e2e:reset-rate-limit": "node scripts/e2e-reset-rate-limit.mjs",
     "postinstall": "node scripts/copy-pdf-worker.js"
   },
   "dependencies": {
