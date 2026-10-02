@@ -17,6 +17,8 @@ export default defineConfig({
   use: {
     baseURL: process.env.E2E_BASE_URL ?? "http://localhost:3001",
     trace: "retain-on-failure",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   // Login rate limit is 10 attempts / 15 min / IP (login/actions.ts), so roles
   // sign in once in "setup" and specs reuse e2e/.auth/<role>.json. Tests that
@@ -50,7 +52,10 @@ export default defineConfig({
   : {
       command: "npm run build && npm run start",
       url: "http://localhost:3001",
-      reuseExistingServer: false,
-      timeout: 120_000,
+      // Opt-in only: by default a server already listening on 3001 makes Playwright
+      // fail instead of silently testing a stale build. Set E2E_REUSE_SERVER=1 to
+      // reuse it (skips build+start). The cold build alone can exceed 120 s.
+      reuseExistingServer: process.env.E2E_REUSE_SERVER === "1",
+      timeout: 300_000,
     },
 });

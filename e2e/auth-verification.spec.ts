@@ -206,16 +206,97 @@ test.describe("logout", () => {
   test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set — skipping");
   test.use({ storageState: storageStateFor("member") });
 
+  // Evidence for an intermittent failure (the click sometimes produced no redirect).
+  // Collected on every run, attached to the report only when the test fails;
+  // it does not change what the test asserts.
+  interface LogoutDiagnostics {
+    consoleErrors: { t: number; text: string }[];
+    failedRequests: { t: number; url: string; error: string | undefined }[];
+    logoutResponses: { t: number; status: number; url: string }[];
+    navigations: { t: number; url: string }[];
+    preClick: { t: number; hydrated: boolean; disabled: boolean; text: string | null; readyState: string } | null;
+    afterFailure: { url: string; buttonText: string | null; buttonDisabled: boolean | null } | null;
+  }
+  let diag: LogoutDiagnostics;
+
+  test.afterEach(async ({ page }, testInfo) => {
+    if (testInfo.status === testInfo.expectedStatus) return;
+    diag.afterFailure = await page
+      .evaluate(() => {
+        const button = Array.from(document.querySelectorAll("button")).find(
+          (b) => (b.textContent ?? "").includes("ออกจากระบบ")
+        );
+        return {
+          url: location.href,
+          buttonText: button?.textContent ?? null,
+          buttonDisabled: button ? button.disabled : null,
+        };
+      })
+      .catch(() => null);
+    await testInfo.attach("logout-diagnostics", {
+      body: JSON.stringify(diag, null, 2),
+      contentType: "application/json",
+    });
+  });
+
   test("logging out clears the session — protected pages redirect to /login again afterward", {
     tag: "@destructive",
   }, async ({ page }) => {
+    const startedAt = Date.now();
+    const at = () => Date.now() - startedAt;
+    diag = { consoleErrors: [], failedRequests: [], logoutResponses: [], navigations: [], preClick: null, afterFailure: null };
+    page.on("console", (m) => {
+      if (m.type() === "error") diag.consoleErrors.push({ t: at(), text: m.text() });
+    });
+    page.on("requestfailed", (r) =>
+      diag.failedRequests.push({ t: at(), url: r.url(), error: r.failure()?.errorText })
+    );
+    page.on("response", (r) => {
+      if (/\/logout/.test(r.url())) diag.logoutResponses.push({ t: at(), status: r.status(), url: r.url() });
+    });
+    page.on("framenavigated", (f) => {
+      if (f === page.mainFrame()) diag.navigations.push({ t: at(), url: f.url() });
+    });
+
     await page.goto("/th/account", { waitUntil: "networkidle" });
     await expect(page).toHaveURL(/\/account/);
 
-    await page.getByRole("button", { name: "ออกจากระบบ" }).first().click();
+    const logoutButton = page.getByRole("button", { name: "ออกจากระบบ" }).first();
+    // React attaches __reactProps$/__reactFiber$ to a DOM node once it is hydrated
+    const isHydrated = () =>
+      logoutButton.evaluate((el) =>
+        Object.keys(el).some((k) => k.startsWith("__reactProps") || k.startsWith("__reactFiber"))
+      );
+
+    // PREVENTIVE hardening — the root cause of the rare "click produced no redirect"
+    // failure was never captured (4 full-suite rounds + 26 isolated rounds all passed).
+    // The leading hypothesis is a click landing before the button's onClick is bound
+    // (hydration). So: wait for hydration, then click inside a retry that only
+    // re-clicks while we are still on the account page and the button is idle
+    // (LogoutButton disables itself while a sign-out is pending, so a retry can
+    // never double-fire). The assertions that follow are unchanged.
+    await expect.poll(isHydrated, { timeout: 10_000 }).toBe(true);
+    diag.preClick = await logoutButton
+      .evaluate((el) => ({
+        t: 0,
+        hydrated: Object.keys(el).some((k) => k.startsWith("__reactProps") || k.startsWith("__reactFiber")),
+        disabled: (el as HTMLButtonElement).disabled,
+        text: el.textContent,
+        readyState: document.readyState,
+      }))
+      .catch(() => null);
+    if (diag.preClick) diag.preClick.t = at();
+
     // i18n Phase 0A — ทุก path ผ่าน locale prefix เสมอ (localePrefix: "always")
     // "/" จริงจะ redirect เป็น /th, /en, /lo หรือ /vi ตาม locale ที่ negotiate ได้
-    await page.waitForURL((u) => /^\/(th|en|lo|vi)$/.test(u.pathname), { timeout: 10_000 });
+    const isLocaleRoot = (u: URL) => /^\/(th|en|lo|vi)$/.test(u.pathname);
+    await expect(async () => {
+      if (isLocaleRoot(new URL(page.url()))) return;
+      if (await logoutButton.isEnabled()) {
+        await logoutButton.click({ timeout: 2_000 });
+      }
+      await page.waitForURL(isLocaleRoot, { timeout: 4_000 });
+    }).toPass({ timeout: 15_000, intervals: [0, 1_000, 2_000] });
 
     // guest อีกครั้งแล้ว — เข้าหน้าที่ต้อง login ต้องถูกเด้งไป /login
     await page.goto("/th/account", { waitUntil: "networkidle" });
