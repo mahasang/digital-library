@@ -179,9 +179,9 @@ export default function CommentSection({
                 {/* Bubble */}
                 <div className="flex-1 rounded-xl rounded-tl-sm bg-gray-100 px-3 py-2">
                   <div className="mb-1 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-brand-700">{authorName}</span>
+                    <span className="text-xs font-semibold text-brand-700 dark:text-accent-ink">{authorName}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400">{timeAgo(c.createdAt)}</span>
+                      <span className="text-xs text-gray-500">{timeAgo(c.createdAt)}</span>
                       {isOwner && !isEditing && (
                         <>
                           <button

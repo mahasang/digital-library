@@ -42,7 +42,7 @@ export default async function ResearchSection({
           </div>
           <Link
             href="/research"
-            className="hidden items-center gap-1 text-sm font-medium text-accent hover:text-accent-strong sm:flex"
+            className="hidden items-center gap-1 text-sm font-medium text-accent dark:text-accent-ink hover:text-accent-strong sm:flex"
           >
             {t("viewAllResearch")} <ArrowRight className="h-4 w-4" />
           </Link>

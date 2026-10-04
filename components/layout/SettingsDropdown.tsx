@@ -91,7 +91,7 @@ export function SettingsDropdown() {
         className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-all duration-200 ${
           open
             ? "border-accent/50 bg-accent-soft text-accent-ink shadow-[0_0_0_3px_rgba(99,102,241,0.1)]"
-            : "border-gray-200 bg-surface text-gray-700 hover:border-gray-300 dark:border-white/10 dark:text-gray-300 dark:hover:border-white/20"
+            : "border-gray-200 bg-surface text-gray-700 hover:border-gray-300 dark:border-white/10 dark:hover:border-white/20"
         }`}
       >
         {/* dot สีน้ำเงินแสดงว่า locale active */}

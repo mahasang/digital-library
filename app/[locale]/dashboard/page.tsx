@@ -153,7 +153,7 @@ export default async function DashboardOverviewPage({
                       <td className="max-w-xs truncate py-2.5 pr-4">
                         <Link
                           href={`/research/${r.id}`}
-                          className="text-accent hover:underline"
+                          className="text-accent dark:text-accent-ink hover:underline"
                         >
                           {r.titleTh}
                         </Link>

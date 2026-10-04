@@ -38,7 +38,7 @@ export default function ReadingHistorySection({
       <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-surface py-12 text-center">
         <Clock className="h-10 w-10 text-gray-300" />
         <p className="text-sm font-medium text-gray-500">{t("emptyHistoryTitle")}</p>
-        <p className="text-xs text-gray-400">{t("emptyHistoryDescription")}</p>
+        <p className="text-xs text-gray-500">{t("emptyHistoryDescription")}</p>
       </div>
     );
   }

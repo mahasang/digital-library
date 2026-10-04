@@ -52,7 +52,7 @@ export default async function LoginPage({
       footer={
         <>
           {t("noAccount")}{" "}
-          <Link href="/register" className="font-medium text-accent hover:underline">
+          <Link href="/register" className="font-medium text-accent dark:text-accent-ink hover:underline">
             {t("registerLink")}
           </Link>
         </>

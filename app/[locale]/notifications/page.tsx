@@ -64,7 +64,7 @@ export default async function NotificationsPage() {
             action={
               <Link
                 href="/profile/notification-settings"
-                className="text-sm font-medium text-accent hover:underline"
+                className="text-sm font-medium text-accent dark:text-accent-ink hover:underline"
               >
                 {t("settingsLink")}
               </Link>

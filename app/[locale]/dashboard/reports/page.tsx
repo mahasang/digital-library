@@ -101,7 +101,7 @@ const TABS: { value: ReportTab; label: string }[] = [
             href={buildTabUrl(tabItem.value)}
             className={`rounded-t-lg px-4 py-2 text-sm font-medium ${
               tab === tabItem.value
-                ? "border-b-2 border-brand-600 text-accent"
+                ? "border-b-2 border-brand-600 text-accent dark:text-accent-ink"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -212,18 +212,18 @@ async function AnalyticsPanel() {
           <div key={label} className="rounded-xl border border-gray-200 bg-surface p-5 text-center">
             <p className="text-3xl font-bold text-brand-600">{value.toLocaleString("th-TH")}</p>
             <p className="mt-1 text-xs text-gray-500">{label}</p>
-            <p className="text-xs text-gray-400">{t("reports.analyticsViews")}</p>
+            <p className="text-xs text-gray-500">{t("reports.analyticsViews")}</p>
           </div>
         ))}
       </div>
 
       {/* ── Bar chart 30 วัน ── */}
       <div className="rounded-xl border border-gray-200 bg-surface p-5">
-        <h3 className="mb-4 text-sm font-semibold text-gray-900">
+        <h2 className="mb-4 text-sm font-semibold text-gray-900">
           {t("reports.analyticsDailyChart")}
-        </h3>
+        </h2>
         {stats.daily.every((d) => d.count === 0) ? (
-          <p className="py-8 text-center text-sm text-gray-400">{t("reports.noResults")}</p>
+          <p className="py-8 text-center text-sm text-gray-500">{t("reports.noResults")}</p>
         ) : (
           <div className="flex flex-col gap-2">
             <div className="flex items-end gap-0.5 h-40">
