@@ -54,10 +54,14 @@
    * text-red-600, border-green-200, etc. across the whole app becomes
    * theme-aware automatically — see tailwind.config.ts and
    * docs/theme-system.md for why this is the chosen mechanism. Light
-   * values below are Tailwind's exact defaults (zero visual change in
-   * light mode); dark values are new. */
+   * values below are Tailwind's defaults EXCEPT --gray-500, which is
+   * darkened from #6b7280 to #626977: text-gray-500 is the app's secondary
+   * text colour and #6b7280 only reaches 4.32:1 on the page background
+   * (#F5F2ED), below the WCAG AA 4.5:1 minimum. #626977 gives 4.94:1 on
+   * the page background, 4.56:1 on --color-surface-muted and 5.01:1 on
+   * --gray-100. Dark values are new. */
   --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db; --gray-400: #9ca3af;
-  --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
+  --gray-500: #626977; --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
 
   --red-50: #fef2f2; --red-100: #fee2e2; --red-200: #fecaca; --red-300: #fca5a5; --red-400: #f87171;
   --red-500: #ef4444; --red-600: #dc2626; --red-700: #b91c1c; --red-800: #991b1b; --red-900: #7f1d1d;
@@ -111,7 +115,7 @@
 
     /* Phase UI-Redesign: accent → indigo/violet (was blue #7BA3E8) for the
      * "Premium" dark identity */
-    --color-accent: #6366F1;
+    --color-accent: #6063EE;
     --color-accent-strong: #818CF8;
     --color-accent-soft: #1E1B4B;
     --color-accent-soft-hover: #2D2A6E;
@@ -164,7 +168,7 @@
   /* Phase UI-Redesign: accent → indigo/violet (was blue #7BA3E8) for the
    * "Premium" dark identity — must stay bit-for-bit identical to the
    * @media block above */
-  --color-accent: #6366F1;
+  --color-accent: #6063EE;
   --color-accent-strong: #818CF8;
   --color-accent-soft: #1E1B4B;
   --color-accent-soft-hover: #2D2A6E;
