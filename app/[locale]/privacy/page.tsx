@@ -17,7 +17,7 @@ export default async function PrivacyPage() {
             {t("title")}
           </h1>
           <div className="prose prose-gray max-w-none text-gray-600 space-y-6">
-            <p className="text-sm text-gray-400">{t("lastUpdated")}</p>
+            <p className="text-sm text-gray-500">{t("lastUpdated")}</p>
 
             <section>
               <h2 className="text-lg font-semibold text-gray-900">{t("section1.title")}</h2>
@@ -62,7 +62,7 @@ export default async function PrivacyPage() {
 
             <section>
               <h2 className="text-lg font-semibold text-gray-900">{t("section6.title")}</h2>
-              <p>{t("section6.content")} <a href="mailto:info@digitallibrary.la" className="text-brand-600 hover:underline">info@digitallibrary.la</a></p>
+              <p>{t("section6.content")} <a href="mailto:info@digitallibrary.la" className="text-brand-600 dark:text-accent-ink underline underline-offset-2">info@digitallibrary.la</a></p>
             </section>
           </div>
         </div>

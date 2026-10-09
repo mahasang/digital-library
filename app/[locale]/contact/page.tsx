@@ -18,7 +18,7 @@ export default function ContactPage() {
   const t = useTranslations('contact');
 
   return (
-    <main className="min-h-screen py-16 px-4">
+    <div className="min-h-screen py-16 px-4">
       <div className="text-center mb-12">
         <h1 className="text-h1 font-semibold text-ink mb-2">
           {t('heading')}
@@ -45,7 +45,7 @@ export default function ContactPage() {
           <ContactForm />
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -60,13 +60,13 @@ function InfoRow({
 }) {
   return (
     <div>
-      <p className="text-caption text-ink-faint uppercase tracking-wider mb-1">
+      <p className="text-caption text-ink-soft uppercase tracking-wider mb-1">
         {label}
       </p>
       {isEmail ? (
         <a
           href={`mailto:${value}`}
-          className="text-body-sm font-medium text-accent hover:text-accent-strong hover:underline transition-colors"
+          className="text-body-sm font-medium text-accent dark:text-accent-ink hover:text-accent-strong hover:underline transition-colors"
         >
           {value}
         </a>

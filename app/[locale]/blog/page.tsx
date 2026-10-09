@@ -119,7 +119,7 @@ export default async function BlogPage({
         {posts.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-300 py-16 text-center">
             <p className="font-medium text-gray-500">{t("noPosts")}</p>
-            <p className="mt-1 text-sm text-gray-400">{t("noPostsHint")}</p>
+            <p className="mt-1 text-sm text-gray-500">{t("noPostsHint")}</p>
             {(search || tag) && (
               <Link href="/blog" className="mt-4 inline-block text-sm text-brand-600 hover:underline">
                 ← {t("allPosts")}

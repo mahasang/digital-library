@@ -18,7 +18,7 @@ export default async function TermsPage() {
             {t("title")}
           </h1>
           <div className="space-y-6 text-gray-600">
-            <p className="text-sm text-gray-400">{t("lastUpdated")}</p>
+            <p className="text-sm text-gray-500">{t("lastUpdated")}</p>
 
             <section>
               <h2 className="text-lg font-semibold text-gray-900 mb-2">{t("section1.title")}</h2>
@@ -55,7 +55,7 @@ export default async function TermsPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-2">{t("section6.title")}</h2>
               <p className="text-sm leading-relaxed">
                 {t("section6.content")}{" "}
-                <a href="mailto:info@digitallibrary.la" className="text-brand-600 hover:underline">
+                <a href="mailto:info@digitallibrary.la" className="text-brand-600 dark:text-accent-ink underline underline-offset-2">
                   info@digitallibrary.la
                 </a>
               </p>

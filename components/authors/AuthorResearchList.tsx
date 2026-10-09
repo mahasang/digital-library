@@ -35,7 +35,7 @@ export async function AuthorResearchList({ research }: Props) {
                 </span>
               ))}
               {item.publishedAt && (
-                <span className="ml-auto text-xs text-gray-400">
+                <span className="ml-auto text-xs text-gray-500">
                   {new Date(item.publishedAt).getFullYear()}
                 </span>
               )}

@@ -61,7 +61,7 @@ export default async function AboutPage() {
                 <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-soft text-accent-ink">
                   <Icon className="h-5 w-5" />
                 </span>
-                <h3 className="text-sm font-semibold text-gray-900">{t(`features.${key}.title`)}</h3>
+                <h2 className="text-sm font-semibold text-gray-900">{t(`features.${key}.title`)}</h2>
                 <p className="text-sm leading-relaxed text-gray-500">
                   {t(`features.${key}.description`)}
                 </p>

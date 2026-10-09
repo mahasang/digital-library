@@ -31,7 +31,7 @@ export default async function ResetPasswordPage() {
       title={t("resetPasswordTitle")}
       description={t("resetPasswordDescription")}
       footer={
-        <Link href="/login" className="font-medium text-accent hover:underline">
+        <Link href="/login" className="font-medium text-accent dark:text-accent-ink hover:underline">
           {t("backToLogin")}
         </Link>
       }
