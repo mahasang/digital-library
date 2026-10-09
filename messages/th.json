@@ -333,6 +333,7 @@
       "searchPlaceholder": "ค้นหาชื่อ/อีเมลผู้ขอ...",
       "allStatuses": "ทุกสถานะ",
       "allTypes": "ทุกประเภทคำขอ",
+      "filterType": "ประเภทคำขอ",
       "allCategories": "ทุกหมวดหมู่",
       "dateFrom": "จากวันที่",
       "dateTo": "ถึงวันที่",
@@ -552,7 +553,8 @@
       "pageTitle": "จัดการผู้ใช้งาน",
       "heading": "จัดการผู้ใช้งาน",
       "subtitle": "กำหนดบทบาท (Member/Staff/Librarian/Admin) และเปิด/ปิดสถานะบัญชีโดยไม่ลบข้อมูล",
-      "empty": "ยังไม่มีผู้ใช้งานในระบบ"
+      "empty": "ยังไม่มีผู้ใช้งานในระบบ",
+      "roleOfUser": "บทบาทของ {name}"
     }
   },
   "account": {

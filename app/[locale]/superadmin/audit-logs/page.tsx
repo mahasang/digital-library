@@ -245,6 +245,7 @@ export default async function SuperAdminAuditLogsPage({
         <div className="flex items-center justify-center gap-2">
           <Link
             href={buildUrl(Math.max(1, page - 1))}
+            aria-disabled={page <= 1 ? true : undefined}
             className={`inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm ${
               page <= 1 ? "pointer-events-none text-gray-300" : "text-gray-600 hover:bg-gray-100"
             }`}
@@ -257,6 +258,7 @@ export default async function SuperAdminAuditLogsPage({
           </span>
           <Link
             href={buildUrl(Math.min(totalPages, page + 1))}
+            aria-disabled={page >= totalPages ? true : undefined}
             className={`inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm ${
               page >= totalPages
                 ? "pointer-events-none text-gray-300"

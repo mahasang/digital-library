@@ -13,6 +13,10 @@ import type { UserRole } from "@/types/research";
 
 const ASSIGNABLE_ROLES: UserRole[] = ["member", "staff", "librarian", "admin"];
 
+// lib/data/admin-users.server.ts fills a missing full_name with this placeholder. It does not
+// identify anyone, so the role select is named after the email (already shown in the row) instead.
+const UNNAMED_PLACEHOLDER = "ไม่ระบุชื่อ";
+
 export default function UserManager({
   users,
   currentUserId,
@@ -52,6 +56,7 @@ function UserRow({ user, isSelf }: { user: AdminUserRow; isSelf: boolean }) {
     idleActionResult
   );
   const tRoles = useTranslations("roles");
+  const tUsers = useTranslations("dashboard.users");
 
   return (
     <tr>
@@ -77,6 +82,9 @@ function UserRow({ user, isSelf }: { user: AdminUserRow; isSelf: boolean }) {
             <input type="hidden" name="userId" value={user.id} />
             <select
               name="role"
+              aria-label={tUsers("roleOfUser", {
+                name: user.fullName === UNNAMED_PLACEHOLDER ? user.email : user.fullName.trim() || user.email,
+              })}
               defaultValue={user.role}
               onChange={(e) => e.currentTarget.form?.requestSubmit()}
               disabled={rolePending}

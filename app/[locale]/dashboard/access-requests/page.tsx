@@ -101,6 +101,7 @@ export default async function DashboardAccessRequestsPage({
         </div>
         <select
           name="status"
+          aria-label={t("research.colStatus")}
           defaultValue={params.status ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
@@ -113,6 +114,7 @@ export default async function DashboardAccessRequestsPage({
         </select>
         <select
           name="type"
+          aria-label={t("accessRequests.filterType")}
           defaultValue={params.type ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
@@ -125,6 +127,7 @@ export default async function DashboardAccessRequestsPage({
         </select>
         <select
           name="category"
+          aria-label={t("nav.categories")}
           defaultValue={params.category ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >

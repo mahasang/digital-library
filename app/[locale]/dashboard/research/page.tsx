@@ -108,6 +108,7 @@ export default async function DashboardResearchPage({
         </div>
         <select
           name="status"
+          aria-label={t("research.colStatus")}
           defaultValue={params.status ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
@@ -120,6 +121,7 @@ export default async function DashboardResearchPage({
         </select>
         <select
           name="access"
+          aria-label={t("research.colAccess")}
           defaultValue={params.access ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
@@ -132,6 +134,7 @@ export default async function DashboardResearchPage({
         </select>
         <select
           name="category"
+          aria-label={t("nav.categories")}
           defaultValue={params.category ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
@@ -187,7 +190,7 @@ export default async function DashboardResearchPage({
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/dashboard/research/${item.id}/edit`}
-                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-accent hover:bg-accent-soft"
+                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-accent dark:text-accent-ink hover:bg-accent-soft"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                         {t("research.editAction")}

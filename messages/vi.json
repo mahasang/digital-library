@@ -333,6 +333,7 @@
       "searchPlaceholder": "Search requester name/email...",
       "allStatuses": "All Statuses",
       "allTypes": "All Request Types",
+      "filterType": "Loại yêu cầu",
       "allCategories": "All Categories",
       "dateFrom": "From date",
       "dateTo": "To date",
@@ -552,7 +553,8 @@
       "pageTitle": "Manage Users",
       "heading": "Manage Users",
       "subtitle": "Assign roles (Member/Staff/Librarian/Admin) and enable/disable accounts without deleting data",
-      "empty": "No users in the system yet"
+      "empty": "No users in the system yet",
+      "roleOfUser": "Vai trò của {name}"
     }
   },
   "account": {

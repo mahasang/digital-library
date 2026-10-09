@@ -333,6 +333,7 @@
       "searchPlaceholder": "ຄົ້ນຫາຊື່/ອີເມວຜູ້ຂໍ...",
       "allStatuses": "ທຸກສະຖານະ",
       "allTypes": "ທຸກປະເພດຄຳຂໍ",
+      "filterType": "ປະເພດຄຳຂໍ",
       "allCategories": "ທຸກຫມວດຫມູ່",
       "dateFrom": "ຈາກວັນທີ",
       "dateTo": "ເຖິງວັນທີ",
@@ -552,7 +553,8 @@
       "pageTitle": "ຈັດການຜູ້ໃຊ້ງານ",
       "heading": "ຈັດການຜູ້ໃຊ້ງານ",
       "subtitle": "ກຳນົດບົດບາດ (Member/Staff/Librarian/Admin) ແລະເປີດ/ປິດສະຖານະບັນຊີໂດຍບໍ່ລົບຂໍ້ມູນ",
-      "empty": "ຍັງບໍ່ມີຜູ້ໃຊ້ງານໃນລະບົບ"
+      "empty": "ຍັງບໍ່ມີຜູ້ໃຊ້ງານໃນລະບົບ",
+      "roleOfUser": "ບົດບາດຂອງ {name}"
     }
   },
   "account": {

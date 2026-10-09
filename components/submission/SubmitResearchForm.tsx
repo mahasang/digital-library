@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
@@ -115,6 +115,7 @@ export default function SubmitResearchForm({
   const tValidation = useTranslations("validation");
   const locale = useLocale();
   const t = useTranslations("submitResearch.form");
+  const uid = useId();
   const [titleTh, setTitleTh] = useState(initialData?.titleTh ?? "");
   const [titleEn, setTitleEn] = useState(initialData?.titleEn ?? "");
   const [abstract, setAbstract] = useState(initialData?.abstract ?? "");
@@ -385,10 +386,11 @@ export default function SubmitResearchForm({
         <h2 className="mb-4 text-sm font-semibold text-gray-900">{t("sectionResearchInfo")}</h2>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
+            <label htmlFor={`${uid}-titleTh`} className="text-sm font-medium text-gray-700">
               {t("titleTh")} <span className="text-red-500">*</span>
             </label>
             <input
+              id={`${uid}-titleTh`}
               value={titleTh}
               onChange={(e) => setTitleTh(e.target.value)}
               className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
@@ -400,8 +402,9 @@ export default function SubmitResearchForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">{t("titleEn")}</label>
+            <label htmlFor={`${uid}-titleEn`} className="text-sm font-medium text-gray-700">{t("titleEn")}</label>
             <input
+              id={`${uid}-titleEn`}
               value={titleEn}
               onChange={(e) => setTitleEn(e.target.value)}
               className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
@@ -410,10 +413,11 @@ export default function SubmitResearchForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
+            <label htmlFor={`${uid}-abstract`} className="text-sm font-medium text-gray-700">
               {t("abstract")} <span className="text-red-500">*</span>
             </label>
             <textarea
+              id={`${uid}-abstract`}
               value={abstract}
               onChange={(e) => setAbstract(e.target.value)}
               rows={6}
@@ -427,8 +431,9 @@ export default function SubmitResearchForm({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">{t("organization")}</label>
+              <label htmlFor={`${uid}-organization`} className="text-sm font-medium text-gray-700">{t("organization")}</label>
               <select
+                id={`${uid}-organization`}
                 value={organizationId}
                 onChange={(e) => setOrganizationId(e.target.value)}
                 className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
@@ -442,8 +447,9 @@ export default function SubmitResearchForm({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">{t("year")}</label>
+              <label htmlFor={`${uid}-year`} className="text-sm font-medium text-gray-700">{t("year")}</label>
               <input
+                id={`${uid}-year`}
                 type="number"
                 value={year}
                 onChange={(e) => setYear(Number(e.target.value))}
@@ -452,8 +458,9 @@ export default function SubmitResearchForm({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">{t("category")}</label>
+              <label htmlFor={`${uid}-category`} className="text-sm font-medium text-gray-700">{t("category")}</label>
               <select
+                id={`${uid}-category`}
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
                 className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
@@ -467,8 +474,9 @@ export default function SubmitResearchForm({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">{t("accessLevel")}</label>
+              <label htmlFor={`${uid}-accessLevel`} className="text-sm font-medium text-gray-700">{t("accessLevel")}</label>
               <select
+                id={`${uid}-accessLevel`}
                 value={accessLevel}
                 onChange={(e) => setAccessLevel(e.target.value as AccessLevel)}
                 className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
@@ -493,7 +501,7 @@ export default function SubmitResearchForm({
           <button
             type="button"
             onClick={addResearcher}
-            className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-strong"
+            className="inline-flex items-center gap-1 text-xs font-medium text-accent dark:text-accent-ink hover:text-accent-strong"
           >
             <Plus className="h-3.5 w-3.5" />
             {t("addResearcher")}
@@ -859,7 +867,7 @@ export default function SubmitResearchForm({
             type="button"
             disabled={isBusy}
             onClick={() => handleSubmit(intent.value)}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-green-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-800 dark:bg-green-400 dark:hover:bg-green-300 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             {intent.label}
@@ -895,12 +903,21 @@ function FileInputRow({
   onChange: (file: File | null) => void;
   error?: string;
 }) {
+  const id = useId();
+  const labelId = `${id}-label`;
+  const buttonId = `${id}-button`;
+  const statusId = `${id}-status`;
+  const helperId = `${id}-helper`;
+  const errorId = `${id}-error`;
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
+      <label id={labelId} className="text-sm font-medium text-gray-700">{label}</label>
       <div className="flex items-center gap-3">
         <button
+          id={buttonId}
           type="button"
+          aria-labelledby={`${labelId} ${buttonId}`}
+          aria-describedby={`${statusId} ${helperId}${error ? ` ${errorId}` : ""}`}
           onClick={() => inputRef.current?.click()}
           className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
@@ -914,12 +931,12 @@ function FileInputRow({
           className="hidden"
           onChange={(e) => onChange(e.target.files?.[0] ?? null)}
         />
-        <span className="truncate text-xs text-gray-500">
+        <span id={statusId} className="truncate text-xs text-gray-500">
           {file ? `${file.name} (${formatFileSize(file.size)})` : currentFileLabel || noFileSelectedLabel}
         </span>
       </div>
-      <p className="text-xs text-gray-500">{helper}</p>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      <p id={helperId} className="text-xs text-gray-500">{helper}</p>
+      {error && <p id={errorId} className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }

@@ -84,6 +84,7 @@ export default async function DashboardAuthorsPage({
         </div>
         <select
           name="active"
+          aria-label={t("authors.colStatus")}
           defaultValue={params.active ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
@@ -93,6 +94,7 @@ export default async function DashboardAuthorsPage({
         </select>
         <select
           name="orcid"
+          aria-label={t("authors.colOrcid")}
           defaultValue={params.orcid ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
@@ -130,7 +132,7 @@ export default async function DashboardAuthorsPage({
               items.map((author) => (
                 <tr key={author.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
-                    <Link href={`/dashboard/authors/${author.id}`} className="font-medium text-accent hover:underline">
+                    <Link href={`/dashboard/authors/${author.id}`} className="font-medium text-accent dark:text-accent-ink hover:underline">
                       {author.name}
                     </Link>
                     {author.displayNameEn && <p className="text-xs text-gray-500">{author.displayNameEn}</p>}
@@ -168,6 +170,8 @@ export default async function DashboardAuthorsPage({
         <div className="flex items-center justify-center gap-2">
           <Link
             href={buildPageUrl(Math.max(1, page - 1))}
+            aria-label={t("research.prevPage")}
+            aria-disabled={page <= 1 ? true : undefined}
             className={`rounded-lg border border-gray-200 p-2 ${page <= 1 ? "pointer-events-none opacity-40" : "hover:bg-gray-50"}`}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -177,6 +181,8 @@ export default async function DashboardAuthorsPage({
           </span>
           <Link
             href={buildPageUrl(Math.min(totalPages, page + 1))}
+            aria-label={t("research.nextPage")}
+            aria-disabled={page >= totalPages ? true : undefined}
             className={`rounded-lg border border-gray-200 p-2 ${page >= totalPages ? "pointer-events-none opacity-40" : "hover:bg-gray-50"}`}
           >
             <ChevronRight className="h-4 w-4" />

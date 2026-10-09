@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { Mail, Phone, Search } from "lucide-react";
 import { getSessionUser } from "@/lib/supabase/session";
@@ -34,6 +34,7 @@ export default async function ContactMessagesPage({
   searchParams: Promise<{ status?: string; q?: string }>;
 }) {
   const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "dashboard" });
   const user = await getSessionUser();
   if (!user) return redirect({ href: "/login?redirect=/dashboard/contact-messages", locale });
 
@@ -96,6 +97,7 @@ export default async function ContactMessagesPage({
         </div>
         <select
           name="status"
+          aria-label={t("research.colStatus")}
           defaultValue={statusFilter ?? ""}
           className="rounded-lg border border-gray-200 bg-surface px-3 py-2 text-sm"
         >
