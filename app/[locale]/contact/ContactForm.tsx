@@ -93,7 +93,7 @@ export default function ContactForm() {
           {t('phone')}
         </label>
         <div className="flex rounded-lg border border-border overflow-hidden bg-surface focus-within:ring-2 focus-within:ring-accent focus-within:border-accent transition-colors">
-          <span className="px-3 py-2 text-body-sm border-r border-border bg-surface-muted text-ink-faint select-none">
+          <span className="px-3 py-2 text-body-sm border-r border-border bg-surface-muted text-ink-soft select-none">
             +856
           </span>
           <input
@@ -126,7 +126,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={status === 'sending'}
-        className="self-start rounded-lg bg-accent text-white px-6 py-2 text-body-sm font-medium hover:bg-accent-strong disabled:opacity-60 transition-colors"
+        className="self-start rounded-lg bg-accent text-white px-6 py-2 text-body-sm font-medium hover:bg-accent-pressed disabled:opacity-60 transition-colors"
       >
         {status === 'sending' ? t('sending') : t('submit')}
       </button>

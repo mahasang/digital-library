@@ -58,6 +58,7 @@ const config: Config = {
         "ink-faint": "var(--color-ink-faint)",
         accent: "var(--color-accent)",
         "accent-strong": "var(--color-accent-strong)",
+        "accent-pressed": "var(--color-accent-pressed)",
         "accent-soft": "var(--color-accent-soft)",
         "accent-soft-hover": "var(--color-accent-soft-hover)",
         "accent-ink": "var(--color-accent-ink)",

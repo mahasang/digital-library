@@ -36,6 +36,7 @@
 
   --color-accent: #2D4A8C;
   --color-accent-strong: #1E3363;
+  --color-accent-pressed: #1E3363;
   --color-accent-soft: #E8EDF8;
   --color-accent-soft-hover: #D8E0F2;
   --color-accent-ink: #1E3363;
@@ -117,6 +118,7 @@
      * "Premium" dark identity */
     --color-accent: #6063EE;
     --color-accent-strong: #818CF8;
+    --color-accent-pressed: #4F46E5;
     --color-accent-soft: #1E1B4B;
     --color-accent-soft-hover: #2D2A6E;
     --color-accent-ink: #A5B4FC;
@@ -170,6 +172,7 @@
    * @media block above */
   --color-accent: #6063EE;
   --color-accent-strong: #818CF8;
+  --color-accent-pressed: #4F46E5;
   --color-accent-soft: #1E1B4B;
   --color-accent-soft-hover: #2D2A6E;
   --color-accent-ink: #A5B4FC;

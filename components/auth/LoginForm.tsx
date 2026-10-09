@@ -97,7 +97,7 @@ export default function LoginForm({
       <button
         type="submit"
         disabled={isPending || (Boolean(captchaSiteKey) && !captchaToken)}
-        className="mt-1 w-full rounded-xl bg-accent py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-1 w-full rounded-xl bg-accent py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-pressed disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? t("loginSubmitting") : t("loginSubmit")}
       </button>
