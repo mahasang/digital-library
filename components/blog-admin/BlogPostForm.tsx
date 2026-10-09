@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useActionState, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Upload, X, Globe } from "lucide-react";
@@ -44,7 +44,7 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
         placeholder={t("tagPlaceholder")}
         className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs focus:border-brand-500 focus:outline-none"
       />
-      <p className="text-xs text-gray-400">{t("tagHint")}</p>
+      <p className="text-xs text-gray-500">{t("tagHint")}</p>
     </div>
   );
 }
@@ -60,6 +60,7 @@ export default function BlogPostForm({
 }) {
   const router = useRouter();
   const t = useTranslations("blogAdmin.form");
+  const uid = useId();
   const LANGS = [
     { key: "lo" as const, label: t("langLao"), flag: "🇱🇦" },
     { key: "th" as const, label: t("langThai"), flag: "🇹🇭" },
@@ -102,7 +103,7 @@ export default function BlogPostForm({
     if (result.url) setCoverImage(result.url);
   }
 
-  const inputCls = "w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors";
+  const inputCls = "w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-brand-500 focus:bg-white dark:focus:bg-surface focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors";
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
@@ -126,8 +127,8 @@ export default function BlogPostForm({
               Slug (URL) <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
-              <Globe className="h-4 w-4 shrink-0 text-gray-400" />
-              <span className="text-sm text-gray-400">/blog/</span>
+              <Globe className="h-4 w-4 shrink-0 text-gray-500" />
+              <span className="text-sm text-gray-500">/blog/</span>
               <input
                 name="slug"
                 type="text"
@@ -138,7 +139,7 @@ export default function BlogPostForm({
                 className="flex-1 border-0 bg-transparent text-sm focus:outline-none"
               />
             </div>
-            <p className="mt-1 text-xs text-gray-400">{t("slugHint")}</p>
+            <p className="mt-1 text-xs text-gray-500">{t("slugHint")}</p>
           </div>
 
           {/* Lang tabs */}
@@ -151,7 +152,7 @@ export default function BlogPostForm({
                   onClick={() => setActiveLang(key)}
                   className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
                     activeLang === key
-                      ? "border-brand-600 text-brand-600"
+                      ? "border-brand-600 text-brand-600 dark:text-accent-ink"
                       : "border-transparent text-gray-500 hover:text-gray-900"
                   }`}
                 >
@@ -164,8 +165,9 @@ export default function BlogPostForm({
             {LANGS.map(({ key }) => (
               <div key={key} className={activeLang === key ? "flex flex-col gap-3" : "hidden"}>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">{t("titleLabel")}</label>
+                  <label htmlFor={`${uid}-title-${key}`} className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">{t("titleLabel")}</label>
                   <input
+                    id={`${uid}-title-${key}`}
                     name={`title_${key}`}
                     type="text"
                     defaultValue={post?.[`title${key.charAt(0).toUpperCase() + key.slice(1)}` as keyof BlogPost] as string ?? ""}
@@ -174,8 +176,9 @@ export default function BlogPostForm({
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">{t("excerptLabel")}</label>
+                  <label htmlFor={`${uid}-excerpt-${key}`} className="mb-1.5 block text-xs font-medium text-gray-600 uppercase tracking-wide">{t("excerptLabel")}</label>
                   <textarea
+                    id={`${uid}-excerpt-${key}`}
                     name={`excerpt_${key}`}
                     rows={2}
                     defaultValue={post?.[`excerpt${key.charAt(0).toUpperCase() + key.slice(1)}` as keyof BlogPost] as string ?? ""}
@@ -200,7 +203,7 @@ export default function BlogPostForm({
         <div className="flex flex-col gap-4">
 
           {/* Publish actions */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4">
+          <div className="rounded-xl border border-gray-200 bg-white dark:bg-surface p-4">
             <p className="mb-3 text-sm font-semibold text-gray-900">{t("publishSectionTitle")}</p>
             {post && (
               <div className="mb-3 flex items-center gap-2">
@@ -246,9 +249,10 @@ export default function BlogPostForm({
           </div>
 
           {/* Schedule */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="mb-2 text-sm font-semibold text-gray-900">{t("scheduleSectionTitle")}</p>
+          <div className="rounded-xl border border-gray-200 bg-white dark:bg-surface p-4">
+            <p id={`${uid}-schedule-title`} className="mb-2 text-sm font-semibold text-gray-900">{t("scheduleSectionTitle")}</p>
             <input
+              aria-labelledby={`${uid}-schedule-title`}
               type="datetime-local"
               name="scheduled_at"
               defaultValue={
@@ -258,13 +262,13 @@ export default function BlogPostForm({
               }
               className={`${inputCls} text-xs`}
             />
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-gray-500">
               {t("scheduleHint")}
             </p>
           </div>
 
           {/* Cover image */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4">
+          <div className="rounded-xl border border-gray-200 bg-white dark:bg-surface p-4">
             <p className="mb-2 text-sm font-semibold text-gray-900">{t("coverSectionTitle")}</p>
             {coverImage ? (
               <div className="relative">
@@ -298,7 +302,7 @@ export default function BlogPostForm({
                 />
                 <div className="flex items-center gap-2">
                   <div className="h-px flex-1 bg-gray-200" />
-                  <span className="text-xs text-gray-400">{t("orDivider")}</span>
+                  <span className="text-xs text-gray-500">{t("orDivider")}</span>
                   <div className="h-px flex-1 bg-gray-200" />
                 </div>
                 <input
@@ -312,7 +316,7 @@ export default function BlogPostForm({
             )}
           </div>
           {/* Tags */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4">
+          <div className="rounded-xl border border-gray-200 bg-white dark:bg-surface p-4">
             <p className="mb-2 text-sm font-semibold text-gray-900">{t("tagsSectionTitle")}</p>
             <TagInput
               tags={tags}
@@ -322,7 +326,7 @@ export default function BlogPostForm({
           </div>
 
           {/* SEO */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4">
+          <div className="rounded-xl border border-gray-200 bg-white dark:bg-surface p-4">
             <p className="mb-3 text-sm font-semibold text-gray-900">{t("seoSectionTitle")}</p>
             <div className="flex flex-col gap-3">
 
@@ -332,7 +336,7 @@ export default function BlogPostForm({
                   <label className="text-xs font-medium text-gray-600">
                     Meta Title
                   </label>
-                  <span className={`text-xs ${seoTitle.length > 60 ? "text-red-500" : "text-gray-400"}`}>
+                  <span className={`text-xs ${seoTitle.length > 60 ? "text-red-500" : "text-gray-500"}`}>
                     {seoTitle.length}/60
                   </span>
                 </div>
@@ -352,7 +356,7 @@ export default function BlogPostForm({
                   <label className="text-xs font-medium text-gray-600">
                     Meta Description
                   </label>
-                  <span className={`text-xs ${seoDescription.length > 160 ? "text-red-500" : "text-gray-400"}`}>
+                  <span className={`text-xs ${seoDescription.length > 160 ? "text-red-500" : "text-gray-500"}`}>
                     {seoDescription.length}/160
                   </span>
                 </div>
@@ -370,7 +374,7 @@ export default function BlogPostForm({
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-600">
                   OG Image URL
-                  <span className="ml-1 text-gray-400">{t("ogImageHint")}</span>
+                  <span className="ml-1 text-gray-500">{t("ogImageHint")}</span>
                 </label>
                 <input
                   type="text"
@@ -395,7 +399,7 @@ export default function BlogPostForm({
               {/* Preview card */}
               {(seoTitle || seoDescription) && (
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                  <p className="text-xs font-medium text-gray-400 mb-1.5">{t("previewLabel")}</p>
+                  <p className="text-xs font-medium text-gray-500 mb-1.5">{t("previewLabel")}</p>
                   <p className="text-sm font-medium text-blue-700 truncate">
                     {seoTitle || t("previewTitleFallback")}
                   </p>
@@ -412,7 +416,7 @@ export default function BlogPostForm({
 
           {/* Authors */}
           {staffProfiles.length > 0 && (
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <div className="rounded-xl border border-gray-200 bg-white dark:bg-surface p-4">
               <p className="mb-3 text-sm font-semibold text-gray-900">{t("authorsSectionTitle")}</p>
               <div className="flex flex-col gap-1.5">
                 {staffProfiles.map((profile) => {
@@ -446,7 +450,7 @@ export default function BlogPostForm({
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{profile.fullName || profile.email}</p>
                         {profile.email && (
-                          <p className="text-gray-400 truncate">{profile.email}</p>
+                          <p className="text-gray-500 truncate">{profile.email}</p>
                         )}
                       </div>
                       {selected && (
@@ -457,7 +461,7 @@ export default function BlogPostForm({
                 })}
               </div>
               {selectedAuthorIds.length === 0 && (
-                <p className="mt-2 text-xs text-gray-400">{t("noAuthorSelected")}</p>
+                <p className="mt-2 text-xs text-gray-500">{t("noAuthorSelected")}</p>
               )}
             </div>
           )}

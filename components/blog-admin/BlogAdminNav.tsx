@@ -21,14 +21,14 @@ export default function BlogAdminNav() {
     <>
       {/* Mobile toggle */}
       <button
-        className="fixed left-4 top-4 z-50 rounded-lg bg-white p-2 shadow-md lg:hidden"
+        className="fixed left-4 top-4 z-50 rounded-lg bg-white dark:bg-surface p-2 shadow-md lg:hidden"
         onClick={() => setOpen((v) => !v)}
       >
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-gray-200 bg-white transition-transform lg:static lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-gray-200 bg-white dark:bg-surface transition-transform lg:static lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
         {/* Header */}
         <div className="flex items-center gap-2.5 border-b border-gray-200 px-4 py-4">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
@@ -36,7 +36,7 @@ export default function BlogAdminNav() {
           </span>
           <div>
             <p className="text-sm font-bold text-gray-900">Blog Admin</p>
-            <p className="text-xs text-gray-400">{t("subtitle")}</p>
+            <p className="text-xs text-gray-500">{t("subtitle")}</p>
           </div>
         </div>
 

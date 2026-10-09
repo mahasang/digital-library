@@ -53,7 +53,7 @@ export default function TipTapEditor({
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
-        class: "prose prose-sm max-w-none min-h-[300px] px-4 py-3 focus:outline-none",
+        class: "prose prose-sm dark:prose-invert max-w-none min-h-[300px] px-4 py-3 focus:outline-none",
       },
       handleDrop: (view, event) => {
         const files = event.dataTransfer?.files;
@@ -107,7 +107,7 @@ export default function TipTapEditor({
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+    <div className="rounded-xl border border-gray-200 bg-white dark:bg-surface overflow-hidden">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -149,14 +149,14 @@ export default function TipTapEditor({
             : <ImageIcon className="h-4 w-4" />
           }
         </button>
-        <div className="ml-auto text-xs text-gray-400">
+        <div className="ml-auto text-xs text-gray-500">
           {uploading && <span className="mr-2 text-brand-500">{t("uploading")}</span>}
           {editor.storage.characterCount.characters()} {t("charactersSuffix")}
         </div>
       </div>
 
       {/* Drop zone hint */}
-      <div className="border-b border-dashed border-gray-100 bg-gray-50 px-4 py-1 text-center text-xs text-gray-400">
+      <div className="border-b border-dashed border-gray-100 bg-gray-50 px-4 py-1 text-center text-xs text-gray-500">
         {t("dropHint")}
       </div>
 

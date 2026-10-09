@@ -80,7 +80,7 @@ export default async function BlogAdminPage({
       {/* Search */}
       <form method="get" className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <input
             type="search"
             name="q"
@@ -98,7 +98,7 @@ export default async function BlogAdminPage({
       </form>
 
       {/* Table */}
-      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-gray-200 bg-white dark:bg-surface overflow-hidden">
         <table className="w-full text-sm text-left">
           <thead className="bg-gray-50 border-b border-gray-200 text-xs uppercase tracking-wide text-gray-500">
             <tr>
@@ -113,7 +113,7 @@ export default async function BlogAdminPage({
               <tr>
                 <td colSpan={4} className="px-4 py-12 text-center">
                   <FileText className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                  <p className="text-gray-400 text-sm">{q ? t("noResults") : t("emptyState")}</p>
+                  <p className="text-gray-500 text-sm">{q ? t("noResults") : t("emptyState")}</p>
                 </td>
               </tr>
             ) : posts.map((post) => (
@@ -122,7 +122,7 @@ export default async function BlogAdminPage({
                   <p className="font-medium text-gray-900 line-clamp-1">
                     {post.titleLo || post.titleTh || post.titleEn || post.slug}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">/{post.slug}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">/{post.slug}</p>
                 </td>
                 <td className="px-4 py-3">
                   <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLOR[post.status] ?? "bg-gray-100 text-gray-600"}`}>
@@ -139,14 +139,14 @@ export default async function BlogAdminPage({
                     <Link
                       href={`/blog/${post.slug}`}
                       target="_blank"
-                      className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                      className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-600 transition-colors"
                       title={t("viewTitle")}
                     >
                       <Eye className="h-4 w-4" />
                     </Link>
                     <Link
                       href={`/blog-admin/${post.id}/edit`}
-                      className="p-1.5 rounded-lg text-gray-400 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+                      className="p-1.5 rounded-lg text-gray-500 hover:bg-brand-50 hover:text-brand-600 transition-colors"
                       title={t("editTitle")}
                     >
                       <Edit className="h-4 w-4" />
