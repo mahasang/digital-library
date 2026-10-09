@@ -43,12 +43,41 @@ async function expectNoViolations(page: Page) {
   expect(results.violations, formatViolations(results.violations)).toEqual([]);
 }
 
+/**
+ * Finds a detail-page URL by following a real link on a list page, so the suite never
+ * hard-codes an id. If the list has no matching link the test FAILS with an explicit
+ * message (it never skips silently): these pages need seeded data to be checked at all.
+ */
+async function firstDetailHref(page: Page, listPath: string, pattern: RegExp, needs: string): Promise<string> {
+  await page.goto(listPath, { waitUntil: "networkidle" });
+  const hrefs = await page
+    .locator("a[href]")
+    .evaluateAll((anchors) => anchors.map((a) => a.getAttribute("href") ?? ""));
+  const href = hrefs.find((h) => pattern.test(h));
+  if (!href) {
+    throw new Error(
+      `a11y suite: no link matching ${pattern} on ${listPath}. The local database needs ${needs} ` +
+        `for this page to be checked — seed it instead of skipping.`
+    );
+  }
+  return href;
+}
+
 const PUBLIC_ROUTES: { name: string; path: string }[] = [
   { name: "homepage", path: "/lo/" },
   { name: "research-search", path: "/lo/research" },
   { name: "research-detail", path: "/lo/research/eng-2024-001" },
   { name: "login", path: "/lo/login" },
   { name: "register", path: "/lo/register" },
+  // Phase 2B — public pages whose violations were fixed. /contact is left out on
+  // purpose: its nested <main> is a layout issue tracked for Phase 2C.
+  { name: "blog", path: "/lo/blog" },
+  { name: "privacy", path: "/lo/privacy" },
+  { name: "terms", path: "/lo/terms" },
+  { name: "forgot-password", path: "/lo/auth/forgot-password" },
+  { name: "about", path: "/lo/about" },
+  // Phase 2C — its nested <main> was replaced by a <div>
+  { name: "contact", path: "/lo/contact" },
 ];
 
 for (const theme of THEMES) {
@@ -60,6 +89,19 @@ for (const theme of THEMES) {
         await expectNoViolations(page);
       });
     }
+  });
+}
+
+// Phase 2C — author detail page; the id comes from research list -> research detail -> author link.
+for (const theme of THEMES) {
+  test.describe(`public dynamic routes — ${theme} theme`, () => {
+    test("author-detail", async ({ page }) => {
+      const research = await firstDetailHref(page, "/lo/research", /\/research\/[^/?#]+$/, "at least one published research item");
+      const author = await firstDetailHref(page, research, /\/authors\/[^/?#]+$/, "a published research item with an author");
+      await page.goto(author, { waitUntil: "networkidle" });
+      await setTheme(page, theme);
+      await expectNoViolations(page);
+    });
   });
 }
 
@@ -92,6 +134,20 @@ const AUTH_ROUTES: { name: string; path: string }[] = [
   { name: "notifications", path: "/lo/notifications" },
   { name: "dashboard-overview", path: "/lo/dashboard" },
   { name: "dashboard-reports", path: "/lo/dashboard/reports" },
+  // Phase 2B — forms/filters that were unlabeled (upload form, list filters, settings).
+  // The research edit page needs a real id, so it is covered by manual scans only.
+  { name: "submit-research", path: "/lo/submit-research" },
+  { name: "dashboard-research", path: "/lo/dashboard/research" },
+  { name: "dashboard-research-new", path: "/lo/dashboard/research/new" },
+  { name: "dashboard-authors", path: "/lo/dashboard/authors" },
+  { name: "dashboard-access-requests", path: "/lo/dashboard/access-requests" },
+  { name: "dashboard-contact-messages", path: "/lo/dashboard/contact-messages" },
+  { name: "dashboard-users", path: "/lo/dashboard/users" },
+  { name: "dashboard-audit-logs", path: "/lo/dashboard/audit-logs" },
+  { name: "dashboard-settings", path: "/lo/dashboard/settings" },
+  // Phase 2C — blog-admin (nested <main>, missing labels and dark-mode surfaces fixed)
+  { name: "blog-admin", path: "/lo/blog-admin" },
+  { name: "blog-admin-new", path: "/lo/blog-admin/new" },
 ];
 
 test.describe("authenticated (admin) routes", () => {
@@ -110,6 +166,21 @@ test.describe("authenticated (admin) routes", () => {
         await expectNoViolations(page);
       });
     }
+
+    // Phase 2C — edit pages; ids are found by following the first "edit" link of each list.
+    test(`dashboard-research-edit — ${theme} theme`, async ({ page }) => {
+      const edit = await firstDetailHref(page, "/lo/dashboard/research", /\/dashboard\/research\/[^/?#]+\/edit$/, "at least one research item");
+      await page.goto(edit, { waitUntil: "networkidle" });
+      await setTheme(page, theme);
+      await expectNoViolations(page);
+    });
+
+    test(`blog-admin-edit — ${theme} theme`, async ({ page }) => {
+      const edit = await firstDetailHref(page, "/lo/blog-admin", /\/blog-admin\/[^/?#]+\/edit$/, "at least one blog post (create a draft)");
+      await page.goto(edit, { waitUntil: "networkidle" });
+      await setTheme(page, theme);
+      await expectNoViolations(page);
+    });
   }
 });
 
