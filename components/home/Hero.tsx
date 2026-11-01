@@ -32,7 +32,7 @@ export default async function Hero({
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-900 dark:from-[#0A0C14] dark:via-[#0F1117] dark:to-[#0F1117]">
+    <section className="relative overflow-hidden bg-gradient-to-b from-brand-950 via-brand-900 to-brand-900 dark:from-brand-950 dark:via-brand-950 dark:to-background">
       <div
         aria-hidden
         className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(circle_at_15%_15%,white,transparent_35%),radial-gradient(circle_at_85%_0%,white,transparent_30%)]"

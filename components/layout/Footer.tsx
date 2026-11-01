@@ -37,7 +37,7 @@ export default function Footer({
               <li key={c.id}>
                 <Link
                   href={`/research?category=${c.id}`}
-                  className="text-sm text-gray-500 hover:text-brand-700"
+                  className="text-sm text-gray-500 hover:text-accent-ink"
                 >
                   {c.nameTh}
                 </Link>
@@ -50,32 +50,32 @@ export default function Footer({
           <h2 className="text-sm font-semibold text-gray-900">{t("quickLinks")}</h2>
           <ul className="mt-3 space-y-2">
             <li>
-              <Link href="/research" className="text-sm text-gray-500 hover:text-brand-700">
+              <Link href="/research" className="text-sm text-gray-500 hover:text-accent-ink">
                 {t("browseResearch")}
               </Link>
             </li>
             <li>
-              <Link href="/about" className="text-sm text-gray-500 hover:text-brand-700">
+              <Link href="/about" className="text-sm text-gray-500 hover:text-accent-ink">
                 {t("about")}
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="text-sm text-gray-500 hover:text-brand-700">
+              <Link href="/contact" className="text-sm text-gray-500 hover:text-accent-ink">
                 {t("contact")}
               </Link>
             </li>
             <li>
-              <Link href="/privacy" className="text-sm text-gray-500 hover:text-brand-700">
+              <Link href="/privacy" className="text-sm text-gray-500 hover:text-accent-ink">
                 {t("privacy")}
               </Link>
             </li>
             <li>
-              <Link href="/terms" className="text-sm text-gray-500 hover:text-brand-700">
+              <Link href="/terms" className="text-sm text-gray-500 hover:text-accent-ink">
                 {t("terms")}
               </Link>
             </li>
             <li>
-              <Link href="/register" className="text-sm text-gray-500 hover:text-brand-700">
+              <Link href="/register" className="text-sm text-gray-500 hover:text-accent-ink">
                 {t("register")}
               </Link>
             </li>

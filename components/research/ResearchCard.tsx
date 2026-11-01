@@ -102,13 +102,13 @@ export default function ResearchCard({
           </span>
         )}
         {typeof rank === "number" && (
-          <span className="absolute -left-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-ink text-xs font-bold text-background shadow-elevated-sm">
+          <span className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-ink text-xs font-bold text-background shadow-elevated-sm">
             {rank}
           </span>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h2 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 group-hover:text-brand-700">
+        <h2 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 group-hover:text-accent-ink">
           {item.titleTh}
         </h2>
         <p className="line-clamp-1 text-xs text-gray-500">

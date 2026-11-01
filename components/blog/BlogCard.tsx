@@ -42,7 +42,7 @@ export default function BlogCard({
   const author = post.authors?.[0] ?? null;
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition-shadow hover:shadow-lg">
+    <div className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-surface transition-shadow hover:shadow-lg">
 
       {/* ── Cover image ── */}
       <Link href={`/blog/${post.slug}`} className="block overflow-hidden">
@@ -65,7 +65,7 @@ export default function BlogCard({
 
         {/* Tags + Date */}
         <div className="flex items-center justify-between gap-2 text-xs">
-          <div className="flex min-w-0 items-center gap-1 font-medium text-brand-600">
+          <div className="flex min-w-0 items-center gap-1 font-medium text-brand-600 dark:text-accent-ink">
             {tags.length > 0 ? (
               tags.map((tag, i) => (
                 <span key={tag} className="flex items-center gap-1">
@@ -74,11 +74,11 @@ export default function BlogCard({
                 </span>
               ))
             ) : (
-              <span className="text-gray-400">—</span>
+              <span className="text-gray-500">—</span>
             )}
           </div>
           {date && (
-            <div className="flex shrink-0 items-center gap-1 text-gray-400">
+            <div className="flex shrink-0 items-center gap-1 text-gray-500">
               <CalendarDays className="h-3.5 w-3.5" />
               <span>{date}</span>
             </div>
@@ -87,7 +87,7 @@ export default function BlogCard({
 
         {/* Title */}
         <Link href={`/blog/${post.slug}`}>
-          <h2 className="line-clamp-2 text-base font-bold leading-snug text-gray-900 transition-colors group-hover:text-brand-700">
+          <h2 className="line-clamp-2 text-base font-bold leading-snug text-gray-900 transition-colors group-hover:text-accent-ink">
             {title}
           </h2>
         </Link>
@@ -121,7 +121,7 @@ export default function BlogCard({
         <div className="mt-auto border-t border-dashed border-gray-200 pt-3">
           <Link
             href={`/blog/${post.slug}`}
-            className="inline-block rounded-full border border-gray-300 px-4 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-brand-600 hover:text-brand-700"
+            className="inline-block rounded-full border border-gray-300 px-4 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-accent hover:text-accent-ink"
           >
             {readMoreLabel}
           </Link>
