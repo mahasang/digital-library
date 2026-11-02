@@ -12,6 +12,7 @@ import {
 import { getCategories } from "@/lib/data/categories.server";
 import { getOrganizations } from "@/lib/data/organizations.server";
 import { getPublicHomeSettings } from "@/lib/data/settings.server";
+import { hasRealCoverImage } from "@/lib/categoryCover";
 
 /**
  * Hallmark — homepage data-flow optimization. เดิม Hero/CategorySection ดึง
@@ -50,13 +51,24 @@ export default async function HomePage() {
     getPopularResearch(settings.homepagePopularCount),
   ]);
 
+  // H1 (UI/UX): ข้อมูลที่ Hero ใช้เพิ่ม คำนวณจากข้อมูลที่ดึงมาแล้วข้างบนทั้งหมด
+  // (ไม่มี query เพิ่ม) — ทางลัดหมวดหมู่ = 4 หมวดที่มีงานเผยแพร่มากที่สุด,
+  // ชั้นหนังสือ = งานล่าสุดที่มีปกจริงสูงสุด 3 ใบ
+  const countOf = (id: string) => researchStats.countByCategoryId[id] ?? 0;
+  const topCategories = categories
+    .filter((category) => countOf(category.id) > 0)
+    .sort((a, b) => countOf(b.id) - countOf(a.id))
+    .slice(0, 4);
+  const shelf = latest.filter((item) => hasRealCoverImage(item.coverImage)).slice(0, 3);
+
   return (
     <>
       <Hero
-        siteName={settings.siteName}
         publishedCount={researchStats.totalCount}
         categoryCount={categories.length}
         organizationCount={organizations.length}
+        categories={topCategories}
+        shelf={shelf}
       />
       <CategorySection categories={categories} countByCategoryId={researchStats.countByCategoryId} />
       <ResearchSection

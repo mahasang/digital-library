@@ -89,7 +89,7 @@ export default function ResearchListItem({
       {/* Main content */}
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         {/* Title */}
-        <h2 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 group-hover:text-brand-700">
+        <h2 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 group-hover:text-accent-ink">
           {item.titleTh}
         </h2>
 
