@@ -93,7 +93,14 @@
     "latestDescription": "Sorted by publication date, newest first",
     "popularTitle": "Popular Research",
     "popularDescription": "Sorted by total views",
-    "browseAllResearch": "Xem tất cả nghiên cứu"
+    "browseAllResearch": "Xem tất cả nghiên cứu",
+    "shelfLabel": "Kệ nghiên cứu mới nhất",
+    "shelfPrevious": "Cuốn trước",
+    "shelfNext": "Cuốn tiếp theo",
+    "shelfPosition": "Cuốn {current} / {total}",
+    "shelfInspect": "Xem cuốn này",
+    "shelfClose": "Quay lại kệ",
+    "shelfRead": "Đọc nghiên cứu"
   },
   "research": {
     "pageTitle": "Search Research",
