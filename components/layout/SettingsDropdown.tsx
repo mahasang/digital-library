@@ -125,7 +125,7 @@ export function SettingsDropdown() {
         className={[
           "absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl",
           "border border-white/20 backdrop-blur-xl",
-          "bg-white/80 dark:bg-[#0F1117]/85 dark:border-[#3730A3]/40",
+          "bg-white/80 dark:bg-[#0F1117]/85 dark:border-white/10",
           "shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
           "origin-top-right transition-all duration-200 ease-out",
           open

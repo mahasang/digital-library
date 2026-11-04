@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ArrowRight, type LucideIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Container from "@/components/ui/Container";
 import { LinkButton } from "@/components/ui/Button";
 import ResearchCard from "@/components/research/ResearchCard";
@@ -20,16 +20,12 @@ const DESKTOP_VISIBLE = 4;
 export default async function ResearchSection({
   title,
   description,
-  icon: Icon,
   items,
-  tone = "light",
   variant = "default",
 }: {
   title: string;
   description: string;
-  icon: LucideIcon;
   items: ResearchItem[];
-  tone?: "light" | "muted";
   /** "latest" แสดงวันที่เผยแพร่แทนปี, "popular" แสดงตราอันดับ — เพื่อให้สอง
    * ส่วนนี้อ่านออกได้ทันทีว่าต่างกันจริง (คนละเกณฑ์การเรียงลำดับ) ไม่ใช่กริด
    * ซ้ำหน้ากัน */
@@ -40,17 +36,12 @@ export default async function ResearchSection({
   const footerMode = variant === "latest" ? "recency" : "default";
 
   return (
-    <section className={`py-10 sm:py-12 ${tone === "muted" ? "bg-gray-50" : ""}`}>
+    <section className="border-t border-border py-10 sm:py-12">
       <Container>
         <div className="mb-6 flex items-end justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent-ink">
-              <Icon className="h-5 w-5" aria-hidden="true" />
-            </span>
-            <div>
-              <h2 className="section-heading text-h2 font-semibold text-gray-900">{title}</h2>
-              <p className="mt-1 text-sm text-gray-500">{description}</p>
-            </div>
+          <div>
+            <h2 className="section-heading text-h2 font-medium text-gray-900">{title}</h2>
+            <p className="mt-1 text-sm text-gray-500">{description}</p>
           </div>
           <Link
             href="/research"

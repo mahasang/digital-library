@@ -19,12 +19,23 @@ const config: Record<
 export default function AccessBadge({
   accessLevel,
   className = "",
+  quiet = false,
 }: {
   accessLevel: AccessLevel;
   className?: string;
+  /** แสดงเป็นข้อความเรียบ ไม่มีพื้นสี สำหรับการ์ดที่เรียงซ้ำกันหลายใบ */
+  quiet?: boolean;
 }) {
   const { tone, icon: Icon } = config[accessLevel];
   const tAccessLevels = useTranslations("accessLevels");
+  if (quiet) {
+    return (
+      <span className={`inline-flex items-center gap-1 text-xs text-gray-600 ${className}`}>
+        <Icon className="h-3.5 w-3.5" />
+        {tAccessLevels(accessLevel)}
+      </span>
+    );
+  }
   return (
     <Badge tone={tone} className={className}>
       <Icon className="h-3.5 w-3.5" />

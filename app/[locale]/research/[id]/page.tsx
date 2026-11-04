@@ -159,7 +159,12 @@ export default async function ResearchDetailPage({
                   priority
                 />
               ) : (
-                <CategoryCover category={category} iconClassName="h-14 w-14" />
+                <CategoryCover
+                  category={category}
+                  title={item.titleTh}
+                  author={item.researchers.map((r) => r.name).join(", ")}
+                  year={item.year}
+                />
               )}
             </div>
 

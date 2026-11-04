@@ -82,7 +82,7 @@ export default function ResearchListItem({
             className="object-cover"
           />
         ) : (
-          <CategoryCover category={category} />
+          <CategoryCover category={category} iconClassName="h-5 w-5" />
         )}
       </div>
 

@@ -1,5 +1,4 @@
 export const dynamic = "force-dynamic";
-import { Clock, TrendingUp } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import Hero from "@/components/home/Hero";
 import CategorySection from "@/components/home/CategorySection";
@@ -12,7 +11,6 @@ import {
 import { getCategories } from "@/lib/data/categories.server";
 import { getOrganizations } from "@/lib/data/organizations.server";
 import { getPublicHomeSettings } from "@/lib/data/settings.server";
-import { hasRealCoverImage } from "@/lib/categoryCover";
 
 /**
  * Hallmark — homepage data-flow optimization. เดิม Hero/CategorySection ดึง
@@ -53,13 +51,13 @@ export default async function HomePage() {
 
   // H1 (UI/UX): ข้อมูลที่ Hero ใช้เพิ่ม คำนวณจากข้อมูลที่ดึงมาแล้วข้างบนทั้งหมด
   // (ไม่มี query เพิ่ม) — ทางลัดหมวดหมู่ = 4 หมวดที่มีงานเผยแพร่มากที่สุด,
-  // ชั้นหนังสือ = งานล่าสุดที่มีปกจริงสูงสุด 3 ใบ
+  // ชั้นหนังสือ = งานล่าสุด 3 เล่ม (ไม่มีปกจริงจะแสดงเป็นหน้าปกเรียงพิมพ์)
   const countOf = (id: string) => researchStats.countByCategoryId[id] ?? 0;
   const topCategories = categories
     .filter((category) => countOf(category.id) > 0)
     .sort((a, b) => countOf(b.id) - countOf(a.id))
     .slice(0, 4);
-  const shelf = latest.filter((item) => hasRealCoverImage(item.coverImage)).slice(0, 3);
+  const shelf = latest.slice(0, 3);
 
   return (
     <>
@@ -74,15 +72,12 @@ export default async function HomePage() {
       <ResearchSection
         title={t("latestTitle")}
         description={t("latestDescription")}
-        icon={Clock}
         items={latest}
-        tone="muted"
         variant="latest"
       />
       <ResearchSection
         title={t("popularTitle")}
         description={t("popularDescription")}
-        icon={TrendingUp}
         items={popular}
         variant="popular"
       />
