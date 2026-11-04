@@ -13,6 +13,7 @@
 ## Global Constraints
 
 - ทำงานบนสาขา `feat/home-3d-shelf` และ `git add` ระบุไฟล์ทีละไฟล์เท่านั้น ห้าม `git add -A` เพราะ working tree มีไฟล์ค้างที่ไม่เกี่ยวข้อง
+- ไฟล์ใน repo เก็บเป็น LF แต่ `lib/data/{mappers,queries,types}.ts` และ `lib/data/research.homepage.test.ts` ใน working tree เป็น CRLF (ต่างกันแค่ EOL) ต้องแปลงเป็น LF ก่อนแก้ แล้วตรวจ `git diff --stat` ว่าเห็นเฉพาะบรรทัดที่แก้จริง
 - `three` import ได้เฉพาะ `shelfScene.ts`, `bookGeometry.ts`, `bookTextures.ts` และโหลดผ่าน dynamic import เท่านั้น
 - `SHELF_SIZE = 16`, บทคัดย่อไม่เกิน 280 ตัวอักษร, ลากเกิน 6px ไม่นับเป็นคลิก, โหลดปกหน้า ±3 เล่ม
 - texture: สัน 128×1024, ปก 512×720, เล่มที่เปิดดู 1024×1440, โหลดปกจริงผ่าน `/_next/image`
