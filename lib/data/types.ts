@@ -87,6 +87,8 @@ export interface RawHomepageResearchRow {
   ratings: { score: number }[];
 }
 
+export type RawShelfResearchRow = RawHomepageResearchRow & { abstract: string | null };
+
 /** แถวย่อที่สุด — ใช้เฉพาะนับจำนวนงานวิจัยที่เผยแพร่แล้วต่อหมวดหมู่ (สถิติหน้าแรก) */
 export interface RawResearchCategoryLinkRow {
   id: string;

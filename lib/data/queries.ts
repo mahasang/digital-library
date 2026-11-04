@@ -6,6 +6,7 @@ import type {
   RawResearchRow,
   RawManagementResearchRow,
   RawHomepageResearchRow,
+  RawShelfResearchRow,
   RawResearchCategoryLinkRow,
 } from "@/lib/data/types";
 
@@ -120,6 +121,29 @@ export async function fetchHomepageResearchRows(
   }
 
   return (data ?? []) as unknown as RawHomepageResearchRow[];
+}
+
+const SHELF_RESEARCH_SELECT = `${HOMEPAGE_RESEARCH_SELECT}, abstract`;
+
+/** งานล่าสุดสำหรับชั้นหนังสือบน hero แยกจาก query หน้าแรกเพื่อไม่ให้ payload เดิมโตขึ้น */
+export async function fetchShelfResearchRows(
+  client: SupabaseClient,
+  limit: number
+): Promise<RawShelfResearchRow[]> {
+  const { data, error } = await client
+    .from("research_items")
+    .select(SHELF_RESEARCH_SELECT)
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(
+      toSafeErrorMessage(error, RESEARCH_FETCH_FALLBACK_MESSAGE, "fetchShelfResearchRows")
+    );
+  }
+
+  return (data ?? []) as unknown as RawShelfResearchRow[];
 }
 
 /**
