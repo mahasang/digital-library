@@ -1,11 +1,12 @@
 import Image from "next/image";
+import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Eye, Download, Calendar, FileSearch, CalendarClock, Star } from "lucide-react";
 import AccessBadge from "@/components/research/AccessBadge";
 import CategoryCover from "@/components/research/CategoryCover";
 import { hasRealCoverImage } from "@/lib/categoryCover";
-import { getCategoryById } from "@/data/categories";
-import type { ResearchItem } from "@/types/research";
+import { getCategoryName } from "@/lib/categoryName";
+import type { Category, ResearchItem } from "@/types/research";
 
 
 export interface ResearchCardItem extends ResearchItem {
@@ -62,11 +63,15 @@ function HighlightedSnippet({
 
 export default function ResearchCard({
   item,
+  categories,
   rank,
   footerMode = "default",
   priority = false,
 }: {
   item: ResearchCardItem;
+  /** หมวดหมู่จากฐานข้อมูล (getCategories) ส่งลงมาเป็น prop เพราะการ์ดนี้ render ได้ทั้งฝั่ง
+   * server และ client จึงเรียก data function เองไม่ได้ และหน้าที่ใช้การ์ดมีข้อมูลนี้อยู่แล้ว */
+  categories: Category[];
   /** อันดับที่แสดงเป็นตราเลขมุมขวาบนของปก (ใช้กับส่วน "งานวิจัยยอดนิยม" เท่านั้น) */
   rank?: number;
   /** "recency" แสดงวันที่เผยแพร่แทนปีในแถวข้อมูลด้านล่าง (ใช้กับส่วน "งานวิจัยล่าสุด") */
@@ -74,7 +79,8 @@ export default function ResearchCard({
   /** ส่งเป็น true เฉพาะการ์ดใบแรกของกริดที่อยู่เหนือ fold ตอนโหลดหน้าครั้งแรก */
   priority?: boolean;
 }) {
-  const category = getCategoryById(item.categoryId);
+  const locale = useLocale();
+  const category = categories.find((c) => c.id === item.categoryId);
   const showRealCover = hasRealCoverImage(item.coverImage);
   const publishedLabel = footerMode === "recency" ? formatPublishedDate(item.publishedAt) : null;
 
@@ -103,7 +109,7 @@ export default function ResearchCard({
         )}
         {category && showRealCover && (
           <span className="absolute left-2 top-2 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white">
-            {category.nameTh}
+            {getCategoryName(category, locale)}
           </span>
         )}
         {typeof rank === "number" && (

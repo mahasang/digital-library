@@ -1,8 +1,9 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
 import Container from "@/components/ui/Container";
 import { getCategoryIcon } from "@/lib/icons";
+import { getCategoryName } from "@/lib/categoryName";
 import type { Category } from "@/types/research";
 
 /**
@@ -22,6 +23,7 @@ export default async function CategorySection({
   countByCategoryId: Record<string, number>;
 }) {
   const t = await getTranslations("home");
+  const locale = await getLocale();
 
   return (
     <section className="py-10 sm:py-12">
@@ -53,7 +55,7 @@ export default async function CategorySection({
                 >
                   <Icon className="h-[18px] w-[18px] shrink-0 text-gray-500 transition-colors group-hover:text-accent-ink" strokeWidth={1.5} aria-hidden="true" />
                   <span className="min-w-0 flex-1 truncate text-sm text-gray-900 transition-colors group-hover:text-accent-ink">
-                    {category.nameTh}
+                    {getCategoryName(category, locale)}
                   </span>
                   <span className="shrink-0 text-xs tabular-nums text-gray-500">
                     {t("categoryCount", { count })}

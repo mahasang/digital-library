@@ -5,7 +5,7 @@ import Container from "@/components/ui/Container";
 import { LinkButton } from "@/components/ui/Button";
 import ResearchCard from "@/components/research/ResearchCard";
 import ResearchGrid from "@/components/research/ResearchGrid";
-import type { ResearchItem } from "@/types/research";
+import type { Category, ResearchItem } from "@/types/research";
 
 /**
  * H1 (UI/UX): จำนวนการ์ดที่แสดงบนจอ ≥640px ต่อหนึ่งส่วน — หน้าแรกเป็น "ไฮไลต์"
@@ -21,11 +21,13 @@ export default async function ResearchSection({
   title,
   description,
   items,
+  categories,
   variant = "default",
 }: {
   title: string;
   description: string;
   items: ResearchItem[];
+  categories: Category[];
   /** "latest" แสดงวันที่เผยแพร่แทนปี, "popular" แสดงตราอันดับ — เพื่อให้สอง
    * ส่วนนี้อ่านออกได้ทันทีว่าต่างกันจริง (คนละเกณฑ์การเรียงลำดับ) ไม่ใช่กริด
    * ซ้ำหน้ากัน */
@@ -52,7 +54,7 @@ export default async function ResearchSection({
         </div>
 
         {items.length === 0 ? (
-          <ResearchGrid items={[]} />
+          <ResearchGrid items={[]} categories={categories} />
         ) : (
           <>
             {/* มือถือ: แถวเลื่อนแนวนอน เห็นการ์ดใบถัดไปโผล่มาให้รู้ว่าเลื่อนได้
@@ -68,6 +70,7 @@ export default async function ResearchSection({
                 >
                   <ResearchCard
                     item={item}
+                    categories={categories}
                     rank={rankStart !== undefined ? rankStart + index : undefined}
                     footerMode={footerMode}
                   />

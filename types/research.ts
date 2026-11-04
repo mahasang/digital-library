@@ -62,6 +62,8 @@ export interface Category {
   id: string;
   nameTh: string;
   nameEn: string;
+  nameLo?: string | null;
+  nameVi?: string | null;
   description: string;
   icon: string;
   parentId?: string | null;

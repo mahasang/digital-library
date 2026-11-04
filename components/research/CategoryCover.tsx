@@ -1,5 +1,7 @@
 import { BookOpen } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { getCategoryIcon } from "@/lib/icons";
+import { getCategoryName } from "@/lib/categoryName";
 import type { Category } from "@/types/research";
 
 /**
@@ -24,6 +26,8 @@ export default function CategoryCover({
   author?: string;
   year?: number | string;
 }) {
+  const locale = useLocale();
+  const tNav = useTranslations("nav");
   const Icon = category ? getCategoryIcon(category.icon) : BookOpen;
 
   return (
@@ -31,7 +35,7 @@ export default function CategoryCover({
       <span className="cover-spine absolute inset-y-0 left-0" />
       {title ? (
         <div className="cover-frame absolute flex flex-col">
-          <span className="cover-meta line-clamp-1">{category?.nameTh ?? "งานวิจัย"}</span>
+          <span className="cover-meta line-clamp-1">{category ? getCategoryName(category, locale) : tNav("research")}</span>
           <span className="cover-title mt-[12%]">{title}</span>
           <span className="cover-meta mt-auto pt-2">
             {author && <span className="line-clamp-1">{author}</span>}

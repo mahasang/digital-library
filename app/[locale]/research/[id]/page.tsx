@@ -24,12 +24,13 @@ import CitationButton from "@/components/research/CitationButton";
 import ShareButton from "@/components/research/ShareButton";
 import ResearchGrid from "@/components/research/ResearchGrid";
 import { hasRealCoverImage } from "@/lib/categoryCover";
+import { getCategoryName } from "@/lib/categoryName";
 import {
   getResearchById,
   getRelatedResearch,
   getMergedRedirectSlug,
 } from "@/lib/data/research.server";
-import { getCategoryById } from "@/lib/data/categories.server";
+import { getCategories, getCategoryById } from "@/lib/data/categories.server";
 import { canDownload, canReadOnline } from "@/lib/labels";
 import { getSessionUser } from "@/lib/supabase/session";
 import { isResearchFavorited } from "@/lib/data/favorites.server";
@@ -84,8 +85,9 @@ export default async function ResearchDetailPage({
   // data fetching) ratingStats/myRating/comments ก็เช่นกัน ขึ้นกับ item.id
   // เท่านั้น (getMyRatingAction ดึง user เองภายในฟังก์ชัน ไม่ต้องรอ user
   // ตัวแปรนี้ก่อน) จึงยิงรวมชุดเดียวกันได้เลย
-  const [category, related, user, ratingStats, myRating, comments] = await Promise.all([
+  const [category, categories, related, user, ratingStats, myRating, comments] = await Promise.all([
     getCategoryById(item.categoryId),
+    getCategories(),
     getRelatedResearch(item),
     getSessionUser(),
     getRatingStatsAction(item.id),
@@ -140,7 +142,7 @@ export default async function ResearchDetailPage({
                 href={`/research?category=${category.id}`}
                 className="hover:text-accent"
               >
-                {category.nameTh}
+                {getCategoryName(category, locale)}
               </Link>
             </>
           )}
@@ -250,7 +252,7 @@ export default async function ResearchDetailPage({
           <div className="flex flex-col gap-6">
             <div>
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                {category && <Badge tone="brand">{category.nameTh}</Badge>}
+                {category && <Badge tone="brand">{getCategoryName(category, locale)}</Badge>}
                 <AccessBadge accessLevel={item.accessLevel} />
                 <span className="inline-flex items-center gap-1 text-xs text-gray-500">
                   <Calendar className="h-3.5 w-3.5" />
@@ -359,7 +361,7 @@ export default async function ResearchDetailPage({
             <h2 className="mb-4 text-h2 font-semibold text-gray-900">
               {t("relatedTitle")}
             </h2>
-            <ResearchGrid items={related} />
+            <ResearchGrid items={related} categories={categories} />
           </div>
         )}
       </Container>

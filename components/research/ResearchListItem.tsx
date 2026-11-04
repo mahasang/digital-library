@@ -4,8 +4,8 @@ import { Eye, Calendar, CalendarClock, FileSearch, Star } from "lucide-react";
 import AccessBadge from "@/components/research/AccessBadge";
 import CategoryCover from "@/components/research/CategoryCover";
 import { hasRealCoverImage } from "@/lib/categoryCover";
-import { getCategoryById } from "@/data/categories";
 import type { ResearchCardItem } from "@/components/research/ResearchCard";
+import type { Category } from "@/types/research";
 
 /**
  * จัดรูปแบบวันที่เผยแพร่แบบไทย (ปี พ.ศ.) — duplicate จาก ResearchCard
@@ -57,12 +57,14 @@ function HighlightedSnippet({
  */
 export default function ResearchListItem({
   item,
+  categories,
   footerMode = "default",
 }: {
   item: ResearchCardItem;
+  categories: Category[];
   footerMode?: "default" | "recency";
 }) {
-  const category = getCategoryById(item.categoryId);
+  const category = categories.find((c) => c.id === item.categoryId);
   const showRealCover = hasRealCoverImage(item.coverImage);
   const publishedLabel = footerMode === "recency" ? formatPublishedDate(item.publishedAt) : null;
 

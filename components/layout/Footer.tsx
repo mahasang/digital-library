@@ -1,9 +1,10 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { BookOpen, Mail, MapPin, Phone } from "lucide-react";
 import Container from "@/components/ui/Container";
+import { getCategoryName } from "@/lib/categoryName";
 import type { AppSettings, Category } from "@/types/research";
 
 export default function Footer({
@@ -14,6 +15,7 @@ export default function Footer({
   categories: Category[];
 }) {
   const t = useTranslations("footer");
+  const locale = useLocale();
 
   return (
     <footer className="border-t border-gray-200 bg-surface">
@@ -39,7 +41,7 @@ export default function Footer({
                   href={`/research?category=${c.id}`}
                   className="text-sm text-gray-500 hover:text-accent-ink"
                 >
-                  {c.nameTh}
+                  {getCategoryName(c, locale)}
                 </Link>
               </li>
             ))}

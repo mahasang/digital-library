@@ -24,7 +24,13 @@ export type PublicAuthorResearch = {
   publishedAt: string | null;
   accessLevel: string;
   coverImage: string | null;
-  categories: { slug: string; nameTh: string }[];
+  categories: {
+    slug: string;
+    nameTh: string;
+    nameEn: string;
+    nameLo: string | null;
+    nameVi: string | null;
+  }[];
 };
 
 /** ข้อมูลผู้วิจัยสำหรับหน้าโปรไฟล์สาธารณะ — เฉพาะที่ is_active = true และไม่ถูก
@@ -100,7 +106,7 @@ export const getPublicAuthorResearch = cache(
       .select(
         `research_items!inner (
           slug, title_th, title_en, published_at, access_level, cover_image,
-          research_categories ( categories ( slug, name_th ) )
+          research_categories ( categories ( * ) )
         )`
       )
       .eq("author_id", authorId)
@@ -117,7 +123,15 @@ export const getPublicAuthorResearch = cache(
         published_at: string | null;
         access_level: string;
         cover_image: string | null;
-        research_categories: { categories: { slug: string; name_th: string } | null }[];
+        research_categories: {
+          categories: {
+            slug: string;
+            name_th: string;
+            name_en: string;
+            name_lo?: string | null;
+            name_vi?: string | null;
+          } | null;
+        }[];
       } | null;
     }[];
 
@@ -134,7 +148,13 @@ export const getPublicAuthorResearch = cache(
         categories: item.research_categories
           .map((rc) => rc.categories)
           .filter((c): c is NonNullable<typeof c> => Boolean(c))
-          .map((c) => ({ slug: c.slug, nameTh: c.name_th })),
+          .map((c) => ({
+            slug: c.slug,
+            nameTh: c.name_th,
+            nameEn: c.name_en,
+            nameLo: c.name_lo ?? null,
+            nameVi: c.name_vi ?? null,
+          })),
       }))
       .sort((a, b) => {
         if (!a.publishedAt) return 1;

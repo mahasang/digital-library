@@ -32,6 +32,9 @@ interface RawCategoryRow {
   slug: string;
   name_th: string;
   name_en: string;
+  /** ไม่มีในแถวถ้ายังไม่ได้ apply migration 20261104110000 */
+  name_lo?: string | null;
+  name_vi?: string | null;
   description: string | null;
   icon: string | null;
   parent_id: string | null;
@@ -84,11 +87,13 @@ function sortCategoriesHierarchically(rows: RawCategoryRow[]): RawCategoryRow[] 
   return result;
 }
 
-function mapRow(row: RawCategoryRow): Category {
+export function mapCategoryRow(row: RawCategoryRow): Category {
   return {
     id: row.slug,
     nameTh: row.name_th,
     nameEn: row.name_en,
+    nameLo: row.name_lo ?? null,
+    nameVi: row.name_vi ?? null,
     description: row.description ?? "",
     icon: row.icon ?? "",
     parentId: row.parent_id,
@@ -103,19 +108,23 @@ function mapRow(row: RawCategoryRow): Category {
  * categories เปิดให้ role "anon" อ่านได้ทั้งหมดอยู่แล้วโดยไม่มีเงื่อนไขเรื่อง
  * สิทธิ์ผู้ใช้เลย (`categories_select_all` using (true)) ผลลัพธ์จึงเหมือนกัน
  * ทุกประการไม่ว่าใครจะเรียก — ปลอดภัยต่อการ cache ข้ามผู้ใช้
+ *
+ * ใช้ select("*") โดยตั้งใจ ห้ามเปลี่ยนเป็นการระบุ name_lo/name_vi ตรงๆ: query นี้
+ * อยู่ใน Footer ทุกหน้า ถ้าระบุคอลัมน์ที่ยังไม่มีในฐานข้อมูล PostgREST จะตอบ error
+ * แล้วทั้งเว็บจะล่ม `*` ทำให้ deploy โค้ดก่อน apply migration ได้โดยไม่พัง
  */
 async function fetchCategoriesFromDb(): Promise<Category[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, slug, name_th, name_en, description, icon, parent_id, is_active, sort_order")
+    .select("*")
     .eq("is_active", true);
 
   if (error) {
     throw new Error(toSafeErrorMessage(error, "ไม่สามารถดึงข้อมูลหมวดหมู่จาก Supabase ได้", "fetchCategoriesFromDb failed"));
   }
 
-  return sortCategoriesHierarchically(data ?? []).map(mapRow);
+  return sortCategoriesHierarchically(data ?? []).map(mapCategoryRow);
 }
 
 const getCachedCategories = unstable_cache(fetchCategoriesFromDb, ["public-categories"], {
@@ -150,7 +159,7 @@ export async function getCategoryById(id: string): Promise<Category | undefined>
 
 /** หมวดหมู่ที่เปิดใช้งาน พร้อม id จริง (uuid) — สำหรับติดตามหมวดหมู่
  * (category_subscriptions) ที่ต้องใช้ uuid จริงเป็น FK ต่างจาก Category.id
- * ทั่วไปที่เป็น slug (ดู mapRow ด้านบน) ไม่มี Mock fallback เนื่องจากการติดตาม
+ * ทั่วไปที่เป็น slug (ดู mapCategoryRow ด้านบน) ไม่มี Mock fallback เนื่องจากการติดตาม
  * หมวดหมู่ใช้ได้เฉพาะเมื่อเชื่อมต่อ Supabase จริงเท่านั้น */
 export async function getActiveCategoriesWithId(): Promise<
   { id: string; nameTh: string; nameEn: string }[]
