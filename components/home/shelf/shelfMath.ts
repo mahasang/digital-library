@@ -9,6 +9,7 @@ const FRICTION_PER_FRAME = 0.92;
 const FRAME_MS = 16;
 
 const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+const words = new Intl.Segmenter(undefined, { granularity: "word" });
 
 /** FNV-1a 32 บิต ให้ค่าเดิมทุกครั้งต่อ slug เดิม หนังสือจึงหน้าตาคงที่ทุกการโหลด */
 export function seedFromSlug(slug: string): number {
@@ -98,18 +99,83 @@ export function coverWindow(index: number, count: number, radius = 3): number[] 
   return indexes;
 }
 
-/** ตัดตามกลุ่มอักษร เพื่อไม่ให้สระหรือวรรณยุกต์ไทย/ลาวหลุดจากพยัญชนะ */
-export function fitText(
+function trimToFit(
   text: string,
   maxWidth: number,
   measure: (value: string) => number,
 ): string {
-  if (measure(text) <= maxWidth) return text;
-
   let fitted = "";
   for (const { segment } of graphemes.segment(text)) {
     if (measure(fitted + segment + ELLIPSIS) > maxWidth) break;
     fitted += segment;
   }
   return fitted.trimEnd() + ELLIPSIS;
+}
+
+/** ตัดตามกลุ่มอักษร เพื่อไม่ให้สระหรือวรรณยุกต์ไทย/ลาวหลุดจากพยัญชนะ */
+export function fitText(
+  text: string,
+  maxWidth: number,
+  measure: (value: string) => number,
+): string {
+  return measure(text) <= maxWidth ? text : trimToFit(text, maxWidth, measure);
+}
+
+/** ตัดบรรทัดตามคำ ภาษาไทยและลาวไม่มีช่องว่างจึงต้องใช้ตัวแบ่งคำของเบราว์เซอร์ */
+export function wrapText(
+  text: string,
+  maxWidth: number,
+  maxLines: number,
+  measure: (value: string) => number,
+): string[] {
+  const lines: string[] = [];
+  let current = "";
+
+  for (const { segment } of words.segment(text)) {
+    if (measure(current + segment) <= maxWidth) {
+      current += segment;
+      continue;
+    }
+    if (current.trim()) lines.push(current.trimEnd());
+    current = "";
+    if (!segment.trim()) continue;
+
+    for (const { segment: grapheme } of graphemes.segment(segment)) {
+      if (current && measure(current + grapheme) > maxWidth) {
+        lines.push(current);
+        current = "";
+      }
+      current += grapheme;
+    }
+  }
+  if (current.trim()) lines.push(current.trimEnd());
+
+  if (lines.length <= maxLines) return lines;
+  const kept = lines.slice(0, maxLines);
+  kept[maxLines - 1] = trimToFit(`${kept[maxLines - 1]}${ELLIPSIS}`, maxWidth, measure);
+  return kept;
+}
+
+/** เล่มที่ถูกดึงออกมาหันปกจึงกว้างขึ้น เล่มถัดไปต้องขยับหลบตามสัดส่วนการดึง */
+export function spreadPositions(centers: number[], extras: number[], pulls: number[]): number[] {
+  let shift = 0;
+  return centers.map((center, index) => {
+    const opened = extras[index] * pulls[index];
+    const position = center + shift + opened / 2;
+    shift += opened;
+    return position;
+  });
+}
+
+/** แปลง offset บนชั้นปกติเป็นตำแหน่งบนชั้นที่ถูกกระจายแล้ว */
+export function focusPosition(offset: number, centers: number[], positions: number[]): number {
+  if (centers.length === 0) return 0;
+  const clamped = clampOffset(offset, centers);
+  for (let i = 1; i < centers.length; i += 1) {
+    if (clamped <= centers[i]) {
+      const progress = (clamped - centers[i - 1]) / (centers[i] - centers[i - 1]);
+      return positions[i - 1] + (positions[i] - positions[i - 1]) * progress;
+    }
+  }
+  return positions[positions.length - 1];
 }

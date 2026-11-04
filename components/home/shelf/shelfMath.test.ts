@@ -11,7 +11,10 @@ import {
   nearestIndex,
   seedFromSlug,
   shouldHandleWheel,
+  spreadPositions,
+  focusPosition,
   stepIndex,
+  wrapText,
 } from "@/components/home/shelf/shelfMath";
 
 const length = (text: string) => [...text].length;
@@ -125,5 +128,63 @@ describe("fitText", () => {
 
   it("returns just the ellipsis when nothing else fits", () => {
     expect(fitText("นี้นี้", 1, length)).toBe("…");
+  });
+});
+
+describe("wrapText", () => {
+  it("keeps short text on one line", () => {
+    expect(wrapText("สั้น", 20, 3, length)).toEqual(["สั้น"]);
+  });
+
+  it("wraps Thai at word boundaries even without spaces", () => {
+    const lines = wrapText("การพัฒนาการศึกษาในชนบท", 10, 5, length);
+    expect(lines.length).toBeGreaterThan(1);
+    expect(lines.join("")).toBe("การพัฒนาการศึกษาในชนบท");
+    lines.forEach((line) => expect(length(line)).toBeLessThanOrEqual(10));
+  });
+
+  it("wraps English on spaces without leading spaces", () => {
+    expect(wrapText("one two three", 7, 3, length)).toEqual(["one two", "three"]);
+  });
+
+  it("ends the last allowed line with an ellipsis when text is left over", () => {
+    const lines = wrapText("one two three four five six", 7, 2, length);
+    expect(lines).toHaveLength(2);
+    expect(lines[1].endsWith("…")).toBe(true);
+    expect(length(lines[1])).toBeLessThanOrEqual(7);
+  });
+
+  it("splits a word longer than the line without losing its marks", () => {
+    const lines = wrapText("นี้".repeat(6), 6, 5, length);
+    lines.forEach((line) => expect(line).not.toMatch(/^[ิ-ฺ็-๎]/));
+    expect(lines.join("")).toBe("นี้".repeat(6));
+  });
+});
+
+describe("spreadPositions", () => {
+  it("leaves books in place when none is pulled out", () => {
+    expect(spreadPositions([1, 2, 3], [5, 5, 5], [0, 0, 0])).toEqual([1, 2, 3]);
+  });
+
+  it("moves later books aside and centres the pulled book in its gap", () => {
+    expect(spreadPositions([1, 2, 3], [0, 4, 0], [0, 1, 0])).toEqual([1, 4, 7]);
+  });
+
+  it("opens the gap in proportion to the pull", () => {
+    expect(spreadPositions([1, 2, 3], [0, 4, 0], [0, 0.5, 0])).toEqual([1, 3, 5]);
+  });
+});
+
+describe("focusPosition", () => {
+  it("lands on a book when the offset is on its centre", () => {
+    expect(focusPosition(2, [1, 2, 3], [1, 4, 7])).toBe(4);
+  });
+
+  it("interpolates between neighbouring books", () => {
+    expect(focusPosition(1.5, [1, 2, 3], [1, 4, 7])).toBe(2.5);
+  });
+
+  it("stays on the book for a single-book shelf", () => {
+    expect(focusPosition(9, [1], [3])).toBe(3);
   });
 });
