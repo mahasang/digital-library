@@ -71,7 +71,7 @@ app/[locale]/page.tsx            ดึง getShelfResearch(SHELF_SIZE) รอ�
 - ตัดบทคัดย่อฝั่งเซิร์ฟเวอร์เหลือไม่เกิน 280 ตัวอักษร เพื่อคุมขนาด payload
 - มี fallback mock เมื่อ `isSupabaseConfigured()` เป็นเท็จ
 - `SHELF_SIZE = 16`
-- `page.tsx` เลิกใช้ `latest.slice(0, 3)` และ prop `shelf` กับ `allCategories` ของ `Hero` เปลี่ยนเป็น `books: ShelfBook[]` ที่แปลงฝั่งเซิร์ฟเวอร์แล้ว
+- `page.tsx` เลิกใช้ `latest.slice(0, 3)` แล้วส่งผลของ `getShelfResearch` เป็น prop `shelf` ส่วน `Hero` คง `allCategories` ไว้ และแปลงเป็น `ShelfBook` ฝั่งเซิร์ฟเวอร์ เพราะ `CategoryCover` ใน fallback ต้องใช้ object `Category`
 
 ```ts
 interface ShelfBook {
