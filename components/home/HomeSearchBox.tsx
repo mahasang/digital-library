@@ -12,6 +12,8 @@ import { Search } from "lucide-react";
  *   แตะช่องค้นหา (ต่ำกว่า 16px จะซูม)
  * - กรอบ focus อยู่ที่ <form> ทั้งก้อน และกำหนดซ้ำด้วย dark: เพราะ ring สีขาวจาง
  *   ของโหมดมืดจะทับสี focus ถ้าไม่ระบุ (variant dark มาหลัง focus-within)
+ * - ข้อความ placeholder เล็กลงบนมือถือเพื่อให้แสดงครบ ไม่กระทบกฎ 16px ข้างบน
+ *   เพราะ iOS Safari ดูขนาดตัวอักษรของ input ไม่ใช่ placeholder
  * - hover ของปุ่มใช้ brightness-90 ไม่ผูกกับ token สีเฉพาะ จึงอ่านออกทั้งสองโหมด
  */
 export default function HomeSearchBox() {
@@ -42,11 +44,11 @@ export default function HomeSearchBox() {
         aria-label={t("searchPlaceholder")}
         autoComplete="off"
         enterKeyHint="search"
-        className="min-w-0 flex-1 border-0 bg-transparent px-2 py-3 text-base text-gray-900 placeholder:text-gray-500 placeholder:text-ellipsis focus:outline-none focus:ring-0"
+        className="min-w-0 flex-1 border-0 bg-transparent px-2 py-3 text-base text-gray-900 placeholder:text-sm placeholder:text-gray-500 placeholder:text-ellipsis sm:placeholder:text-base focus:outline-none focus:ring-0"
       />
       <button
         type="submit"
-        className="shrink-0 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-white transition-[filter] hover:brightness-90"
+        className="shrink-0 rounded-lg bg-accent px-5 py-3 text-sm font-medium text-white transition-[filter] hover:brightness-90"
       >
         {t("searchButton")}
       </button>

@@ -81,7 +81,7 @@ export default function ResearchCard({
   return (
     <Link
       href={`/research/${item.id}`}
-      className="card-premium group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-surface shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-elevated-md"
+      className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-surface shadow-sm transition-[border-color,box-shadow] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-border-strong hover:shadow-elevated-md"
     >
       <div className="relative aspect-[4/5.6] w-full overflow-hidden bg-gray-100">
         {showRealCover ? (
@@ -91,24 +91,29 @@ export default function ResearchCard({
             fill
             priority={priority}
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover"
           />
         ) : (
-          <CategoryCover category={category} />
+          <CategoryCover
+            category={category}
+            title={item.titleTh}
+            author={item.researchers.map((r) => r.name).join(", ")}
+            year={item.year}
+          />
         )}
         {category && showRealCover && (
-          <span className="absolute left-2 top-2 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+          <span className="absolute left-2 top-2 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white">
             {category.nameTh}
           </span>
         )}
         {typeof rank === "number" && (
-          <span className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-ink text-xs font-bold text-background shadow-elevated-sm">
+          <span className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md bg-surface text-xs font-medium tabular-nums text-ink shadow-elevated-sm">
             {rank}
           </span>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <h2 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 group-hover:text-accent-ink">
+        <h2 className="line-clamp-2 text-sm font-medium leading-snug text-gray-900 transition-colors group-hover:text-accent-ink">
           {item.titleTh}
         </h2>
         <p className="line-clamp-1 text-xs text-gray-500">
@@ -133,7 +138,7 @@ export default function ResearchCard({
           </div>
         )}
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-2">
-          <AccessBadge accessLevel={item.accessLevel} />
+          <AccessBadge accessLevel={item.accessLevel} quiet />
         </div>
         <div className="flex items-center justify-between border-t border-gray-100 pt-2 text-xs text-gray-500">
           {publishedLabel ? (
@@ -150,7 +155,7 @@ export default function ResearchCard({
           <span className="flex items-center gap-3">
             {item.ratingCount > 0 && (
               <span className="flex items-center gap-0.5">
-                <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                <Star className="h-3.5 w-3.5 fill-current" />
                 <span>{item.avgScore.toFixed(1)}</span>
               </span>
             )}

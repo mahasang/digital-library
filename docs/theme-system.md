@@ -61,7 +61,7 @@
 
 - **Semantic tokens** (Phase 0, เสร็จสมบูรณ์ใน Phase 5): `--color-background`, `--color-surface`, `--color-surface-muted`, `--color-surface-translucent`, `--color-border`, `--color-border-strong`, `--color-ink` (+ `-soft`/`-faint`), `--color-accent` (+ `-strong`/`-soft`/`-soft-hover`/`-ink`), `--color-success/-warning/-danger/-info`, `--color-focus-ring`, `--shadow-sm/-md`
 - **Tailwind stock palette remap** (ใหม่ทั้งหมดใน Phase 5): `--gray-50..900`, `--red-*`, `--green-*`, `--amber-*`, `--blue-*`, `--purple-*` — ดูหัวข้อ 4
-- **`.cover-tone-N`** (ปกงานวิจัยที่ไม่มีรูป, 8 เฉดสี) — ธีมของตัวเองมาตั้งแต่ Phase 1/2 ตอนนี้ผ่าน pattern เดียวกันครบแล้ว
+- **`.cover-cloth`** (ปกงานวิจัยที่ไม่มีรูป) — ผ้าปกสีน้ำเงินกรมท่าชุดเดียว ใช้ค่าเดียวกันทั้งสองธีมเพราะเป็นวัตถุ ไม่ใช่สีของหน้าเว็บ
 - **`color-scheme`** — ดูหัวข้อ 6
 
 ## 4. ทำไม `bg-gray-500`, `text-red-600` ฯลฯ ถึงกลายเป็นธีมอัตโนมัติ

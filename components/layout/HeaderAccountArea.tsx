@@ -96,7 +96,7 @@ export default async function HeaderAccountArea({
       </>
     ) : (
       <>
-        <LinkButton href="/login" variant="outline" size="sm">
+        <LinkButton href="/login" variant="ghost" size="sm">
           {t("login")}
         </LinkButton>
         <LinkButton href="/register" variant="primary" size="sm">
