@@ -1,14 +1,17 @@
 import { SearchX } from "lucide-react";
 import ResearchCard, { type ResearchCardItem } from "@/components/research/ResearchCard";
 import ResearchListItem from "@/components/research/ResearchListItem";
+import type { Category } from "@/types/research";
 
 export default function ResearchGrid({
   items,
+  categories,
   rankStart,
   footerMode = "default",
   view = "grid",
 }: {
   items: ResearchCardItem[];
+  categories: Category[];
   /** เริ่มแสดงตราอันดับจากเลขนี้ (เช่น 1) — ไม่ส่ง prop นี้เพื่อไม่แสดงตราอันดับ */
   rankStart?: number;
   footerMode?: "default" | "recency";
@@ -31,7 +34,7 @@ export default function ResearchGrid({
     return (
       <div className="flex flex-col gap-2">
         {items.map((item) => (
-          <ResearchListItem key={item.id} item={item} footerMode={footerMode} />
+          <ResearchListItem key={item.id} item={item} categories={categories} footerMode={footerMode} />
         ))}
       </div>
     );
@@ -43,6 +46,7 @@ export default function ResearchGrid({
         <ResearchCard
           key={item.id}
           item={item}
+          categories={categories}
           rank={typeof rankStart === "number" ? rankStart + index : undefined}
           footerMode={footerMode}
           priority={index === 0}

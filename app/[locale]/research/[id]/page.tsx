@@ -30,7 +30,7 @@ import {
   getRelatedResearch,
   getMergedRedirectSlug,
 } from "@/lib/data/research.server";
-import { getCategoryById } from "@/lib/data/categories.server";
+import { getCategories, getCategoryById } from "@/lib/data/categories.server";
 import { canDownload, canReadOnline } from "@/lib/labels";
 import { getSessionUser } from "@/lib/supabase/session";
 import { isResearchFavorited } from "@/lib/data/favorites.server";
@@ -85,8 +85,9 @@ export default async function ResearchDetailPage({
   // data fetching) ratingStats/myRating/comments ก็เช่นกัน ขึ้นกับ item.id
   // เท่านั้น (getMyRatingAction ดึง user เองภายในฟังก์ชัน ไม่ต้องรอ user
   // ตัวแปรนี้ก่อน) จึงยิงรวมชุดเดียวกันได้เลย
-  const [category, related, user, ratingStats, myRating, comments] = await Promise.all([
+  const [category, categories, related, user, ratingStats, myRating, comments] = await Promise.all([
     getCategoryById(item.categoryId),
+    getCategories(),
     getRelatedResearch(item),
     getSessionUser(),
     getRatingStatsAction(item.id),
@@ -360,7 +361,7 @@ export default async function ResearchDetailPage({
             <h2 className="mb-4 text-h2 font-semibold text-gray-900">
               {t("relatedTitle")}
             </h2>
-            <ResearchGrid items={related} />
+            <ResearchGrid items={related} categories={categories} />
           </div>
         )}
       </Container>

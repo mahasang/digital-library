@@ -1,14 +1,20 @@
 import type { Category } from "@/types/research";
 
+const TRANSLATED_NAME_FIELD: Partial<Record<string, "nameEn" | "nameLo" | "nameVi">> = {
+  en: "nameEn",
+  lo: "nameLo",
+  vi: "nameVi",
+};
+
 /**
- * ชื่อหมวดหมู่ตาม locale สำหรับหน้าสาธารณะ — ตาราง categories มีแค่ name_th และ
- * name_en จึงแปลได้เฉพาะ en ส่วน locale อื่น (lo, vi) ใช้ชื่อภาษาไทยไปก่อนจนกว่า
- * จะมีคอลัมน์ของภาษานั้น ถ้า nameEn ว่างก็ใช้ภาษาไทยเช่นกัน
+ * ชื่อหมวดหมู่ตาม locale — จุดเดียวที่ตัดสินใจว่าจะแสดงชื่อภาษาอะไร ถ้า locale นั้น
+ * ไม่มีคำแปล (null, ว่าง หรือมีแต่ช่องว่าง) จะใช้ชื่อภาษาไทยแทน
  */
 export function getCategoryName(
-  category: Pick<Category, "nameTh" | "nameEn">,
+  category: Pick<Category, "nameTh" | "nameEn" | "nameLo" | "nameVi">,
   locale: string,
 ): string {
-  if (locale === "en") return category.nameEn.trim() || category.nameTh;
-  return category.nameTh;
+  const field = TRANSLATED_NAME_FIELD[locale];
+  const translated = field ? category[field]?.trim() : "";
+  return translated || category.nameTh;
 }

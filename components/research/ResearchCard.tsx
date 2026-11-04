@@ -5,9 +5,8 @@ import { Eye, Download, Calendar, FileSearch, CalendarClock, Star } from "lucide
 import AccessBadge from "@/components/research/AccessBadge";
 import CategoryCover from "@/components/research/CategoryCover";
 import { hasRealCoverImage } from "@/lib/categoryCover";
-import { getCategoryById } from "@/data/categories";
 import { getCategoryName } from "@/lib/categoryName";
-import type { ResearchItem } from "@/types/research";
+import type { Category, ResearchItem } from "@/types/research";
 
 
 export interface ResearchCardItem extends ResearchItem {
@@ -64,11 +63,15 @@ function HighlightedSnippet({
 
 export default function ResearchCard({
   item,
+  categories,
   rank,
   footerMode = "default",
   priority = false,
 }: {
   item: ResearchCardItem;
+  /** หมวดหมู่จากฐานข้อมูล (getCategories) ส่งลงมาเป็น prop เพราะการ์ดนี้ render ได้ทั้งฝั่ง
+   * server และ client จึงเรียก data function เองไม่ได้ และหน้าที่ใช้การ์ดมีข้อมูลนี้อยู่แล้ว */
+  categories: Category[];
   /** อันดับที่แสดงเป็นตราเลขมุมขวาบนของปก (ใช้กับส่วน "งานวิจัยยอดนิยม" เท่านั้น) */
   rank?: number;
   /** "recency" แสดงวันที่เผยแพร่แทนปีในแถวข้อมูลด้านล่าง (ใช้กับส่วน "งานวิจัยล่าสุด") */
@@ -77,7 +80,7 @@ export default function ResearchCard({
   priority?: boolean;
 }) {
   const locale = useLocale();
-  const category = getCategoryById(item.categoryId);
+  const category = categories.find((c) => c.id === item.categoryId);
   const showRealCover = hasRealCoverImage(item.coverImage);
   const publishedLabel = footerMode === "recency" ? formatPublishedDate(item.publishedAt) : null;
 

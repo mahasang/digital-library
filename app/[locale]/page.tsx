@@ -66,6 +66,7 @@ export default async function HomePage() {
         categoryCount={categories.length}
         organizationCount={organizations.length}
         categories={topCategories}
+        allCategories={categories}
         shelf={shelf}
       />
       <CategorySection categories={categories} countByCategoryId={researchStats.countByCategoryId} />
@@ -73,12 +74,14 @@ export default async function HomePage() {
         title={t("latestTitle")}
         description={t("latestDescription")}
         items={latest}
+        categories={categories}
         variant="latest"
       />
       <ResearchSection
         title={t("popularTitle")}
         description={t("popularDescription")}
         items={popular}
+        categories={categories}
         variant="popular"
       />
     </>

@@ -532,7 +532,9 @@ export type Database = {
           id: string
           is_active: boolean
           name_en: string
+          name_lo: string | null
           name_th: string
+          name_vi: string | null
           parent_id: string | null
           slug: string
           sort_order: number
@@ -545,7 +547,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           name_en: string
+          name_lo?: string | null
           name_th: string
+          name_vi?: string | null
           parent_id?: string | null
           slug: string
           sort_order?: number
@@ -558,7 +562,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           name_en?: string
+          name_lo?: string | null
           name_th?: string
+          name_vi?: string | null
           parent_id?: string | null
           slug?: string
           sort_order?: number

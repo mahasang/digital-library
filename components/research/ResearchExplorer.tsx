@@ -237,7 +237,7 @@ export default function ResearchExplorer({
           isPending ? "opacity-60" : ""
         }`}
       >
-        <ResearchGrid items={result.items} view={view} />
+        <ResearchGrid items={result.items} categories={categories} view={view} />
 
         {result.totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 border-t border-gray-100 pt-6">

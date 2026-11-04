@@ -5,7 +5,6 @@ import Container from "@/components/ui/Container";
 import CategoryCover from "@/components/research/CategoryCover";
 import HomeSearchBox from "@/components/home/HomeSearchBox";
 import { hasRealCoverImage } from "@/lib/categoryCover";
-import { getCategoryById } from "@/data/categories";
 import { getCategoryName } from "@/lib/categoryName";
 import type { Category, ResearchItem } from "@/types/research";
 
@@ -27,6 +26,7 @@ export default async function Hero({
   categoryCount,
   organizationCount,
   categories,
+  allCategories,
   shelf,
 }: {
   publishedCount: number;
@@ -34,6 +34,8 @@ export default async function Hero({
   organizationCount: number;
   /** หมวดหมู่ที่มีงานเผยแพร่มากที่สุด (เรียงแล้ว) แสดงเป็นทางลัดใต้ช่องค้นหา */
   categories: Category[];
+  /** หมวดหมู่ทั้งหมด ใช้หาหมวดหมู่ของปกบนชั้นหนังสือ */
+  allCategories: Category[];
   /** งานล่าสุดสำหรับชั้นหนังสือ — ถ้ามีน้อยกว่า 2 เล่มจะไม่แสดงชั้น */
   shelf: ResearchItem[];
 }) {
@@ -128,7 +130,7 @@ export default async function Hero({
                     </>
                   ) : (
                     <CategoryCover
-                      category={getCategoryById(item.categoryId)}
+                      category={allCategories.find((c) => c.id === item.categoryId)}
                       title={item.titleTh}
                       author={item.researchers.map((r) => r.name).join(", ")}
                       year={item.year}
