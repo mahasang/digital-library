@@ -70,6 +70,7 @@ export default function ShelfControls({
 
       <button
         type="button"
+        data-shelf-inspect
         onClick={onInspect}
         className="pointer-events-auto inline-flex h-11 shrink-0 items-center px-2 text-sm font-medium text-white underline decoration-white/50 underline-offset-4 transition-colors hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
       >

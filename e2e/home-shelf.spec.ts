@@ -8,6 +8,30 @@ async function openShelf(page: Page): Promise<number> {
   return currentIndex(page);
 }
 
+/** ข้อมูลทดสอบในเครื่องไม่มีปกจริง จึงแก้ payload ของหน้าก่อนถึงเบราว์เซอร์ */
+async function rewriteHome(page: Page, rewrite: (html: string) => string): Promise<void> {
+  await page.route("**/th", async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({ response, body: rewrite(await response.text()) });
+  });
+}
+
+const withCovers = (html: string) =>
+  html.replaceAll(
+    String.raw`\"coverUrl\":null`,
+    String.raw`\"coverUrl\":\"https://images.unsplash.com/photo-test\"`,
+  );
+
+const withoutAbstracts = (html: string) =>
+  html.replace(/\\"abstract\\":\\"(?:[^"\]|\[^"])*\\"/g, String.raw`\"abstract\":\"\"`);
+
+async function openBook(page: Page) {
+  await page.getByRole("button", { name: "ดูเล่มนี้" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  return dialog;
+}
+
 async function currentIndex(page: Page): Promise<number> {
   return Number(await page.locator(shelf).getAttribute("data-shelf-index"));
 }
@@ -151,5 +175,125 @@ test.describe("hero shelf", () => {
         }, shelf),
       )
       .toBe(0);
+  });
+
+  test("inspect opens a dialog with book details", async ({ page }) => {
+    await openShelf(page);
+    const dialog = await openBook(page);
+    await expect(dialog.getByRole("heading")).not.toBeEmpty();
+    await expect(dialog.getByRole("link", { name: "อ่านงานวิจัย" })).toHaveAttribute(
+      "href",
+      //th/research/.+/,
+    );
+  });
+
+  test("escape closes and restores focus", async ({ page }) => {
+    await openShelf(page);
+    await openBook(page);
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "ดูเล่มนี้" })).toBeFocused();
+  });
+
+  test("tab stays inside the dialog", async ({ page }) => {
+    await openShelf(page);
+    const dialog = await openBook(page);
+    for (let i = 0; i < 5; i += 1) {
+      await page.keyboard.press("Tab");
+      expect(await dialog.evaluate((node) => node.contains(document.activeElement))).toBe(true);
+    }
+  });
+
+  test("page scroll is locked while open", async ({ page }) => {
+    await openShelf(page);
+    await openBook(page);
+    expect(await page.evaluate(() => getComputedStyle(document.body).overflow)).toBe("hidden");
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    expect(await page.evaluate(() => getComputedStyle(document.body).overflow)).not.toBe("hidden");
+  });
+
+  test("vertical wheel zooms only while inspecting", async ({ page }) => {
+    await openShelf(page);
+    await openBook(page);
+    const box = await page.locator(`${shelf} canvas`).boundingBox();
+    await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
+    const before = await page.evaluate(() => window.scrollY);
+    await page.mouse.wheel(0, 400);
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => window.scrollY)).toBe(before);
+  });
+
+  test("opening the dialog does not move the page behind it", async ({ page }) => {
+    await openShelf(page);
+    const before = await page.evaluate(() => document.documentElement.scrollHeight);
+    await openBook(page);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(before);
+  });
+
+  test("resize while open keeps canvas in the dialog and restores the band", async ({ page }) => {
+    await openShelf(page);
+    const dialog = await openBook(page);
+    await page.setViewportSize({ width: 800, height: 900 });
+    await expect
+      .poll(() =>
+        dialog.evaluate((node) => {
+          const canvas = node.querySelector("canvas")!;
+          return canvas.width / window.devicePixelRatio - canvas.clientWidth;
+        }),
+      )
+      .toBe(0);
+    await page.keyboard.press("Escape");
+    await expect
+      .poll(() =>
+        page.evaluate((selector) => {
+          const section = document.querySelector(selector)!;
+          const canvas = section.querySelector("canvas")!;
+          return canvas.clientWidth - section.clientWidth;
+        }, shelf),
+      )
+      .toBe(0);
+  });
+
+  test("real covers load through the image optimizer", async ({ page }) => {
+    const widths: string[] = [];
+    await rewriteHome(page, withCovers);
+    await page.route("**/_next/image*", async (route) => {
+      widths.push(new URL(route.request().url()).searchParams.get("w") ?? "");
+      await route.fulfill({
+        contentType: "image/png",
+        body: Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          "base64",
+        ),
+      });
+    });
+    await openShelf(page);
+    await expect.poll(() => widths).toContain("640");
+    await openBook(page);
+    await expect.poll(() => widths).toContain("1080");
+  });
+
+  test("broken cover falls back", async ({ page }) => {
+    const errors: string[] = [];
+    let attempts = 0;
+    page.on("pageerror", (error) => errors.push(error.message));
+    await rewriteHome(page, withCovers);
+    await page.route("**/_next/image*", async (route) => {
+      attempts += 1;
+      await route.fulfill({ status: 404, body: "" });
+    });
+    await openShelf(page);
+    await expect.poll(() => attempts).toBeGreaterThan(0);
+    await openBook(page);
+    expect(errors).toEqual([]);
+    await expect(page.locator(shelf)).toHaveAttribute("data-shelf-mode", "3d");
+  });
+
+  test("empty abstract hides the abstract block", async ({ page }) => {
+    await rewriteHome(page, withoutAbstracts);
+    await openShelf(page);
+    const dialog = await openBook(page);
+    await expect(dialog.getByTestId("shelf-abstract")).toHaveCount(0);
   });
 });

@@ -1,11 +1,14 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createBook, createShelf, type BookMesh } from "@/components/home/shelf/bookGeometry";
 import {
   drawCover,
   drawSpine,
+  INSPECT_COVER,
   loadCover,
   resolveFontFamilies,
   SHELF_COVER,
+  type CoverSize,
 } from "@/components/home/shelf/bookTextures";
 import {
   clampOffset,
@@ -33,6 +36,8 @@ export interface ShelfSceneHandle {
   /** resolve เมื่อวาดสันครบแล้ว แสดง canvas ได้โดยไม่เห็นหนังสือเปล่า */
   ready: Promise<void>;
   goTo(index: number): void;
+  inspect(index: number): void;
+  closeInspect(): void;
   resize(width: number, height: number): void;
   setVisible(visible: boolean): void;
   dispose(): void;
@@ -49,6 +54,9 @@ const MIN_COAST_SPEED = 0.0004;
 const WHEEL_IDLE_MS = 140;
 const SETTLED = 0.0005;
 const MAX_FRAME_MS = 50;
+const INSPECT_EASE_MS = 140;
+const INSPECT_MIN_DISTANCE = 3.5;
+const INSPECT_MAX_DISTANCE = 11;
 
 function ease(current: number, target: number, dtMs: number, easeMs: number): number {
   return target + (current - target) * Math.exp(-dtMs / easeMs);
@@ -96,7 +104,8 @@ export function createShelfScene(
 
   const shelf = new THREE.Group();
   meshes.forEach((mesh) => shelf.add(mesh.group));
-  scene.add(shelf, createShelf(totalWidth));
+  const plank = createShelf(totalWidth);
+  scene.add(shelf, plank);
 
   let index = Math.min(Math.max(options.initialIndex, 0), books.length - 1);
   let offset = centers[index];
@@ -110,7 +119,11 @@ export function createShelfScene(
   let lastFrame = 0;
   let wheelTimer: ReturnType<typeof setTimeout> | undefined;
   let fonts = "";
+  let inspecting = false;
+  let inspectAmount = 0;
+  let controls: OrbitControls | undefined;
   const coversRequested = new Set<number>();
+  const detailedCovers = new Set<number>();
 
   function worldPerPixel(): number {
     const visibleHeight = 2 * CAMERA_DISTANCE * Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
@@ -124,26 +137,29 @@ export function createShelfScene(
     requestCovers();
   }
 
+  function paintCover(bookIndex: number, size: CoverSize): void {
+    const book = books[bookIndex];
+    const mesh = meshes[bookIndex];
+    applyTexture(mesh.cover, canvasTexture(drawCover(book, mesh.cloth, fonts, size), anisotropy));
+    invalidate();
+
+    if (!book.coverUrl) return;
+    loadCover(book.coverUrl, size)
+      .then((cover) => {
+        if (disposed) return;
+        applyTexture(mesh.cover, canvasTexture(cover, anisotropy));
+        invalidate();
+      })
+      // ปกเสียไม่ใช่ error ของชั้น เล่มนี้แค่คงปกเรียงพิมพ์ไว้
+      .catch(() => undefined);
+  }
+
   function requestCovers(): void {
     if (!fonts) return;
     coverWindow(index, books.length).forEach((bookIndex) => {
-      if (coversRequested.has(bookIndex)) return;
+      if (coversRequested.has(bookIndex) || detailedCovers.has(bookIndex)) return;
       coversRequested.add(bookIndex);
-
-      const book = books[bookIndex];
-      const mesh = meshes[bookIndex];
-      applyTexture(mesh.cover, canvasTexture(drawCover(book, mesh.cloth, fonts, SHELF_COVER), anisotropy));
-      invalidate();
-
-      if (!book.coverUrl) return;
-      loadCover(book.coverUrl, SHELF_COVER)
-        .then((cover) => {
-          if (disposed) return;
-          applyTexture(mesh.cover, canvasTexture(cover, anisotropy));
-          invalidate();
-        })
-        // ปกเสียไม่ใช่ error ของชั้น เล่มนี้แค่คงปกเรียงพิมพ์ไว้
-        .catch(() => undefined);
+      paintCover(bookIndex, SHELF_COVER);
     });
   }
 
@@ -158,16 +174,81 @@ export function createShelfScene(
       else pulls[bookIndex] = wanted;
     });
 
+    const wantedInspect = inspecting ? 1 : 0;
+    inspectAmount = options.reducedMotion
+      ? wantedInspect
+      : ease(inspectAmount, wantedInspect, dtMs, INSPECT_EASE_MS);
+    if (Math.abs(inspectAmount - wantedInspect) > SETTLED) settled = false;
+    else inspectAmount = wantedInspect;
+
     const positions = spreadPositions(centers, extras, pulls);
     const focus = focusPosition(offset, centers, positions);
 
     meshes.forEach((mesh, bookIndex) => {
       const pull = pulls[bookIndex];
+      const shelved = THREE.MathUtils.lerp(-mesh.width / 2, PULL_FORWARD_Z, pull);
+      const inspected = bookIndex === index ? inspectAmount : 0;
       mesh.group.position.x = positions[bookIndex] - focus;
-      mesh.group.position.z = THREE.MathUtils.lerp(-mesh.width / 2, PULL_FORWARD_Z, pull);
+      mesh.group.position.z = THREE.MathUtils.lerp(shelved, 0, inspected);
       mesh.group.rotation.y = (-Math.PI / 2) * pull;
     });
+
+    if (!controls) {
+      const height = THREE.MathUtils.lerp(CAMERA_HEIGHT, meshes[index].height / 2, inspectAmount);
+      camera.position.set(0, height, CAMERA_DISTANCE);
+      camera.lookAt(0, height, 0);
+    }
+    if (inspecting && inspectAmount === 1 && settled) startOrbit();
     return settled;
+  }
+
+  /** เริ่มหลังเล่มเข้าที่แล้ว ระหว่างเคลื่อนกล้องจึงไม่แย่งตำแหน่งกับ OrbitControls */
+  function startOrbit(): void {
+    if (controls) return;
+    controls = new OrbitControls(camera, canvas);
+    controls.target.set(0, meshes[index].height / 2, 0);
+    controls.enablePan = false;
+    controls.minDistance = INSPECT_MIN_DISTANCE;
+    controls.maxDistance = INSPECT_MAX_DISTANCE;
+    controls.addEventListener("change", invalidate);
+    controls.update();
+  }
+
+  function stopOrbit(): void {
+    controls?.removeEventListener("change", invalidate);
+    controls?.dispose();
+    controls = undefined;
+    // OrbitControls ตั้งค่านี้ไว้บน canvas ต้องคืนให้ class ของชั้นทำงานเหมือนเดิม
+    canvas.style.touchAction = "";
+  }
+
+  function setShelfVisible(shown: boolean): void {
+    plank.visible = shown;
+    meshes.forEach((mesh, bookIndex) => {
+      mesh.group.visible = shown || bookIndex === index;
+    });
+  }
+
+  function inspect(next: number): void {
+    dragging = false;
+    wheeling = false;
+    clearTimeout(wheelTimer);
+    goTo(next);
+    inspecting = true;
+    setShelfVisible(false);
+
+    if (fonts && !detailedCovers.has(next)) {
+      detailedCovers.add(next);
+      paintCover(next, INSPECT_COVER);
+    }
+    invalidate();
+  }
+
+  function closeInspect(): void {
+    stopOrbit();
+    inspecting = false;
+    setShelfVisible(true);
+    invalidate();
   }
 
   function updateOffset(dtMs: number): boolean {
@@ -235,7 +316,7 @@ export function createShelfScene(
   let lastPointerTime = 0;
 
   function onPointerDown(event: PointerEvent): void {
-    if (pointerId !== null || event.button !== 0) return;
+    if (inspecting || pointerId !== null || event.button !== 0) return;
     pointerId = event.pointerId;
     canvas.setPointerCapture(event.pointerId);
     dragStartX = lastPointerX = event.clientX;
@@ -285,7 +366,7 @@ export function createShelfScene(
   }
 
   function onWheel(event: WheelEvent): void {
-    if (!shouldHandleWheel(event.deltaX, event.deltaY)) return;
+    if (inspecting || !shouldHandleWheel(event.deltaX, event.deltaY)) return;
     event.preventDefault();
 
     wheeling = true;
@@ -324,6 +405,7 @@ export function createShelfScene(
     disposed = true;
     if (frame) cancelAnimationFrame(frame);
     clearTimeout(wheelTimer);
+    stopOrbit();
     canvas.removeEventListener("pointerdown", onPointerDown);
     canvas.removeEventListener("pointermove", onPointerMove);
     canvas.removeEventListener("pointerup", onPointerUp);
@@ -361,6 +443,8 @@ export function createShelfScene(
   return {
     ready,
     goTo,
+    inspect,
+    closeInspect,
     resize,
     setVisible(next) {
       visible = next;

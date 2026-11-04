@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -11,6 +12,7 @@ import {
 import { useTranslations } from "next-intl";
 import { detectCapability, shouldEnable3D } from "@/components/home/shelf/capability";
 import ShelfControls from "@/components/home/shelf/ShelfControls";
+import ShelfInspector from "@/components/home/shelf/ShelfInspector";
 import { stepIndex } from "@/components/home/shelf/shelfMath";
 import type { ShelfSceneHandle } from "@/components/home/shelf/shelfScene";
 import type { ShelfBook } from "@/components/home/shelf/types";
@@ -54,6 +56,29 @@ export default function HeroShelf({
   // เริ่มกลางชั้นเพื่อให้มีหนังสือทั้งสองข้างของเล่มที่เลือกบนจอกว้าง
   const [index, setIndex] = useState(() => Math.floor(books.length / 2));
   const initialIndexRef = useRef(index);
+  const [inspecting, setInspecting] = useState(false);
+
+  const openBook = useCallback((bookIndex: number) => {
+    handleRef.current?.inspect(bookIndex);
+    setInspecting(true);
+  }, []);
+
+  const closeBook = useCallback(() => {
+    handleRef.current?.closeInspect();
+    setInspecting(false);
+  }, []);
+
+  useEffect(() => {
+    if (!inspecting) return;
+    const section = sectionRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      section?.querySelector<HTMLElement>("[data-shelf-inspect]")?.focus();
+    };
+  }, [inspecting]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -93,10 +118,13 @@ export default function HeroShelf({
       handleRef.current = undefined;
     };
 
-    const fallBackToList = () => {
+    const fallBackToList = (error: unknown) => {
       if (cancelled) return;
       cancelled = true;
+      // ผู้ใช้ยังใช้รายการลิงก์ได้ตามปกติ แต่ต้องเหลือร่องรอยไว้ไล่ปัญหา
+      console.warn("[HeroShelf] 3D shelf unavailable", error);
       release();
+      setInspecting(false);
       setMode("list");
       setWantsScene(false);
     };
@@ -132,7 +160,7 @@ export default function HeroShelf({
           reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
           initialIndex: initialIndexRef.current,
           onSelect: setIndex,
-          onOpen: () => undefined,
+          onOpen: openBook,
           onError: fallBackToList,
         });
         handleRef.current = handle;
@@ -147,7 +175,7 @@ export default function HeroShelf({
       release();
       setMode("list");
     };
-  }, [wantsScene, books]);
+  }, [wantsScene, books, openBook]);
 
   function focusedBookIndex(target: EventTarget): number | null {
     const link = (target as HTMLElement).closest<HTMLElement>("[data-shelf-index]");
@@ -160,7 +188,32 @@ export default function HeroShelf({
     if (bookIndex !== null) handleRef.current?.goTo(bookIndex);
   }
 
+  /** โฟกัสต้องวนอยู่ในแผงข้อมูลขณะเปิด dialog */
+  function trapTab(event: KeyboardEvent<HTMLElement>) {
+    const items = Array.from(
+      event.currentTarget.querySelectorAll<HTMLElement>(
+        "[data-shelf-panel] a, [data-shelf-panel] button",
+      ),
+    );
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement;
+
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (inspecting) {
+      if (event.key === "Escape") closeBook();
+      if (event.key === "Tab") trapTab(event);
+      return;
+    }
     if (mode !== "3d" || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return;
     event.preventDefault();
 
@@ -172,38 +225,52 @@ export default function HeroShelf({
     }
   }
 
-  return (
-    <section
-      ref={sectionRef}
-      data-testid="hero-shelf"
-      data-shelf-mode={mode}
-      data-shelf-index={index}
-      aria-label={t("shelfLabel")}
-      onFocusCapture={handleFocus}
-      onKeyDown={handleKeyDown}
-      className={`relative h-[260px] border-b-[10px] outline-2 outline-offset-[-4px] outline-white sm:h-[clamp(280px,38vh,420px)] [&:has(a:focus-visible)]:outline ${
+  const listClass = inspecting ? "hidden" : mode === "3d" ? "sr-only" : "h-full";
+  const sectionClass = inspecting
+    ? "fixed inset-0 z-50 bg-brand-950"
+    : `relative h-full border-b-[10px] outline-2 outline-offset-[-4px] outline-white [&:has(a:focus-visible)]:outline ${
         mode === "3d" ? "border-transparent" : "border-[#5A3A26]"
-      }`}
-    >
-      <div className={mode === "3d" ? "sr-only" : "h-full"}>{children}</div>
-      {wantsScene && (
-        <canvas
-          ref={canvasRef}
-          aria-hidden="true"
-          className={`absolute inset-x-0 top-0 h-[calc(100%+10px)] w-full cursor-grab touch-pan-y transition-opacity duration-300 active:cursor-grabbing ${
-            mode === "3d" ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      )}
-      {mode === "3d" && (
-        <ShelfControls
-          index={index}
-          count={books.length}
-          title={books[index].title}
-          onChange={(next) => handleRef.current?.goTo(next)}
-          onInspect={() => undefined}
-        />
-      )}
-    </section>
+      }`;
+  const canvasPlacement = inspecting
+    ? "left-0 top-0 h-[52%] w-full lg:h-full lg:w-[calc(100%-26rem)]"
+    : "inset-x-0 top-0 h-[calc(100%+10px)] w-full touch-pan-y";
+
+  return (
+    // กล่องนอกคงความสูงไว้ เปิด dialog แล้ว hero จึงไม่ยุบและหน้าเว็บด้านหลังไม่ขยับ
+    <div className="relative h-[260px] sm:h-[clamp(280px,38vh,420px)]">
+      <section
+        ref={sectionRef}
+        data-testid="hero-shelf"
+        data-shelf-mode={mode}
+        data-shelf-index={index}
+        role={inspecting ? "dialog" : undefined}
+        aria-modal={inspecting ? true : undefined}
+        aria-label={inspecting ? books[index].title : t("shelfLabel")}
+        onFocusCapture={handleFocus}
+        onKeyDown={handleKeyDown}
+        className={sectionClass}
+      >
+        <div className={listClass}>{children}</div>
+        {wantsScene && (
+          <canvas
+            ref={canvasRef}
+            aria-hidden="true"
+            className={`absolute cursor-grab transition-opacity duration-300 active:cursor-grabbing ${canvasPlacement} ${
+              mode === "3d" ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        )}
+        {mode === "3d" && !inspecting && (
+          <ShelfControls
+            index={index}
+            count={books.length}
+            title={books[index].title}
+            onChange={(next) => handleRef.current?.goTo(next)}
+            onInspect={() => openBook(index)}
+          />
+        )}
+        {inspecting && <ShelfInspector book={books[index]} onClose={closeBook} />}
+      </section>
+    </div>
   );
 }
