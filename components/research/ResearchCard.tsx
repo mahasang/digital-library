@@ -1,10 +1,12 @@
 import Image from "next/image";
+import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Eye, Download, Calendar, FileSearch, CalendarClock, Star } from "lucide-react";
 import AccessBadge from "@/components/research/AccessBadge";
 import CategoryCover from "@/components/research/CategoryCover";
 import { hasRealCoverImage } from "@/lib/categoryCover";
 import { getCategoryById } from "@/data/categories";
+import { getCategoryName } from "@/lib/categoryName";
 import type { ResearchItem } from "@/types/research";
 
 
@@ -74,6 +76,7 @@ export default function ResearchCard({
   /** ส่งเป็น true เฉพาะการ์ดใบแรกของกริดที่อยู่เหนือ fold ตอนโหลดหน้าครั้งแรก */
   priority?: boolean;
 }) {
+  const locale = useLocale();
   const category = getCategoryById(item.categoryId);
   const showRealCover = hasRealCoverImage(item.coverImage);
   const publishedLabel = footerMode === "recency" ? formatPublishedDate(item.publishedAt) : null;
@@ -103,7 +106,7 @@ export default function ResearchCard({
         )}
         {category && showRealCover && (
           <span className="absolute left-2 top-2 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white">
-            {category.nameTh}
+            {getCategoryName(category, locale)}
           </span>
         )}
         {typeof rank === "number" && (

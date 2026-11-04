@@ -1,11 +1,12 @@
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import Container from "@/components/ui/Container";
 import CategoryCover from "@/components/research/CategoryCover";
 import HomeSearchBox from "@/components/home/HomeSearchBox";
 import { hasRealCoverImage } from "@/lib/categoryCover";
 import { getCategoryById } from "@/data/categories";
+import { getCategoryName } from "@/lib/categoryName";
 import type { Category, ResearchItem } from "@/types/research";
 
 /**
@@ -37,6 +38,7 @@ export default async function Hero({
   shelf: ResearchItem[];
 }) {
   const t = await getTranslations("home");
+  const locale = await getLocale();
 
   const stats = [
     { label: t("statPublished"), value: publishedCount },
@@ -73,7 +75,7 @@ export default async function Hero({
                   href={`/research?category=${category.id}`}
                   className="inline-flex min-h-9 items-center text-sm text-brand-100 transition-colors hover:text-white"
                 >
-                  {category.nameTh}
+                  {getCategoryName(category, locale)}
                 </Link>
               </li>
             ))}

@@ -1,5 +1,6 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { getCategoryName } from "@/lib/categoryName";
 import type { PublicAuthorResearch } from "@/lib/data/authors-public.server";
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 
 export async function AuthorResearchList({ research }: Props) {
   const t = await getTranslations("authors");
+  const locale = await getLocale();
 
   if (research.length === 0) {
     return <p className="text-sm text-gray-500">{t("noPublishedResearch")}</p>;
@@ -31,7 +33,7 @@ export async function AuthorResearchList({ research }: Props) {
                   key={cat.slug}
                   className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
                 >
-                  {cat.nameTh}
+                  {getCategoryName(cat, locale)}
                 </span>
               ))}
               {item.publishedAt && (

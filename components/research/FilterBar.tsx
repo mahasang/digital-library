@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent, type Ref } from "react";
 import { Search, SlidersHorizontal, ChevronDown, BookText, FileSearch, Layers } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { getCategoryName } from "@/lib/categoryName";
 import { sortOptions, type SortOption } from "@/lib/search";
 import type { SearchMode } from "@/lib/data/research-search.server";
 import type { AccessLevel, Category } from "@/types/research";
@@ -68,6 +69,7 @@ export default function FilterBar({
   onSortChange,
 }: FilterBarProps) {
   const t = useTranslations("research");
+  const locale = useLocale();
   const tAccessLevels = useTranslations("accessLevels");
   // มือถือ: พับตัวกรองไว้ก่อน แต่ถ้าเข้ามาพร้อมตัวกรอง (เช่นลิงก์หมวดหมู่จากหน้าแรก)
   // ให้กางไว้ เพื่อให้เห็นว่ากำลังกรองอะไรอยู่ — ตั้งแต่ sm ขึ้นไปแสดงเสมอ (ไม่ขึ้นกับ state นี้)
@@ -171,7 +173,7 @@ export default function FilterBar({
             <option value="all">{t("allCategories")}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.nameTh}
+                {getCategoryName(c, locale)}
               </option>
             ))}
           </select>

@@ -48,29 +48,31 @@ type Props = {
  * hardcode เหมือนเดิมทุกประการ
  */
 /**
+ * ชื่อไซต์ตาม locale ใช้ร่วมกันทั้ง <title> และโลโก้ใน <Header>: locale 'th' ใช้
+ * siteName จาก DB (ตรงกับที่ admin ตั้งค่าไว้ผ่าน settings) ส่วน locale อื่นใช้
+ * header.siteName จาก i18n message file เพราะ DB เก็บชื่อไซต์เป็นภาษาไทยภาษาเดียว
+ * ผลคือการแก้ชื่อไซต์ใน settings จะมีผลกับ /th เท่านั้น
+ */
+async function getLocalizedSiteName(locale: string): Promise<string> {
+  if (locale === "th") {
+    const { siteName } = await getPublicHomeSettings();
+    if (siteName) return siteName;
+  }
+  const t = await getTranslations({ locale, namespace: "header" });
+  return t("siteName");
+}
+
+/**
  * <title> ต้องตาม locale จริง — ก่อนหน้านี้ root layout (app/layout.tsx) ใส่
  * metadata แบบ static เป็นภาษาไทย hardcode ทำให้ /en/ และ /lo/ ก็ยังขึ้น
  * browser tab title ภาษาไทยเหมือนกันหมด generateMetadata ที่นี่จึง override
- * เฉพาะ title: locale 'th' ใช้ siteName จาก DB เหมือนเดิม (ตรงกับที่ admin
- * ตั้งค่าไว้ผ่าน settings), ส่วน locale อื่นใช้ header.siteName จาก i18n
- * message file แทน เพราะ DB เก็บชื่อไซต์เป็นภาษาไทยภาษาเดียว
- *
- * ไม่แตะ siteName ที่ส่งเข้า <Header> ด้านล่าง — ยังคงมาจาก DB ทุก locale
- * เหมือนเดิมทุกประการ (คนละจุดกับ <title> ของ browser tab)
+ * เฉพาะ title ส่วนชื่อที่ใช้ดูที่ getLocalizedSiteName ด้านล่าง
  */
 export async function generateMetadata({
   params,
 }: Pick<Props, "params">): Promise<Metadata> {
   const { locale } = await params;
-  const { siteName: dbSiteName } = await getPublicHomeSettings();
-
-  let siteName: string;
-  if (locale === "th") {
-    siteName = dbSiteName || "ห้องสมุดดิจิทัลเพื่อเผยแพร่งานวิจัยขององค์กร";
-  } else {
-    const t = await getTranslations({ locale, namespace: "header" });
-    siteName = t("siteName");
-  }
+  const siteName = await getLocalizedSiteName(locale);
 
   return {
     title: {
@@ -88,7 +90,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
 
   const messages = await getMessages();
-  const { siteName, logoUrl } = await getPublicHomeSettings();
+  const { logoUrl } = await getPublicHomeSettings();
+  const siteName = await getLocalizedSiteName(locale);
   const tHeader = await getTranslations("header");
 
   return (

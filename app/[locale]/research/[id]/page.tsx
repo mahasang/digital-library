@@ -24,6 +24,7 @@ import CitationButton from "@/components/research/CitationButton";
 import ShareButton from "@/components/research/ShareButton";
 import ResearchGrid from "@/components/research/ResearchGrid";
 import { hasRealCoverImage } from "@/lib/categoryCover";
+import { getCategoryName } from "@/lib/categoryName";
 import {
   getResearchById,
   getRelatedResearch,
@@ -140,7 +141,7 @@ export default async function ResearchDetailPage({
                 href={`/research?category=${category.id}`}
                 className="hover:text-accent"
               >
-                {category.nameTh}
+                {getCategoryName(category, locale)}
               </Link>
             </>
           )}
@@ -250,7 +251,7 @@ export default async function ResearchDetailPage({
           <div className="flex flex-col gap-6">
             <div>
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                {category && <Badge tone="brand">{category.nameTh}</Badge>}
+                {category && <Badge tone="brand">{getCategoryName(category, locale)}</Badge>}
                 <AccessBadge accessLevel={item.accessLevel} />
                 <span className="inline-flex items-center gap-1 text-xs text-gray-500">
                   <Calendar className="h-3.5 w-3.5" />
