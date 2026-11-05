@@ -32,6 +32,15 @@ async function openBook(page: Page) {
   return dialog;
 }
 
+/** ความสว่างของสีพื้นเวทีหนังสือ 0 คือดำ 255 คือขาว */
+async function stageBrightness(page: Page): Promise<number> {
+  return page.evaluate((selector) => {
+    const stage = document.querySelector(selector)!.parentElement!;
+    const [red, green, blue] = getComputedStyle(stage).backgroundColor.match(/[0-9]+/g)!.map(Number);
+    return (red + green + blue) / 3;
+  }, shelf);
+}
+
 async function currentIndex(page: Page): Promise<number> {
   return Number(await page.locator(shelf).getAttribute("data-shelf-index"));
 }
@@ -381,5 +390,41 @@ test.describe("hero shelf", () => {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.locator('section input[type="search"]').first()).toBeVisible();
     await expect(page.locator("section dl")).toHaveCount(0);
+  });
+
+  test("stage is light in the light theme", async ({ page }) => {
+    await page.addInitScript(() => window.localStorage.setItem("theme", "light"));
+    await page.goto("/th");
+    expect(await stageBrightness(page)).toBeGreaterThan(180);
+  });
+
+  test("stage follows the dark theme chosen in the app", async ({ page }) => {
+    await page.addInitScript(() => window.localStorage.setItem("theme", "dark"));
+    await page.goto("/th");
+    const brightness = await stageBrightness(page);
+    expect(brightness).toBeGreaterThan(10);
+    expect(brightness).toBeLessThan(60);
+  });
+
+  test("stage follows a dark system setting", async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "dark" });
+    await page.addInitScript(() => window.localStorage.setItem("theme", "system"));
+    await page.goto("/th");
+    const brightness = await stageBrightness(page);
+    expect(brightness).toBeGreaterThan(10);
+    expect(brightness).toBeLessThan(60);
+  });
+
+  test("the book panel follows the dark theme", async ({ page }) => {
+    await page.addInitScript(() => window.localStorage.setItem("theme", "dark"));
+    await openShelf(page);
+    const dialog = await openBook(page);
+    const brightness = await dialog.evaluate((node) => {
+      const panel = node.querySelector("[data-shelf-panel]")!;
+      const [red, green, blue] = getComputedStyle(panel).backgroundColor.match(/[0-9]+/g)!.map(Number);
+      return (red + green + blue) / 3;
+    });
+    expect(brightness).toBeGreaterThan(10);
+    expect(brightness).toBeLessThan(80);
   });
 });
