@@ -39,6 +39,27 @@ function whenIdleAfterLoad(callback: () => void): () => void {
   };
 }
 
+/** โฟกัสต้องวนอยู่ในแผงข้อมูลขณะเปิด dialog แม้ผู้ใช้เพิ่งคลิกเล่มจนโฟกัสหลุดไปที่ body */
+function trapTab(event: globalThis.KeyboardEvent, section: HTMLElement) {
+  const items = Array.from(
+    section.querySelectorAll<HTMLElement>("[data-shelf-panel] a, [data-shelf-panel] button"),
+  );
+  const first = items[0];
+  const last = items[items.length - 1];
+  const active = document.activeElement as HTMLElement | null;
+
+  if (!active || !items.includes(active)) {
+    event.preventDefault();
+    (event.shiftKey ? last : first).focus();
+  } else if (event.shiftKey && active === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && active === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
 /** แถบชั้นเต็มความกว้าง กันความสูงไว้ตั้งแต่ HTML แรกเพื่อไม่ให้เกิด layout shift */
 export default function HeroShelf({
   books,
@@ -54,9 +75,13 @@ export default function HeroShelf({
   const handleRef = useRef<ShelfSceneHandle | undefined>(undefined);
   const [mode, setMode] = useState<ShelfMode>("list");
   // เริ่มกลางชั้นเพื่อให้มีหนังสือทั้งสองข้างของเล่มที่เลือกบนจอกว้าง
-  const [index, setIndex] = useState(() => Math.floor(books.length / 2));
-  const initialIndexRef = useRef(index);
+  const [selected, setSelected] = useState(() => Math.floor(books.length / 2));
+  const latestIndexRef = useRef(selected);
   const [inspecting, setInspecting] = useState(false);
+  // refresh อาจส่งรายการใหม่ที่สั้นลง จึงห้ามใช้ค่าที่เกินรายการ
+  const index = stepIndex(selected, 0, books.length);
+  // array ใหม่ที่เล่มเหมือนเดิมต้องไม่ทำให้สร้าง scene ซ้ำ
+  const bookKey = books.map((book) => book.id).join("|");
 
   const openBook = useCallback((bookIndex: number) => {
     handleRef.current?.inspect(bookIndex);
@@ -69,16 +94,24 @@ export default function HeroShelf({
   }, []);
 
   useEffect(() => {
-    if (!inspecting) return;
     const section = sectionRef.current;
+    if (!inspecting || !section) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      section?.querySelector<HTMLElement>("[data-shelf-inspect]")?.focus();
+    // ฟังที่ document เพราะการลากหมุนเล่มทำให้โฟกัสหลุดออกจาก section
+    const handleDialogKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") closeBook();
+      if (event.key === "Tab") trapTab(event, section);
     };
-  }, [inspecting]);
+    document.addEventListener("keydown", handleDialogKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleDialogKey);
+      document.body.style.overflow = previousOverflow;
+      section.querySelector<HTMLElement>("[data-shelf-inspect]")?.focus();
+    };
+  }, [inspecting, closeBook]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -156,10 +189,15 @@ export default function HeroShelf({
     import("@/components/home/shelf/shelfScene")
       .then(async ({ createShelfScene }) => {
         if (cancelled) return;
+        latestIndexRef.current = stepIndex(latestIndexRef.current, 0, books.length);
+        setSelected(latestIndexRef.current);
         const handle = createShelfScene(canvas, books, {
           reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-          initialIndex: initialIndexRef.current,
-          onSelect: setIndex,
+          initialIndex: latestIndexRef.current,
+          onSelect: (next) => {
+            latestIndexRef.current = next;
+            setSelected(next);
+          },
           onOpen: openBook,
           onError: fallBackToList,
         });
@@ -175,7 +213,9 @@ export default function HeroShelf({
       release();
       setMode("list");
     };
-  }, [wantsScene, books, openBook]);
+    // bookKey แทน books: สร้าง scene ใหม่เฉพาะเมื่อเล่มบนชั้นเปลี่ยนจริง
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wantsScene, bookKey, openBook]);
 
   function focusedBookIndex(target: EventTarget): number | null {
     const link = (target as HTMLElement).closest<HTMLElement>("[data-shelf-index]");
@@ -188,33 +228,9 @@ export default function HeroShelf({
     if (bookIndex !== null) handleRef.current?.goTo(bookIndex);
   }
 
-  /** โฟกัสต้องวนอยู่ในแผงข้อมูลขณะเปิด dialog */
-  function trapTab(event: KeyboardEvent<HTMLElement>) {
-    const items = Array.from(
-      event.currentTarget.querySelectorAll<HTMLElement>(
-        "[data-shelf-panel] a, [data-shelf-panel] button",
-      ),
-    );
-    const first = items[0];
-    const last = items[items.length - 1];
-    const active = document.activeElement;
-
-    if (event.shiftKey && active === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && active === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
-    if (inspecting) {
-      if (event.key === "Escape") closeBook();
-      if (event.key === "Tab") trapTab(event);
-      return;
-    }
-    if (mode !== "3d" || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return;
+    if (inspecting || mode !== "3d") return;
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
 
     const next = stepIndex(index, event.key === "ArrowRight" ? 1 : -1, books.length);
@@ -256,7 +272,7 @@ export default function HeroShelf({
             ref={canvasRef}
             aria-hidden="true"
             className={`absolute cursor-grab transition-opacity duration-300 active:cursor-grabbing ${canvasPlacement} ${
-              mode === "3d" ? "opacity-100" : "opacity-0"
+              mode === "3d" ? "opacity-100" : "pointer-events-none opacity-0"
             }`}
           />
         )}

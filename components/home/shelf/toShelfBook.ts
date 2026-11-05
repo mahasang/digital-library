@@ -1,24 +1,13 @@
 import { hasRealCoverImage } from "@/lib/categoryCover";
 import { getCategoryName } from "@/lib/categoryName";
+import { fitText } from "@/components/home/shelf/shelfMath";
 import type { Category, ResearchItem } from "@/types/research";
 import type { ShelfBook } from "@/components/home/shelf/types";
 
-const ELLIPSIS = "…";
-const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+const characterCount = (text: string) => [...text].length;
 
-/** ตัดตามกลุ่มอักษร เพื่อไม่ให้สระหรือวรรณยุกต์ไทย/ลาวหลุดจากพยัญชนะ */
 export function truncateAbstract(text: string, max = 280): string {
-  if ([...text].length <= max) return text;
-
-  let result = "";
-  let length = 0;
-  for (const { segment } of graphemes.segment(text)) {
-    const segmentLength = [...segment].length;
-    if (length + segmentLength > max - 1) break;
-    result += segment;
-    length += segmentLength;
-  }
-  return result.trimEnd() + ELLIPSIS;
+  return fitText(text, max, characterCount);
 }
 
 export function toShelfBook(item: ResearchItem, categories: Category[], locale: string): ShelfBook {

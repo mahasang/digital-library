@@ -183,7 +183,7 @@ test.describe("hero shelf", () => {
     await expect(dialog.getByRole("heading")).not.toBeEmpty();
     await expect(dialog.getByRole("link", { name: "อ่านงานวิจัย" })).toHaveAttribute(
       "href",
-      //th/research/.+/,
+      new RegExp("/th/research/.+"),
     );
   });
 
@@ -295,5 +295,54 @@ test.describe("hero shelf", () => {
     await openShelf(page);
     const dialog = await openBook(page);
     await expect(dialog.getByTestId("shelf-abstract")).toHaveCount(0);
+  });
+
+  test("list stays usable while the 3D shelf is still loading", async ({ page }) => {
+    await page.addInitScript(() => {
+      document.fonts.load = () => new Promise(() => undefined);
+    });
+    await page.goto("/th");
+    await expect(page.locator(`${shelf} canvas`)).toBeAttached({ timeout: 20_000 });
+    await expect(page.locator(shelf)).toHaveAttribute("data-shelf-mode", "list");
+    await page.locator(`${shelf} a[data-shelf-index="0"]`).click({ timeout: 5000 });
+    await expect(page).toHaveURL(new RegExp("/th/research/.+"), { timeout: 20_000 });
+  });
+
+  test("escape still closes after dragging the book", async ({ page }) => {
+    await openShelf(page);
+    await openBook(page);
+    await page.waitForTimeout(1200);
+    const box = await page.locator(`${shelf} canvas`).boundingBox();
+    const x = box!.x + box!.width / 2;
+    const y = box!.y + box!.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 120, y, { steps: 5 });
+    await page.mouse.up();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
+
+  test("shift tab stays in the dialog after clicking the book", async ({ page }) => {
+    await openShelf(page);
+    const dialog = await openBook(page);
+    const box = await page.locator(`${shelf} canvas`).boundingBox();
+    await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
+    await page.keyboard.press("Shift+Tab");
+    expect(await dialog.evaluate((node) => node.contains(document.activeElement))).toBe(true);
+  });
+
+  test("keyboard focus survives reaching the end of the shelf", async ({ page }) => {
+    await openShelf(page);
+    const count = await page.locator(`${shelf} a[data-shelf-index]`).count();
+    await page.getByRole("button", { name: `เล่ม ${count - 1} จาก`, exact: false }).click();
+    const next = page.getByRole("button", { name: "เล่มถัดไป" });
+    await next.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator(shelf)).toHaveAttribute("data-shelf-index", String(count - 1));
+    await expect(next).toBeFocused();
+    await expect(next).toBeDisabled();
+    await page.keyboard.press("ArrowLeft");
+    await expect(page.locator(shelf)).toHaveAttribute("data-shelf-index", String(count - 2));
   });
 });

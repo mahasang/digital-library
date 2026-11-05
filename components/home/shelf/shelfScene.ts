@@ -13,6 +13,7 @@ import {
 import {
   clampOffset,
   coverWindow,
+  createCoverTracker,
   decayVelocity,
   focusPosition,
   isClick,
@@ -124,6 +125,7 @@ export function createShelfScene(
   let controls: OrbitControls | undefined;
   const coversRequested = new Set<number>();
   const detailedCovers = new Set<number>();
+  const coverTracker = createCoverTracker();
 
   function worldPerPixel(): number {
     const visibleHeight = 2 * CAMERA_DISTANCE * Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
@@ -140,13 +142,15 @@ export function createShelfScene(
   function paintCover(bookIndex: number, size: CoverSize): void {
     const book = books[bookIndex];
     const mesh = meshes[bookIndex];
-    applyTexture(mesh.cover, canvasTexture(drawCover(book, mesh.cloth, fonts, size), anisotropy));
-    invalidate();
+    if (coverTracker.needsTypeset(bookIndex)) {
+      applyTexture(mesh.cover, canvasTexture(drawCover(book, mesh.cloth, fonts, size), anisotropy));
+      invalidate();
+    }
 
     if (!book.coverUrl) return;
     loadCover(book.coverUrl, size)
       .then((cover) => {
-        if (disposed) return;
+        if (disposed || !coverTracker.accept(bookIndex, size.width)) return;
         applyTexture(mesh.cover, canvasTexture(cover, anisotropy));
         invalidate();
       })

@@ -39,6 +39,12 @@ describe("truncateAbstract", () => {
   });
 });
 
+describe("truncateAbstract leading vowels", () => {
+  it("does not end on a Thai leading vowel", () => {
+    expect(truncateAbstract("ประเทศเวียดนาม", 5)).toBe("ประ…");
+  });
+});
+
 describe("toShelfBook", () => {
   it("treats placeholder covers as having no cover", () => {
     const book = toShelfBook(makeItem({ coverImage: "/covers/cover-01.svg" }), [category], "th");

@@ -1,9 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   bookDimensions,
   clampOffset,
   clothIndex,
   coverWindow,
+  createCoverTracker,
   decayVelocity,
   fitText,
   isClick,
@@ -186,5 +187,67 @@ describe("focusPosition", () => {
 
   it("stays on the book for a single-book shelf", () => {
     expect(focusPosition(9, [1], [3])).toBe(3);
+  });
+});
+
+describe("leading vowels", () => {
+  it("does not leave a Thai leading vowel before the ellipsis", () => {
+    expect(fitText("ประเทศเวียดนาม", 5, length)).toBe("ประ…");
+  });
+
+  it("does not leave a Lao leading vowel before the ellipsis", () => {
+    expect(fitText("ປະເທດລາວ", 4, length)).toBe("ປະ…");
+  });
+
+  it("keeps a leading vowel with its consonant when splitting a long word", () => {
+    const lines = wrapText("กกกกเกกกก", 5, 5, length);
+    lines.forEach((line) => expect(line).not.toMatch(/[เ-ไ]$/));
+    expect(lines.join("")).toBe("กกกกเกกกก");
+  });
+});
+
+describe("wrapText ellipsis", () => {
+  it("adds exactly one ellipsis to the last line", () => {
+    expect(wrapText("one two three four five six", 7, 2, length)).toEqual(["one two", "three…"]);
+  });
+
+  it("shortens the last line when the ellipsis does not fit", () => {
+    expect(wrapText("seven77 eight88 nine", 7, 1, length)).toEqual(["seven7…"]);
+  });
+});
+
+describe("createCoverTracker", () => {
+  it("paints the typeset cover until a real cover has loaded", () => {
+    const covers = createCoverTracker();
+    expect(covers.needsTypeset(0)).toBe(true);
+    covers.accept(0, 1);
+    expect(covers.needsTypeset(0)).toBe(false);
+    expect(covers.needsTypeset(1)).toBe(true);
+  });
+
+  it("ignores a low-resolution cover that arrives after a sharper one", () => {
+    const covers = createCoverTracker();
+    expect(covers.accept(0, 2)).toBe(true);
+    expect(covers.accept(0, 1)).toBe(false);
+  });
+
+  it("upgrades a cover to a sharper one", () => {
+    const covers = createCoverTracker();
+    expect(covers.accept(0, 1)).toBe(true);
+    expect(covers.accept(0, 2)).toBe(true);
+  });
+});
+
+describe("browsers without Intl.Segmenter", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("still loads the module for the code on the first-load path", async () => {
+    vi.stubGlobal("Intl", { ...Intl, Segmenter: undefined });
+    vi.resetModules();
+    const math = await import("@/components/home/shelf/shelfMath");
+    expect(math.stepIndex(0, 1, 2)).toBe(1);
   });
 });

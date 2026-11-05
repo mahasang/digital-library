@@ -8,8 +8,17 @@ const CLICK_TOLERANCE_PX = 6;
 const FRICTION_PER_FRAME = 0.92;
 const FRAME_MS = 16;
 
-const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
-const words = new Intl.Segmenter(undefined, { granularity: "word" });
+/** สระหน้าของไทยและลาวอยู่คนละกลุ่มอักษรกับพยัญชนะที่ตามมา จึงต้องตัดทิ้งเมื่อค้างท้ายข้อความ */
+const TRAILING_LEADING_VOWEL = /[เ-ไເ-ໄ]$/;
+
+/**
+ * สร้างตอนใช้งานเท่านั้น ไฟล์นี้อยู่ในเส้นทางโหลดแรกของหน้าแรก เบราว์เซอร์เก่าที่ไม่มี
+ * Intl.Segmenter จึงต้องยังโหลดหน้าได้ แล้วถอยกลับเป็นรายการลิงก์เมื่อวาดปกไม่สำเร็จ
+ */
+function segment(text: string, granularity: "grapheme" | "word"): string[] {
+  const segmenter = new Intl.Segmenter(undefined, { granularity });
+  return Array.from(segmenter.segment(text), (part) => part.segment);
+}
 
 /** FNV-1a 32 บิต ให้ค่าเดิมทุกครั้งต่อ slug เดิม หนังสือจึงหน้าตาคงที่ทุกการโหลด */
 export function seedFromSlug(slug: string): number {
@@ -105,11 +114,11 @@ function trimToFit(
   measure: (value: string) => number,
 ): string {
   let fitted = "";
-  for (const { segment } of graphemes.segment(text)) {
-    if (measure(fitted + segment + ELLIPSIS) > maxWidth) break;
-    fitted += segment;
+  for (const grapheme of segment(text, "grapheme")) {
+    if (measure(fitted + grapheme + ELLIPSIS) > maxWidth) break;
+    fitted += grapheme;
   }
-  return fitted.trimEnd() + ELLIPSIS;
+  return fitted.replace(TRAILING_LEADING_VOWEL, "").trimEnd() + ELLIPSIS;
 }
 
 /** ตัดตามกลุ่มอักษร เพื่อไม่ให้สระหรือวรรณยุกต์ไทย/ลาวหลุดจากพยัญชนะ */
@@ -131,16 +140,16 @@ export function wrapText(
   const lines: string[] = [];
   let current = "";
 
-  for (const { segment } of words.segment(text)) {
-    if (measure(current + segment) <= maxWidth) {
-      current += segment;
+  for (const word of segment(text, "word")) {
+    if (measure(current + word) <= maxWidth) {
+      current += word;
       continue;
     }
     if (current.trim()) lines.push(current.trimEnd());
     current = "";
-    if (!segment.trim()) continue;
+    if (!word.trim()) continue;
 
-    for (const { segment: grapheme } of graphemes.segment(segment)) {
+    for (const grapheme of segment(word, "grapheme")) {
       if (current && measure(current + grapheme) > maxWidth) {
         lines.push(current);
         current = "";
@@ -152,8 +161,26 @@ export function wrapText(
 
   if (lines.length <= maxLines) return lines;
   const kept = lines.slice(0, maxLines);
-  kept[maxLines - 1] = trimToFit(`${kept[maxLines - 1]}${ELLIPSIS}`, maxWidth, measure);
+  const last = kept[maxLines - 1];
+  kept[maxLines - 1] =
+    measure(last + ELLIPSIS) <= maxWidth ? last + ELLIPSIS : trimToFit(last, maxWidth, measure);
   return kept;
+}
+
+/**
+ * จำว่าแต่ละเล่มมีปกจริงความละเอียดระดับไหนแล้ว รูปโหลดเสร็จไม่เรียงลำดับ รูปเล็กที่มาทีหลัง
+ * จึงต้องไม่ทับรูปใหญ่ และเมื่อมีปกจริงแล้วต้องไม่ย้อนกลับไปเป็นปกเรียงพิมพ์
+ */
+export function createCoverTracker() {
+  const best = new Map<number, number>();
+  return {
+    needsTypeset: (book: number) => !best.has(book),
+    accept(book: number, rank: number): boolean {
+      if ((best.get(book) ?? 0) >= rank) return false;
+      best.set(book, rank);
+      return true;
+    },
+  };
 }
 
 /** เล่มที่ถูกดึงออกมาหันปกจึงกว้างขึ้น เล่มถัดไปต้องขยับหลบตามสัดส่วนการดึง */
