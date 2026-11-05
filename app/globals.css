@@ -24,6 +24,11 @@
   color-scheme: light;
 
   --color-background: #F5F2ED;
+  /* เวทีชั้นหนังสือบน hero เก็บเป็นค่า RGB เพื่อให้ใช้กับ opacity ของ Tailwind ได้ */
+  --stage: 231 226 216;
+  --stage-ink: 43 33 24;
+  --stage-muted: 92 77 60;
+  --stage-panel: 244 238 226;
   --color-surface: #FDFCFA;
   --color-surface-muted: #EDE9E2;
   --color-surface-translucent: rgba(253, 252, 250, 0.95);
@@ -104,6 +109,10 @@
     color-scheme: dark;
 
     --color-background: #0D1525;
+    --stage: 20 30 48;
+    --stage-ink: 240 234 222;
+    --stage-muted: 178 170 156;
+    --stage-panel: 26 38 64;
     --color-surface: #141E30;
     --color-surface-muted: #1A2640;
     --color-surface-translucent: rgba(13, 21, 37, 0.92);
@@ -157,6 +166,10 @@
   color-scheme: dark;
 
   --color-background: #0D1525;
+  --stage: 20 30 48;
+  --stage-ink: 240 234 222;
+  --stage-muted: 178 170 156;
+  --stage-panel: 26 38 64;
   --color-surface: #141E30;
   --color-surface-muted: #1A2640;
   --color-surface-translucent: rgba(13, 21, 37, 0.92);

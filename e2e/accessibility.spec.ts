@@ -207,14 +207,17 @@ test.describe("mfa challenge screen", () => {
 });
 
 test.describe("hero shelf", () => {
-  test("has no violations on the shelf or in the book dialog", async ({ page }) => {
-    await page.goto("/th");
-    const shelf = page.locator('[data-testid="hero-shelf"]');
-    await expect(shelf).toHaveAttribute("data-shelf-mode", "3d", { timeout: 20_000 });
-    await expectNoViolations(page);
+  for (const theme of THEMES) {
+    test(`has no violations on the shelf or in the book dialog (${theme})`, async ({ page }) => {
+      await page.addInitScript((t) => window.localStorage.setItem("theme", t), theme);
+      await page.goto("/th");
+      const shelf = page.locator('[data-testid="hero-shelf"]');
+      await expect(shelf).toHaveAttribute("data-shelf-mode", "3d", { timeout: 20_000 });
+      await expectNoViolations(page);
 
-    await page.getByRole("button", { name: "ดูเล่มนี้" }).click();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await expectNoViolations(page);
-  });
+      await page.getByRole("button", { name: "ดูเล่มนี้" }).click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+      await expectNoViolations(page);
+    });
+  }
 });

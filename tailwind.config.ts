@@ -28,6 +28,12 @@ const config: Config = {
         amber: shade("amber"),
         blue: shade("blue"),
         purple: shade("purple"),
+        stage: {
+          DEFAULT: "rgb(var(--stage) / <alpha-value>)",
+          ink: "rgb(var(--stage-ink) / <alpha-value>)",
+          muted: "rgb(var(--stage-muted) / <alpha-value>)",
+          panel: "rgb(var(--stage-panel) / <alpha-value>)",
+        },
         brand: {
           50: "#EBF0FA",
           100: "#D4E0F5",

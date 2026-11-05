@@ -29,7 +29,7 @@ export default async function Hero({
 
   const intro = (
     <>
-      <h1 className="text-sm font-medium leading-snug text-[#2B2118]">
+      <h1 className="text-sm font-medium leading-snug text-stage-ink">
         {t("heroHeadingLine1")} {t("heroHeadingLine2")}
       </h1>
       <div className="mt-3">
@@ -37,7 +37,7 @@ export default async function Hero({
       </div>
       <Link
         href="/research"
-        className="mt-1 inline-flex min-h-9 items-center text-sm text-[#2B2118] underline decoration-[#2B2118]/40 underline-offset-4 transition-colors hover:decoration-[#2B2118]"
+        className="mt-1 inline-flex min-h-9 items-center text-sm text-stage-ink underline decoration-stage-ink/40 underline-offset-4 transition-colors hover:decoration-stage-ink"
       >
         {t("browseAllResearch")}
       </Link>
@@ -46,7 +46,7 @@ export default async function Hero({
 
   if (shelf.length < 2) {
     return (
-      <section className="bg-[#E7E2D8] px-4 py-12">
+      <section className="bg-stage px-4 py-12">
         <div className="mx-auto max-w-md">{intro}</div>
       </section>
     );
