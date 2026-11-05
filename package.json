@@ -44,6 +44,7 @@
     "recharts": "^3.10.1",
     "resend": "^6.26.0",
     "server-only": "^0.0.1",
+    "three": "^0.187.0",
     "tus-js-client": "^4.3.1",
     "zod": "^4.4.3"
   },
@@ -56,6 +57,7 @@
     "@types/node": "^22.10.10",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@types/three": "^0.187.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.19.0",
     "eslint-config-next": "15.5.22",

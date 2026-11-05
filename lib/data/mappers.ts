@@ -4,6 +4,7 @@ import type {
   RawManagementResearchRow,
   RawApprovalLogRow,
   RawHomepageResearchRow,
+  RawShelfResearchRow,
 } from "@/lib/data/types";
 
 function calcRating(ratings: { score: number }[]): { avgScore: number; ratingCount: number } {
@@ -88,6 +89,11 @@ export function mapHomepageRowToResearchItem(row: RawHomepageResearchRow): Resea
     publishedAt: row.published_at ?? "",
     scanStatus: "clean",
   };
+}
+
+/** แถวของชั้นหนังสือบน hero: เหมือนหน้าแรก แต่มีบทคัดย่อสำหรับโหมดดูเล่ม */
+export function mapShelfRowToResearchItem(row: RawShelfResearchRow): ResearchItem {
+  return { ...mapHomepageRowToResearchItem(row), abstract: row.abstract ?? "" };
 }
 
 export function mapRowToSubmissionItem(row: RawManagementResearchRow): SubmissionItem {

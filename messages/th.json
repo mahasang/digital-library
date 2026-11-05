@@ -93,7 +93,14 @@
     "latestDescription": "เรียงตามวันที่เผยแพร่ ใหม่ไปเก่า",
     "popularTitle": "งานวิจัยยอดนิยม",
     "popularDescription": "เรียงตามยอดเข้าชมสะสมสูงสุดในระบบ",
-    "browseAllResearch": "เรียกดูงานวิจัยทั้งหมด"
+    "browseAllResearch": "เรียกดูงานวิจัยทั้งหมด",
+    "shelfLabel": "ชั้นงานวิจัยล่าสุด",
+    "shelfPrevious": "เล่มก่อนหน้า",
+    "shelfNext": "เล่มถัดไป",
+    "shelfPosition": "เล่ม {current} จาก {total}",
+    "shelfInspect": "ดูเล่มนี้",
+    "shelfClose": "กลับไปที่ชั้น",
+    "shelfRead": "อ่านงานวิจัย"
   },
   "research": {
     "pageTitle": "ค้นหางานวิจัย",

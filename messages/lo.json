@@ -93,7 +93,14 @@
     "latestDescription": "ຮຽງຕາມວັນທີເຜີຍແຜ່ ໃຫມ່ໄປເກົ່າ",
     "popularTitle": "ງານວິໄຈຍອດນິຍົມ",
     "popularDescription": "ຮຽງຕາມຍອດເຂົ້າເບິ່ງສະສົມສູງສຸດໃນລະບົບ",
-    "browseAllResearch": "ເບິ່ງງານວິໄຈທັງໝົດ"
+    "browseAllResearch": "ເບິ່ງງານວິໄຈທັງໝົດ",
+    "shelfLabel": "ຊັ້ນງານວິໄຈລ່າສຸດ",
+    "shelfPrevious": "ເຫຼັ້ມກ່ອນໜ້າ",
+    "shelfNext": "ເຫຼັ້ມຕໍ່ໄປ",
+    "shelfPosition": "ເຫຼັ້ມທີ {current} ຈາກ {total}",
+    "shelfInspect": "ເບິ່ງເຫຼັ້ມນີ້",
+    "shelfClose": "ກັບໄປທີ່ຊັ້ນ",
+    "shelfRead": "ອ່ານງານວິໄຈ"
   },
   "research": {
     "pageTitle": "ຄົ້ນຫາງານວິໄຈ",

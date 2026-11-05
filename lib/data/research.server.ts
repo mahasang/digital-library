@@ -7,9 +7,14 @@ import {
   fetchPublishedResearchRows,
   fetchResearchRowBySlug,
   fetchHomepageResearchRows,
+  fetchShelfResearchRows,
   fetchPublishedResearchCategoryLinkRows,
 } from "@/lib/data/queries";
-import { mapRowToResearchItem, mapHomepageRowToResearchItem } from "@/lib/data/mappers";
+import {
+  mapRowToResearchItem,
+  mapHomepageRowToResearchItem,
+  mapShelfRowToResearchItem,
+} from "@/lib/data/mappers";
 import * as mockData from "@/data/research";
 import {
   PUBLIC_RESEARCH_TAG,
@@ -150,6 +155,26 @@ export async function getLatestResearch(limit = 4): Promise<ResearchItem[]> {
     return mockData.getLatestResearch(limit);
   }
   return getCachedLatestResearch(limit);
+}
+
+async function fetchShelfResearchFromDb(limit: number): Promise<ResearchItem[]> {
+  const supabase = createPublicClient();
+  const rows = await fetchShelfResearchRows(supabase, limit);
+  return rows.map(mapShelfRowToResearchItem);
+}
+
+const getCachedShelfResearch = unstable_cache(
+  fetchShelfResearchFromDb,
+  ["public-shelf-research"],
+  { tags: [PUBLIC_RESEARCH_TAG, PUBLIC_HOME_TAG], revalidate: PUBLIC_HOME_REVALIDATE_SECONDS }
+);
+
+/** งานล่าสุดพร้อมบทคัดย่อสำหรับชั้นหนังสือบน hero — เห็นเฉพาะที่ guest เห็นได้ เหมือน getLatestResearch */
+export async function getShelfResearch(limit: number): Promise<ResearchItem[]> {
+  if (!isSupabaseConfigured()) {
+    return mockData.getLatestResearch(limit);
+  }
+  return getCachedShelfResearch(limit);
 }
 
 /**

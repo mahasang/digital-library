@@ -20,12 +20,14 @@ vi.mock("@/lib/supabase/config", async (importOriginal) => {
   };
 });
 
-import { mapHomepageRowToResearchItem } from "@/lib/data/mappers";
+import { mapHomepageRowToResearchItem, mapShelfRowToResearchItem } from "@/lib/data/mappers";
+import { fetchShelfResearchRows } from "@/lib/data/queries";
 import {
   buildResearchCategoryStats,
   getLatestResearch,
   getPopularResearch,
   getPublishedResearchStats,
+  getShelfResearch,
 } from "@/lib/data/research.server";
 import * as mockData from "@/data/research";
 
@@ -202,5 +204,42 @@ describe("getPublishedResearchStats — Supabase-not-configured fallback", () =>
       expect(Number.isInteger(count)).toBe(true);
       expect(count).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("shelf research", () => {
+  it("keeps the abstract when mapping a shelf row", () => {
+    const row = { ...makeRawHomepageRow({ id: "row-1" }), abstract: "บทคัดย่อ" };
+    expect(mapShelfRowToResearchItem(row).abstract).toBe("บทคัดย่อ");
+  });
+
+  it("maps a missing abstract to an empty string", () => {
+    const row = { ...makeRawHomepageRow({ id: "row-1" }), abstract: null };
+    expect(mapShelfRowToResearchItem(row).abstract).toBe("");
+  });
+
+  it("selects the abstract of published rows, newest first, up to the limit", async () => {
+    const calls: Record<string, unknown[]> = {};
+    const query = {
+      from: (table: string) => ((calls.from = [table]), query),
+      select: (columns: string) => ((calls.select = [columns]), query),
+      eq: (column: string, value: string) => ((calls.eq = [column, value]), query),
+      order: (column: string, options: unknown) => ((calls.order = [column, options]), query),
+      limit: async (limit: number) => ((calls.limit = [limit]), { data: [], error: null }),
+    };
+
+    await fetchShelfResearchRows(query as never, 16);
+
+    expect(calls.from).toEqual(["research_items"]);
+    expect(calls.select[0]).toContain("abstract");
+    expect(calls.eq).toEqual(["status", "published"]);
+    expect(calls.order).toEqual(["published_at", { ascending: false }]);
+    expect(calls.limit).toEqual([16]);
+  });
+
+  it("falls back to mock data limited to the requested size", async () => {
+    const items = await getShelfResearch(2);
+    expect(items).toHaveLength(2);
+    expect(items).toEqual(mockData.getLatestResearch(2));
   });
 });

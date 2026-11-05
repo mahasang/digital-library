@@ -93,7 +93,14 @@
     "latestDescription": "Sorted by publication date, newest first",
     "popularTitle": "Popular Research",
     "popularDescription": "Sorted by total views",
-    "browseAllResearch": "Browse all research"
+    "browseAllResearch": "Browse all research",
+    "shelfLabel": "Latest research shelf",
+    "shelfPrevious": "Previous book",
+    "shelfNext": "Next book",
+    "shelfPosition": "Book {current} of {total}",
+    "shelfInspect": "View this book",
+    "shelfClose": "Back to shelf",
+    "shelfRead": "Read research"
   },
   "research": {
     "pageTitle": "Search Research",
