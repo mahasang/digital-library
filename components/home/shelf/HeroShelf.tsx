@@ -60,12 +60,15 @@ function trapTab(event: globalThis.KeyboardEvent, section: HTMLElement) {
   }
 }
 
-/** แถบชั้นเต็มความกว้าง กันความสูงไว้ตั้งแต่ HTML แรกเพื่อไม่ให้เกิด layout shift */
+/** เวทีหนังสือเต็มจอแรก กันความสูงไว้ตั้งแต่ HTML แรกเพื่อไม่ให้เกิด layout shift */
 export default function HeroShelf({
   books,
+  intro,
   children,
 }: {
   books: ShelfBook[];
+  /** หัวข้อหน้าและช่องค้นหา วางมุมซ้ายบนของเวที */
+  intro: ReactNode;
   children: ReactNode;
 }) {
   const t = useTranslations("home");
@@ -241,19 +244,22 @@ export default function HeroShelf({
     }
   }
 
-  const listClass = inspecting ? "hidden" : mode === "3d" ? "sr-only" : "h-full";
+  const in3d = mode === "3d";
+  const listClass = inspecting
+    ? "hidden"
+    : in3d
+      ? "sr-only"
+      : "absolute inset-x-0 bottom-0 h-[52%] border-b-[10px] border-[#5A3A26]";
   const sectionClass = inspecting
-    ? "fixed inset-0 z-50 bg-brand-950"
-    : `relative h-full border-b-[10px] outline-2 outline-offset-[-4px] outline-white [&:has(a:focus-visible)]:outline ${
-        mode === "3d" ? "border-transparent" : "border-[#5A3A26]"
-      }`;
+    ? "fixed inset-0 z-50 bg-[#E7E2D8]"
+    : "relative h-full overflow-hidden outline-2 outline-offset-[-4px] outline-[#2B2118] [&:has(a:focus-visible)]:outline";
   const canvasPlacement = inspecting
     ? "left-0 top-0 h-[52%] w-full lg:h-full lg:w-[calc(100%-26rem)]"
-    : "inset-x-0 top-0 h-[calc(100%+10px)] w-full touch-pan-y";
+    : "left-0 top-44 h-[calc(100%-23rem)] w-full touch-pan-y lg:top-0 lg:h-[calc(100%-3.5rem)]";
 
   return (
     // กล่องนอกคงความสูงไว้ เปิด dialog แล้ว hero จึงไม่ยุบและหน้าเว็บด้านหลังไม่ขยับ
-    <div className="relative h-[260px] sm:h-[clamp(280px,38vh,420px)]">
+    <div className="relative h-[clamp(620px,calc(100svh-65px),880px)] bg-[#E7E2D8] text-[#2B2118]">
       <section
         ref={sectionRef}
         data-testid="hero-shelf"
@@ -276,13 +282,43 @@ export default function HeroShelf({
             }`}
           />
         )}
-        {mode === "3d" && !inspecting && (
+        <div
+          className={`pointer-events-none absolute inset-0 z-10 flex flex-col justify-between px-4 pb-16 pt-5 sm:px-6 lg:right-auto lg:w-[calc(max(2rem,(100vw-80rem)/2+2rem)+32rem)] lg:bg-[linear-gradient(to_right,#E7E2D8_calc(100%-7rem),transparent)] lg:pl-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:pr-0 lg:pt-8 ${
+            inspecting ? "hidden" : ""
+          }`}
+        >
+          <div className="pointer-events-auto max-w-sm">{intro}</div>
+          {in3d && (
+            <div className="pointer-events-auto max-w-sm">
+              <p className="hidden text-sm tabular-nums text-[#5C4D3C] lg:block">
+                {String(index + 1).padStart(2, "0")} / {String(books.length).padStart(2, "0")}
+              </p>
+              <p
+                data-testid="shelf-title"
+                className="line-clamp-2 text-lg font-medium leading-snug lg:mt-3 lg:line-clamp-4 lg:text-4xl lg:leading-tight"
+              >
+                {books[index].title}
+              </p>
+              <p className="mt-1 line-clamp-1 text-sm text-[#5C4D3C] lg:mt-3">
+                {books[index].authors}
+              </p>
+              <button
+                type="button"
+                data-shelf-inspect
+                onClick={() => openBook(index)}
+                className="mt-1 inline-flex min-h-11 items-center text-sm font-medium underline decoration-[#2B2118]/40 underline-offset-4 transition-colors hover:decoration-[#2B2118] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2B2118] lg:mt-3"
+              >
+                {t("shelfInspect")}
+              </button>
+            </div>
+          )}
+        </div>
+        {in3d && !inspecting && (
           <ShelfControls
             index={index}
             count={books.length}
             title={books[index].title}
             onChange={(next) => handleRef.current?.goTo(next)}
-            onInspect={() => openBook(index)}
           />
         )}
         {inspecting && <ShelfInspector book={books[index]} onClose={closeBook} />}

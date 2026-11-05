@@ -1,6 +1,14 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { createBook, createShelf, type BookMesh } from "@/components/home/shelf/bookGeometry";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { isSoftwareRenderer } from "@/components/home/shelf/capability";
+import {
+  createBook,
+  createShelf,
+  createSharedTextures,
+  createWall,
+  type BookMesh,
+} from "@/components/home/shelf/bookGeometry";
 import {
   drawCover,
   drawSpine,
@@ -15,13 +23,17 @@ import {
   coverWindow,
   createCoverTracker,
   decayVelocity,
+  entranceProgress,
   focusPosition,
   isClick,
   layoutBooks,
+  leanAngle,
   nearestIndex,
+  pullPose,
   seedFromSlug,
   shouldHandleWheel,
   spreadPositions,
+  springStep,
 } from "@/components/home/shelf/shelfMath";
 import type { ShelfBook } from "@/components/home/shelf/types";
 
@@ -45,19 +57,38 @@ export interface ShelfSceneHandle {
 }
 
 const CAMERA_FOV = 24;
-const CAMERA_DISTANCE = 7.4;
-const CAMERA_HEIGHT = 1.2;
-const PULL_FORWARD_Z = 0.5;
-const PULL_MARGIN = 0.16;
-const OFFSET_EASE_MS = 90;
-const PULL_EASE_MS = 120;
-const MIN_COAST_SPEED = 0.0004;
-const WHEEL_IDLE_MS = 140;
-const SETTLED = 0.0005;
-const MAX_FRAME_MS = 50;
-const INSPECT_EASE_MS = 140;
+const CAMERA_DISTANCE = 9.2;
+const CAMERA_HEIGHT = 1.3;
+const LOOK_HEIGHT = 1.05;
+const PARALLAX_X = 0.22;
+const PARALLAX_Y = 0.1;
+const INSPECT_CAMERA_X = -1.7;
+const INSPECT_CAMERA_LIFT = 0.35;
+const INSPECT_CAMERA_Z = 8;
 const INSPECT_MIN_DISTANCE = 3.5;
 const INSPECT_MAX_DISTANCE = 11;
+
+const PULL_FORWARD_Z = 0.85;
+const PULL_MARGIN = 0.18;
+const HOVER_FORWARD_Z = 0.1;
+const ENTRANCE_BACK_Z = 1.2;
+/** บนจอกว้างเล่มที่เลือกอยู่ขวากลาง เพื่อเว้นซ้ายให้ชื่อเรื่อง */
+const WIDE_ASPECT = 1.45;
+const WIDE_SHIFT = 0.13;
+
+const OFFSET_EASE_MS = 90;
+const INSPECT_EASE_MS = 150;
+const CAMERA_EASE_MS = 80;
+const LEAN_EASE_MS = 130;
+const HOVER_EASE_MS = 90;
+const SHIFT_EASE_MS = 120;
+const MIN_COAST_SPEED = 0.0004;
+const WHEEL_IDLE_MS = 140;
+const DRAG_STALE_MS = 80;
+const ENTRANCE_TOTAL_MS = 1500;
+const SETTLED = 0.0005;
+const SETTLED_SPEED = 0.002;
+const MAX_FRAME_MS = 50;
 
 function ease(current: number, target: number, dtMs: number, easeMs: number): number {
   return target + (current - target) * Math.exp(-dtMs / easeMs);
@@ -82,31 +113,67 @@ export function createShelfScene(
   books: ShelfBook[],
   options: ShelfSceneOptions,
 ): ShelfSceneHandle {
+  const { reducedMotion } = options;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, coarsePointer ? 1.5 : 2));
+  const gl = renderer.getContext();
+  const rendererInfo = gl.getExtension("WEBGL_debug_renderer_info");
+  const lowPower = isSoftwareRenderer(
+    rendererInfo ? String(gl.getParameter(rendererInfo.UNMASKED_RENDERER_WEBGL)) : "",
+  );
+  renderer.setPixelRatio(
+    lowPower ? 1 : Math.min(window.devicePixelRatio, coarsePointer ? 1.5 : 2),
+  );
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.shadowMap.enabled = !lowPower;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
 
   const scene = new THREE.Scene();
+  let environment: THREE.WebGLRenderTarget | undefined;
+  if (lowPower) {
+    scene.add(new THREE.HemisphereLight("#fff4e2", "#3a2a20", 2.1));
+  } else {
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    environment = pmrem.fromScene(new RoomEnvironment(), 0.04);
+    pmrem.dispose();
+    scene.environment = environment.texture;
+    scene.environmentIntensity = 0.55;
+  }
+
   const camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, 0.1, 40);
   camera.position.set(0, CAMERA_HEIGHT, CAMERA_DISTANCE);
-  camera.lookAt(0, CAMERA_HEIGHT, 0);
+  const look = new THREE.Vector3(0, LOOK_HEIGHT, 0);
+  camera.lookAt(look);
 
-  scene.add(new THREE.HemisphereLight("#fff4e2", "#3a2a20", 2.1));
-  const keyLight = new THREE.DirectionalLight("#ffe9cc", 1.5);
-  keyLight.position.set(-3, 5, 6);
+  const keyLight = new THREE.DirectionalLight("#ffeeda", 1.9);
+  keyLight.position.set(-3, 6, 7);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(coarsePointer ? 1024 : 2048, coarsePointer ? 1024 : 2048);
+  keyLight.shadow.camera.left = -8;
+  keyLight.shadow.camera.right = 8;
+  keyLight.shadow.camera.top = 6;
+  keyLight.shadow.camera.bottom = -4;
+  keyLight.shadow.camera.near = 0.5;
+  keyLight.shadow.camera.far = 22;
+  keyLight.shadow.bias = -0.0005;
+  keyLight.shadow.radius = 7;
   scene.add(keyLight);
 
-  const meshes: BookMesh[] = books.map((book) => createBook(seedFromSlug(book.id)));
+  const textures = createSharedTextures();
+  const meshes: BookMesh[] = books.map((book) => createBook(seedFromSlug(book.id), textures));
   const { centers, totalWidth } = layoutBooks(meshes.map((mesh) => mesh.thickness));
   const extras = meshes.map((mesh) => mesh.width + PULL_MARGIN - mesh.thickness);
   const pulls = meshes.map(() => 0);
+  const pullSpeeds = meshes.map(() => 0);
+  const hovers = meshes.map(() => 0);
 
   const shelf = new THREE.Group();
   meshes.forEach((mesh) => shelf.add(mesh.group));
   const plank = createShelf(totalWidth);
-  scene.add(shelf, plank);
+  const wall = createWall();
+  scene.add(shelf, plank, wall);
 
   let index = Math.min(Math.max(options.initialIndex, 0), books.length - 1);
   let offset = centers[index];
@@ -122,14 +189,22 @@ export function createShelfScene(
   let fonts = "";
   let inspecting = false;
   let inspectAmount = 0;
+  let lean = 0;
+  let stageShift = 0;
+  let hovered = -1;
+  let entranceStart: number | null = null;
   let controls: OrbitControls | undefined;
+  const parallax = { x: 0, y: 0 };
   const coversRequested = new Set<number>();
   const detailedCovers = new Set<number>();
   const coverTracker = createCoverTracker();
 
+  function visibleHeight(): number {
+    return 2 * CAMERA_DISTANCE * Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
+  }
+
   function worldPerPixel(): number {
-    const visibleHeight = 2 * CAMERA_DISTANCE * Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
-    return visibleHeight / Math.max(canvas.clientHeight, 1);
+    return visibleHeight() / Math.max(canvas.clientHeight, 1);
   }
 
   function select(next: number): void {
@@ -167,50 +242,117 @@ export function createShelfScene(
     });
   }
 
-  function updateBooks(dtMs: number): boolean {
+  function updateBooks(dtMs: number, now: number): boolean {
     const moving = dragging || wheeling || velocity !== 0;
     let settled = true;
 
     meshes.forEach((_, bookIndex) => {
       const wanted = !moving && bookIndex === index ? 1 : 0;
-      pulls[bookIndex] = options.reducedMotion ? wanted : ease(pulls[bookIndex], wanted, dtMs, PULL_EASE_MS);
-      if (Math.abs(pulls[bookIndex] - wanted) > SETTLED) settled = false;
-      else pulls[bookIndex] = wanted;
+      if (reducedMotion) {
+        pulls[bookIndex] = wanted;
+        pullSpeeds[bookIndex] = 0;
+      } else {
+        const next = springStep(pulls[bookIndex], pullSpeeds[bookIndex], wanted, dtMs);
+        pulls[bookIndex] = next.value;
+        pullSpeeds[bookIndex] = next.velocity;
+      }
+      if (
+        Math.abs(pulls[bookIndex] - wanted) > SETTLED ||
+        Math.abs(pullSpeeds[bookIndex]) > SETTLED_SPEED
+      ) {
+        settled = false;
+      } else {
+        pulls[bookIndex] = wanted;
+        pullSpeeds[bookIndex] = 0;
+      }
+
+      const wantedHover = !moving && bookIndex === hovered && bookIndex !== index ? 1 : 0;
+      hovers[bookIndex] = reducedMotion
+        ? wantedHover
+        : ease(hovers[bookIndex], wantedHover, dtMs, HOVER_EASE_MS);
+      if (Math.abs(hovers[bookIndex] - wantedHover) > SETTLED) settled = false;
+      else hovers[bookIndex] = wantedHover;
     });
 
     const wantedInspect = inspecting ? 1 : 0;
-    inspectAmount = options.reducedMotion
+    inspectAmount = reducedMotion
       ? wantedInspect
       : ease(inspectAmount, wantedInspect, dtMs, INSPECT_EASE_MS);
     if (Math.abs(inspectAmount - wantedInspect) > SETTLED) settled = false;
     else inspectAmount = wantedInspect;
 
+    const wantedLean = reducedMotion || !moving ? 0 : leanAngle(velocity);
+    lean = ease(lean, wantedLean, dtMs, LEAN_EASE_MS);
+    if (Math.abs(lean - wantedLean) > SETTLED / 10) settled = false;
+    else lean = wantedLean;
+
+    const wide = camera.aspect > WIDE_ASPECT ? visibleHeight() * camera.aspect * WIDE_SHIFT : 0;
+    const wantedShift = wide * (1 - inspectAmount);
+    stageShift = reducedMotion ? wantedShift : ease(stageShift, wantedShift, dtMs, SHIFT_EASE_MS);
+    if (Math.abs(stageShift - wantedShift) > SETTLED) settled = false;
+    else stageShift = wantedShift;
+    shelf.position.x = stageShift;
+
+    const entering = entranceStart !== null && now - entranceStart < ENTRANCE_TOTAL_MS;
+    if (entering) settled = false;
+
     const positions = spreadPositions(centers, extras, pulls);
     const focus = focusPosition(offset, centers, positions);
 
     meshes.forEach((mesh, bookIndex) => {
-      const pull = pulls[bookIndex];
-      const shelved = THREE.MathUtils.lerp(-mesh.width / 2, PULL_FORWARD_Z, pull);
+      const pose = pullPose(pulls[bookIndex]);
+      const entered =
+        entranceStart === null
+          ? 1
+          : entranceProgress(now - entranceStart, Math.abs(bookIndex - index));
+      const shelved =
+        THREE.MathUtils.lerp(-mesh.width / 2, PULL_FORWARD_Z, pose.slide) +
+        hovers[bookIndex] * HOVER_FORWARD_Z;
       const inspected = bookIndex === index ? inspectAmount : 0;
-      mesh.group.position.x = positions[bookIndex] - focus;
-      mesh.group.position.z = THREE.MathUtils.lerp(shelved, 0, inspected);
-      mesh.group.rotation.y = (-Math.PI / 2) * pull;
-    });
 
-    if (!controls) {
-      const height = THREE.MathUtils.lerp(CAMERA_HEIGHT, meshes[index].height / 2, inspectAmount);
-      camera.position.set(0, height, CAMERA_DISTANCE);
-      camera.lookAt(0, height, 0);
-    }
-    if (inspecting && inspectAmount === 1 && settled) startOrbit();
+      mesh.group.position.x = positions[bookIndex] - focus;
+      mesh.group.position.y = pose.lift;
+      mesh.group.position.z =
+        THREE.MathUtils.lerp(shelved, 0, inspected) - (1 - entered) * ENTRANCE_BACK_Z;
+      mesh.group.rotation.y = (-Math.PI / 2) * pose.turn;
+      mesh.group.rotation.z = lean * (1 - pose.slide);
+    });
     return settled;
+  }
+
+  /** กล้องไล่ตามเป้าเสมอ ปิด dialog หลังหมุนเล่มแล้วจึงไม่กระตุก */
+  function updateCamera(dtMs: number): boolean {
+    if (controls) return true;
+
+    const bookCenter = meshes[index].height / 2;
+    const wanted = new THREE.Vector3(
+      THREE.MathUtils.lerp(parallax.x * PARALLAX_X, INSPECT_CAMERA_X, inspectAmount),
+      THREE.MathUtils.lerp(
+        CAMERA_HEIGHT + parallax.y * PARALLAX_Y,
+        bookCenter + INSPECT_CAMERA_LIFT,
+        inspectAmount,
+      ),
+      THREE.MathUtils.lerp(CAMERA_DISTANCE, INSPECT_CAMERA_Z, inspectAmount),
+    );
+    const wantedLook = new THREE.Vector3(
+      0,
+      THREE.MathUtils.lerp(LOOK_HEIGHT, bookCenter, inspectAmount),
+      0,
+    );
+
+    const follow = reducedMotion ? 1 : 1 - Math.exp(-dtMs / CAMERA_EASE_MS);
+    camera.position.lerp(wanted, follow);
+    look.lerp(wantedLook, follow);
+    camera.lookAt(look);
+
+    return camera.position.distanceTo(wanted) < SETTLED && look.distanceTo(wantedLook) < SETTLED;
   }
 
   /** เริ่มหลังเล่มเข้าที่แล้ว ระหว่างเคลื่อนกล้องจึงไม่แย่งตำแหน่งกับ OrbitControls */
   function startOrbit(): void {
     if (controls) return;
     controls = new OrbitControls(camera, canvas);
-    controls.target.set(0, meshes[index].height / 2, 0);
+    controls.target.copy(look);
     controls.enablePan = false;
     controls.minDistance = INSPECT_MIN_DISTANCE;
     controls.maxDistance = INSPECT_MAX_DISTANCE;
@@ -219,6 +361,7 @@ export function createShelfScene(
   }
 
   function stopOrbit(): void {
+    if (controls) look.copy(controls.target);
     controls?.removeEventListener("change", invalidate);
     controls?.dispose();
     controls = undefined;
@@ -228,6 +371,7 @@ export function createShelfScene(
 
   function setShelfVisible(shown: boolean): void {
     plank.visible = shown;
+    wall.visible = shown;
     meshes.forEach((mesh, bookIndex) => {
       mesh.group.visible = shown || bookIndex === index;
     });
@@ -236,6 +380,8 @@ export function createShelfScene(
   function inspect(next: number): void {
     dragging = false;
     wheeling = false;
+    pointerId = null;
+    hovered = -1;
     clearTimeout(wheelTimer);
     goTo(next);
     inspecting = true;
@@ -269,7 +415,7 @@ export function createShelfScene(
       return false;
     }
 
-    offset = options.reducedMotion ? target : ease(offset, target, dtMs, OFFSET_EASE_MS);
+    offset = reducedMotion ? target : ease(offset, target, dtMs, OFFSET_EASE_MS);
     if (Math.abs(offset - target) > SETTLED) return false;
     offset = target;
     return !wheeling;
@@ -282,9 +428,11 @@ export function createShelfScene(
     const dtMs = Math.min(now - lastFrame, MAX_FRAME_MS);
     lastFrame = now;
     const offsetSettled = updateOffset(dtMs);
-    const booksSettled = updateBooks(dtMs);
+    const booksSettled = updateBooks(dtMs, now);
+    const cameraSettled = updateCamera(dtMs);
+    if (inspecting && inspectAmount === 1 && booksSettled && cameraSettled) startOrbit();
     renderer.render(scene, camera);
-    if (!offsetSettled || !booksSettled) invalidate();
+    if (!offsetSettled || !booksSettled || !cameraSettled) invalidate();
   }
 
   /** เรนเดอร์เมื่อมีการเปลี่ยนแปลงเท่านั้น ชั้นที่นิ่งไม่กิน GPU */
@@ -329,7 +477,31 @@ export function createShelfScene(
     velocity = 0;
   }
 
+  /** เมาส์ที่ขยับโดยไม่ลาก: กล้องเอียงตามเล็กน้อย และเล่มใต้เมาส์ขยับออกมารอ */
+  function onPointerHover(event: PointerEvent): void {
+    if (inspecting || reducedMotion || event.pointerType === "touch") return;
+
+    const rect = canvas.getBoundingClientRect();
+    parallax.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    parallax.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+    hovered = bookAt(event.clientX, event.clientY);
+    canvas.style.cursor = hovered === -1 ? "" : "pointer";
+    invalidate();
+  }
+
+  function onPointerLeave(): void {
+    parallax.x = 0;
+    parallax.y = 0;
+    hovered = -1;
+    canvas.style.cursor = "";
+    invalidate();
+  }
+
   function onPointerMove(event: PointerEvent): void {
+    if (pointerId === null) {
+      onPointerHover(event);
+      return;
+    }
     if (event.pointerId !== pointerId) return;
     dragDistance = Math.max(dragDistance, Math.abs(event.clientX - dragStartX));
     if (isClick(dragDistance)) return;
@@ -337,7 +509,7 @@ export function createShelfScene(
     dragging = true;
     const delta = (lastPointerX - event.clientX) * worldPerPixel();
     const elapsed = Math.max(event.timeStamp - lastPointerTime, 1);
-    velocity = options.reducedMotion ? 0 : delta / elapsed;
+    velocity = reducedMotion ? 0 : delta / elapsed;
     offset = clampOffset(offset + delta, centers);
     target = offset;
     lastPointerX = event.clientX;
@@ -346,9 +518,11 @@ export function createShelfScene(
     invalidate();
   }
 
-  function endDrag(): void {
+  function endDrag(timeStamp: number): void {
     dragging = false;
     pointerId = null;
+    // ถ้าหยุดมือก่อนปล่อย ชั้นต้องไม่ไหลต่อด้วยความเร็วเก่า
+    if (timeStamp - lastPointerTime > DRAG_STALE_MS) velocity = 0;
     if (velocity === 0) target = centers[index];
     invalidate();
   }
@@ -356,7 +530,7 @@ export function createShelfScene(
   function onPointerUp(event: PointerEvent): void {
     if (event.pointerId !== pointerId) return;
     const wasClick = isClick(dragDistance);
-    endDrag();
+    endDrag(event.timeStamp);
     if (!wasClick) return;
 
     const hit = bookAt(event.clientX, event.clientY);
@@ -366,7 +540,7 @@ export function createShelfScene(
   }
 
   function onPointerCancel(event: PointerEvent): void {
-    if (event.pointerId === pointerId) endDrag();
+    if (event.pointerId === pointerId) endDrag(event.timeStamp);
   }
 
   function onWheel(event: WheelEvent): void {
@@ -395,6 +569,8 @@ export function createShelfScene(
   canvas.addEventListener("pointermove", onPointerMove);
   canvas.addEventListener("pointerup", onPointerUp);
   canvas.addEventListener("pointercancel", onPointerCancel);
+  canvas.addEventListener("lostpointercapture", onPointerCancel);
+  canvas.addEventListener("pointerleave", onPointerLeave);
   canvas.addEventListener("wheel", onWheel, { passive: false });
   canvas.addEventListener("webglcontextlost", onContextLost);
 
@@ -402,6 +578,8 @@ export function createShelfScene(
     renderer.setSize(width, height, false);
     camera.aspect = width / Math.max(height, 1);
     camera.updateProjectionMatrix();
+    // setSize ล้างภาพ ต้องวาดทันทีเพื่อไม่ให้เห็นเฟรมว่าง
+    if (fonts && visible) renderer.render(scene, camera);
     invalidate();
   }
 
@@ -414,6 +592,8 @@ export function createShelfScene(
     canvas.removeEventListener("pointermove", onPointerMove);
     canvas.removeEventListener("pointerup", onPointerUp);
     canvas.removeEventListener("pointercancel", onPointerCancel);
+    canvas.removeEventListener("lostpointercapture", onPointerCancel);
+    canvas.removeEventListener("pointerleave", onPointerLeave);
     canvas.removeEventListener("wheel", onWheel);
     canvas.removeEventListener("webglcontextlost", onContextLost);
 
@@ -426,11 +606,14 @@ export function createShelfScene(
         material.dispose();
       });
     });
+    textures.weave.dispose();
+    textures.pageEdge.dispose();
+    environment?.dispose();
     renderer.dispose();
   }
 
   resize(canvas.clientWidth, canvas.clientHeight);
-  updateBooks(0);
+  updateBooks(0, performance.now());
 
   const ready = resolveFontFamilies().then((families) => {
     if (disposed) return;
@@ -440,6 +623,8 @@ export function createShelfScene(
       applyTexture(mesh.spine, canvasTexture(spine, anisotropy));
     });
     requestCovers();
+    if (!reducedMotion && !lowPower) entranceStart = performance.now();
+    updateBooks(0, performance.now());
     renderer.render(scene, camera);
     invalidate();
   });

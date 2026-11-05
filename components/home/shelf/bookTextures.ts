@@ -56,8 +56,18 @@ export function drawSpine(
   context.fillStyle = cloth.base;
   context.fillRect(0, 0, logicalWidth, SPINE_HEIGHT);
 
+  // สันโค้งรับแสงกลางและมืดลงที่ขอบ
+  const curve = context.createLinearGradient(0, 0, logicalWidth, 0);
+  curve.addColorStop(0, "rgba(0,0,0,0.3)");
+  curve.addColorStop(0.18, "rgba(0,0,0,0)");
+  curve.addColorStop(0.5, "rgba(255,255,255,0.05)");
+  curve.addColorStop(0.82, "rgba(0,0,0,0)");
+  curve.addColorStop(1, "rgba(0,0,0,0.3)");
+  context.fillStyle = curve;
+  context.fillRect(0, 0, logicalWidth, SPINE_HEIGHT);
+
   context.fillStyle = cloth.foil;
-  context.globalAlpha = 0.55;
+  context.globalAlpha = 0.6;
   [46, 54, SPINE_HEIGHT - 56, SPINE_HEIGHT - 48].forEach((y) =>
     context.fillRect(0, y, logicalWidth, 2),
   );
@@ -66,7 +76,9 @@ export function drawSpine(
   const margin = 84;
   const yearSpace = 92;
   const available = SPINE_HEIGHT - margin * 2 - yearSpace;
-  const fontSize = Math.min(Math.max(logicalWidth * 0.46, 26), 52);
+  const fontSize = Math.min(Math.max(logicalWidth * 0.27, 30), 50);
+  const showAuthors = Boolean(book.authors) && logicalWidth >= 150;
+  const measure = (value: string) => context.measureText(value).width;
 
   context.save();
   context.translate(logicalWidth / 2, margin);
@@ -75,10 +87,15 @@ export function drawSpine(
   context.fillStyle = cloth.foil;
 
   context.font = `600 ${fontSize}px ${fonts}`;
-  const title = fitText(book.title, available, (value) => context.measureText(value).width);
-  context.fillText(title, 0, 0);
+  context.fillText(fitText(book.title, available, measure), 0, showAuthors ? -fontSize * 0.42 : 0);
 
-  context.font = `400 ${fontSize * 0.68}px ${fonts}`;
+  context.font = `400 ${fontSize * 0.56}px ${fonts}`;
+  if (showAuthors) {
+    context.globalAlpha = 0.8;
+    context.fillText(fitText(book.authors, available, measure), 0, fontSize * 0.62);
+    context.globalAlpha = 1;
+  }
+
   context.textAlign = "right";
   context.fillText(String(book.year), SPINE_HEIGHT - margin * 2, 0);
   context.restore();

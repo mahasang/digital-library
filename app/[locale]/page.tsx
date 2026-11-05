@@ -11,7 +11,6 @@ import {
   getShelfResearch,
 } from "@/lib/data/research.server";
 import { getCategories } from "@/lib/data/categories.server";
-import { getOrganizations } from "@/lib/data/organizations.server";
 import { getPublicHomeSettings } from "@/lib/data/settings.server";
 
 /**
@@ -26,7 +25,7 @@ import { getPublicHomeSettings } from "@/lib/data/settings.server";
  * แบ่งเป็น 2 รอบ (ไม่ใช่ Promise.all เดียวทั้งหมด) เพราะ getLatestResearch()/
  * getPopularResearch() ต้องใช้ค่า homepageLatestCount/homepagePopularCount
  * จาก settings ก่อนถึงจะรู้ว่าต้อง LIMIT เท่าไร — เป็น data dependency จริงที่
- * มีอยู่แล้วในโค้ดเดิม ไม่ได้เพิ่มใหม่ ส่วนอีก 4 คำสั่งในรอบแรกไม่ขึ้นต่อกันเลย
+ * มีอยู่แล้วในโค้ดเดิม ไม่ได้เพิ่มใหม่ ส่วนอีก 3 คำสั่งในรอบแรกไม่ขึ้นต่อกันเลย
  * จึงยิงพร้อมกันได้ทั้งหมด
  *
  * ใช้ getPublicHomeSettings() (Hallmark — public homepage caching) แทน
@@ -34,15 +33,13 @@ import { getPublicHomeSettings } from "@/lib/data/settings.server";
  * request/ผู้ใช้ได้อย่างปลอดภัย (ดูเหตุผลที่แยกออกมาต่างหากใน
  * lib/data/settings.server.ts) getCategories()/getPublishedResearchStats()
  * ก็ cache เช่นกัน (ดู lib/data/categories.server.ts,
- * lib/data/research.server.ts) ส่วน getOrganizations() ยังไม่ cache
- * (นอกขอบเขตที่ระบุไว้ของงานนี้ — ยังคงดึงสดทุกครั้งเหมือนเดิมทุกประการ)
+ * lib/data/research.server.ts)
  */
 export default async function HomePage() {
   const t = await getTranslations("home");
-  const [settings, categories, organizations, researchStats] = await Promise.all([
+  const [settings, categories, researchStats] = await Promise.all([
     getPublicHomeSettings(),
     getCategories(),
-    getOrganizations(),
     getPublishedResearchStats(),
   ]);
 
@@ -52,23 +49,9 @@ export default async function HomePage() {
     getShelfResearch(SHELF_SIZE),
   ]);
 
-  // ทางลัดหมวดหมู่ = 4 หมวดที่มีงานเผยแพร่มากที่สุด
-  const countOf = (id: string) => researchStats.countByCategoryId[id] ?? 0;
-  const topCategories = categories
-    .filter((category) => countOf(category.id) > 0)
-    .sort((a, b) => countOf(b.id) - countOf(a.id))
-    .slice(0, 4);
-
   return (
     <>
-      <Hero
-        publishedCount={researchStats.totalCount}
-        categoryCount={categories.length}
-        organizationCount={organizations.length}
-        categories={topCategories}
-        allCategories={categories}
-        shelf={shelf}
-      />
+      <Hero allCategories={categories} shelf={shelf} />
       <CategorySection categories={categories} countByCategoryId={researchStats.countByCategoryId} />
       <ResearchSection
         title={t("latestTitle")}
