@@ -11,6 +11,11 @@ export function shouldEnable3D({ webgl2, saveData, deviceMemory }: CapabilityInp
   return deviceMemory === undefined || deviceMemory >= MIN_DEVICE_MEMORY_GB;
 }
 
+/** เครื่องที่เรนเดอร์ด้วย CPU รับเงาและ environment map ไม่ไหว ต้องใช้โหมดเบา */
+export function isSoftwareRenderer(renderer: string): boolean {
+  return /swiftshader|llvmpipe|softpipe|basic render/i.test(renderer);
+}
+
 function hasWebGL2(): boolean {
   if (typeof document === "undefined") return false;
   const context = document.createElement("canvas").getContext("webgl2");

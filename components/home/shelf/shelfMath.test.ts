@@ -6,12 +6,16 @@ import {
   coverWindow,
   createCoverTracker,
   decayVelocity,
+  entranceProgress,
   fitText,
   isClick,
   layoutBooks,
+  leanAngle,
   nearestIndex,
+  pullPose,
   seedFromSlug,
   shouldHandleWheel,
+  springStep,
   spreadPositions,
   focusPosition,
   stepIndex,
@@ -33,8 +37,8 @@ describe("book identity", () => {
       expect(height).toBeLessThanOrEqual(2.4);
       expect(width).toBeGreaterThanOrEqual(1.35);
       expect(width).toBeLessThanOrEqual(1.7);
-      expect(thickness).toBeGreaterThanOrEqual(0.16);
-      expect(thickness).toBeLessThanOrEqual(0.34);
+      expect(thickness).toBeGreaterThanOrEqual(0.26);
+      expect(thickness).toBeLessThanOrEqual(0.5);
     }
   });
 
@@ -249,5 +253,82 @@ describe("browsers without Intl.Segmenter", () => {
     vi.resetModules();
     const math = await import("@/components/home/shelf/shelfMath");
     expect(math.stepIndex(0, 1, 2)).toBe(1);
+  });
+});
+
+describe("springStep", () => {
+  function settle(frameMs: number, frames: number) {
+    let state = { value: 0, velocity: 0 };
+    let peak = 0;
+    for (let i = 0; i < frames; i += 1) {
+      state = springStep(state.value, state.velocity, 1, frameMs);
+      peak = Math.max(peak, state.value);
+    }
+    return { ...state, peak };
+  }
+
+  it("settles on the target", () => {
+    expect(settle(16, 200).value).toBeCloseTo(1, 3);
+  });
+
+  it("overshoots slightly, like a real object, but not by much", () => {
+    const { peak } = settle(16, 200);
+    expect(peak).toBeGreaterThan(1);
+    expect(peak).toBeLessThan(1.08);
+  });
+
+  it("stays stable on a slow 50ms frame", () => {
+    expect(settle(50, 100).value).toBeCloseTo(1, 3);
+  });
+});
+
+describe("pullPose", () => {
+  it("rests on the shelf at zero", () => {
+    expect(pullPose(0)).toEqual({ slide: 0, turn: 0, lift: 0 });
+  });
+
+  it("is fully out and facing the viewer at one", () => {
+    const pose = pullPose(1);
+    expect(pose.slide).toBe(1);
+    expect(pose.turn).toBe(1);
+    expect(pose.lift).toBeCloseTo(0);
+  });
+
+  it("slides out before it turns, as a hand would pull a book", () => {
+    const pose = pullPose(0.3);
+    expect(pose.slide).toBeGreaterThan(pose.turn);
+  });
+
+  it("lifts off the shelf part way through", () => {
+    expect(pullPose(0.5).lift).toBeGreaterThan(0);
+  });
+});
+
+describe("entranceProgress", () => {
+  it("waits for the book's turn", () => {
+    expect(entranceProgress(0, 3)).toBe(0);
+  });
+
+  it("finishes after its duration", () => {
+    expect(entranceProgress(5000, 3)).toBe(1);
+  });
+
+  it("brings earlier books in first", () => {
+    expect(entranceProgress(300, 0)).toBeGreaterThan(entranceProgress(300, 5));
+  });
+});
+
+describe("leanAngle", () => {
+  it("is upright when the shelf is still", () => {
+    expect(leanAngle(0)).toBe(0);
+  });
+
+  it("leans against the direction of travel", () => {
+    expect(leanAngle(0.01)).toBeLessThan(0);
+    expect(leanAngle(-0.01)).toBeGreaterThan(0);
+  });
+
+  it("never tips far however fast the shelf moves", () => {
+    expect(Math.abs(leanAngle(100))).toBeLessThanOrEqual(0.06);
   });
 });

@@ -345,4 +345,41 @@ test.describe("hero shelf", () => {
     await page.keyboard.press("ArrowLeft");
     await expect(page.locator(shelf)).toHaveAttribute("data-shelf-index", String(count - 2));
   });
+
+  test("the shelf fills the first screen", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await openShelf(page);
+    const box = await page.locator(shelf).boundingBox();
+    expect(box!.height).toBeGreaterThan(900 * 0.75);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(900);
+    const canvas = await page.locator(`${shelf} canvas`).boundingBox();
+    expect(canvas!.width).toBe(box!.width);
+    expect(canvas!.height).toBeGreaterThan(box!.height - 80);
+  });
+
+  test("the canvas spans the screen width on a phone", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await openShelf(page);
+    const canvas = await page.locator(`${shelf} canvas`).boundingBox();
+    expect(canvas!.width).toBe(375);
+    expect(canvas!.height).toBeGreaterThan(280);
+  });
+
+  test("the selected book is named beside the shelf", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const start = await openShelf(page);
+    const title = page.getByTestId("shelf-title");
+    const label = (index: number) =>
+      page.locator(`${shelf} a[data-shelf-index="${index}"]`).getAttribute("aria-label");
+    await expect(title).toHaveText((await label(start))!);
+    await page.getByRole("button", { name: "เล่มถัดไป" }).click();
+    await expect(title).toHaveText((await label(start + 1))!);
+  });
+
+  test("hero keeps search but drops the statistics", async ({ page }) => {
+    await page.goto("/th");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator('section input[type="search"]').first()).toBeVisible();
+    await expect(page.locator("section dl")).toHaveCount(0);
+  });
 });

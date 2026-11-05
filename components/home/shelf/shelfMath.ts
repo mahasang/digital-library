@@ -47,7 +47,7 @@ export function bookDimensions(seed: number): { height: number; width: number; t
   return {
     height: inRange(1.9, 2.4, unitFromSeed(seed, 1)),
     width: inRange(1.35, 1.7, unitFromSeed(seed, 2)),
-    thickness: inRange(0.16, 0.34, unitFromSeed(seed, 3)),
+    thickness: inRange(0.26, 0.5, unitFromSeed(seed, 3)),
   };
 }
 
@@ -181,6 +181,62 @@ export function createCoverTracker() {
       return true;
     },
   };
+}
+
+const SPRING_STIFFNESS = 170;
+const SPRING_DAMPING = 20;
+const SPRING_STEP_MS = 8;
+
+/** สปริงหน่วงเกินเป้าเล็กน้อยแบบของจริง แบ่งก้าวย่อยเพื่อให้นิ่งแม้เฟรมช้า */
+export function springStep(
+  value: number,
+  velocity: number,
+  target: number,
+  dtMs: number,
+): { value: number; velocity: number } {
+  let nextValue = value;
+  let nextVelocity = velocity;
+  const steps = Math.max(1, Math.ceil(dtMs / SPRING_STEP_MS));
+  const seconds = dtMs / steps / 1000;
+
+  for (let step = 0; step < steps; step += 1) {
+    const force = SPRING_STIFFNESS * (target - nextValue) - SPRING_DAMPING * nextVelocity;
+    nextVelocity += force * seconds;
+    nextValue += nextVelocity * seconds;
+  }
+  return { value: nextValue, velocity: nextVelocity };
+}
+
+function smoothstep(from: number, to: number, value: number): number {
+  const progress = Math.min(Math.max((value - from) / (to - from), 0), 1);
+  return progress * progress * (3 - 2 * progress);
+}
+
+/** ดึงหนังสือเหมือนใช้มือ: เลื่อนออกจากชั้นก่อน แล้วค่อยหมุนปกเข้าหาคนดู */
+export function pullPose(pull: number): { slide: number; turn: number; lift: number } {
+  const clamped = Math.min(Math.max(pull, 0), 1);
+  return {
+    slide: smoothstep(0, 0.6, clamped),
+    turn: smoothstep(0.2, 1, clamped),
+    lift: Math.sin(Math.PI * clamped) * 0.05,
+  };
+}
+
+const ENTRANCE_STAGGER_MS = 45;
+const ENTRANCE_MS = 620;
+
+/** หนังสือทยอยเข้าชั้นตอนเปิดหน้า order คือลำดับคิว เริ่มจาก 0 */
+export function entranceProgress(elapsedMs: number, order: number): number {
+  const progress = (elapsedMs - order * ENTRANCE_STAGGER_MS) / ENTRANCE_MS;
+  const clamped = Math.min(Math.max(progress, 0), 1);
+  return 1 - Math.pow(1 - clamped, 3);
+}
+
+const MAX_LEAN = 0.06;
+
+/** หนังสือเอนสวนทิศที่ชั้นเลื่อน speed มีหน่วยเป็นระยะของ scene ต่อมิลลิวินาที */
+export function leanAngle(speed: number): number {
+  return Math.min(Math.max(0 - speed * 4, -MAX_LEAN), MAX_LEAN);
 }
 
 /** เล่มที่ถูกดึงออกมาหันปกจึงกว้างขึ้น เล่มถัดไปต้องขยับหลบตามสัดส่วนการดึง */
