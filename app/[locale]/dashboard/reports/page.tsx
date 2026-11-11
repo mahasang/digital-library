@@ -210,7 +210,7 @@ async function AnalyticsPanel() {
           { label: t("reports.analyticsMonth"), value: stats.thisMonth },
         ].map(({ label, value }) => (
           <div key={label} className="rounded-xl border border-gray-200 bg-surface p-5 text-center">
-            <p className="text-3xl font-bold text-brand-600">{value.toLocaleString("th-TH")}</p>
+            <p className="text-3xl font-bold text-accent">{value.toLocaleString("th-TH")}</p>
             <p className="mt-1 text-xs text-gray-500">{label}</p>
             <p className="text-xs text-gray-500">{t("reports.analyticsViews")}</p>
           </div>
@@ -258,7 +258,7 @@ async function AnalyticsPanel() {
                 return (
                   <div key={d.date} className="flex-1 text-center">
                     {show && (
-                      <span className="text-[10px] text-gray-400">
+                      <span className="text-[10px] text-gray-500">
                         {d.date.slice(5).replace("-", "/")}
                       </span>
                     )}
@@ -416,7 +416,7 @@ async function BlogAnalyticsPanel() {
           { label: t("reports.blogTotalComments"), value: analytics.totalComments },
         ].map(({ label, value }) => (
           <div key={label} className="rounded-xl border border-gray-200 bg-surface p-5 text-center">
-            <p className="text-3xl font-bold text-brand-600">{value.toLocaleString("lo-LA")}</p>
+            <p className="text-3xl font-bold text-accent">{value.toLocaleString("lo-LA")}</p>
             <p className="mt-1 text-xs text-gray-500">{label}</p>
           </div>
         ))}
@@ -436,7 +436,7 @@ async function BlogAnalyticsPanel() {
                     href={`/lo/blog/${post.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-brand-600 hover:underline"
+                    className="hover:text-accent hover:underline"
                   >
                     {post.titleLo}
                   </a>
@@ -472,7 +472,7 @@ async function BlogAnalyticsPanel() {
                     href={`/lo/blog/${post.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-brand-600 hover:underline"
+                    className="hover:text-accent hover:underline"
                   >
                     {post.titleLo}
                   </a>
@@ -543,7 +543,7 @@ async function BlogAnalyticsPanel() {
                   <td className="px-4 py-2.5 text-right font-semibold text-red-500">
                     {post.likeCount > 0 ? `❤️ ${post.likeCount}` : "—"}
                   </td>
-                  <td className="px-4 py-2.5 text-right font-semibold text-brand-600">
+                  <td className="px-4 py-2.5 text-right font-semibold text-accent">
                     {post.commentCount > 0 ? `💬 ${post.commentCount}` : "—"}
                   </td>
                 </tr>
