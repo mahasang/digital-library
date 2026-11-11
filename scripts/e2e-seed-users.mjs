@@ -13,6 +13,12 @@
  * super_admin is intentionally skipped: /superadmin/* requires aal2 (MFA
  * step-up, see lib/supabase/middleware.ts), and a real TOTP factor can't be
  * enrolled headlessly through the Admin API.
+ *
+ * Opt-in: `node scripts/e2e-seed-users.mjs --include-superadmin` additionally
+ * resets ONLY the password of an already-existing super_admin account to
+ * E2E_SUPERADMIN_PASSWORD, so the login-based specs can sign in. It never
+ * creates that account, never touches its role or MFA factors, and still runs
+ * behind the local-Supabase safety gate below.
  */
 import { createClient } from "@supabase/supabase-js";
 import { execFileSync } from "node:child_process";
@@ -94,6 +100,7 @@ const ROLE_ENV_PREFIXES = [
   { role: "admin", prefix: "E2E_ADMIN" },
 ];
 const SKIPPED_MFA_ROLES = [{ role: "super_admin", prefix: "E2E_SUPERADMIN" }];
+const INCLUDE_SUPERADMIN = process.argv.includes("--include-superadmin");
 
 function runSql(sql) {
   execFileSync(
@@ -128,16 +135,29 @@ async function main() {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
+  const existingByEmail = await listAllUsers(supabase);
+
   for (const { prefix } of SKIPPED_MFA_ROLES) {
     const email = process.env[`${prefix}_EMAIL`];
-    if (email) {
+    const password = process.env[`${prefix}_PASSWORD`];
+    const existingId = email ? existingByEmail.get(email.toLowerCase()) : undefined;
+
+    if (INCLUDE_SUPERADMIN && email && !password) {
+      console.log(`${email} | super_admin | skipped (missing ${prefix}_PASSWORD)`);
+    } else if (INCLUDE_SUPERADMIN && email && existingId) {
+      // Password only — no role, MFA-factor or email_confirm changes.
+      const { error } = await supabase.auth.admin.updateUserById(existingId, { password });
+      if (error) throw new Error(`updateUserById failed for ${email}: ${error.message}`);
+      console.log(`${email} | super_admin | password updated (role and MFA untouched)`);
+    } else if (INCLUDE_SUPERADMIN && email) {
+      console.log(`${email} | super_admin | not found - create it manually (this script never creates it)`);
+    } else if (email) {
       console.log(`${email} | super_admin | skipped (requires TOTP)`);
     } else {
       console.log(`(unset) | super_admin | skipped (requires TOTP)`);
     }
   }
 
-  const existingByEmail = await listAllUsers(supabase);
   const assignments = []; // { email, role }
 
   for (const { role, prefix } of ROLE_ENV_PREFIXES) {
