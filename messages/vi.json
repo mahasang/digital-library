@@ -1678,7 +1678,18 @@
       "statusChangeFailed": "Could not change the status. Please try again.",
       "statusChangeSuccess": "Status changed successfully.",
       "rejectReasonRequired": "Please provide a reason for rejecting this research item.",
-      "revisionDetailRequired": "Please specify what needs to be revised."
+      "revisionDetailRequired": "Please specify what needs to be revised.",
+      "scanOverrideReasonRequired": "Vui lòng nhập lý do xuất bản mà không chờ kết quả quét.",
+      "scanOverrideReasonTooShort": "Lý do quá ngắn, vui lòng nhập ít nhất {min} ký tự.",
+      "scanOverrideReasonTooLong": "Lý do quá dài (tối đa {max} ký tự).",
+      "scanOverrideNotApproved": "Cần phê duyệt công trình nghiên cứu trước khi xuất bản.",
+      "scanOverrideNotNeeded": "Tệp này đã được kiểm tra, hãy dùng nút xuất bản thông thường.",
+      "scanOverrideInfected": "Tệp này bị phát hiện không an toàn nên không thể xuất bản.",
+      "scanOverrideTooEarly": "Tệp vừa vào hàng đợi kiểm tra, vui lòng chờ khoảng {minutes} phút nữa.",
+      "scanOverrideUnavailable": "Chức năng này hiện không khả dụng (chưa cấu hình quyền phía máy chủ).",
+      "scanOverrideFailed": "Xuất bản bằng xác nhận thủ công không thành công, vui lòng thử lại.",
+      "scanOverrideSuccess": "Đã xuất bản (quản trị viên tự xác nhận và đã ghi vào audit log).",
+      "scanOverrideNotFound": "Không tìm thấy công trình nghiên cứu này."
     },
     "settings": {
       "siteNameRequired": "Please enter the organization name.",

@@ -1678,7 +1678,18 @@
       "statusChangeFailed": "Could not change the status. Please try again.",
       "statusChangeSuccess": "Status changed successfully.",
       "rejectReasonRequired": "Please provide a reason for rejecting this research item.",
-      "revisionDetailRequired": "Please specify what needs to be revised."
+      "revisionDetailRequired": "Please specify what needs to be revised.",
+      "scanOverrideReasonRequired": "Please give a reason for publishing without waiting for the scan result.",
+      "scanOverrideReasonTooShort": "The reason is too short. Please enter at least {min} characters.",
+      "scanOverrideReasonTooLong": "The reason is too long (at most {max} characters).",
+      "scanOverrideNotApproved": "The research must be approved before it can be published.",
+      "scanOverrideNotNeeded": "This file has already passed the check. Use the normal publish button.",
+      "scanOverrideInfected": "This file was detected as unsafe and cannot be published.",
+      "scanOverrideTooEarly": "The file only just joined the scan queue. Please wait about {minutes} more minutes.",
+      "scanOverrideUnavailable": "This function is not available right now (server-side access is not configured).",
+      "scanOverrideFailed": "Could not publish with self-confirmation. Please try again.",
+      "scanOverrideSuccess": "Published (self-confirmed by an administrator and recorded in the audit log).",
+      "scanOverrideNotFound": "Research item not found."
     },
     "settings": {
       "siteNameRequired": "Please enter the organization name.",

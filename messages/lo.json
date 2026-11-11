@@ -1678,7 +1678,18 @@
       "statusChangeFailed": "ບໍ່ສາມາດປ່ຽນສະຖານະໄດ້ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
       "statusChangeSuccess": "ປ່ຽນສະຖານະຮຽບຮ້ອຍແລ້ວ",
       "rejectReasonRequired": "ກະລຸນາລະບຸເຫດຜົນທີ່ປະຕິເສດງານວິໄຈນີ້",
-      "revisionDetailRequired": "ກະລຸນາລະບຸລາຍລະອຽດທີ່ຕ້ອງການໃຫ້ແກ້ໄຂ"
+      "revisionDetailRequired": "ກະລຸນາລະບຸລາຍລະອຽດທີ່ຕ້ອງການໃຫ້ແກ້ໄຂ",
+      "scanOverrideReasonRequired": "ກະລຸນາລະບຸເຫດຜົນທີ່ເຜີຍແຜ່ໂດຍບໍ່ລໍຖ້າຜົນສະແກນ",
+      "scanOverrideReasonTooShort": "ເຫດຜົນສັ້ນເກີນໄປ ກະລຸນາລະບຸຢ່າງໜ້ອຍ {min} ຕົວອັກສອນ",
+      "scanOverrideReasonTooLong": "ເຫດຜົນຍາວເກີນໄປ (ບໍ່ເກີນ {max} ຕົວອັກສອນ)",
+      "scanOverrideNotApproved": "ຕ້ອງອະນຸມັດງານວິໄຈກ່ອນຈຶ່ງຈະເຜີຍແຜ່ໄດ້",
+      "scanOverrideNotNeeded": "ໄຟລ໌ນີ້ຜ່ານການກວດສອບແລ້ວ ໃຊ້ປຸ່ມເຜີຍແຜ່ຕາມປົກກະຕິໄດ້ເລີຍ",
+      "scanOverrideInfected": "ໄຟລ໌ນີ້ຖືກກວດພົບວ່າບໍ່ປອດໄພ ບໍ່ສາມາດເຜີຍແຜ່ໄດ້",
+      "scanOverrideTooEarly": "ໄຟລ໌ຫາກໍ່ເຂົ້າຄິວກວດສອບ ກະລຸນາລໍຖ້າອີກປະມານ {minutes} ນາທີ",
+      "scanOverrideUnavailable": "ຟັງຊັນນີ້ໃຊ້ບໍ່ໄດ້ໃນຂະນະນີ້ (ລະບົບຍັງບໍ່ໄດ້ຕັ້ງຄ່າສິດຝັ່ງເຊີບເວີ)",
+      "scanOverrideFailed": "ເຜີຍແຜ່ໂດຍຢືນຢັນເອງບໍ່ສຳເລັດ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ",
+      "scanOverrideSuccess": "ເຜີຍແຜ່ຮຽບຮ້ອຍ (ຜູ້ດູແລລະບົບຢືນຢັນເອງ ແລະບັນທຶກໃນ audit log ແລ້ວ)",
+      "scanOverrideNotFound": "ບໍ່ພົບງານວິໄຈນີ້"
     },
     "settings": {
       "siteNameRequired": "ກະລຸນາປ້ອນຊື່ອົງກອນ",

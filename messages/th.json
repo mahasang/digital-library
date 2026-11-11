@@ -1678,7 +1678,18 @@
       "statusChangeFailed": "ไม่สามารถเปลี่ยนสถานะได้ กรุณาลองใหม่อีกครั้ง",
       "statusChangeSuccess": "เปลี่ยนสถานะเรียบร้อยแล้ว",
       "rejectReasonRequired": "กรุณาระบุเหตุผลที่ปฏิเสธงานวิจัยนี้",
-      "revisionDetailRequired": "กรุณาระบุรายละเอียดที่ต้องการให้แก้ไข"
+      "revisionDetailRequired": "กรุณาระบุรายละเอียดที่ต้องการให้แก้ไข",
+      "scanOverrideReasonRequired": "กรุณาระบุเหตุผลที่เผยแพร่โดยไม่รอผลสแกน",
+      "scanOverrideReasonTooShort": "เหตุผลสั้นเกินไป กรุณาระบุอย่างน้อย {min} ตัวอักษร",
+      "scanOverrideReasonTooLong": "เหตุผลยาวเกินไป (ไม่เกิน {max} ตัวอักษร)",
+      "scanOverrideNotApproved": "ต้องอนุมัติงานวิจัยก่อนจึงจะเผยแพร่ได้",
+      "scanOverrideNotNeeded": "ไฟล์นี้ผ่านการตรวจสอบแล้ว ใช้ปุ่มเผยแพร่ตามปกติได้เลย",
+      "scanOverrideInfected": "ไฟล์นี้ถูกตรวจพบว่าไม่ปลอดภัย ไม่สามารถเผยแพร่ได้",
+      "scanOverrideTooEarly": "ไฟล์เพิ่งเข้าคิวตรวจสอบ กรุณารออีกประมาณ {minutes} นาที",
+      "scanOverrideUnavailable": "ฟังก์ชันนี้ใช้ไม่ได้ในขณะนี้ (ระบบยังไม่ได้ตั้งค่าสิทธิ์ฝั่งเซิร์ฟเวอร์)",
+      "scanOverrideFailed": "เผยแพร่โดยยืนยันเองไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+      "scanOverrideSuccess": "เผยแพร่เรียบร้อย (ผู้ดูแลระบบยืนยันเอง และบันทึกใน audit log แล้ว)",
+      "scanOverrideNotFound": "ไม่พบงานวิจัยนี้"
     },
     "settings": {
       "siteNameRequired": "กรุณากรอกชื่อองค์กร",

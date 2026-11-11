@@ -5,6 +5,7 @@ import { scanFileForMalware, isMalwareScanRequired } from "@/lib/security/malwar
 import { PDF_ALLOWED_TYPES } from "@/lib/storage/limits";
 import { completeBackgroundJob, failBackgroundJob, toSafeJobErrorMessage } from "@/lib/jobs/queue.server";
 import { getSettings } from "@/lib/data/settings.server";
+import { isAdminScanOverride } from "@/lib/submission/scan-override";
 import type { BackgroundJobRow } from "@/lib/jobs/queue.server";
 
 /**
@@ -35,7 +36,7 @@ export async function handleFileSecurityRescanJob(job: BackgroundJobRow): Promis
   try {
     const { data: existing } = await service
       .from("research_items")
-      .select("id, status, title_th, scan_status")
+      .select("id, status, title_th, scan_status, scan_provider")
       .eq("id", researchItemId)
       .maybeSingle();
 
@@ -82,6 +83,15 @@ export async function handleFileSecurityRescanJob(job: BackgroundJobRow): Promis
 
     const filename = pdfPath.split("/").pop() ?? pdfPath;
     const scanOutcome = await scanFileForMalware(buffer, filename);
+
+    // ผู้ดูแลระบบ "ยืนยันเอง" ไว้แล้ว (ดู publishWithoutScanAction) — ผล error จากการ
+    // ไม่มีระบบสแกน/ระบบสแกนขัดข้องต้องไม่ทับการยืนยัน ไม่เช่นนั้น
+    // close_access_on_scan_failure จะปิดเอกสารที่เผยแพร่ไปแล้วเอง
+    // (ผล infected จริงยังทับได้เสมอ และไฟล์ที่ถูกแทนที่จะรีเซ็ตเป็น pending อยู่แล้ว)
+    if (scanOutcome.status === "error" && isAdminScanOverride(existing)) {
+      await completeBackgroundJob(job.id);
+      return true;
+    }
 
     if (scanOutcome.status === "error" && isMalwareScanRequired()) {
       await applyScanResult(service, researchItemId, {

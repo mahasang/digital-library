@@ -11,6 +11,8 @@ import SupabaseNotConfiguredNotice from "@/components/auth/SupabaseNotConfigured
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
+import { getScanOverrideDecision } from "@/lib/submission/scan-override.server";
+import { SCAN_OVERRIDE_MIN_RANK } from "@/lib/submission/scan-override";
 import { getApprovalLogs, getSubmissionById } from "@/lib/data/submissions.server";
 import {
   getResearchDocumentPreviewUrl,
@@ -63,6 +65,22 @@ export default async function ApprovalDetailPage({
 
   const t = await getTranslations("dashboard.approvals.detail");
 
+  // ปุ่ม "เผยแพร่โดยยืนยันเอง" — admin ขึ้นไปเท่านั้น (server action ตัดสินซ้ำอีกครั้ง)
+  let scanOverride:
+    | { available: true; scanStatus: "pending" | "error" }
+    | { available: false; waitMinutes?: number }
+    | undefined;
+  if (rank >= SCAN_OVERRIDE_MIN_RANK) {
+    const decision = await getScanOverrideDecision({
+      id: item.id,
+      status: item.status,
+      scanStatus: item.scanStatus,
+    });
+    scanOverride = decision.allowed
+      ? { available: true, scanStatus: decision.scanStatus }
+      : { available: false, waitMinutes: decision.waitMinutes };
+  }
+
   return (
     <div className="py-10 sm:py-14">
       <Container>
@@ -82,7 +100,11 @@ export default async function ApprovalDetailPage({
             attachmentUrl={attachmentPreview.url}
           />
           <div className="lg:sticky lg:top-20 lg:self-start">
-            <ApprovalActions researchId={item.id} status={item.status} />
+            <ApprovalActions
+              researchId={item.id}
+              status={item.status}
+              scanOverride={scanOverride}
+            />
           </div>
         </div>
       </Container>

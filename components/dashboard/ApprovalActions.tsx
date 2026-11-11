@@ -17,14 +17,24 @@ import {
   rejectAction,
   requestRevisionAction,
 } from "@/app/[locale]/dashboard/approvals/[id]/actions";
+import ScanOverrideForm from "@/components/dashboard/ScanOverrideForm";
 import type { DocumentStatus } from "@/types/research";
 
 export default function ApprovalActions({
   researchId,
   status,
+  scanOverride,
 }: {
   researchId: string;
   status: DocumentStatus;
+  /**
+   * ผลตัดสินจากฝั่งเซิร์ฟเวอร์ว่าจะโชว์ "เผยแพร่โดยยืนยันเอง" หรือไม่ (admin ขึ้นไป)
+   * - available: โชว์ปุ่มได้
+   * - waitMinutes: ไฟล์เพิ่งเข้าคิวสแกน ยังต้องรออีกกี่นาทีปุ่มจึงจะขึ้น
+   */
+  scanOverride?:
+    | { available: true; scanStatus: "pending" | "error" }
+    | { available: false; waitMinutes?: number };
 }) {
   const [approveState, approveFormAction, approvePending] = useActionState(
     approveAction,
@@ -111,6 +121,16 @@ export default function ApprovalActions({
             เผยแพร่ (Publish)
           </button>
         </form>
+      )}
+
+      {canPublish && scanOverride?.available && (
+        <ScanOverrideForm researchId={researchId} scanStatus={scanOverride.scanStatus} />
+      )}
+      {canPublish && scanOverride && !scanOverride.available && scanOverride.waitMinutes && (
+        <p className="text-xs text-gray-500">
+          ไฟล์เพิ่งเข้าคิวตรวจสอบ หากยังไม่เสร็จ ปุ่ม &quot;เผยแพร่โดยยืนยันเอง&quot;
+          จะแสดงอีกประมาณ {scanOverride.waitMinutes} นาที
+        </p>
       )}
 
       {canReview && (
