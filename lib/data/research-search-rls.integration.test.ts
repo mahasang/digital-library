@@ -228,7 +228,7 @@ function insertResearchItemFixture(f: Fixture): void {
     values (
       ${sqlQuote(f.id)}, ${sqlQuote(f.slug)}, ${sqlQuote(`หัวข้อทดสอบ ${f.titleKeyword}`)},
       ${sqlQuote(`Test title ${f.titleKeyword}`)}, ${sqlQuote(`บทคัดย่อทดสอบ ${f.titleKeyword}`)},
-      2560, ${sqlQuote(f.accessLevel)}, 'published', ${sqlQuote(`${f.slug}.pdf`)}
+      2017, ${sqlQuote(f.accessLevel)}, 'published', ${sqlQuote(`${f.slug}.pdf`)}
     )
     on conflict (id) do update set access_level = excluded.access_level, status = excluded.status;
   `);

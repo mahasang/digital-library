@@ -17,6 +17,15 @@ export const accessLevelValues = [
   "metadata_only",
 ] as const;
 
+/**
+ * ปีที่เผยแพร่เก็บเป็น ค.ศ. (CE) — ช่วงที่รับต้องตรงกับ CHECK ของคอลัมน์
+ * research_items.year ในฐานข้อมูล (migration 20261111100000_research_year_gregorian.sql)
+ * ถ้าแก้ค่าที่นี่ ต้องแก้ migration/ฐานข้อมูลให้ตรงกันด้วย
+ */
+export const SUBMISSION_YEAR_MIN = 1000;
+export const SUBMISSION_YEAR_MAX = 2100;
+const yearRange = { min: SUBMISSION_YEAR_MIN, max: SUBMISSION_YEAR_MAX };
+
 export function createResearcherSchema(t: TFunction) {
   return z.object({
     name: z.string().min(2, t("submission.researcherNameRequired")),
@@ -42,8 +51,8 @@ export function createSubmissionSchema(t: TFunction) {
     year: z.coerce
       .number()
       .int(t("submission.yearInvalid"))
-      .min(2400, t("submission.yearOutOfRange"))
-      .max(2700, t("submission.yearOutOfRange")),
+      .min(SUBMISSION_YEAR_MIN, t("submission.yearOutOfRange", yearRange))
+      .max(SUBMISSION_YEAR_MAX, t("submission.yearOutOfRange", yearRange)),
     categoryId: z.string().min(1, t("submission.categoryRequired")),
     keywords: z
       .array(z.string().min(1))

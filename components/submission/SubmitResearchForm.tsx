@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
@@ -33,6 +33,8 @@ import {
   LICENSE_SUGGESTIONS,
   createBibliographicSchema,
 } from "@/lib/validation/bibliographic";
+import { createSubmissionSchema } from "@/lib/validation/submission";
+import { resolveInitialOrganizationId } from "@/lib/submission/form-defaults";
 import TurnstileWidget from "@/components/auth/TurnstileWidget";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import type { ActionResult } from "@/lib/actions/types";
@@ -44,7 +46,7 @@ import type {
   SubmissionItem,
 } from "@/types/research";
 
-const currentBuddhistYear = new Date().getFullYear() + 543;
+const currentYear = new Date().getFullYear();
 
 interface ResearcherRow {
   name: string;
@@ -119,8 +121,10 @@ export default function SubmitResearchForm({
   const [titleTh, setTitleTh] = useState(initialData?.titleTh ?? "");
   const [titleEn, setTitleEn] = useState(initialData?.titleEn ?? "");
   const [abstract, setAbstract] = useState(initialData?.abstract ?? "");
-  const [organizationId, setOrganizationId] = useState(organizations[0]?.id ?? "");
-  const [year, setYear] = useState(initialData?.year ?? currentBuddhistYear);
+  const [organizationId, setOrganizationId] = useState(
+    resolveInitialOrganizationId(organizations, initialData?.organization)
+  );
+  const [year, setYear] = useState(initialData?.year ?? currentYear);
   const [categoryId, setCategoryId] = useState(
     initialData?.categoryId || categories[0]?.id || ""
   );
@@ -163,6 +167,20 @@ export default function SubmitResearchForm({
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const attachmentInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const errorBannerRef = useRef<HTMLDivElement>(null);
+
+  // กดส่งแล้วไม่ผ่าน → เลื่อนจอไปที่ข้อความผิดช่องแรก (ถ้าไม่มี ให้ไปที่แถบแจ้งเตือน
+  // ด้านบน) ผู้ใช้จะได้เห็นว่าผิดช่องไหน แม้ปุ่มส่งอยู่ล่างสุดของฟอร์มยาวๆ
+  useEffect(() => {
+    if (!error && Object.keys(fieldErrors).length === 0) return;
+    const target =
+      formRef.current?.querySelector<HTMLElement>("[data-field-error]") ??
+      errorBannerRef.current;
+    if (!target) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+  }, [error, fieldErrors]);
 
   function addResearcher() {
     setResearchers((prev) => [...prev, { name: "", organization: "" }]);
@@ -231,6 +249,13 @@ export default function SubmitResearchForm({
     }
     if (captchaSiteKey && !captchaToken) {
       errors.turnstileToken = [t("validationCaptcha")];
+    }
+    // UX only - the server action re-validates with the same schema
+    const basics = createSubmissionSchema(tValidation)
+      .pick({ organizationId: true, categoryId: true, year: true })
+      .safeParse({ organizationId, categoryId, year });
+    if (!basics.success) {
+      Object.assign(errors, basics.error.flatten().fieldErrors);
     }
     if (showBibliographicFields) {
       // UX only - the server action re-validates with the same schema
@@ -373,9 +398,13 @@ export default function SubmitResearchForm({
   const isBusy = status !== "idle";
 
   return (
-    <div className="flex flex-col gap-6">
+    <div ref={formRef} className="flex flex-col gap-6">
       {error && (
-        <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+        <div
+          ref={errorBannerRef}
+          role="alert"
+          className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700"
+        >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>{error}</p>
         </div>
@@ -393,11 +422,13 @@ export default function SubmitResearchForm({
               id={`${uid}-titleTh`}
               value={titleTh}
               onChange={(e) => setTitleTh(e.target.value)}
+              aria-invalid={Boolean(fieldErrors.titleTh)}
+              aria-describedby={fieldErrors.titleTh ? `${uid}-titleTh-error` : undefined}
               className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               placeholder={t("titleThPlaceholder")}
             />
             {fieldErrors.titleTh && (
-              <p className="text-xs text-red-600">{fieldErrors.titleTh[0]}</p>
+              <p id={`${uid}-titleTh-error`} data-field-error className="text-xs text-red-600">{fieldErrors.titleTh[0]}</p>
             )}
           </div>
 
@@ -420,12 +451,14 @@ export default function SubmitResearchForm({
               id={`${uid}-abstract`}
               value={abstract}
               onChange={(e) => setAbstract(e.target.value)}
+              aria-invalid={Boolean(fieldErrors.abstract)}
+              aria-describedby={fieldErrors.abstract ? `${uid}-abstract-error` : undefined}
               rows={6}
               className="resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               placeholder={t("abstractPlaceholder")}
             />
             {fieldErrors.abstract && (
-              <p className="text-xs text-red-600">{fieldErrors.abstract[0]}</p>
+              <p id={`${uid}-abstract-error`} data-field-error className="text-xs text-red-600">{fieldErrors.abstract[0]}</p>
             )}
           </div>
 
@@ -436,6 +469,10 @@ export default function SubmitResearchForm({
                 id={`${uid}-organization`}
                 value={organizationId}
                 onChange={(e) => setOrganizationId(e.target.value)}
+                aria-invalid={Boolean(fieldErrors.organizationId)}
+                aria-describedby={
+                  fieldErrors.organizationId ? `${uid}-organization-error` : undefined
+                }
                 className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
                 {organizations.map((org) => (
@@ -444,6 +481,11 @@ export default function SubmitResearchForm({
                   </option>
                 ))}
               </select>
+              {fieldErrors.organizationId && (
+                <p id={`${uid}-organization-error`} data-field-error className="text-xs text-red-600">
+                  {fieldErrors.organizationId[0]}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -453,8 +495,15 @@ export default function SubmitResearchForm({
                 type="number"
                 value={year}
                 onChange={(e) => setYear(Number(e.target.value))}
+                aria-invalid={Boolean(fieldErrors.year)}
+                aria-describedby={fieldErrors.year ? `${uid}-year-error` : undefined}
                 className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
+              {fieldErrors.year && (
+                <p id={`${uid}-year-error`} data-field-error className="text-xs text-red-600">
+                  {fieldErrors.year[0]}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -463,6 +512,8 @@ export default function SubmitResearchForm({
                 id={`${uid}-category`}
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
+                aria-invalid={Boolean(fieldErrors.categoryId)}
+                aria-describedby={fieldErrors.categoryId ? `${uid}-category-error` : undefined}
                 className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
                 {categories.map((c) => (
@@ -471,6 +522,11 @@ export default function SubmitResearchForm({
                   </option>
                 ))}
               </select>
+              {fieldErrors.categoryId && (
+                <p id={`${uid}-category-error`} data-field-error className="text-xs text-red-600">
+                  {fieldErrors.categoryId[0]}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -479,6 +535,8 @@ export default function SubmitResearchForm({
                 id={`${uid}-accessLevel`}
                 value={accessLevel}
                 onChange={(e) => setAccessLevel(e.target.value as AccessLevel)}
+                aria-invalid={Boolean(fieldErrors.accessLevel)}
+                aria-describedby={fieldErrors.accessLevel ? `${uid}-accessLevel-error` : undefined}
                 className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
                 {(["public", "member_only", "staff_only", "read_only", "metadata_only"] as AccessLevel[]).map((value) => (
@@ -487,6 +545,11 @@ export default function SubmitResearchForm({
                   </option>
                 ))}
               </select>
+              {fieldErrors.accessLevel && (
+                <p id={`${uid}-accessLevel-error`} data-field-error className="text-xs text-red-600">
+                  {fieldErrors.accessLevel[0]}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -508,7 +571,7 @@ export default function SubmitResearchForm({
           </button>
         </div>
         {fieldErrors.researchers && (
-          <p className="mb-2 text-xs text-red-600">{fieldErrors.researchers[0]}</p>
+          <p data-field-error className="mb-2 text-xs text-red-600">{fieldErrors.researchers[0]}</p>
         )}
         <div className="flex flex-col gap-3">
           {researchers.map((researcher, index) => (
@@ -568,7 +631,7 @@ export default function SubmitResearchForm({
           </button>
         </div>
         {fieldErrors.keywords && (
-          <p className="mt-2 text-xs text-red-600">{fieldErrors.keywords[0]}</p>
+          <p data-field-error className="mt-2 text-xs text-red-600">{fieldErrors.keywords[0]}</p>
         )}
         {keywords.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
@@ -620,7 +683,7 @@ export default function SubmitResearchForm({
                 ))}
               </datalist>
               {fieldErrors.license && (
-                <p id="biblio-license-error" className="text-xs text-red-600">
+                <p id="biblio-license-error" data-field-error className="text-xs text-red-600">
                   {fieldErrors.license[0]}
                 </p>
               )}
@@ -650,7 +713,7 @@ export default function SubmitResearchForm({
                   {t("urlHint")}
                 </p>
                 {fieldErrors.licenseUrl && (
-                  <p id="biblio-license-url-error" className="text-xs text-red-600">
+                  <p id="biblio-license-url-error" data-field-error className="text-xs text-red-600">
                     {fieldErrors.licenseUrl[0]}
                   </p>
                 )}
@@ -679,7 +742,7 @@ export default function SubmitResearchForm({
                   {t("urlHint")}
                 </p>
                 {fieldErrors.sourceUrl && (
-                  <p id="biblio-source-url-error" className="text-xs text-red-600">
+                  <p id="biblio-source-url-error" data-field-error className="text-xs text-red-600">
                     {fieldErrors.sourceUrl[0]}
                   </p>
                 )}
@@ -699,7 +762,7 @@ export default function SubmitResearchForm({
                   className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                 />
                 {fieldErrors.publisher && (
-                  <p id="biblio-publisher-error" className="text-xs text-red-600">
+                  <p id="biblio-publisher-error" data-field-error className="text-xs text-red-600">
                     {fieldErrors.publisher[0]}
                   </p>
                 )}
@@ -730,7 +793,7 @@ export default function SubmitResearchForm({
                   ))}
                 </select>
                 {fieldErrors.language && (
-                  <p id="biblio-language-error" className="text-xs text-red-600">
+                  <p id="biblio-language-error" data-field-error className="text-xs text-red-600">
                     {fieldErrors.language[0]}
                   </p>
                 )}
@@ -768,7 +831,7 @@ export default function SubmitResearchForm({
             inputRef={coverInputRef}
             accept="image/png,image/jpeg,image/webp,image/svg+xml"
             onChange={(file) => handleFileChange(file, "cover")}
-            error={fileErrors.cover}
+            error={fileErrors.cover || fieldErrors.coverPath?.[0]}
           />
           <FileInputRow
             icon={Paperclip}
@@ -781,7 +844,7 @@ export default function SubmitResearchForm({
             inputRef={attachmentInputRef}
             accept=".pdf,.doc,.docx,image/png,image/jpeg"
             onChange={(file) => handleFileChange(file, "attachment")}
-            error={fileErrors.attachment}
+            error={fileErrors.attachment || fieldErrors.attachmentPath?.[0]}
           />
         </div>
       </section>
@@ -798,7 +861,7 @@ export default function SubmitResearchForm({
             className="resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
           {fieldErrors.copyrightNote && (
-            <p className="text-xs text-red-600">{fieldErrors.copyrightNote[0]}</p>
+            <p data-field-error className="text-xs text-red-600">{fieldErrors.copyrightNote[0]}</p>
           )}
           <label className="flex items-start gap-2 text-sm text-gray-600">
             <input
@@ -810,7 +873,7 @@ export default function SubmitResearchForm({
             {t("copyrightConfirm")}
           </label>
           {fieldErrors.copyrightConfirmed && (
-            <p className="text-xs text-red-600">{fieldErrors.copyrightConfirmed[0]}</p>
+            <p data-field-error className="text-xs text-red-600">{fieldErrors.copyrightConfirmed[0]}</p>
           )}
         </div>
       </section>
@@ -820,7 +883,7 @@ export default function SubmitResearchForm({
           <h2 className="mb-3 text-sm font-semibold text-gray-900">{t("sectionCaptcha")}</h2>
           <TurnstileWidget siteKey={captchaSiteKey} onToken={setCaptchaToken} />
           {fieldErrors.turnstileToken && (
-            <p className="mt-2 text-xs text-red-600">{fieldErrors.turnstileToken[0]}</p>
+            <p data-field-error className="mt-2 text-xs text-red-600">{fieldErrors.turnstileToken[0]}</p>
           )}
         </section>
       )}
@@ -936,7 +999,7 @@ function FileInputRow({
         </span>
       </div>
       <p id={helperId} className="text-xs text-gray-500">{helper}</p>
-      {error && <p id={errorId} className="text-xs text-red-600">{error}</p>}
+      {error && <p id={errorId} data-field-error className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }

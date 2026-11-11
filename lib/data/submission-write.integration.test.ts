@@ -142,8 +142,8 @@ beforeAll(async () => {
   psql(`
     insert into public.research_items (id, slug, title_th, abstract, year, access_level, status, submitted_by)
     values
-      (${q(ITEM_OWNED_BY_STAFF)}, '${PREFIX}-staff-owned', 'ทดสอบความสัมพันธ์ A', 'abstract for relations test', 2560, 'metadata_only', 'draft', ${q(staffId)}),
-      (${q(ITEM_OWNED_BY_OTHER)}, '${PREFIX}-other-owned', 'ทดสอบความสัมพันธ์ B', 'abstract for relations test', 2560, 'metadata_only', 'draft', ${q(librarianId)});
+      (${q(ITEM_OWNED_BY_STAFF)}, '${PREFIX}-staff-owned', 'ทดสอบความสัมพันธ์ A', 'abstract for relations test', 2017, 'metadata_only', 'draft', ${q(staffId)}),
+      (${q(ITEM_OWNED_BY_OTHER)}, '${PREFIX}-other-owned', 'ทดสอบความสัมพันธ์ B', 'abstract for relations test', 2017, 'metadata_only', 'draft', ${q(librarianId)});
   `);
 }, 60000);
 
