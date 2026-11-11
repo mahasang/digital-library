@@ -6,6 +6,7 @@ import { CheckCircle2, Clock } from "lucide-react";
 import AuthFormShell from "@/components/auth/AuthFormShell";
 import LoginForm from "@/components/auth/LoginForm";
 import SupabaseNotConfiguredNotice from "@/components/auth/SupabaseNotConfiguredNotice";
+import { sanitizeRedirectTarget } from "@/lib/auth/redirect-target";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { isCaptchaConfigured } from "@/lib/captcha.server";
 import { getSettings } from "@/lib/data/settings.server";
@@ -35,10 +36,7 @@ export default async function LoginPage({
 }) {
   const t = await getTranslations("login");
   const params = await searchParams;
-  const redirectTo =
-    typeof params.redirect === "string" && params.redirect.startsWith("/")
-      ? params.redirect
-      : "/";
+  const redirectTo = sanitizeRedirectTarget(params.redirect);
   const settings = isSupabaseConfigured() ? await getSettings() : null;
   const captchaSiteKey =
     settings?.captchaEnabled && isCaptchaConfigured()

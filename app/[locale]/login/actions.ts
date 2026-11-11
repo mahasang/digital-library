@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
+import { sanitizeRedirectTarget } from "@/lib/auth/redirect-target";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { mapAuthErrorMessage } from "@/lib/supabase/error-messages";
@@ -67,11 +68,8 @@ export async function loginAction(
     return { status: "error", message: await mapAuthErrorMessage(error.message) };
   }
 
-  const redirectTarget = formData.get("redirectTo");
-  const safeRedirect =
-    typeof redirectTarget === "string" && redirectTarget.startsWith("/")
-      ? redirectTarget
-      : "/";
+  // ตัด locale prefix ที่ middleware เติมให้ ?redirect= (ไม่งั้นได้ /lo/lo/...)
+  const safeRedirect = sanitizeRedirectTarget(formData.get("redirectTo"));
 
   const locale = await getLocale();
   return redirect({ href: safeRedirect, locale });

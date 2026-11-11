@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import AuthFormShell from "@/components/auth/AuthFormShell";
 import MfaChallengeForm from "@/components/auth/MfaChallengeForm";
+import { sanitizeRedirectTarget } from "@/lib/auth/redirect-target";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("mfaChallenge");
@@ -16,10 +17,7 @@ export default async function MfaChallengePage({
 }) {
   const params = await searchParams;
   const t = await getTranslations("mfaChallenge");
-  const redirectTo =
-    typeof params.redirect === "string" && params.redirect.startsWith("/")
-      ? params.redirect
-      : "/superadmin/overview";
+  const redirectTo = sanitizeRedirectTarget(params.redirect, "/superadmin/overview");
 
   return (
     <AuthFormShell
