@@ -54,7 +54,9 @@ async function loginAs(page: Page, email: string, password: string) {
 /** เปิด dropdown เมนูผู้ใช้ (desktop UserMenu) แล้วอ่านรายการ href ของลิงก์ทั้งหมด */
 async function openUserMenuAndGetLinks(page: Page): Promise<string[]> {
   await page.goto("/th/", { waitUntil: "networkidle" });
-  const trigger = page.getByRole("button", { name: /โปรไฟล์ของฉัน|@/ });
+  // ชื่อปุ่มคือ fullName || email || "โปรไฟล์ของฉัน" — บัญชีที่ตั้งชื่อแสดงผลไว้
+  // (เช่น "Super Admin") จะไม่มี "@" ในชื่อ จึงอ้างด้วย test id แทนการเดาจากชื่อ
+  const trigger = page.getByTestId("user-menu-trigger");
   await trigger.click();
   // The menu panel has no role/name of its own; it is the trigger's parent
   // wrapper (the language/theme dialog lives elsewhere and has role="dialog").
@@ -75,7 +77,7 @@ test.describe("Header account area — guest", () => {
     await expect(page.getByRole("link", { name: "เข้าสู่ระบบ", exact: true }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "สมัครสมาชิก", exact: true }).first()).toBeVisible();
     await expect(page.getByRole("button", { name: "การแจ้งเตือน" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /โปรไฟล์ของฉัน|@/ })).toHaveCount(0);
+    await expect(page.getByTestId("user-menu-trigger")).toHaveCount(0);
   });
 
   test("mobile menu opens, shows login/register, and auto-closes on navigation", async ({ page }) => {
@@ -131,7 +133,8 @@ for (const role of Object.keys(ACCOUNTS) as RoleName[]) {
         // locale prefix เสมอ (หน้านี้ทดสอบภายใต้ /lo/ เท่านั้น)
         await expect(mobilePanel.locator(`a[href="/th${href}"]`)).toBeVisible();
       }
-      await expect(mobilePanel.getByRole("link", { name: /โปรไฟล์|@/ }).first()).toBeVisible();
+      // ลิงก์โปรไฟล์ในเมนูมือถือ — ชื่อลิงก์คือ fullName || email จึงอ้างด้วยปลายทาง /account
+      await expect(mobilePanel.locator('a[href$="/account"]').first()).toBeVisible();
       await expect(mobilePanel.getByRole("button", { name: "ออกจากระบบ" })).toBeVisible();
     });
   });
