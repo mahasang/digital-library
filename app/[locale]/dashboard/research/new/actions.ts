@@ -154,7 +154,7 @@ export async function adminCreateResearchAction(
       access_level: parsed.data.accessLevel,
       status,
       submitted_by: user.id,
-      copyright_note: parsed.data.copyrightNote,
+      copyright_note: parsed.data.copyrightNote ?? null,
       copyright_confirmed: parsed.data.copyrightConfirmed,
       ...(hasBibliographicFormData(formData) ? toBibliographicColumns(biblioParsed.data) : {}),
       scan_status: pdfScan.scanStatus,

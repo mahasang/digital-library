@@ -175,7 +175,7 @@ export async function submitResearchAction(
       access_level: parsed.data.accessLevel,
       status: intent,
       submitted_by: user.id,
-      copyright_note: parsed.data.copyrightNote,
+      copyright_note: parsed.data.copyrightNote ?? null,
       copyright_confirmed: parsed.data.copyrightConfirmed,
       scan_status: pdfScan.scanStatus,
       scanned_at: pdfScan.scannedAt,

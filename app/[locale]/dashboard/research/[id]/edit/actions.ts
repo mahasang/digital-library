@@ -205,7 +205,7 @@ export async function adminUpdateResearchAction(
       access_level: parsed.data.accessLevel,
       status,
       reviewed_by: user.id,
-      copyright_note: parsed.data.copyrightNote,
+      copyright_note: parsed.data.copyrightNote ?? null,
       copyright_confirmed: parsed.data.copyrightConfirmed,
       // only touch the five columns when the form actually sent them
       ...(hasBibliographicFormData(formData) ? toBibliographicColumns(biblioParsed.data) : {}),

@@ -54,19 +54,22 @@ export function createSubmissionSchema(t: TFunction) {
       .min(SUBMISSION_YEAR_MIN, t("submission.yearOutOfRange", yearRange))
       .max(SUBMISSION_YEAR_MAX, t("submission.yearOutOfRange", yearRange)),
     categoryId: z.string().min(1, t("submission.categoryRequired")),
+    // ไม่บังคับ (เฟส 2): ฐานข้อมูลไม่มีขั้นต่ำและหน้าแสดงผลรับรายการว่างได้
     keywords: z
       .array(z.string().min(1))
-      .min(1, t("submission.keywordsRequired"))
       .max(20, t("submission.keywordsTooMany")),
     researchers: z
       .array(researcherSchema)
       .min(1, t("submission.researchersRequired"))
       .max(20, t("submission.researchersTooMany")),
     accessLevel: z.enum(accessLevelValues),
+    // หมายเหตุลิขสิทธิ์ไม่บังคับ (เฟส 2) — ด่านจริงคือ copyrightConfirmed ด้านล่าง
+    // ค่าว่าง/ช่องว่างล้วนถือเป็น "ไม่ระบุ" (undefined) ฝั่งบันทึกเก็บเป็น null
     copyrightNote: z
       .string()
-      .min(10, t("submission.copyrightNoteTooShort"))
-      .max(2000, t("submission.copyrightNoteTooLong")),
+      .max(2000, t("submission.copyrightNoteTooLong"))
+      .nullish()
+      .transform((value) => value?.trim() || undefined),
     copyrightConfirmed: z.boolean().refine((v) => v === true, {
       message: t("submission.copyrightConfirmRequired"),
     }),

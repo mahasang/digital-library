@@ -150,7 +150,7 @@ export async function updateSubmissionAction(
       attachment_file: attachmentFile,
       access_level: parsed.data.accessLevel,
       status: intent,
-      copyright_note: parsed.data.copyrightNote,
+      copyright_note: parsed.data.copyrightNote ?? null,
       copyright_confirmed: parsed.data.copyrightConfirmed,
       ...(pdfScan
         ? {

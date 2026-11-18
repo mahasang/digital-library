@@ -1956,6 +1956,7 @@
       "chooseFile": "Choose file",
       "sectionCopyright": "Copyright information",
       "copyrightNotePlaceholder": "e.g. I am the sole copyright owner of this research and consent to its publication by the digital library under the stated terms",
+      "copyrightNoteLabel": "Additional copyright note",
       "copyrightConfirm": "I confirm that I own the copyright to this research and consent to its publication on the digital library",
       "sectionCaptcha": "Verification",
       "saveDraft": "Save draft",

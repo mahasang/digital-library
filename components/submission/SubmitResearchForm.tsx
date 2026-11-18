@@ -239,8 +239,6 @@ export default function SubmitResearchForm({
     if (researchers.every((r) => !r.name.trim())) {
       errors.researchers = [t("validationResearchers")];
     }
-    if (keywords.length === 0) errors.keywords = [t("validationKeywords")];
-    if (!copyrightNote.trim()) errors.copyrightNote = [t("validationCopyright")];
     if (!copyrightConfirmed) {
       errors.copyrightConfirmed = [t("validationCopyrightConfirm")];
     }
@@ -606,7 +604,7 @@ export default function SubmitResearchForm({
       {/* คำสำคัญ */}
       <section className="rounded-xl border border-gray-200 bg-surface p-5">
         <h2 className="mb-4 text-sm font-semibold text-gray-900">
-          {t("sectionKeywords")} <span className="text-red-500">*</span>
+          {t("sectionKeywords")} <span className="font-normal text-ink-soft">{t("optional")}</span>
         </h2>
         <div className="flex gap-2">
           <input
@@ -853,16 +851,24 @@ export default function SubmitResearchForm({
       <section className="rounded-xl border border-gray-200 bg-surface p-5">
         <h2 className="mb-4 text-sm font-semibold text-gray-900">{t("sectionCopyright")}</h2>
         <div className="flex flex-col gap-3">
-          <textarea
-            value={copyrightNote}
-            onChange={(e) => setCopyrightNote(e.target.value)}
-            rows={3}
-            placeholder={t("copyrightNotePlaceholder")}
-            className="resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-          />
-          {fieldErrors.copyrightNote && (
-            <p data-field-error className="text-xs text-red-600">{fieldErrors.copyrightNote[0]}</p>
-          )}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={`${uid}-copyrightNote`} className="text-sm font-medium text-gray-700">
+              {t("copyrightNoteLabel")} <span className="font-normal text-ink-soft">{t("optional")}</span>
+            </label>
+            <textarea
+              id={`${uid}-copyrightNote`}
+              value={copyrightNote}
+              onChange={(e) => setCopyrightNote(e.target.value)}
+              rows={3}
+              placeholder={t("copyrightNotePlaceholder")}
+              aria-invalid={Boolean(fieldErrors.copyrightNote)}
+              aria-describedby={fieldErrors.copyrightNote ? `${uid}-copyrightNote-error` : undefined}
+              className="resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            />
+            {fieldErrors.copyrightNote && (
+              <p id={`${uid}-copyrightNote-error`} data-field-error className="text-xs text-red-600">{fieldErrors.copyrightNote[0]}</p>
+            )}
+          </div>
           <label className="flex items-start gap-2 text-sm text-gray-600">
             <input
               type="checkbox"
