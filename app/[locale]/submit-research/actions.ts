@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "@/i18n/navigation";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
@@ -222,6 +223,10 @@ export async function submitResearchAction(
   // ตรวจสอบงานวิจัยซ้ำ — ไม่เคยบล็อกการส่งงานวิจัย แค่บันทึกคำเตือนไว้ให้
   // เจ้าหน้าที่ตรวจสอบที่ /dashboard/duplicate-reviews (ไม่ throw เองเช่นกัน)
   await detectDuplicatesForResearchItem(supabase, inserted.id);
+
+  // ตัวเลขงานค้างใน Header (badge เมนูผู้ใช้) อยู่ใน layout — ล้างก่อน redirect เพื่อให้
+  // "รอตรวจ"/"ขอให้แก้ไข" ที่เปลี่ยนจากการส่งนี้แสดงถูกต้องทันที
+  revalidatePath("/", "layout");
 
   return redirect({ href: `/my-submissions/${inserted.id}`, locale });
 }

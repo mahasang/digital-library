@@ -120,6 +120,9 @@ async function changeStatus(
   revalidatePath(`/dashboard/approvals/${researchId}`);
   revalidatePath("/dashboard/approvals");
   revalidatePath(`/my-submissions/${researchId}`);
+  // ตัวเลขงานค้างใน Header (badge เมนูผู้ใช้) อยู่ใน layout — ต้องล้างด้วยเพื่อให้
+  // ตัวเลข "รอตรวจ" ของผู้ตรวจที่กำลังใช้งานอยู่ลดลงทันทีหลังอนุมัติ/ปฏิเสธ/ขอแก้ไข
+  revalidatePath("/", "layout");
   // เปลี่ยนสถานะทุกครั้ง (ไม่ว่าจะเป็นการเผยแพร่/เก็บถาวร/อนุมัติ/ปฏิเสธ/ขอแก้ไข)
   // อาจกระทบชุดข้อมูลสาธารณะของหน้าแรก — ล้าง cache แบบไม่มีเงื่อนไขไว้ก่อนเสมอ
   // (ถูกกว่าการลืมล้างมาก ดู lib/cache/public-home.ts)

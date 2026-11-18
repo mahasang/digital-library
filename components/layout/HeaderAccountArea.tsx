@@ -3,11 +3,14 @@ import { Link } from "@/i18n/navigation";
 import { UserCircle } from "lucide-react";
 import { LinkButton } from "@/components/ui/Button";
 import LogoutButton from "@/components/auth/LogoutButton";
+import CountBadge from "@/components/layout/CountBadge";
 import NotificationBell from "@/components/layout/NotificationBell";
 import UserMenu from "@/components/layout/UserMenu";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getMyNotifications, getUnreadNotificationCount } from "@/lib/data/notifications.server";
-import { buildWorkspaceLinks } from "@/lib/auth/workspace-links";
+import { getWorkspaceCounts } from "@/lib/data/workspace-counts.server";
+import { buildWorkspaceLinks, ROLE_RANK } from "@/lib/auth/workspace-links";
+import { badgeCountForHref, EMPTY_WORKSPACE_COUNTS } from "@/lib/auth/workspace-counts";
 
 /**
  * Hallmark — header rendering refactor. เดิม app/layout.tsx เรียก
@@ -34,18 +37,28 @@ import { buildWorkspaceLinks } from "@/lib/auth/workspace-links";
 
 async function loadAccountData() {
   const user = await getSessionUser();
-  const [notifications, unreadCount] = user
-    ? await Promise.all([getMyNotifications(), getUnreadNotificationCount()])
-    : [[], 0];
+  // ตัวเลขงานค้าง (badge ในเมนูผู้ใช้) — นับฝั่งเซิร์ฟเวอร์ตามสิทธิ์จริงของ
+  // ผู้ใช้ (rank จาก getSessionUser ที่ยืนยันกับ Supabase Auth แล้ว) ผ่าน RLS
+  const [notifications, unreadCount, workspaceCounts] = user
+    ? await Promise.all([
+        getMyNotifications(),
+        getUnreadNotificationCount(),
+        getWorkspaceCounts(user.id, ROLE_RANK[user.role]),
+      ])
+    : [[], 0, EMPTY_WORKSPACE_COUNTS];
   // workspace-links.ts เป็น plain .ts เรียก getTranslations() เองไม่ได้ —
   // แปล labelKey -> label ที่นี่ (root translator รับ full dotted key ได้)
   // ก่อนส่งลง UserMenu.tsx ซึ่งยังคาดหวัง label: string เหมือนเดิมทุกประการ
   const tRoot = await getTranslations();
-  const workspaceLinks = buildWorkspaceLinks(user).map((link) => ({
-    href: link.href,
-    label: tRoot(link.labelKey),
-    iconKey: link.iconKey,
-  }));
+  const workspaceLinks = buildWorkspaceLinks(user).map((link) => {
+    const badgeCount = badgeCountForHref(link.href, workspaceCounts);
+    return {
+      href: link.href,
+      label: tRoot(link.labelKey),
+      iconKey: link.iconKey,
+      ...(badgeCount > 0 ? { badgeCount } : {}),
+    };
+  });
   return { user, notifications, unreadCount, workspaceLinks };
 }
 
@@ -117,9 +130,13 @@ export default async function HeaderAccountArea({
         <Link
           key={link.href}
           href={link.href}
-          className="rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
+          className="flex items-center justify-between gap-2 rounded-md px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
         >
           {link.label}
+          <CountBadge
+            count={link.badgeCount ?? 0}
+            label={t("pendingWorkCount", { count: link.badgeCount ?? 0 })}
+          />
         </Link>
       ))}
       {user ? (

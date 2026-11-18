@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -203,6 +204,10 @@ export async function updateSubmissionAction(
   ) {
     await detectDuplicatesForResearchItem(supabase, researchId);
   }
+
+  // ตัวเลขงานค้างใน Header (badge เมนูผู้ใช้) อยู่ใน layout — ล้างก่อน redirect เพื่อให้
+  // "รอตรวจ"/"ขอให้แก้ไข" ที่เปลี่ยนจากการส่งนี้แสดงถูกต้องทันที
+  revalidatePath("/", "layout");
 
   return redirect({ href: `/my-submissions/${researchId}`, locale });
 }

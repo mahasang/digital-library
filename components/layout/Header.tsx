@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { Menu, X, Search, BookOpen } from "lucide-react";
 import Container from "@/components/ui/Container";
 import { SettingsDropdown } from "@/components/layout/SettingsDropdown";
+import { useDismissable } from "@/components/layout/useDismissable";
 
 /**
  * Hallmark — header rendering refactor. Header เป็น "เปลือก" ของแถบเมนูบนสุด
@@ -41,6 +42,14 @@ export default function Header({
   const tHeader = useTranslations("header");
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // เมนูมือถือปิดเมื่อแตะนอกแถบ header หรือกด Esc (นอกเหนือจากปิดเมื่อเปลี่ยนหน้า)
+  useDismissable(headerRef, open, (reason) => {
+    setOpen(false);
+    if (reason === "escape") menuButtonRef.current?.focus();
+  });
 
   const navLinks = [
     { href: "/" as const, label: t("home") },
@@ -55,7 +64,7 @@ export default function Header({
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-[var(--color-surface-translucent)] backdrop-blur">
+    <header ref={headerRef} className="sticky top-0 z-40 border-b border-gray-200 bg-[var(--color-surface-translucent)] backdrop-blur">
       <Container>
         <div className="flex h-16 items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 shrink-0">
@@ -113,6 +122,7 @@ export default function Header({
           </div>
 
           <button
+            ref={menuButtonRef}
             type="button"
             className="rounded-md p-2 text-gray-600 hover:bg-gray-100 md:hidden"
             onClick={() => setOpen((v) => !v)}

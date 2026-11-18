@@ -39,6 +39,7 @@
     "mainMenu": "Main menu",
     "myProfile": "My Profile",
     "loadingUserMenu": "Loading user menu",
+    "pendingWorkCount": "{count, plural, one {# item needs attention} other {# items need attention}}",
     "siteName": "Organizational Research Digital Library"
   },
   "nav": {

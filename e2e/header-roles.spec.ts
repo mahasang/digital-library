@@ -159,3 +159,48 @@ test.describe("Header account area — notification badge", () => {
     await expect(page.getByText("การแจ้งเตือน", { exact: true })).toBeVisible();
   });
 });
+
+test.describe("Header dropdowns — dismiss", () => {
+  // เมนูผู้ใช้/กระดิ่งเคยปิดไม่ได้เมื่อกดเนื้อหาด้านล่าง header (แผ่นโปร่งใส fixed
+  // inset-0 คลุมแค่ header เพราะ backdrop-blur) — กดที่หัวเรื่อง h1 ของหน้า
+  // ซึ่งไม่ใช่ลิงก์/ปุ่ม จึงไม่พาไปหน้าอื่นระหว่างทดสอบ
+  const { email, password } = ACCOUNTS.member;
+  test.skip(!email || !password, "E2E_MEMBER_EMAIL / E2E_MEMBER_PASSWORD not set in .env.local — skipping");
+  test.use({ storageState: "e2e/.auth/member.json" });
+
+  test("user menu closes when clicking the page below the header, and on Escape", async ({ page }) => {
+    await page.goto("/th/about", { waitUntil: "networkidle" });
+    const trigger = page.getByTestId("user-menu-trigger");
+    const profileLink = trigger.locator("xpath=..").getByRole("link", { name: "โปรไฟล์ของฉัน" });
+
+    await trigger.click();
+    await expect(profileLink).toBeVisible();
+    await page.getByRole("heading", { level: 1 }).first().click();
+    await expect(profileLink).toBeHidden();
+
+    await trigger.click();
+    await expect(profileLink).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(profileLink).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
+  test("notification panel closes when clicking the page below the header, and on Escape", async ({
+    page,
+  }) => {
+    await page.goto("/th/about", { waitUntil: "networkidle" });
+    const bell = page.getByRole("button", { name: "การแจ้งเตือน" });
+    const panelTitle = page.getByText("การแจ้งเตือน", { exact: true });
+
+    await bell.click();
+    await expect(panelTitle).toBeVisible();
+    await page.getByRole("heading", { level: 1 }).first().click();
+    await expect(panelTitle).toBeHidden();
+
+    await bell.click();
+    await expect(panelTitle).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(panelTitle).toBeHidden();
+    await expect(bell).toBeFocused();
+  });
+});

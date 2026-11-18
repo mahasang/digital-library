@@ -39,6 +39,7 @@
     "mainMenu": "Main menu",
     "myProfile": "My Profile",
     "loadingUserMenu": "Loading user menu",
+    "pendingWorkCount": "{count} mục cần xử lý",
     "siteName": "Organizational Research Digital Library"
   },
   "nav": {
