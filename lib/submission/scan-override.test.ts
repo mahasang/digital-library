@@ -6,6 +6,7 @@ import {
   SCAN_OVERRIDE_REASON_MIN_LENGTH,
   buildOverrideScanReason,
   evaluateScanOverride,
+  getOverrideFormMissing,
   isAdminScanOverride,
   validateOverrideReason,
 } from "@/lib/submission/scan-override";
@@ -168,5 +169,37 @@ describe("buildOverrideScanReason / isAdminScanOverride", () => {
       isAdminScanOverride({ scan_status: "error", scan_provider: SCAN_OVERRIDE_PROVIDER })
     ).toBe(false);
     expect(isAdminScanOverride({ scan_status: null, scan_provider: null })).toBe(false);
+  });
+});
+
+describe("getOverrideFormMissing", () => {
+  it("ยังไม่พิมพ์และยังไม่ติ๊ก: ขาดทั้งสองอย่าง", () => {
+    expect(getOverrideFormMissing({ reason: "", confirmed: false })).toEqual({
+      reasonShortBy: SCAN_OVERRIDE_REASON_MIN_LENGTH,
+      needsConfirm: true,
+    });
+  });
+
+  it("นับตัวอักษรที่ยังขาด และตัดช่องว่างหัวท้ายก่อนนับ", () => {
+    expect(getOverrideFormMissing({ reason: "abcd", confirmed: true }).reasonShortBy).toBe(6);
+    expect(getOverrideFormMissing({ reason: "   abc   ", confirmed: true }).reasonShortBy).toBe(7);
+    expect(getOverrideFormMissing({ reason: "          ", confirmed: true }).reasonShortBy).toBe(10);
+  });
+
+  it("เหตุผลครบ + ติ๊กแล้ว: ไม่ขาดอะไร", () => {
+    expect(
+      getOverrideFormMissing({
+        reason: "x".repeat(SCAN_OVERRIDE_REASON_MIN_LENGTH),
+        confirmed: true,
+      })
+    ).toEqual({ reasonShortBy: 0, needsConfirm: false });
+  });
+
+  it("เกณฑ์ความยาวตรงกับ validateOverrideReason ทุกความยาว (ฟอร์มกับเซิร์ฟเวอร์ไม่ขัดกัน)", () => {
+    for (let length = 0; length <= SCAN_OVERRIDE_REASON_MIN_LENGTH + 2; length++) {
+      const reason = "x".repeat(length);
+      const formOk = getOverrideFormMissing({ reason, confirmed: true }).reasonShortBy === 0;
+      expect(formOk).toBe(validateOverrideReason(reason).ok);
+    }
   });
 });

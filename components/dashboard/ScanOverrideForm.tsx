@@ -8,6 +8,7 @@ import {
   SCAN_OVERRIDE_MIN_STUCK_MINUTES,
   SCAN_OVERRIDE_REASON_MAX_LENGTH,
   SCAN_OVERRIDE_REASON_MIN_LENGTH,
+  getOverrideFormMissing,
 } from "@/lib/submission/scan-override";
 
 /**
@@ -30,8 +31,19 @@ export default function ScanOverrideForm({
   const [reason, setReason] = useState("");
   const [confirmed, setConfirmed] = useState(false);
 
-  const canSubmit =
-    confirmed && reason.trim().length >= SCAN_OVERRIDE_REASON_MIN_LENGTH && !pending;
+  const missing = getOverrideFormMissing({ reason, confirmed });
+  const canSubmit = missing.reasonShortBy === 0 && !missing.needsConfirm && !pending;
+
+  // ข้อความใต้ปุ่มบอกว่ายังขาดอะไร — ปุ่มที่เป็นสีเทากดไม่ได้เฉยๆ ทำให้ผู้ใช้งงว่าเสีย
+  const missingHints: string[] = [];
+  if (missing.reasonShortBy > 0) {
+    missingHints.push(
+      reason.trim().length === 0
+        ? `พิมพ์เหตุผลอย่างน้อย ${SCAN_OVERRIDE_REASON_MIN_LENGTH} ตัวอักษร`
+        : `พิมพ์เหตุผลเพิ่มอีก ${missing.reasonShortBy} ตัวอักษร (ขั้นต่ำ ${SCAN_OVERRIDE_REASON_MIN_LENGTH})`
+    );
+  }
+  if (missing.needsConfirm) missingHints.push("ติ๊กช่องยืนยันด้านบน");
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3">
@@ -99,11 +111,17 @@ export default function ScanOverrideForm({
           <button
             type="submit"
             disabled={!canSubmit}
+            aria-describedby={missingHints.length > 0 ? "scan-override-hint" : undefined}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending && <Loader2 className="h-4 w-4 animate-spin" />}
             ยืนยันเผยแพร่
           </button>
+          {missingHints.length > 0 && (
+            <p id="scan-override-hint" className="text-xs text-gray-700">
+              ปุ่มจะกดได้เมื่อ: {missingHints.join(" และ ")}
+            </p>
+          )}
         </form>
       )}
     </div>

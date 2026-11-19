@@ -81,6 +81,23 @@ export function validateOverrideReason(raw: unknown): OverrideReasonResult {
   return { ok: true, reason };
 }
 
+/**
+ * สิ่งที่ฟอร์ม "ยืนยันเผยแพร่" ยังขาดอยู่ — ใช้เปิดปุ่มและแสดงข้อความใต้ปุ่มที่กดไม่ได้
+ * (ใช้เกณฑ์ความยาวเดียวกับ validateOverrideReason: ตัดช่องว่างหัวท้ายก่อนนับ)
+ * ฝั่งเซิร์ฟเวอร์ยังตรวจซ้ำเสมอ ฟังก์ชันนี้มีไว้ช่วยผู้ใช้เท่านั้น
+ */
+export function getOverrideFormMissing(input: { reason: string; confirmed: boolean }): {
+  /** จำนวนตัวอักษรที่ยังต้องพิมพ์เพิ่ม (0 = พอแล้ว) */
+  reasonShortBy: number;
+  /** ยังไม่ได้ติ๊กช่องยืนยัน */
+  needsConfirm: boolean;
+} {
+  return {
+    reasonShortBy: Math.max(0, SCAN_OVERRIDE_REASON_MIN_LENGTH - input.reason.trim().length),
+    needsConfirm: !input.confirmed,
+  };
+}
+
 /** ข้อความที่เก็บใน research_items.scan_reason (แสดงในหน้า "การตรวจสอบไฟล์") */
 export function buildOverrideScanReason(reason: string): string {
   return `ผู้ดูแลระบบยืนยันเอง (ข้ามการสแกน): ${reason}`;
