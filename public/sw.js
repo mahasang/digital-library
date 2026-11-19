@@ -1,5 +1,10 @@
-const CACHE_NAME = 'ebooks-v1';
+// v2: ล้างแคช /_next/static รุ่น v1 ที่อาจค้างจากตอนพัฒนา (activate ลบแคชชื่ออื่นให้อัตโนมัติ)
+const CACHE_NAME = 'ebooks-v2';
 const OFFLINE_URL = '/offline.html';
+
+// localhost/127.0.0.1: ไม่แคช /_next/static — ตอน dev ชื่อไฟล์ไม่มี hash ถ้าแคชแบบ
+// cache-first จะได้ JS เก่าค้างแม้แก้โค้ดแล้ว (บน production ชื่อไฟล์มี hash จึงแคชได้ปลอดภัย)
+const IS_LOCAL_HOST = ['localhost', '127.0.0.1', '[::1]'].includes(self.location.hostname);
 
 // Precache offline page เท่านั้น
 self.addEventListener('install', (event) => {
@@ -44,8 +49,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets — cache first
-  if (url.pathname.startsWith('/_next/static/')) {
+  // Static assets — cache first (ข้ามบน localhost ดูเหตุผลด้านบน)
+  if (!IS_LOCAL_HOST && url.pathname.startsWith('/_next/static/')) {
     event.respondWith(
       caches.match(event.request).then((cached) =>
         cached || fetch(event.request).then((res) => {
