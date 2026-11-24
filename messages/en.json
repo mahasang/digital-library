@@ -332,6 +332,25 @@
       "sectionApprovedDesc": "Research that has passed review and is ready for publication",
       "emptySection": "No items in this section",
       "noResearcher": "No researcher specified",
+      "bulk": {
+        "regionLabel": "Bulk approve",
+        "selectAll": "Select all",
+        "selectAllLimited": "Select all (up to {max})",
+        "selectedCount": "{count} selected",
+        "limitNote": "You can select up to {max} items at a time",
+        "approveSelected": "Approve selected",
+        "confirmText": "Approve {count} research items? Each submitter will be notified by email and in the app. They are not published yet — publish each one afterwards.",
+        "confirmYes": "Approve {count} items",
+        "cancel": "Cancel",
+        "processing": "Approving…",
+        "checkboxLabel": "Select research {title}",
+        "resultFailedTitle": "Items not approved",
+        "reasonNotPending": "Status already changed (no longer awaiting review)",
+        "reasonNotFound": "Item not found",
+        "reasonFailed": "Approval failed, try again",
+        "reasonTimeBudget": "Not processed (took too long) — select and try again",
+        "failedGeneric": "Approval failed. Please try again."
+      },
       "detail": {
         "pageTitle": "Review Research",
         "backLink": "Back to research approvals"
@@ -1690,7 +1709,17 @@
       "scanOverrideUnavailable": "This function is not available right now (server-side access is not configured).",
       "scanOverrideFailed": "Could not publish with self-confirmation. Please try again.",
       "scanOverrideSuccess": "Published (self-confirmed by an administrator and recorded in the audit log).",
-      "scanOverrideNotFound": "Research item not found."
+      "scanOverrideNotFound": "Research item not found.",
+      "approvalItemNotFound": "Research item not found.",
+      "statusChangedMeanwhile": "The status of this item has already changed. Please refresh the page.",
+      "approvePublishNotReviewable": "This item is not in a state that can be approved, so Approve & Publish is unavailable.",
+      "approvePublishScanNotReady": "The file has not passed the security check yet, so it cannot be approved and published in one step (approve first, then publish once the check passes).",
+      "approvePublishSuccess": "Approved and published.",
+      "approvePublishPartial": "Approved, but publishing failed. The item is still in the \"Approved\" status — please press Publish again.",
+      "bulkApproveEmpty": "Please select the items to approve.",
+      "bulkApproveTooMany": "You can approve up to {max} items at a time.",
+      "bulkApproveInvalid": "The selection is invalid. Please refresh the page and try again.",
+      "bulkApproveSummary": "Approved {approved} of {total} items."
     },
     "settings": {
       "siteNameRequired": "Please enter the organization name.",

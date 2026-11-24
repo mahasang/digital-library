@@ -11,6 +11,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getSubmissionsByStatus } from "@/lib/data/submissions.server";
+import { BulkApproveCheckbox, BulkApproveProvider } from "@/components/dashboard/BulkApprove";
 
 export async function generateMetadata({
   params,
@@ -64,6 +65,7 @@ export default async function ApprovalsDashboardPage() {
           title={t("approvals.sectionPending")}
           description={t("approvals.sectionPendingDesc")}
           items={pending}
+          selectable
         />
         <ApprovalSection
           title={t("approvals.sectionRevision")}
@@ -80,16 +82,73 @@ export default async function ApprovalsDashboardPage() {
   );
 }
 
+type ApprovalItem = Awaited<ReturnType<typeof getSubmissionsByStatus>>[number];
+
 async function ApprovalSection({
   title,
   description,
   items,
+  selectable = false,
 }: {
   title: string;
   description: string;
-  items: Awaited<ReturnType<typeof getSubmissionsByStatus>>;
+  items: ApprovalItem[];
+  /** แสดงช่องติ๊กเลือกเพื่ออนุมัติหลายรายการ (ใช้เฉพาะส่วน "รอตรวจสอบ") */
+  selectable?: boolean;
 }) {
   const t = await getTranslations("dashboard");
+
+  const renderBody = (item: ApprovalItem) => (
+    <div className="min-w-0 flex-1">
+      <h3 className="line-clamp-1 text-sm font-semibold text-gray-900">{item.titleTh}</h3>
+      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+        <StatusBadge status={item.status} />
+        <AccessBadge accessLevel={item.accessLevel} />
+        <span className="flex items-center gap-1 text-xs text-gray-500">
+          <Users className="h-3.5 w-3.5" />
+          {item.researchers.map((r) => r.name).join(", ") || t("approvals.noResearcher")}
+        </span>
+        <span className="flex items-center gap-1 text-xs text-gray-500">
+          <Calendar className="h-3.5 w-3.5" />
+          {new Date(item.updatedAt).toLocaleDateString("th-TH", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </span>
+      </div>
+    </div>
+  );
+
+  const list = (
+    <div className="flex flex-col gap-3">
+      {items.map((item) =>
+        selectable ? (
+          // ช่องติ๊กต้องอยู่นอกลิงก์ (ห้ามมีปุ่ม/ช่องกรอกซ้อนใน <a>)
+          <div
+            key={item.id}
+            className="flex items-center gap-3 rounded-xl border border-gray-200 bg-surface p-4 transition-shadow hover:shadow-md"
+          >
+            <BulkApproveCheckbox id={item.id} title={item.titleTh} />
+            <Link
+              href={`/dashboard/approvals/${item.id}`}
+              className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              {renderBody(item)}
+            </Link>
+          </div>
+        ) : (
+          <Link
+            key={item.id}
+            href={`/dashboard/approvals/${item.id}`}
+            className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-surface p-4 transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+          >
+            {renderBody(item)}
+          </Link>
+        )
+      )}
+    </div>
+  );
 
   return (
     <section className="mb-10">
@@ -105,38 +164,12 @@ async function ApprovalSection({
         <div className="rounded-xl border border-dashed border-gray-300 bg-surface py-10 text-center text-sm text-gray-500">
           {t("approvals.emptySection")}
         </div>
+      ) : selectable ? (
+        <BulkApproveProvider items={items.map((item) => ({ id: item.id, title: item.titleTh }))}>
+          {list}
+        </BulkApproveProvider>
       ) : (
-        <div className="flex flex-col gap-3">
-          {items.map((item) => (
-            <Link
-              key={item.id}
-              href={`/dashboard/approvals/${item.id}`}
-              className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-surface p-4 transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="min-w-0 flex-1">
-                <h3 className="line-clamp-1 text-sm font-semibold text-gray-900">
-                  {item.titleTh}
-                </h3>
-                <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                  <StatusBadge status={item.status} />
-                  <AccessBadge accessLevel={item.accessLevel} />
-                  <span className="flex items-center gap-1 text-xs text-gray-500">
-                    <Users className="h-3.5 w-3.5" />
-                    {item.researchers.map((r) => r.name).join(", ") || t("approvals.noResearcher")}
-                  </span>
-                  <span className="flex items-center gap-1 text-xs text-gray-500">
-                    <Calendar className="h-3.5 w-3.5" />
-                    {new Date(item.updatedAt).toLocaleDateString("th-TH", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        list
       )}
     </section>
   );

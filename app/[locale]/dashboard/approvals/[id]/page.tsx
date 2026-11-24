@@ -13,6 +13,7 @@ import { getSessionUser } from "@/lib/supabase/session";
 import { getCurrentUserRoleRank } from "@/lib/supabase/roles";
 import { getScanOverrideDecision } from "@/lib/submission/scan-override.server";
 import { SCAN_OVERRIDE_MIN_RANK } from "@/lib/submission/scan-override";
+import { canApproveAndPublish } from "@/lib/approvals/approve-flow";
 import { getApprovalLogs, getSubmissionById } from "@/lib/data/submissions.server";
 import {
   getResearchDocumentPreviewUrl,
@@ -81,6 +82,12 @@ export default async function ApprovalDetailPage({
       : { available: false, waitMinutes: decision.waitMinutes };
   }
 
+  // ปุ่ม "อนุมัติและเผยแพร่" — ขึ้นเฉพาะงานที่ไฟล์สแกนผ่านแล้ว (server action ตัดสินซ้ำอีกครั้ง)
+  const approveAndPublishAllowed = canApproveAndPublish({
+    status: item.status,
+    scanStatus: item.scanStatus,
+  }).allowed;
+
   return (
     <div className="py-10 sm:py-14">
       <Container>
@@ -103,6 +110,7 @@ export default async function ApprovalDetailPage({
             <ApprovalActions
               researchId={item.id}
               status={item.status}
+              canApproveAndPublish={approveAndPublishAllowed}
               scanOverride={scanOverride}
             />
           </div>

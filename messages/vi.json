@@ -332,6 +332,25 @@
       "sectionApprovedDesc": "Research that has passed review and is ready for publication",
       "emptySection": "No items in this section",
       "noResearcher": "No researcher specified",
+      "bulk": {
+        "regionLabel": "Phê duyệt nhiều mục",
+        "selectAll": "Chọn tất cả",
+        "selectAllLimited": "Chọn tất cả (tối đa {max} mục)",
+        "selectedCount": "Đã chọn {count} mục",
+        "limitNote": "Mỗi lần chỉ chọn tối đa {max} mục",
+        "approveSelected": "Phê duyệt các mục đã chọn",
+        "confirmText": "Phê duyệt {count} công trình nghiên cứu? Mỗi người gửi sẽ được thông báo qua email và trong hệ thống (chưa xuất bản, cần bấm xuất bản từng mục sau).",
+        "confirmYes": "Xác nhận phê duyệt {count} mục",
+        "cancel": "Hủy",
+        "processing": "Đang phê duyệt…",
+        "checkboxLabel": "Chọn công trình {title}",
+        "resultFailedTitle": "Các mục chưa được phê duyệt",
+        "reasonNotPending": "Trạng thái đã thay đổi (không còn ở mục chờ kiểm tra)",
+        "reasonNotFound": "Không tìm thấy mục này",
+        "reasonFailed": "Phê duyệt không thành công, hãy thử lại",
+        "reasonTimeBudget": "Chưa thực hiện (mất quá nhiều thời gian), hãy chọn lại và bấm lần nữa",
+        "failedGeneric": "Phê duyệt không thành công, vui lòng thử lại"
+      },
       "detail": {
         "pageTitle": "Review Research",
         "backLink": "Back to research approvals"
@@ -1690,7 +1709,17 @@
       "scanOverrideUnavailable": "Chức năng này hiện không khả dụng (chưa cấu hình quyền phía máy chủ).",
       "scanOverrideFailed": "Xuất bản bằng xác nhận thủ công không thành công, vui lòng thử lại.",
       "scanOverrideSuccess": "Đã xuất bản (quản trị viên tự xác nhận và đã ghi vào audit log).",
-      "scanOverrideNotFound": "Không tìm thấy công trình nghiên cứu này."
+      "scanOverrideNotFound": "Không tìm thấy công trình nghiên cứu này.",
+      "approvalItemNotFound": "Không tìm thấy công trình nghiên cứu này.",
+      "statusChangedMeanwhile": "Trạng thái của mục này đã thay đổi. Vui lòng tải lại trang.",
+      "approvePublishNotReviewable": "Mục này không ở trạng thái có thể phê duyệt nên không dùng được nút Phê duyệt và xuất bản.",
+      "approvePublishScanNotReady": "Tệp chưa qua kiểm tra bảo mật nên không thể phê duyệt và xuất bản cùng lúc (hãy phê duyệt trước, rồi xuất bản khi kết quả kiểm tra đạt).",
+      "approvePublishSuccess": "Đã phê duyệt và xuất bản.",
+      "approvePublishPartial": "Đã phê duyệt, nhưng xuất bản không thành công. Mục vẫn ở trạng thái \"Đã phê duyệt\" — vui lòng bấm Xuất bản lại.",
+      "bulkApproveEmpty": "Vui lòng chọn các mục cần phê duyệt.",
+      "bulkApproveTooMany": "Mỗi lần chỉ phê duyệt tối đa {max} mục.",
+      "bulkApproveInvalid": "Lựa chọn không hợp lệ. Vui lòng tải lại trang và thử lại.",
+      "bulkApproveSummary": "Đã phê duyệt {approved}/{total} mục."
     },
     "settings": {
       "siteNameRequired": "Please enter the organization name.",

@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import {
   Archive,
+  CheckCheck,
   CheckCircle2,
   Globe,
   Loader2,
@@ -12,6 +13,7 @@ import {
 import { idleActionResult } from "@/lib/actions/types";
 import {
   approveAction,
+  approveAndPublishAction,
   archiveAction,
   publishAction,
   rejectAction,
@@ -23,10 +25,16 @@ import type { DocumentStatus } from "@/types/research";
 export default function ApprovalActions({
   researchId,
   status,
+  canApproveAndPublish,
   scanOverride,
 }: {
   researchId: string;
   status: DocumentStatus;
+  /**
+   * ผลตัดสินจากฝั่งเซิร์ฟเวอร์ว่าโชว์ปุ่ม "อนุมัติและเผยแพร่" หรือไม่ (ไฟล์สแกนผ่านแล้ว) —
+   * server action ตัดสินซ้ำอีกครั้งเสมอ
+   */
+  canApproveAndPublish: boolean;
   /**
    * ผลตัดสินจากฝั่งเซิร์ฟเวอร์ว่าจะโชว์ "เผยแพร่โดยยืนยันเอง" หรือไม่ (admin ขึ้นไป)
    * - available: โชว์ปุ่มได้
@@ -40,6 +48,8 @@ export default function ApprovalActions({
     approveAction,
     idleActionResult
   );
+  const [approvePublishState, approvePublishFormAction, approvePublishPending] =
+    useActionState(approveAndPublishAction, idleActionResult);
   const [publishState, publishFormAction, publishPending] = useActionState(
     publishAction,
     idleActionResult
@@ -57,6 +67,15 @@ export default function ApprovalActions({
     idleActionResult
   );
 
+  const actionStates = [
+    approvePublishState,
+    approveState,
+    publishState,
+    archiveState,
+    rejectState,
+    revisionState,
+  ];
+
   const [rejectNote, setRejectNote] = useState("");
   const [revisionNote, setRevisionNote] = useState("");
   const [showRejectForm, setShowRejectForm] = useState(false);
@@ -70,7 +89,7 @@ export default function ApprovalActions({
     <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-surface p-5">
       <h2 className="text-sm font-semibold text-gray-900">การดำเนินการ</h2>
 
-      {[approveState, publishState, archiveState, rejectState, revisionState].map(
+      {actionStates.map(
         (state, i) =>
           state.status === "error" && (
             <p key={i} className="text-xs text-red-600">
@@ -78,7 +97,7 @@ export default function ApprovalActions({
             </p>
           )
       )}
-      {[approveState, publishState, archiveState, rejectState, revisionState].map(
+      {actionStates.map(
         (state, i) =>
           state.status === "success" && (
             <p key={i} className="text-xs text-green-600">
@@ -87,12 +106,39 @@ export default function ApprovalActions({
           )
       )}
 
+      {canReview && canApproveAndPublish && (
+        <form action={approvePublishFormAction}>
+          <input type="hidden" name="researchId" value={researchId} />
+          <button
+            type="submit"
+            disabled={approvePublishPending || approvePending}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {approvePublishPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCheck className="h-4 w-4" />
+            )}
+            อนุมัติและเผยแพร่
+          </button>
+          <p className="mt-1.5 text-xs text-gray-500">
+            อนุมัติแล้วเผยแพร่ทันที ผู้ส่งจะได้รับอีเมลฉบับเดียว
+          </p>
+        </form>
+      )}
+      {canReview && !canApproveAndPublish && (
+        <p className="text-xs text-gray-500">
+          ยังไม่มีปุ่ม &quot;อนุมัติและเผยแพร่&quot; เพราะไฟล์ยังไม่ผ่านการตรวจสอบความปลอดภัย
+          อนุมัติก่อนได้ แล้วเผยแพร่เมื่อผลตรวจผ่าน
+        </p>
+      )}
+
       {canReview && (
         <form action={approveFormAction}>
           <input type="hidden" name="researchId" value={researchId} />
           <button
             type="submit"
-            disabled={approvePending}
+            disabled={approvePending || approvePublishPending}
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {approvePending ? (
