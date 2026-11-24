@@ -39,6 +39,10 @@ test.describe("public homepage cache invalidation — categories", () => {
   test("a newly created category appears on the homepage within seconds, and disappears within seconds after deletion — well inside the 60s revalidation policy", async ({
     page,
   }) => {
+    // งบเวลารอภายในเทสต์ (toPass 20 วินาที × 2 ช่วง + เปิดหน้าแต่ละครั้ง 3-5 วินาทีบนเครื่อง
+    // ที่ช้า) เกิน timeout เริ่มต้น 30 วินาที จึงล้มเป็นครั้งคราวทั้งที่แคชทำงานถูกต้อง
+    test.setTimeout(90_000);
+
     const unique = Date.now().toString(36);
     const nameTh = `ทดสอบแคช-${unique}`;
     const nameEn = `cache-test-${unique}`;
