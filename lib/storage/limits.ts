@@ -1,7 +1,8 @@
 /**
- * ข้อจำกัดชนิดและขนาดไฟล์ — ชนิดไฟล์ที่รองรับต้องตรงกับ allowed_mime_types
+ * ข้อจำกัดชนิดและขนาดไฟล์ — ชนิดไฟล์ที่รองรับต้องเป็นส่วนหนึ่งของ allowed_mime_types
  * ของแต่ละ bucket ใน supabase/migrations/20260801100100_storage_buckets.sql
- * เสมอ (คงที่ ไม่ได้ปรับผ่าน System Settings)
+ * (แอปเข้มกว่า bucket ได้ แต่ห้ามอนุญาตเกินที่ bucket รับ — เช่น ภาพปกไม่รับ SVG และ
+ * เอกสารประกอบไม่รับ Word แล้ว แม้ bucket ยังรับอยู่) คงที่ ไม่ได้ปรับผ่าน System Settings
  *
  * ส่วนขนาดไฟล์สูงสุดเป็นค่าเริ่มต้น/fallback เท่านั้น — ค่าจริงที่ใช้แสดงผลต้อง
  * ดึงจาก `settings.maxPdfSizeMb`/`maxCoverSizeMb`/`maxAttachmentSizeMb`
@@ -20,23 +21,15 @@ export const PDF_ALLOWED_TYPES = ["application/pdf"];
 export const PDF_ALLOWED_EXTENSIONS = [".pdf"];
 
 export const DEFAULT_COVER_MAX_SIZE_MB = 5;
-export const COVER_ALLOWED_TYPES = [
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "image/svg+xml",
-];
-export const COVER_ALLOWED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp", ".svg"];
+// ไม่รับ SVG: ฝัง <script> ได้ และภาพปกแสดงสาธารณะ (โลโก้/ไอคอนเว็บไซต์ยังรับ SVG ผ่าน
+// SITE_ASSET_* ด้านล่าง ซึ่งอัปโหลดได้เฉพาะ Super Admin)
+export const COVER_ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+export const COVER_ALLOWED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
 
 export const DEFAULT_ATTACHMENT_MAX_SIZE_MB = 20;
-export const ATTACHMENT_ALLOWED_TYPES = [
-  "application/pdf",
-  "image/png",
-  "image/jpeg",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
-export const ATTACHMENT_ALLOWED_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx"];
+// ไม่รับ Word (.doc/.docx): ฝังมาโคร/วัตถุได้ และตรวจชนิดจาก magic-byte ได้ไม่รัดกุม
+export const ATTACHMENT_ALLOWED_TYPES = ["application/pdf", "image/png", "image/jpeg"];
+export const ATTACHMENT_ALLOWED_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg"];
 
 export const DEFAULT_AVATAR_MAX_SIZE_MB = 5;
 export const AVATAR_ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
@@ -63,8 +56,6 @@ const MIME_TO_EXTENSIONS: Record<string, string[]> = {
   "image/svg+xml": [".svg"],
   "image/x-icon": [".ico"],
   "image/vnd.microsoft.icon": [".ico"],
-  "application/msword": [".doc"],
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
 };
 
 function getExtension(filename: string): string {

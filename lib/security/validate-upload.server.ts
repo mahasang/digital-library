@@ -8,6 +8,11 @@ import {
   type ScanStatus,
 } from "@/lib/security/malware-scanner.server";
 import {
+  UNSCANNED_ACCEPT_REASON,
+  decideSyncScanHandling,
+} from "@/lib/security/scan-decision";
+import type { UnscannedUpload } from "@/lib/security/unscanned-upload-audit.server";
+import {
   PDF_ALLOWED_TYPES,
   COVER_ALLOWED_TYPES,
   ATTACHMENT_ALLOWED_TYPES,
@@ -53,10 +58,16 @@ interface ValidateFileTarget {
 }
 
 type ValidateFileResult =
-  | { ok: true; scan: FileScanRecord }
+  | {
+      ok: true;
+      scan: FileScanRecord;
+      /** true = ยังไม่ได้ตั้งค่าระบบสแกนเลย จึงผ่านเฉพาะการตรวจเนื้อไฟล์ (ต้องบันทึก audit log) */
+      unscanned?: boolean;
+    }
   | { ok: false; reason: string; logReason: string };
 
 async function validateAndScanFile({
+  field,
   bucket,
   path,
   allowedTypes,
@@ -118,8 +129,9 @@ async function validateAndScanFile({
 
   const filename = path.split("/").pop() ?? path;
   const scanOutcome = await scanFileForMalware(buffer, filename);
+  const handling = decideSyncScanHandling(scanOutcome, isMalwareScanRequired());
 
-  if (scanOutcome.status === "infected") {
+  if (handling === "reject_infected") {
     return {
       ok: false,
       reason: "ระบบตรวจพบความเสี่ยงด้านความปลอดภัยในไฟล์ที่อัปโหลด ไม่สามารถบันทึกได้",
@@ -127,11 +139,29 @@ async function validateAndScanFile({
     };
   }
 
-  if (scanOutcome.status === "error" && isMalwareScanRequired()) {
+  if (handling === "reject_unavailable") {
     return {
       ok: false,
       reason: "ระบบตรวจสอบไฟล์ขัดข้องชั่วคราว กรุณาลองใหม่อีกครั้งในภายหลัง หรือติดต่อผู้ดูแลระบบ",
       logReason: `scanner unavailable/error (${scanOutcome.provider}): ${scanOutcome.reason ?? ""}`,
+    };
+  }
+
+  if (handling === "accept_unscanned") {
+    // ยังไม่ได้ตั้งค่าระบบสแกนเลย (ไม่ใช่ระบบสแกนขัดข้อง) — รับเฉพาะไฟล์ที่ผ่านการตรวจ
+    // เนื้อไฟล์/ชนิดไฟล์ข้างบนแล้ว และให้ผู้เรียกบันทึก audit log (logUnscannedUploads)
+    console.warn(
+      `validateAndScanFile: ยังไม่ได้ตั้งค่า malware scanner — รับไฟล์ ${field} (${bucket}/${path}) โดยผ่านเฉพาะการตรวจเนื้อไฟล์/ชนิดไฟล์`
+    );
+    return {
+      ok: true,
+      unscanned: true,
+      scan: {
+        scanStatus: "skipped",
+        scanProvider: scanOutcome.provider,
+        scanReason: UNSCANNED_ACCEPT_REASON,
+        scannedAt: new Date().toISOString(),
+      },
     };
   }
 
@@ -168,7 +198,12 @@ export interface SubmissionFileScans {
 }
 
 export type ValidateSubmissionFilesResult =
-  | { ok: true; scans: SubmissionFileScans }
+  | {
+      ok: true;
+      scans: SubmissionFileScans;
+      /** ไฟล์ที่รับโดยยังไม่ได้สแกน — ผู้เรียกต้องส่งให้ logUnscannedUploads() บันทึก audit log */
+      unscanned: UnscannedUpload[];
+    }
   | { ok: false; message: string; logReason: string; field: SubmissionField };
 
 /**
@@ -211,6 +246,7 @@ export async function validateSubmissionFiles(
   }
 
   const scans: SubmissionFileScans = {};
+  const unscanned: UnscannedUpload[] = [];
 
   for (const target of targets) {
     const result = await validateAndScanFile(target);
@@ -219,7 +255,10 @@ export async function validateSubmissionFiles(
       return { ok: false, message: result.reason, logReason: result.logReason, field: target.field };
     }
     scans[target.field] = result.scan;
+    if (result.unscanned) {
+      unscanned.push({ field: target.field, bucket: target.bucket, path: target.path });
+    }
   }
 
-  return { ok: true, scans };
+  return { ok: true, scans, unscanned };
 }

@@ -827,7 +827,7 @@ export default function SubmitResearchForm({
             noFileSelectedLabel={t("noFileSelected")}
             chooseFileLabel={t("chooseFile")}
             inputRef={coverInputRef}
-            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+            accept="image/png,image/jpeg,image/webp"
             onChange={(file) => handleFileChange(file, "cover")}
             error={fileErrors.cover || fieldErrors.coverPath?.[0]}
           />
@@ -840,7 +840,7 @@ export default function SubmitResearchForm({
             noFileSelectedLabel={t("noFileSelected")}
             chooseFileLabel={t("chooseFile")}
             inputRef={attachmentInputRef}
-            accept=".pdf,.doc,.docx,image/png,image/jpeg"
+            accept=".pdf,image/png,image/jpeg"
             onChange={(file) => handleFileChange(file, "attachment")}
             error={fileErrors.attachment || fieldErrors.attachmentPath?.[0]}
           />

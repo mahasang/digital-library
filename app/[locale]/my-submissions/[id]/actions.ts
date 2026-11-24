@@ -9,6 +9,7 @@ import { createSubmissionSchema } from "@/lib/validation/submission";
 import { replaceResearchRelations } from "@/lib/data/submission-write.server";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import { validateSubmissionFiles } from "@/lib/security/validate-upload.server";
+import { logUnscannedUploads } from "@/lib/security/unscanned-upload-audit.server";
 import { enqueueReplacementFileProcessingJobs } from "@/lib/jobs/enqueue-research-jobs.server";
 import { detectDuplicatesForResearchItem } from "@/lib/data/duplicate-research.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -124,6 +125,7 @@ export async function updateSubmissionAction(
       fieldErrors: { [SUBMISSION_FIELD_TO_SCHEMA_KEY[fileCheck.field]]: [fileCheck.message] },
     };
   }
+  await logUnscannedUploads(supabase, user.id, fileCheck.unscanned, researchId);
   const pdfScan = fileCheck.scans.pdf;
 
   const intent = formData.get("intent") === "pending_review" ? "pending_review" : "draft";

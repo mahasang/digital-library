@@ -17,6 +17,7 @@ import { replaceResearchRelations } from "@/lib/data/submission-write.server";
 import { logAudit } from "@/lib/data/audit.server";
 import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { validateSubmissionFiles } from "@/lib/security/validate-upload.server";
+import { logUnscannedUploads } from "@/lib/security/unscanned-upload-audit.server";
 import { enqueueReplacementFileProcessingJobs } from "@/lib/jobs/enqueue-research-jobs.server";
 import { replaceEntityJob } from "@/lib/jobs/queue.server";
 import { checkOcrEligibility } from "@/lib/ocr/ocr-limits.server";
@@ -149,6 +150,7 @@ export async function adminUpdateResearchAction(
       fieldErrors: { [SUBMISSION_FIELD_TO_SCHEMA_KEY[fileCheck.field]]: [fileCheck.message] },
     };
   }
+  await logUnscannedUploads(supabase, user.id, fileCheck.unscanned, researchId);
   const pdfScan = fileCheck.scans.pdf;
 
   const intentRaw = String(formData.get("intent") || existing.status);

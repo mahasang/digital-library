@@ -17,6 +17,7 @@ import {
 } from "@/lib/data/submission-write.server";
 import { toSafeErrorMessage } from "@/lib/errors/safe-message.server";
 import { validateSubmissionFiles } from "@/lib/security/validate-upload.server";
+import { logUnscannedUploads } from "@/lib/security/unscanned-upload-audit.server";
 import { enqueueInitialFileProcessingJobs } from "@/lib/jobs/enqueue-research-jobs.server";
 import { detectDuplicatesForResearchItem } from "@/lib/data/duplicate-research.server";
 import { logAudit } from "@/lib/data/audit.server";
@@ -142,6 +143,7 @@ export async function submitResearchAction(
       fieldErrors: { [SUBMISSION_FIELD_TO_SCHEMA_KEY[fileCheck.field]]: [fileCheck.message] },
     };
   }
+  await logUnscannedUploads(supabase, user.id, fileCheck.unscanned);
   // pdf เป็นฟิลด์บังคับและเป็นการอัปโหลดใหม่เสมอตอนส่งงานวิจัยครั้งแรก (ไม่มี
   // แถวเดิมให้เทียบ) จึงมีผลสแกนเสมอเมื่อ fileCheck.ok เป็น true
   const pdfScan = fileCheck.scans.pdf!;

@@ -19,6 +19,7 @@ import {
 import { logAudit } from "@/lib/data/audit.server";
 import { toSafeErrorMessage, toSafeErrorMessageLocalized } from "@/lib/errors/safe-message.server";
 import { validateSubmissionFiles } from "@/lib/security/validate-upload.server";
+import { logUnscannedUploads } from "@/lib/security/unscanned-upload-audit.server";
 import { enqueueInitialFileProcessingJobs } from "@/lib/jobs/enqueue-research-jobs.server";
 import { detectDuplicatesForResearchItem } from "@/lib/data/duplicate-research.server";
 import type { ActionResult } from "@/lib/actions/types";
@@ -116,6 +117,7 @@ export async function adminCreateResearchAction(
       fieldErrors: { [SUBMISSION_FIELD_TO_SCHEMA_KEY[fileCheck.field]]: [fileCheck.message] },
     };
   }
+  await logUnscannedUploads(supabase, user.id, fileCheck.unscanned);
   const pdfScan = fileCheck.scans.pdf!;
 
   const intentRaw = String(formData.get("intent") || "draft");
